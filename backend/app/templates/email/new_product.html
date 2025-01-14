@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Nový produkt v oblíbené kategorii{% endblock %}
+
+{% block content %}
+<h2>Nový produkt v oblíbené kategorii</h2>
+
+<p>Dobrý den,</p>
+
+<p>v kategorii, kterou sledujete, se objevil nový produkt:</p>
+
+<div style="margin: 20px 0; padding: 20px; background-color: #f8f9fa; border-radius: 5px;">
+    <h3>{{ product_title }}</h3>
+    <p>{{ product_description }}</p>
+    <p><strong>Cena:</strong> {{ product_price }}</p>
+</div>
+
+<p>Pro zobrazení detailů produktu klikněte na tlačítko níže:</p>
+
+<p style="text-align: center;">
+    <a href="{{ product_url }}" class="button">Zobrazit produkt</a>
+</p>
+
+<p>
+    <small>
+        Toto upozornění jste obdrželi, protože máte aktivované upozornění na nové produkty v této kategorii.
+        Nastavení upozornění můžete změnit ve svém profilu.
+    </small>
+</p>
+{% endblock %} 

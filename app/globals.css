@@ -1,0 +1,31 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-rgb: 255, 255, 255;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-rgb));
+}
+
+@layer utilities {
+  .bg-gradient-primary {
+    @apply bg-gradient-to-r from-purple-600 to-pink-500;
+  }
+  
+  .text-gradient-primary {
+    @apply bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text text-transparent;
+  }
+  
+  .hover-gradient-primary {
+    @apply hover:bg-gradient-to-r hover:from-purple-700 hover:to-pink-600;
+  }
+  
+  .border-gradient-primary {
+    @apply border-purple-200 hover:border-purple-300;
+  }
+} 

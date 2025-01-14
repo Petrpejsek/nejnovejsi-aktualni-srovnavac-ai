@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Změna ceny produktu{% endblock %}
+
+{% block content %}
+<h2>Změna ceny produktu</h2>
+
+<p>Dobrý den,</p>
+
+<p>zaznamenali jsme změnu ceny u produktu, který sledujete:</p>
+
+<div style="margin: 20px 0; padding: 20px; background-color: #f8f9fa; border-radius: 5px;">
+    <h3>{{ product_title }}</h3>
+    <p>
+        <strong>Původní cena:</strong> <span style="text-decoration: line-through;">{{ old_price }}</span><br>
+        <strong>Nová cena:</strong> <span style="color: {% if new_price < old_price %}green{% else %}red{% endif %};">{{ new_price }}</span>
+    </p>
+</div>
+
+<p>
+    {% if new_price < old_price %}
+    Cena produktu se snížila o {{ (old_price - new_price)|abs }} Kč!
+    {% else %}
+    Cena produktu se zvýšila o {{ (new_price - old_price)|abs }} Kč.
+    {% endif %}
+</p>
+
+<p>Pro zobrazení detailů produktu klikněte na tlačítko níže:</p>
+
+<p style="text-align: center;">
+    <a href="{{ product_url }}" class="button">Zobrazit produkt</a>
+</p>
+
+<p>
+    <small>
+        Toto upozornění jste obdrželi, protože máte aktivované cenové upozornění pro tento produkt.
+        Nastavení upozornění můžete změnit ve svém profilu.
+    </small>
+</p>
+{% endblock %} 

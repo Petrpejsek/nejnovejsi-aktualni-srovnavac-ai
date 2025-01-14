@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Vítejte v FindAI{% endblock %}
+
+{% block content %}
+<h2>Vítejte v FindAI!</h2>
+
+<p>Dobrý den {{ username }},</p>
+
+<p>děkujeme za registraci v naší službě FindAI. Jsme rádi, že jste se k nám připojili!</p>
+
+<div style="margin: 20px 0; padding: 20px; background-color: #f8f9fa; border-radius: 5px;">
+    <h3>Co můžete dělat dál?</h3>
+    <ul>
+        <li>Procházet a porovnávat produkty</li>
+        <li>Nastavit si upozornění na změny cen</li>
+        <li>Přidávat recenze a hodnocení</li>
+        <li>Personalizovat si doporučení</li>
+    </ul>
+</div>
+
+<p>Pro přihlášení do vašeho účtu klikněte na tlačítko níže:</p>
+
+<p style="text-align: center;">
+    <a href="{{ login_url }}" class="button">Přihlásit se</a>
+</p>
+
+<p>
+    <small>
+        Pokud jste si tento účet nevytvořili vy, prosím ignorujte tento e-mail.
+    </small>
+</p>
+{% endblock %} 

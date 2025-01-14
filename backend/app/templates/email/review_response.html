@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Nová odpověď na vaši recenzi{% endblock %}
+
+{% block content %}
+<h2>Nová odpověď na vaši recenzi</h2>
+
+<p>Dobrý den,</p>
+
+<p>někdo odpověděl na vaši recenzi produktu <strong>{{ product_title }}</strong>.</p>
+
+<div style="margin: 20px 0; padding: 20px; background-color: #f8f9fa; border-radius: 5px;">
+    <h3>Vaše recenze:</h3>
+    <p style="font-style: italic;">{{ review_text }}</p>
+    
+    <h3>Odpověď:</h3>
+    <p>{{ response_text }}</p>
+</div>
+
+<p>Pro zobrazení celé diskuze klikněte na tlačítko níže:</p>
+
+<p style="text-align: center;">
+    <a href="{{ product_url }}" class="button">Zobrazit diskuzi</a>
+</p>
+
+<p>
+    <small>
+        Toto upozornění jste obdrželi, protože máte aktivované upozornění na odpovědi na vaše recenze.
+        Nastavení upozornění můžete změnit ve svém profilu.
+    </small>
+</p>
+{% endblock %} 
