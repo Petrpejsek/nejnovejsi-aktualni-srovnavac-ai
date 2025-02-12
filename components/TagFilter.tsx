@@ -1,21 +1,6 @@
 'use client'
 
-import React from 'react'
-
-const TAG_CATEGORIES = {
-  functionality: {
-    title: 'Funkcionalita',
-    tags: ['Chatbot', 'Text', 'Obrázky', 'Generování', 'Audio', 'Přepis', 'Kód', 'Programování']
-  },
-  rating: {
-    title: 'Hodnocení',
-    tags: ['Nejlépe hodnocené', 'Populární', 'Ověřené']
-  },
-  pricing: {
-    title: 'Cena',
-    tags: ['Zdarma', 'Free trial', 'Do 10$/měsíc', 'Do 30$/měsíc']
-  }
-}
+import React, { useState, useEffect } from 'react'
 
 interface TagFilterProps {
   selectedTags: Set<string>
@@ -23,6 +8,32 @@ interface TagFilterProps {
 }
 
 export default function TagFilter({ selectedTags, onTagsChange }: TagFilterProps) {
+  const [availableTags, setAvailableTags] = useState<string[]>([])
+
+  useEffect(() => {
+    const fetchTags = async () => {
+      try {
+        const response = await fetch('/api/products')
+        if (response.ok) {
+          const products = await response.json()
+          // Získáme všechny unikátní tagy ze všech produktů
+          const allTags = new Set<string>()
+          products.forEach((product: any) => {
+            const tags = typeof product.tags === 'string' ? JSON.parse(product.tags) : product.tags
+            if (Array.isArray(tags)) {
+              tags.forEach(tag => allTags.add(tag))
+            }
+          })
+          setAvailableTags(Array.from(allTags))
+        }
+      } catch (error) {
+        console.error('Chyba při načítání tagů:', error)
+      }
+    }
+
+    fetchTags()
+  }, [])
+
   const toggleTag = (tag: string) => {
     const newTags = new Set(selectedTags)
     if (newTags.has(tag)) {
@@ -49,27 +60,7 @@ export default function TagFilter({ selectedTags, onTagsChange }: TagFilterProps
 
   return (
     <div className="flex flex-wrap gap-2">
-      {TAG_CATEGORIES.functionality.tags.map((tag) => (
-        <button
-          key={tag}
-          onClick={() => toggleTag(tag)}
-          className={buttonClass(tag)}
-        >
-          {tag}
-        </button>
-      ))}
-      
-      {TAG_CATEGORIES.rating.tags.map((tag) => (
-        <button
-          key={tag}
-          onClick={() => toggleTag(tag)}
-          className={buttonClass(tag)}
-        >
-          {tag}
-        </button>
-      ))}
-      
-      {TAG_CATEGORIES.pricing.tags.map((tag) => (
+      {availableTags.map((tag) => (
         <button
           key={tag}
           onClick={() => toggleTag(tag)}

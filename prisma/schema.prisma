@@ -1,0 +1,30 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Product {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  price       Float
+  category    String?
+  imageUrl    String?
+  tags        String?  // Uloženo jako JSON string
+  advantages  String?  // Uloženo jako JSON string
+  disadvantages String? // Uloženo jako JSON string
+  reviews     String?  // Uloženo jako JSON string
+  detailInfo  String?  // Detailní popis
+  pricingInfo String?  // Cenové podmínky jako JSON string
+  videoUrls   String?  // Seznam URL videí jako JSON string
+  externalUrl String?  // Externí odkaz na produkt
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+} 

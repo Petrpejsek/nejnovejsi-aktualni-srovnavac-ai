@@ -1,108 +1,96 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import ProductCard from './ProductCard'
 import CompareBar from './CompareBar'
 import { useCompareStore } from '../store/compareStore'
 
-const ALL_PRODUCTS = [
-  {
-    id: '1',
-    title: 'ChatGPT',
-    description: 'Pokročilý konverzační AI model od OpenAI, který zvládá přirozenou komunikaci, psaní textů a pomoc s kódem.',
-    imageUrl: 'https://placehold.co/800x450/f3f4f6/94a3b8?text=ChatGPT',
-    externalUrl: 'https://chat.openai.com',
-    rating: 4.9,
-    price: 'Od $20/měsíc',
-    tags: ['chatbot', 'text', 'kód']
-  },
-  {
-    id: '2',
-    title: 'DALL-E',
-    description: 'AI systém pro generování obrázků z textového popisu. Vytváří unikátní a kreativní vizuály podle vašich představ.',
-    imageUrl: 'https://placehold.co/800x450/f3f4f6/94a3b8?text=DALL-E',
-    externalUrl: 'https://labs.openai.com',
-    rating: 4.7,
-    price: 'Od $15/měsíc',
-    tags: ['obrázky', 'umění']
-  },
-  {
-    id: '3',
-    title: 'Midjourney',
-    description: 'Nástroj pro tvorbu uměleckých vizuálů pomocí AI. Vyniká v tvorbě detailních a esteticky působivých obrazů.',
-    imageUrl: 'https://placehold.co/800x450/f3f4f6/94a3b8?text=Midjourney',
-    externalUrl: 'https://www.midjourney.com',
-    rating: 4.8,
-    price: 'Od $25/měsíc',
-    tags: ['obrázky', 'umění']
-  },
-  {
-    id: '4',
-    title: 'Claude',
-    description: 'Pokročilý AI asistent od Anthropic, který vyniká v analýze a zpracování dlouhých textů.',
-    imageUrl: 'https://placehold.co/800x450/f3f4f6/94a3b8?text=Claude',
-    externalUrl: 'https://claude.ai',
-    rating: 4.6,
-    price: 'Od $30/měsíc',
-    tags: ['chatbot', 'text', 'analýza']
-  },
-  {
-    id: '5',
-    title: 'Stable Diffusion',
-    description: 'Open-source nástroj pro generování obrázků s možností vlastního trénování a úprav.',
-    imageUrl: 'https://placehold.co/800x450/f3f4f6/94a3b8?text=Stable+Diffusion',
-    externalUrl: 'https://stability.ai',
-    rating: 4.5,
-    price: 'Od $0/měsíc',
-    tags: ['obrázky', 'umění', 'open-source']
-  },
-  {
-    id: '6',
-    title: 'Copilot',
-    description: 'AI asistent pro programování od GitHubu, který pomáhá s psaním kódu a dokumentace.',
-    imageUrl: 'https://placehold.co/800x450/f3f4f6/94a3b8?text=Copilot',
-    externalUrl: 'https://github.com/features/copilot',
-    rating: 4.8,
-    price: 'Od $10/měsíc',
-    tags: ['kód', 'programování']
-  },
-  {
-    id: '7',
-    title: 'Whisper',
-    description: 'Systém pro přepis řeči na text od OpenAI s podporou mnoha jazyků.',
-    imageUrl: 'https://placehold.co/800x450/f3f4f6/94a3b8?text=Whisper',
-    externalUrl: 'https://openai.com/research/whisper',
-    rating: 4.7,
-    price: 'Od $12/měsíc',
-    tags: ['audio', 'text', 'přepis']
-  },
-  {
-    id: '8',
-    title: 'Jasper',
-    description: 'AI nástroj pro tvorbu marketingového obsahu a copywritingu.',
-    imageUrl: 'https://placehold.co/800x450/f3f4f6/94a3b8?text=Jasper',
-    externalUrl: 'https://www.jasper.ai',
-    rating: 4.6,
-    price: 'Od $40/měsíc',
-    tags: ['text', 'marketing', 'copywriting']
+interface Product {
+  id: string
+  name: string
+  description: string
+  price: number
+  category: string
+  imageUrl?: string
+  tags?: string[]
+  advantages?: string[]
+  disadvantages?: string[]
+  reviews?: Array<{
+    author: string
+    rating: number
+    text: string
+  }>
+  detailInfo?: string
+  pricingInfo?: {
+    basic?: string
+    pro?: string
+    enterprise?: string
   }
-]
+  externalUrl?: string
+}
 
-export default function ProductGrid() {
+interface ProductGridProps {
+  selectedTags: Set<string>
+  showCompare?: boolean
+}
+
+export default function ProductGrid({ selectedTags, showCompare = false }: ProductGridProps) {
+  const [products, setProducts] = useState<Product[]>([])
   const [visibleCount, setVisibleCount] = useState(6)
   const [isCompactView, setIsCompactView] = useState(false)
+  const [loading, setLoading] = useState(true)
   const { selectedProducts, addProduct, removeProduct, clearProducts } = useCompareStore()
 
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch('/api/products')
+        if (response.ok) {
+          const data = await response.json()
+          const processedData = data.map((product: any) => ({
+            ...product,
+            tags: typeof product.tags === 'string' ? JSON.parse(product.tags) : product.tags,
+            advantages: typeof product.advantages === 'string' ? JSON.parse(product.advantages) : product.advantages,
+            disadvantages: typeof product.disadvantages === 'string' ? JSON.parse(product.disadvantages) : product.disadvantages,
+            pricingInfo: typeof product.pricingInfo === 'string' ? JSON.parse(product.pricingInfo) : product.pricingInfo
+          }))
+          setProducts(processedData)
+        }
+      } catch (error) {
+        console.error('Chyba při načítání produktů:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchProducts()
+  }, [])
+
   const handleLoadMore = () => {
-    setVisibleCount(prev => Math.min(prev + 3, ALL_PRODUCTS.length))
+    setVisibleCount(prev => Math.min(prev + 3, products.length))
   }
 
   const handleCompare = () => {
     // Logika pro srovnání je nyní v CompareBar komponentě
   }
 
-  const visibleProducts = ALL_PRODUCTS.slice(0, visibleCount)
-  const hasMoreProducts = visibleCount < ALL_PRODUCTS.length
+  // Filtrování produktů podle vybraných tagů
+  const filteredProducts = products.filter(product => {
+    if (selectedTags.size === 0) return true
+    const productTags = product.tags || []
+    return Array.from(selectedTags).some(tag => productTags.includes(tag))
+  })
+
+  const visibleProducts = filteredProducts.slice(0, visibleCount)
+  const hasMoreProducts = visibleCount < filteredProducts.length
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-[200px]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-4 md:space-y-6 pb-20">
@@ -141,16 +129,21 @@ export default function ProductGrid() {
         {visibleProducts.map((product) => (
           <ProductCard
             key={product.id}
-            {...product}
-            isCompact={isCompactView}
-            isSelected={selectedProducts.some(p => p.id === product.id)}
-            onCompareToggle={() => {
+            id={product.id}
+            name={product.name}
+            description={product.description || ''}
+            price={product.price}
+            imageUrl={product.imageUrl}
+            tags={product.tags}
+            externalUrl={product.externalUrl}
+            isSelected={showCompare && selectedProducts.some(p => p.id === product.id)}
+            onCompareToggle={showCompare ? () => {
               if (selectedProducts.some(p => p.id === product.id)) {
                 removeProduct(product.id)
               } else {
                 addProduct(product)
               }
-            }}
+            } : undefined}
           />
         ))}
       </div>
@@ -166,11 +159,13 @@ export default function ProductGrid() {
         </div>
       )}
 
-      <CompareBar 
-        selectedCount={selectedProducts.length}
-        onCompare={handleCompare}
-        onClear={clearProducts}
-      />
+      {showCompare && selectedProducts.length > 0 && (
+        <CompareBar 
+          selectedCount={selectedProducts.length}
+          onCompare={handleCompare}
+          onClear={clearProducts}
+        />
+      )}
     </div>
   )
 } 
