@@ -4,16 +4,16 @@ import prisma from '@/lib/prisma'
 interface Product {
   id: string
   name: string
-  description: string
+  description: string | null
   price: number
-  category: string
-  imageUrl: string
-  tags: string
-  advantages: string
-  disadvantages: string
-  detailInfo: string
-  pricingInfo: string
-  videoUrls: string
+  category: string | null
+  imageUrl: string | null
+  tags: string | null
+  advantages: string | null
+  disadvantages: string | null
+  detailInfo: string | null
+  pricingInfo: string | null
+  videoUrls: string | null
   externalUrl: string | null
   createdAt: Date
   updatedAt: Date

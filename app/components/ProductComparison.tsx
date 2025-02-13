@@ -121,16 +121,16 @@ export default function ProductComparison({
   
   // Handlery pro výběr produktů
   const handleProduct1Change = (event: SelectChangeEvent<number>) => {
-    const value = event.target.value;
-    setSelectedProduct1Id(value);
+    const value = Number(event.target.value);
+    setSelectedProduct1Id(isNaN(value) ? '' : value);
     if (value === selectedProduct2Id) {
       setSelectedProduct2Id('');
     }
   };
   
   const handleProduct2Change = (event: SelectChangeEvent<number>) => {
-    const value = event.target.value;
-    setSelectedProduct2Id(value);
+    const value = Number(event.target.value);
+    setSelectedProduct2Id(isNaN(value) ? '' : value);
     if (value === selectedProduct1Id) {
       setSelectedProduct1Id('');
     }
