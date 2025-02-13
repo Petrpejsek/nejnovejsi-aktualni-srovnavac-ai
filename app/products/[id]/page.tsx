@@ -14,12 +14,12 @@ export async function generateMetadata({ params }: Props) {
   try {
     const product = await getProduct(parseInt(params.id));
     return {
-      title: `${product.name} | FindAI`,
+      title: `${product.name} | comparee.ai`,
       description: product.description,
     };
   } catch (error) {
     return {
-      title: 'Produkt nenalezen | FindAI',
+      title: 'Produkt nenalezen | comparee.ai',
       description: 'Požadovaný produkt nebyl nalezen.',
     };
   }

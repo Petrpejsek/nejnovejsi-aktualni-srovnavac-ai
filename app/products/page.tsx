@@ -4,7 +4,7 @@ import ProductList from '../components/ProductList';
 import { Typography, Container } from '@mui/material';
 
 export const metadata = {
-  title: 'AI Produkty | FindAI',
+  title: 'AI Produkty | comparee.ai',
   description: 'Prohlédněte si a porovnejte nejlepší AI nástroje na trhu.',
 };
 

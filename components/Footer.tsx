@@ -9,7 +9,7 @@ export default function Footer() {
         <div className="flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="flex items-center gap-4">
             <div className="text-sm text-gray-600">
-              © 2024 AI Srovnávač. Všechna práva vyhrazena.
+              © 2024 comparee.ai. Všechna práva vyhrazena.
             </div>
             <SocialIcons />
           </div>

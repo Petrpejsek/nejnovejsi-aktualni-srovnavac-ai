@@ -7,16 +7,14 @@ export default function TermsPage() {
             Podmínky použití
           </h1>
           
-          <div className="prose prose-purple max-w-none">
-            <p className="text-gray-600 mb-6">
-              Vítejte na AI Srovnávači. Používáním našich služeb souhlasíte s následujícími podmínkami použití. Prosíme, přečtěte si je pečlivě.
+          <div className="prose prose-lg max-w-none">
+            <p>
+              Vítejte na comparee.ai. Používáním našich služeb souhlasíte s následujícími podmínkami použití. Prosíme, přečtěte si je pečlivě.
             </p>
 
-            <h2 className="text-xl font-semibold text-gray-800 mt-8 mb-4">
-              1. Definice pojmů
-            </h2>
-            <p className="text-gray-600 mb-6">
-              "Služba" znamená webovou stránku AI Srovnávač a všechny její funkce. "Uživatel" je každá osoba, která přistupuje k našim službám.
+            <h2>1. Definice</h2>
+            <p>
+              "Služba" znamená webovou stránku comparee.ai a všechny její funkce. "Uživatel" je každá osoba, která přistupuje k našim službám.
             </p>
 
             <h2 className="text-xl font-semibold text-gray-800 mt-8 mb-4">
@@ -26,29 +24,27 @@ export default function TermsPage() {
               Službu můžete používat pouze v souladu s těmito podmínkami a platnými zákony. Zavazujete se nepoužívat službu k nelegálním nebo neoprávněným účelům.
             </p>
 
-            <h2 className="text-xl font-semibold text-gray-800 mt-8 mb-4">
-              3. Duševní vlastnictví
-            </h2>
-            <p className="text-gray-600 mb-6">
-              Veškerý obsah na této webové stránce, včetně textů, grafiky, log a softwaru je majetkem AI Srovnávače nebo jeho poskytovatelů obsahu a je chráněn autorskými právy.
+            <h2>4. Duševní vlastnictví</h2>
+            <p>
+              Veškerý obsah na této webové stránce, včetně textů, grafiky, log a softwaru je majetkem comparee.ai nebo jeho poskytovatelů obsahu a je chráněn autorskými právy.
             </p>
 
             <h2 className="text-xl font-semibold text-gray-800 mt-8 mb-4">
-              4. Omezení odpovědnosti
+              5. Omezení odpovědnosti
             </h2>
             <p className="text-gray-600 mb-6">
               Poskytujeme službu "tak jak je" bez jakýchkoliv záruk. Neneseme odpovědnost za přímé, nepřímé, náhodné nebo následné škody vyplývající z použití nebo nemožnosti použití našich služeb.
             </p>
 
             <h2 className="text-xl font-semibold text-gray-800 mt-8 mb-4">
-              5. Změny podmínek
+              6. Změny podmínek
             </h2>
             <p className="text-gray-600 mb-6">
               Vyhrazujeme si právo kdykoliv změnit tyto podmínky použití. O významných změnách vás budeme informovat prostřednictvím našich webových stránek.
             </p>
 
             <h2 className="text-xl font-semibold text-gray-800 mt-8 mb-4">
-              6. Kontakt
+              7. Kontakt
             </h2>
             <p className="text-gray-600 mb-6">
               Máte-li jakékoliv dotazy ohledně těchto podmínek použití, kontaktujte nás na info@example.com.

@@ -93,7 +93,7 @@ export default function ProductGrid({ selectedTags }: { selectedTags: Set<string
 
   return (
     <div className="space-y-4 md:space-y-6 pb-20">
-      <div className="flex items-center justify-end gap-2 md:hidden mb-4">
+      <div className="flex items-center justify-end gap-2 md:hidden mb-4 mt-8">
         <button
           onClick={() => setIsCompactView(false)}
           className={`p-2 text-sm rounded-lg transition-colors ${

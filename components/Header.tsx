@@ -36,7 +36,7 @@ export default function Header() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <Link href="/" className="text-xl font-semibold text-gradient-primary">
-              AI Srovnávač
+              comparee.ai
             </Link>
             
             <div className="flex items-center gap-4">

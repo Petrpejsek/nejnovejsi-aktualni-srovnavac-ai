@@ -1,4 +1,4 @@
-# AI Srovnávač
+# comparee.ai
 
 Webová aplikace pro srovnávání AI nástrojů a služeb.
 

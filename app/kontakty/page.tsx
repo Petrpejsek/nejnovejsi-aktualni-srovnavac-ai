@@ -38,7 +38,7 @@ export default function ContactPage() {
                   Sídlo společnosti
                 </h2>
                 <p className="text-gray-600">
-                  AI Srovnávač s.r.o.<br />
+                  comparee.ai s.r.o.<br />
                   Technologická 123<br />
                   160 00 Praha 6<br />
                   Česká republika

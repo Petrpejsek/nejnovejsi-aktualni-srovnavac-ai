@@ -9,7 +9,7 @@ import Footer from '../components/Footer'
 const inter = Inter({ subsets: ['latin', 'latin-ext'] })
 
 export const metadata: Metadata = {
-  title: 'FindAI - Srovnávač AI nástrojů',
+  title: 'comparee.ai - Srovnávač AI nástrojů',
   description: 'Najděte nejlepší AI nástroje pro vaše potřeby',
 }
 

@@ -29,17 +29,17 @@ export default function AiAdvisor() {
       <form onSubmit={handleSubmit} className="flex flex-col items-center px-4">
         <div className="flex w-full max-w-3xl gap-3 relative group">
           <div className="absolute -inset-1 bg-gradient-to-r from-purple-600/30 to-pink-500/30 rounded-[50px] blur-md opacity-75 group-hover:opacity-100 transition duration-300"></div>
-          <div className="relative flex w-full flex-col sm:flex-row gap-3 bg-white rounded-[46px] p-1.5 shadow-lg">
+          <div className="relative flex w-full flex-col sm:flex-row gap-3 bg-white rounded-[42px] p-1.5 shadow-lg">
             <input
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Popište, v čem podnikáte nebo jaký problém potřebujete vyřešit..."
-              className="flex-1 px-7 py-5 text-base rounded-[42px] border border-gray-200/80 focus:border-transparent focus:ring-2 focus:ring-purple-400/40 outline-none transition-all text-gray-600 placeholder:text-gray-400/90 font-light bg-white/90 backdrop-blur-sm hover:border-gray-300/80 shadow-sm"
+              className="flex-1 px-7 py-5 text-base rounded-[38px] border border-gray-200/80 focus:border-transparent focus:ring-2 focus:ring-purple-400/40 outline-none transition-all text-gray-600 placeholder:text-gray-400/90 font-light bg-white/90 backdrop-blur-sm hover:border-gray-300/80"
             />
             <button
               type="submit"
-              className="px-10 py-5 text-white rounded-[42px] transition-all font-medium bg-gradient-primary hover-gradient-primary shadow-md text-base w-full sm:w-auto"
+              className="px-10 py-5 text-white rounded-[38px] transition-all font-medium bg-gradient-primary hover-gradient-primary shadow-sm text-base w-full sm:w-auto"
             >
               Poradit
             </button>
