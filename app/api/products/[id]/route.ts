@@ -61,18 +61,19 @@ export async function PUT(
     const product = await prismaClient.product.update({
       where: { id: params.id },
       data: {
-        name: data.name || '',
-        description: data.description || '',
-        price: parseFloat(data.price?.toString() || "0"),
-        category: data.category || '',
-        imageUrl: data.imageUrl || '',
-        tags: typeof data.tags === 'string' ? data.tags : JSON.stringify(data.tags || []),
-        advantages: typeof data.advantages === 'string' ? data.advantages : JSON.stringify(data.advantages || []),
-        disadvantages: typeof data.disadvantages === 'string' ? data.disadvantages : JSON.stringify(data.disadvantages || []),
-        detailInfo: data.detailInfo || '',
-        pricingInfo: typeof data.pricingInfo === 'string' ? data.pricingInfo : JSON.stringify(data.pricingInfo || {}),
-        videoUrls: typeof data.videoUrls === 'string' ? data.videoUrls : JSON.stringify(data.videoUrls || []),
-        externalUrl: externalUrl
+        name: data.name,
+        description: data.description,
+        price: data.price !== undefined ? parseFloat(data.price?.toString() || "0") : undefined,
+        category: data.category,
+        imageUrl: data.imageUrl,
+        tags: data.tags !== undefined ? (typeof data.tags === 'string' ? data.tags : JSON.stringify(data.tags || [])) : undefined,
+        advantages: data.advantages !== undefined ? (typeof data.advantages === 'string' ? data.advantages : JSON.stringify(data.advantages || [])) : undefined,
+        disadvantages: data.disadvantages !== undefined ? (typeof data.disadvantages === 'string' ? data.disadvantages : JSON.stringify(data.disadvantages || [])) : undefined,
+        detailInfo: data.detailInfo,
+        pricingInfo: data.pricingInfo !== undefined ? (typeof data.pricingInfo === 'string' ? data.pricingInfo : JSON.stringify(data.pricingInfo || {})) : undefined,
+        videoUrls: data.videoUrls !== undefined ? (typeof data.videoUrls === 'string' ? data.videoUrls : JSON.stringify(data.videoUrls || [])) : undefined,
+        externalUrl: externalUrl,
+        hasTrial: data.hasTrial !== undefined ? Boolean(data.hasTrial) : undefined
       },
     })
 

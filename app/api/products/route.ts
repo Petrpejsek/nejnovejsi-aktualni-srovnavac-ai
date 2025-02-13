@@ -15,6 +15,7 @@ interface Product {
   pricingInfo: string | null
   videoUrls: string | null
   externalUrl: string | null
+  hasTrial: boolean
   createdAt: Date
   updatedAt: Date
 }
@@ -30,7 +31,7 @@ export async function GET() {
     })
 
     // Zpracování dat před odesláním
-    const processedProducts = products.map((product: Product) => ({
+    const processedProducts = products.map((product) => ({
       ...product,
       tags: typeof product.tags === 'string' ? JSON.parse(product.tags) : product.tags || [],
       advantages: typeof product.advantages === 'string' ? JSON.parse(product.advantages) : product.advantages || [],
@@ -40,7 +41,8 @@ export async function GET() {
       // Zajistíme, že externalUrl není JSON string
       externalUrl: product.externalUrl?.startsWith('"') && product.externalUrl?.endsWith('"') 
         ? JSON.parse(product.externalUrl) 
-        : product.externalUrl
+        : product.externalUrl,
+      hasTrial: product.hasTrial || false
     }))
 
     console.log('Zpracované produkty:', processedProducts)
@@ -62,7 +64,6 @@ export async function POST(request: Request) {
 
     // Kontrola povinných polí
     if (!data.name) {
-      console.error('Chybí název produktu')
       return NextResponse.json(
         { error: 'Název produktu je povinný' },
         { status: 400 }
@@ -76,13 +77,14 @@ export async function POST(request: Request) {
       price: parseFloat(data.price?.toString() || "0"),
       category: data.category || '',
       imageUrl: data.imageUrl || '',
-      tags: typeof data.tags === 'string' ? data.tags : JSON.stringify(data.tags || []),
-      advantages: typeof data.advantages === 'string' ? data.advantages : JSON.stringify(data.advantages || []),
-      disadvantages: typeof data.disadvantages === 'string' ? data.disadvantages : JSON.stringify(data.disadvantages || []),
+      tags: Array.isArray(data.tags) ? JSON.stringify(data.tags) : '[]',
+      advantages: Array.isArray(data.advantages) ? JSON.stringify(data.advantages) : '[]',
+      disadvantages: Array.isArray(data.disadvantages) ? JSON.stringify(data.disadvantages) : '[]',
       detailInfo: data.detailInfo || '',
-      pricingInfo: typeof data.pricingInfo === 'string' ? data.pricingInfo : JSON.stringify(data.pricingInfo || {}),
-      videoUrls: typeof data.videoUrls === 'string' ? data.videoUrls : JSON.stringify(data.videoUrls || []),
-      externalUrl: data.externalUrl || null
+      pricingInfo: typeof data.pricingInfo === 'object' ? JSON.stringify(data.pricingInfo) : '{}',
+      videoUrls: Array.isArray(data.videoUrls) ? JSON.stringify(data.videoUrls) : '[]',
+      externalUrl: data.externalUrl || null,
+      hasTrial: Boolean(data.hasTrial)
     }
 
     console.log('Zpracovaná data před uložením:', processedData)
@@ -92,10 +94,20 @@ export async function POST(request: Request) {
     })
 
     console.log('Vytvořený produkt:', product)
-    return NextResponse.json(product)
+    
+    // Zpracování dat pro odpověď
+    const responseProduct = {
+      ...product,
+      tags: JSON.parse(product.tags || '[]'),
+      advantages: JSON.parse(product.advantages || '[]'),
+      disadvantages: JSON.parse(product.disadvantages || '[]'),
+      pricingInfo: JSON.parse(product.pricingInfo || '{}'),
+      videoUrls: JSON.parse(product.videoUrls || '[]')
+    }
+
+    return NextResponse.json(responseProduct)
   } catch (error) {
     console.error('Chyba při vytváření produktu:', error)
-    // Detailnější chybová hláška pro debugování
     return NextResponse.json(
       { error: 'Chyba při vytváření produktu', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }

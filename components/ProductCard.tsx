@@ -9,9 +9,10 @@ interface ProductCardProps {
   imageUrl?: string
   tags?: string[]
   externalUrl?: string
+  hasTrial?: boolean
 }
 
-export default function ProductCard({ id, name, description, price, imageUrl, tags, externalUrl }: ProductCardProps) {
+export default function ProductCard({ id, name, description, price, imageUrl, tags, externalUrl, hasTrial }: ProductCardProps) {
   // Omezíme počet zobrazených tagů na 3
   const displayedTags = tags?.slice(0, 3) || []
   const hasMoreTags = tags && tags.length > 3
@@ -37,7 +38,7 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
       href={externalUrl}
       target="_blank"
       rel="noopener noreferrer"
-      className="block bg-white rounded-lg shadow-sm border border-gray-100 transition-transform hover:scale-[1.02] cursor-pointer"
+      className="block bg-white rounded-lg shadow-sm border border-gray-100 transition-transform hover:scale-[1.02] cursor-pointer h-full flex flex-col"
       onClick={handleVisit}
     >
       <div className="relative w-full aspect-video">
@@ -47,31 +48,42 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
           fill
           className="object-cover rounded-t-lg"
         />
-      </div>
-      <div className="p-4">
-        <h2 className="text-lg font-semibold text-gray-800 mb-2">{name}</h2>
-        <p className="text-gray-600 text-sm mb-4 line-clamp-2">{description}</p>
-        
-        {displayedTags.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-4">
-            {displayedTags.map((tag) => (
-              <span
-                key={tag}
-                className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-purple-50 text-purple-600"
-              >
-                {tag}
-              </span>
-            ))}
-            {hasMoreTags && (
-              <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-50 text-gray-600">
-                +{tags.length - 3} další
-              </span>
-            )}
+        {hasTrial && (
+          <div className="absolute top-2 right-2 bg-purple-100 text-purple-600 text-xs font-medium px-2 py-1 rounded-full">
+            Free Trial
           </div>
         )}
+      </div>
+      <div className="p-4 flex flex-col flex-grow">
+        <div className="flex-grow">
+          <h2 className="text-lg font-semibold text-gray-800 mb-2">{name}</h2>
+          <p className="text-gray-600 text-sm mb-4 line-clamp-2">{description}</p>
+          
+          {displayedTags.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-4">
+              {displayedTags.map((tag) => (
+                <span
+                  key={tag}
+                  className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-purple-50 text-purple-600"
+                >
+                  {tag}
+                </span>
+              ))}
+              {hasMoreTags && (
+                <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-50 text-gray-600">
+                  +{tags.length - 3} další
+                </span>
+              )}
+            </div>
+          )}
+        </div>
         
-        <div className="flex justify-between items-center">
-          <div className="text-lg font-bold text-purple-600">{price} Kč</div>
+        <div className="flex justify-between items-center mt-auto pt-4 border-t border-gray-100">
+          {hasTrial ? (
+            <div className="text-lg font-bold text-purple-600">Free Trial</div>
+          ) : (
+            <div className="text-lg font-bold text-purple-600">${price}</div>
+          )}
           <div className="px-2 py-1.5 bg-gradient-primary text-white text-sm font-medium rounded-[14px] hover:opacity-90 transition-opacity">
             Vyzkoušet
           </div>

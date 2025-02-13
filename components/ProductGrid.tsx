@@ -28,6 +28,7 @@ interface Product {
   }
   externalUrl?: string
   videoUrls?: string[]
+  hasTrial?: boolean
 }
 
 export default function ProductGrid({ selectedTags }: { selectedTags: Set<string> }) {
@@ -50,7 +51,8 @@ export default function ProductGrid({ selectedTags }: { selectedTags: Set<string
             advantages: typeof product.advantages === 'string' ? JSON.parse(product.advantages) : product.advantages || [],
             disadvantages: typeof product.disadvantages === 'string' ? JSON.parse(product.disadvantages) : product.disadvantages || [],
             pricingInfo: typeof product.pricingInfo === 'string' ? JSON.parse(product.pricingInfo) : product.pricingInfo || {},
-            videoUrls: typeof product.videoUrls === 'string' ? JSON.parse(product.videoUrls) : product.videoUrls || []
+            videoUrls: typeof product.videoUrls === 'string' ? JSON.parse(product.videoUrls) : product.videoUrls || [],
+            hasTrial: typeof product.hasTrial === 'boolean' ? product.hasTrial : false
           }))
           console.log('Zpracovaná data:', processedData)
           setProducts(processedData)
@@ -135,6 +137,7 @@ export default function ProductGrid({ selectedTags }: { selectedTags: Set<string
             imageUrl={product.imageUrl}
             tags={product.tags}
             externalUrl={product.externalUrl}
+            hasTrial={product.hasTrial}
           />
         ))}
       </div>

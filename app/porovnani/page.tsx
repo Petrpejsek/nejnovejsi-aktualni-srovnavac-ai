@@ -280,7 +280,7 @@ export default function ComparisonPage() {
                               <span className="text-sm text-gray-600 ml-1">{product.rating}</span>
                             </div>
                             <div className="flex items-center justify-between">
-                              <span className="text-lg font-medium text-purple-600">{product.price}</span>
+                              <span className="text-lg font-medium text-purple-600">${product.price}</span>
                               {Math.random() > 0.8 && (
                                 <span className="inline-flex items-center gap-1 px-2 py-1 text-[10px] font-medium bg-purple-50 text-purple-600 rounded-full">
                                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3 h-3">

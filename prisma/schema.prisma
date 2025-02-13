@@ -26,6 +26,7 @@ model Product {
   pricingInfo String?  // Cenové podmínky jako JSON string
   videoUrls   String?  // Seznam URL videí jako JSON string
   externalUrl String?  // Externí odkaz na produkt
+  hasTrial    Boolean  @default(false) // Indikuje, zda produkt má zkušební verzi
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 } 

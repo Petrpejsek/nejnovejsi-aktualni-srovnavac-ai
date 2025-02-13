@@ -45,6 +45,7 @@ interface AIProduct {
   cons: string[];
   affiliate_link?: string;
   review_count: number;
+  hasTrial?: boolean;
 }
 
 interface ProductDetailProps {
@@ -138,6 +139,13 @@ export default function ProductDetail({ productId }: ProductDetailProps) {
               <Box sx={{ mb: 2 }}>
                 <Chip label={product.category} color="primary" sx={{ mr: 1 }} />
                 <Chip label={product.provider} />
+                {product.hasTrial && (
+                  <Chip 
+                    label="Free Trial" 
+                    color="success" 
+                    sx={{ ml: 1 }}
+                  />
+                )}
               </Box>
               
               <Box sx={{ mb: 3 }}>
@@ -148,7 +156,7 @@ export default function ProductDetail({ productId }: ProductDetailProps) {
               </Box>
               
               <Typography variant="h5" color="primary" sx={{ mb: 3 }}>
-                {product.price} Kč/měsíc
+                ${product.price}/měsíc
               </Typography>
               
               <Typography variant="body1" paragraph>

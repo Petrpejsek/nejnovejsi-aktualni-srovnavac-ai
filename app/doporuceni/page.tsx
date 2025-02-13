@@ -30,6 +30,7 @@ interface Product {
   }
   videoUrls?: string[]
   externalUrl?: string
+  hasTrial?: boolean
 }
 
 export default function DoporuceniPage() {
@@ -55,7 +56,8 @@ export default function DoporuceniPage() {
             advantages: typeof product.advantages === 'string' ? JSON.parse(product.advantages) : product.advantages,
             disadvantages: typeof product.disadvantages === 'string' ? JSON.parse(product.disadvantages) : product.disadvantages,
             pricingInfo: typeof product.pricingInfo === 'string' ? JSON.parse(product.pricingInfo) : product.pricingInfo,
-            videoUrls: typeof product.videoUrls === 'string' ? JSON.parse(product.videoUrls) : product.videoUrls
+            videoUrls: typeof product.videoUrls === 'string' ? JSON.parse(product.videoUrls) : product.videoUrls,
+            hasTrial: typeof product.hasTrial === 'boolean' ? product.hasTrial : false
           }))
           setProducts(processedData)
         }
@@ -210,14 +212,16 @@ export default function DoporuceniPage() {
                     )}
                   </div>
                   <div className="text-right">
-                    <p className="text-gradient-primary font-medium">
-                      {product.price} Kč
-                    </p>
-                    {product.pricingInfo?.basic && (
-                      <span className="text-xs text-purple-600/90 bg-purple-50/80 px-2 py-1 rounded-full">
-                        Free trial
-                      </span>
-                    )}
+                    <div>
+                      <p className="text-gradient-primary font-medium">
+                        ${product.price}
+                      </p>
+                      {product.hasTrial && (
+                        <span className="text-xs text-purple-600/90 bg-purple-50/80 px-2 py-1 rounded-full">
+                          Free Trial
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
                 
@@ -317,19 +321,19 @@ export default function DoporuceniPage() {
                         {product.pricingInfo?.basic && (
                           <div className="bg-gray-50/80 p-4 rounded-[14px]">
                             <h5 className="font-medium text-gray-800 mb-2">Basic</h5>
-                            <p className="text-2xl font-bold text-gradient-primary">{product.pricingInfo.basic} Kč</p>
+                            <p className="text-2xl font-bold text-gradient-primary">${product.pricingInfo.basic}</p>
                           </div>
                         )}
                         {product.pricingInfo?.pro && (
                           <div className="bg-purple-50/80 p-4 rounded-[14px] border-2 border-purple-100">
                             <h5 className="font-medium text-gray-800 mb-2">Pro</h5>
-                            <p className="text-2xl font-bold text-gradient-primary">{product.pricingInfo.pro} Kč</p>
+                            <p className="text-2xl font-bold text-gradient-primary">${product.pricingInfo.pro}</p>
                           </div>
                         )}
                         {product.pricingInfo?.enterprise && (
                           <div className="bg-gray-50/80 p-4 rounded-[14px]">
                             <h5 className="font-medium text-gray-800 mb-2">Enterprise</h5>
-                            <p className="text-2xl font-bold text-gradient-primary">{product.pricingInfo.enterprise} Kč</p>
+                            <p className="text-2xl font-bold text-gradient-primary">${product.pricingInfo.enterprise}</p>
                           </div>
                         )}
                       </div>

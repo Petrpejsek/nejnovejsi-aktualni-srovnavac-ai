@@ -27,6 +27,7 @@ interface Product {
   }
   videoUrls?: string[]
   externalUrl?: string
+  hasTrial?: boolean
 }
 
 export default function ProductDetail({ params }: { params: { id: string } }) {
@@ -46,7 +47,8 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
             tags: typeof data.tags === 'string' ? JSON.parse(data.tags) : data.tags,
             advantages: typeof data.advantages === 'string' ? JSON.parse(data.advantages) : data.advantages,
             disadvantages: typeof data.disadvantages === 'string' ? JSON.parse(data.disadvantages) : data.disadvantages,
-            pricingInfo: typeof data.pricingInfo === 'string' ? JSON.parse(data.pricingInfo) : data.pricingInfo
+            pricingInfo: typeof data.pricingInfo === 'string' ? JSON.parse(data.pricingInfo) : data.pricingInfo,
+            hasTrial: typeof data.hasTrial === 'boolean' ? data.hasTrial : false
           })
         }
       } catch (error) {
@@ -149,26 +151,26 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
               </div>
 
               <div className="p-4 rounded-[14px] bg-gray-50/80">
-                <div className="text-2xl font-medium text-gradient-primary mb-4">{product.price} Kč</div>
+                <div className="text-2xl font-medium text-gradient-primary mb-4">${product.price}</div>
                 
                 {product.pricingInfo && (
                   <div className="space-y-3">
                     {product.pricingInfo.basic && (
                       <div className="flex justify-between items-center">
                         <span className="text-gray-600">Basic</span>
-                        <span className="font-medium text-gradient-primary">{product.pricingInfo.basic} Kč</span>
+                        <span className="font-medium text-gradient-primary">${product.pricingInfo.basic}</span>
                       </div>
                     )}
                     {product.pricingInfo.pro && (
                       <div className="flex justify-between items-center">
                         <span className="text-gray-600">Pro</span>
-                        <span className="font-medium text-gradient-primary">{product.pricingInfo.pro} Kč</span>
+                        <span className="font-medium text-gradient-primary">${product.pricingInfo.pro}</span>
                       </div>
                     )}
                     {product.pricingInfo.enterprise && (
                       <div className="flex justify-between items-center">
                         <span className="text-gray-600">Enterprise</span>
-                        <span className="font-medium text-gradient-primary">{product.pricingInfo.enterprise} Kč</span>
+                        <span className="font-medium text-gradient-primary">${product.pricingInfo.enterprise}</span>
                       </div>
                     )}
                   </div>
