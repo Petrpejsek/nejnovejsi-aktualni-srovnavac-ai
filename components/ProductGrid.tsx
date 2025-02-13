@@ -29,12 +29,7 @@ interface Product {
   externalUrl?: string
 }
 
-interface ProductGridProps {
-  selectedTags: Set<string>
-  showCompare?: boolean
-}
-
-export default function ProductGrid({ selectedTags, showCompare = false }: ProductGridProps) {
+export default function ProductGrid({ selectedTags }: { selectedTags: Set<string> }) {
   const [products, setProducts] = useState<Product[]>([])
   const [visibleCount, setVisibleCount] = useState(6)
   const [isCompactView, setIsCompactView] = useState(false)
@@ -47,7 +42,8 @@ export default function ProductGrid({ selectedTags, showCompare = false }: Produ
         const response = await fetch('/api/products')
         if (response.ok) {
           const data = await response.json()
-          const processedData = data.map((product: any) => ({
+          // Převedeme stringy JSON zpět na objekty
+          const processedData = data.map((product: Product) => ({
             ...product,
             tags: typeof product.tags === 'string' ? JSON.parse(product.tags) : product.tags,
             advantages: typeof product.advantages === 'string' ? JSON.parse(product.advantages) : product.advantages,
@@ -136,14 +132,6 @@ export default function ProductGrid({ selectedTags, showCompare = false }: Produ
             imageUrl={product.imageUrl}
             tags={product.tags}
             externalUrl={product.externalUrl}
-            isSelected={showCompare && selectedProducts.some(p => p.id === product.id)}
-            onCompareToggle={showCompare ? () => {
-              if (selectedProducts.some(p => p.id === product.id)) {
-                removeProduct(product.id)
-              } else {
-                addProduct(product)
-              }
-            } : undefined}
           />
         ))}
       </div>
@@ -159,13 +147,11 @@ export default function ProductGrid({ selectedTags, showCompare = false }: Produ
         </div>
       )}
 
-      {showCompare && selectedProducts.length > 0 && (
-        <CompareBar 
-          selectedCount={selectedProducts.length}
-          onCompare={handleCompare}
-          onClear={clearProducts}
-        />
-      )}
+      <CompareBar 
+        selectedCount={selectedProducts.length}
+        onCompare={handleCompare}
+        onClear={clearProducts}
+      />
     </div>
   )
 } 

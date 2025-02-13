@@ -1,42 +1,49 @@
-# FindAi
+# AI Srovnávač
 
-Webová aplikace pro porovnávání a doporučování AI nástrojů pro různé use-cases. Pomáháme uživatelům najít nejvhodnější AI řešení pro jejich specifické potřeby.
+Webová aplikace pro srovnávání AI nástrojů a služeb.
 
-## Funkce
+## Lokální vývoj
 
-- 🔍 Vyhledávání AI nástrojů podle potřeb
-- 📊 Detailní porovnání různých AI řešení
-- 💡 Personalizovaná doporučení
-- 📱 Responzivní design pro všechna zařízení
-- ⭐ Hodnocení a recenze nástrojů
-
-## Technologie
-
-- Next.js 13+
-- React
-- TypeScript
-- Tailwind CSS
-- Vercel (deployment)
-
-## Instalace
-
-1. Naklonujte repozitář
+1. Naklonujte repozitář:
 ```bash
-git clone https://github.com/yourusername/FindAi.git
+git clone https://github.com/Petrpejsek/nejnovejsi-aktualni-srovnavac-ai.git
+cd nejnovejsi-aktualni-srovnavac-ai
 ```
 
-2. Nainstalujte závislosti
+2. Nainstalujte závislosti:
 ```bash
-cd FindAi
 npm install
 ```
 
-3. Spusťte vývojový server
+3. Vytvořte `.env` soubor podle `.env.example` a nastavte proměnné prostředí
+
+4. Spusťte vývojový server:
 ```bash
 npm run dev
 ```
 
-4. Otevřete [http://localhost:3000](http://localhost:3000) ve vašem prohlížeči
+## Produkční nasazení na Vercel
+
+1. Vytvořte účet na [Vercel](https://vercel.com)
+2. Propojte váš GitHub repozitář s Vercel
+3. Nastavte proměnné prostředí v Vercel dashboardu
+4. Nasaďte aplikaci jedním kliknutím
+
+## Technologie
+
+- Next.js 14
+- TypeScript
+- Tailwind CSS
+- Prisma
+- SQLite (vývoj) / PostgreSQL (produkce)
+
+## Funkce
+
+- Přehled AI nástrojů a služeb
+- Detailní informace o každém nástroji
+- Filtrování podle kategorií
+- Porovnávání nástrojů
+- Admin rozhraní pro správu produktů
 
 ## Licence
 
