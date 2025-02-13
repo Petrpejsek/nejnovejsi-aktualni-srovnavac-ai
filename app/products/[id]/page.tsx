@@ -1,3 +1,4 @@
+// Server Component - Product Detail Page
 import React from 'react';
 import { notFound } from 'next/navigation';
 import ProductDetail from '../../components/ProductDetail';

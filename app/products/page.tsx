@@ -1,3 +1,4 @@
+// Server Component - Products List Page
 import React from 'react';
 import ProductList from '../components/ProductList';
 import { Typography, Container } from '@mui/material';
