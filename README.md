@@ -47,4 +47,8 @@ npm run dev
 
 ## Licence
 
-MIT 
+MIT
+
+## Verze
+
+1.0.0 
