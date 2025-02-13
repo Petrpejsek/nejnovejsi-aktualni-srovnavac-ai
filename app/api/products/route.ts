@@ -32,11 +32,11 @@ export async function GET() {
     // Zpracování dat před odesláním
     const processedProducts = products.map((product: Product) => ({
       ...product,
-      tags: typeof product.tags === 'string' ? JSON.parse(product.tags) : product.tags,
-      advantages: typeof product.advantages === 'string' ? JSON.parse(product.advantages) : product.advantages,
-      disadvantages: typeof product.disadvantages === 'string' ? JSON.parse(product.disadvantages) : product.disadvantages,
-      pricingInfo: typeof product.pricingInfo === 'string' ? JSON.parse(product.pricingInfo) : product.pricingInfo,
-      videoUrls: typeof product.videoUrls === 'string' ? JSON.parse(product.videoUrls) : product.videoUrls,
+      tags: typeof product.tags === 'string' ? JSON.parse(product.tags) : product.tags || [],
+      advantages: typeof product.advantages === 'string' ? JSON.parse(product.advantages) : product.advantages || [],
+      disadvantages: typeof product.disadvantages === 'string' ? JSON.parse(product.disadvantages) : product.disadvantages || [],
+      pricingInfo: typeof product.pricingInfo === 'string' ? JSON.parse(product.pricingInfo) : product.pricingInfo || {},
+      videoUrls: typeof product.videoUrls === 'string' ? JSON.parse(product.videoUrls) : product.videoUrls || [],
       // Zajistíme, že externalUrl není JSON string
       externalUrl: product.externalUrl?.startsWith('"') && product.externalUrl?.endsWith('"') 
         ? JSON.parse(product.externalUrl) 

@@ -27,6 +27,7 @@ interface Product {
     enterprise?: string
   }
   externalUrl?: string
+  videoUrls?: string[]
 }
 
 export default function ProductGrid({ selectedTags }: { selectedTags: Set<string> }) {
@@ -45,11 +46,13 @@ export default function ProductGrid({ selectedTags }: { selectedTags: Set<string
           // Převedeme stringy JSON zpět na objekty
           const processedData = data.map((product: Product) => ({
             ...product,
-            tags: typeof product.tags === 'string' ? JSON.parse(product.tags) : product.tags,
-            advantages: typeof product.advantages === 'string' ? JSON.parse(product.advantages) : product.advantages,
-            disadvantages: typeof product.disadvantages === 'string' ? JSON.parse(product.disadvantages) : product.disadvantages,
-            pricingInfo: typeof product.pricingInfo === 'string' ? JSON.parse(product.pricingInfo) : product.pricingInfo
+            tags: typeof product.tags === 'string' ? JSON.parse(product.tags) : product.tags || [],
+            advantages: typeof product.advantages === 'string' ? JSON.parse(product.advantages) : product.advantages || [],
+            disadvantages: typeof product.disadvantages === 'string' ? JSON.parse(product.disadvantages) : product.disadvantages || [],
+            pricingInfo: typeof product.pricingInfo === 'string' ? JSON.parse(product.pricingInfo) : product.pricingInfo || {},
+            videoUrls: typeof product.videoUrls === 'string' ? JSON.parse(product.videoUrls) : product.videoUrls || []
           }))
+          console.log('Zpracovaná data:', processedData)
           setProducts(processedData)
         }
       } catch (error) {

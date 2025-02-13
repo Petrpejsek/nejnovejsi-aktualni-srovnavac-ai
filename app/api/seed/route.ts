@@ -58,27 +58,46 @@ const testProducts = [
 
 export async function GET() {
   try {
+    console.log('Začínám seed proces...')
+    
     // Smazat existující produkty
+    console.log('Mažu existující produkty...')
     await prisma.product.deleteMany()
+    console.log('Existující produkty smazány')
 
     // Přidat testovací produkty
+    console.log('Přidávám nové produkty...')
     const products = await Promise.all(
-      testProducts.map(product => 
-        prisma.product.create({
+      testProducts.map(product => {
+        console.log('Vytvářím produkt:', product.name)
+        return prisma.product.create({
           data: product
         })
-      )
+      })
     )
+    console.log('Nové produkty vytvořeny:', products)
 
-    return NextResponse.json({ 
-      message: 'Testovací data byla úspěšně přidána',
-      products 
-    })
+    const response = new NextResponse(
+      JSON.stringify({ 
+        message: 'Testovací data byla úspěšně přidána',
+        products 
+      }, null, 2)
+    )
+    
+    response.headers.set('Content-Type', 'application/json; charset=utf-8')
+    return response
+
   } catch (error) {
     console.error('Chyba při přidávání testovacích dat:', error)
-    return NextResponse.json(
-      { error: 'Chyba při přidávání testovacích dat' },
-      { status: 500 }
+    
+    const errorResponse = new NextResponse(
+      JSON.stringify({ 
+        error: 'Chyba při přidávání testovacích dat', 
+        details: error instanceof Error ? error.message : 'Unknown error' 
+      }, null, 2)
     )
+    
+    errorResponse.headers.set('Content-Type', 'application/json; charset=utf-8')
+    return errorResponse
   }
 } 

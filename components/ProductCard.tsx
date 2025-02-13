@@ -72,7 +72,7 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
         
         <div className="flex justify-between items-center">
           <div className="text-lg font-bold text-purple-600">{price} Kč</div>
-          <div className="px-4 py-2 bg-gradient-primary text-white text-sm font-medium rounded-[14px] hover:opacity-90 transition-opacity">
+          <div className="px-2 py-1.5 bg-gradient-primary text-white text-sm font-medium rounded-[14px] hover:opacity-90 transition-opacity">
             Vyzkoušet
           </div>
         </div>

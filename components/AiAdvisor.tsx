@@ -26,10 +26,10 @@ export default function AiAdvisor() {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="flex flex-col items-center">
-        <div className="flex w-[85%] gap-3 relative group">
+      <form onSubmit={handleSubmit} className="flex flex-col items-center px-4">
+        <div className="flex w-full max-w-3xl gap-3 relative group">
           <div className="absolute -inset-1 bg-gradient-to-r from-purple-600/30 to-pink-500/30 rounded-[50px] blur-md opacity-75 group-hover:opacity-100 transition duration-300"></div>
-          <div className="relative flex w-full gap-3 bg-white rounded-[46px] p-1.5 shadow-lg">
+          <div className="relative flex w-full flex-col sm:flex-row gap-3 bg-white rounded-[46px] p-1.5 shadow-lg">
             <input
               type="text"
               value={query}
@@ -39,7 +39,7 @@ export default function AiAdvisor() {
             />
             <button
               type="submit"
-              className="px-10 py-5 text-white rounded-[42px] transition-all font-medium bg-gradient-primary hover-gradient-primary shadow-md text-base"
+              className="px-10 py-5 text-white rounded-[42px] transition-all font-medium bg-gradient-primary hover-gradient-primary shadow-md text-base w-full sm:w-auto"
             >
               Poradit
             </button>
