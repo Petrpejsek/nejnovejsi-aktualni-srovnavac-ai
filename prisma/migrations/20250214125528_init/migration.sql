@@ -14,6 +14,7 @@ CREATE TABLE "Product" (
     "pricingInfo" TEXT,
     "videoUrls" TEXT,
     "externalUrl" TEXT,
+    "hasTrial" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
