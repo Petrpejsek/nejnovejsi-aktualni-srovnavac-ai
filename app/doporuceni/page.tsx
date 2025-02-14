@@ -49,7 +49,7 @@ export default function DoporuceniPage() {
         const response = await fetch('/api/products')
         if (response.ok) {
           const data = await response.json()
-          // Převedeme stringy JSON zpět na objekty
+          // Převedeme stringy JSON zpět na objekty a zajistíme správné formátování cen
           const processedData = data.map((product: Product) => ({
             ...product,
             tags: typeof product.tags === 'string' ? JSON.parse(product.tags) : product.tags,
@@ -57,7 +57,9 @@ export default function DoporuceniPage() {
             disadvantages: typeof product.disadvantages === 'string' ? JSON.parse(product.disadvantages) : product.disadvantages,
             pricingInfo: typeof product.pricingInfo === 'string' ? JSON.parse(product.pricingInfo) : product.pricingInfo,
             videoUrls: typeof product.videoUrls === 'string' ? JSON.parse(product.videoUrls) : product.videoUrls,
-            hasTrial: typeof product.hasTrial === 'boolean' ? product.hasTrial : false
+            hasTrial: typeof product.hasTrial === 'boolean' ? product.hasTrial : false,
+            // Zajistíme, že cena je číslo
+            price: typeof product.price === 'string' ? parseFloat(product.price) : product.price
           }))
           setProducts(processedData)
         }
@@ -214,7 +216,7 @@ export default function DoporuceniPage() {
                   <div className="text-right">
                     <div>
                       <p className="text-gradient-primary font-medium">
-                        ${product.price}
+                        ${product.price.toFixed(2)}
                       </p>
                       {product.hasTrial && (
                         <span className="text-xs text-purple-600/90 bg-purple-50/80 px-2 py-1 rounded-full">
@@ -321,19 +323,25 @@ export default function DoporuceniPage() {
                         {product.pricingInfo?.basic && (
                           <div className="bg-gray-50/80 p-4 rounded-[14px]">
                             <h5 className="font-medium text-gray-800 mb-2">Basic</h5>
-                            <p className="text-2xl font-bold text-gradient-primary">${product.pricingInfo.basic}</p>
+                            <p className="text-2xl font-bold text-gradient-primary">
+                              ${parseFloat(product.pricingInfo.basic).toFixed(2)}
+                            </p>
                           </div>
                         )}
                         {product.pricingInfo?.pro && (
                           <div className="bg-purple-50/80 p-4 rounded-[14px] border-2 border-purple-100">
                             <h5 className="font-medium text-gray-800 mb-2">Pro</h5>
-                            <p className="text-2xl font-bold text-gradient-primary">${product.pricingInfo.pro}</p>
+                            <p className="text-2xl font-bold text-gradient-primary">
+                              ${parseFloat(product.pricingInfo.pro).toFixed(2)}
+                            </p>
                           </div>
                         )}
                         {product.pricingInfo?.enterprise && (
                           <div className="bg-gray-50/80 p-4 rounded-[14px]">
                             <h5 className="font-medium text-gray-800 mb-2">Enterprise</h5>
-                            <p className="text-2xl font-bold text-gradient-primary">${product.pricingInfo.enterprise}</p>
+                            <p className="text-2xl font-bold text-gradient-primary">
+                              {product.pricingInfo.enterprise === 'Custom' ? 'Custom' : `$${parseFloat(product.pricingInfo.enterprise).toFixed(2)}`}
+                            </p>
                           </div>
                         )}
                       </div>

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import Image from 'next/image'
 
 interface ProductCardProps {
@@ -13,9 +13,40 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ id, name, description, price, imageUrl, tags, externalUrl, hasTrial }: ProductCardProps) {
-  // Omezíme počet zobrazených tagů na 3
-  const displayedTags = tags?.slice(0, 3) || []
-  const hasMoreTags = tags && tags.length > 3
+  const [visibleTags, setVisibleTags] = useState<string[]>(tags || [])
+  const [hiddenTagsCount, setHiddenTagsCount] = useState(0)
+  const tagsContainerRef = useRef<HTMLDivElement>(null)
+  const measurementDivRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!tags || !tagsContainerRef.current || !measurementDivRef.current) return
+
+    // Počkáme na vykreslení DOM
+    setTimeout(() => {
+      if (!tagsContainerRef.current || !measurementDivRef.current) return
+
+      const containerWidth = tagsContainerRef.current.offsetWidth
+      const tagElements = measurementDivRef.current.children
+      let currentWidth = 0
+      let visibleCount = 0
+
+      // Procházíme všechny tagy a počítáme jejich šířky
+      for (let i = 0; i < tagElements.length; i++) {
+        const tagWidth = tagElements[i].getBoundingClientRect().width + 8 // 8px pro margin
+        
+        // Přidáme extra prostor pro čtvrtý tag
+        if (currentWidth + tagWidth <= containerWidth + 20) { // Přidáno 20px extra prostoru
+          currentWidth += tagWidth
+          visibleCount++
+        } else {
+          break
+        }
+      }
+
+      setVisibleTags(tags.slice(0, visibleCount))
+      setHiddenTagsCount(Math.max(0, tags.length - visibleCount))
+    }, 0)
+  }, [tags])
 
   const handleVisit = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -38,7 +69,7 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
       href={externalUrl}
       target="_blank"
       rel="noopener noreferrer"
-      className="block bg-white rounded-lg shadow-sm border border-gray-100 transition-transform hover:scale-[1.02] cursor-pointer h-full flex flex-col"
+      className="block bg-white rounded-lg shadow-md hover:shadow-xl border border-gray-200 transition-all duration-300 hover:scale-[1.02] hover:border-purple-200 cursor-pointer h-full flex flex-col"
       onClick={handleVisit}
     >
       <div className="relative w-full aspect-video">
@@ -59,22 +90,41 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
           <h2 className="text-lg font-semibold text-gray-800 mb-2">{name}</h2>
           <p className="text-gray-600 text-sm mb-4 line-clamp-2">{description}</p>
           
-          {displayedTags.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-4">
-              {displayedTags.map((tag) => (
-                <span
-                  key={tag}
-                  className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-purple-50 text-purple-600"
-                >
-                  {tag}
-                </span>
-              ))}
-              {hasMoreTags && (
-                <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-50 text-gray-600">
-                  +{tags.length - 3} další
-                </span>
-              )}
-            </div>
+          {tags && tags.length > 0 && (
+            <>
+              {/* Skrytý div pro měření šířky tagů */}
+              <div 
+                ref={measurementDivRef} 
+                className="absolute opacity-0 pointer-events-none"
+                style={{ display: 'flex', gap: '0.5rem', maxWidth: '100%' }}
+              >
+                {tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-purple-50 text-purple-600 whitespace-nowrap"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+
+              {/* Viditelné tagy */}
+              <div ref={tagsContainerRef} className="flex flex-wrap gap-2 mb-4">
+                {visibleTags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-purple-50 text-purple-600 whitespace-nowrap"
+                  >
+                    {tag}
+                  </span>
+                ))}
+                {hiddenTagsCount > 0 && (
+                  <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-50 text-gray-600">
+                    +{hiddenTagsCount} další
+                  </span>
+                )}
+              </div>
+            </>
           )}
         </div>
         

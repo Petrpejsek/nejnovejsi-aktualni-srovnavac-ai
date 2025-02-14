@@ -68,7 +68,7 @@ export default function ProductGrid({ selectedTags }: { selectedTags: Set<string
   }, [])
 
   const handleLoadMore = () => {
-    setVisibleCount(prev => Math.min(prev + 3, products.length))
+    setVisibleCount(prev => Math.min(prev + 6, products.length))
   }
 
   const handleCompare = () => {

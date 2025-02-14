@@ -1,0 +1,29 @@
+{
+  "name": "InVideo",
+  "description": "Online platforma pro tvorbu profesionálních videí s pomocí AI",
+  "price": 15,
+  "category": "Video tvorba",
+  "tags": [
+    "AI",
+    "Video tvorba",
+    "Online nástroj"
+  ],
+  "advantages": [
+    "Rozsáhlá knihovna šablon",
+    "Automatické překlady",
+    "Text na video",
+    "Cloudové úložiště"
+  ],
+  "disadvantages": [
+    "Vyžaduje internetové připojení",
+    "Omezení ve free verzi",
+    "Složitější pokročilé funkce"
+  ],
+  "detailInfo": "InVideo je webová platforma pro tvorbu profesionálních videí. Využívá AI pro automatické generování videí z textu, nabízí tisíce šablon a umožňuje snadnou spolupráci v týmu. Vhodné pro marketéry, podnikatele i tvůrce obsahu.",
+  "pricingInfo": {
+    "basic": "0",
+    "pro": "15",
+    "enterprise": "30"
+  },
+  "externalUrl": "https://invideo.io"
+}

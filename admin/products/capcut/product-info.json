@@ -1,0 +1,29 @@
+{
+  "name": "CapCut",
+  "description": "Všestranný editor videa s pokročilými AI funkcemi",
+  "price": 0,
+  "category": "Video editace",
+  "tags": [
+    "AI",
+    "Video editace",
+    "Sociální sítě"
+  ],
+  "advantages": [
+    "Zdarma základní verze",
+    "Snadné použití",
+    "Pokročilé AI funkce",
+    "Mobilní i desktop verze"
+  ],
+  "disadvantages": [
+    "Vodoznak ve free verzi",
+    "Omezené rozlišení exportu zdarma",
+    "Některé pokročilé funkce jen v PRO verzi"
+  ],
+  "detailInfo": "CapCut je moderní video editor s integrovanými AI funkcemi. Nabízí jednoduché rozhraní pro začátečníky i pokročilé funkce pro profesionály. Automatické úpravy, efekty a přechody dělají z CapCutu skvělý nástroj pro tvorbu videí na sociální sítě.",
+  "pricingInfo": {
+    "basic": "0",
+    "pro": "12",
+    "enterprise": "Custom"
+  },
+  "externalUrl": "https://www.capcut.com"
+}
