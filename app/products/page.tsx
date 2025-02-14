@@ -10,7 +10,9 @@ export const metadata = {
 
 async function getProducts() {
   const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products`, {
-    cache: 'no-store'
+    next: {
+      revalidate: 60 // Revalidace každou minutu
+    }
   });
   
   if (!response.ok) {

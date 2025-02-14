@@ -3,10 +3,10 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
-  // Vymaže existující data
+  // Vymaž všechny existující produkty
   await prisma.product.deleteMany();
 
-  // Vytvoří nové produkty
+  // Vytvoř nové produkty
   const products = [
     {
       name: 'ChatGPT',
@@ -18,7 +18,11 @@ async function main() {
       advantages: JSON.stringify(['Přirozená konverzace', 'Široké znalosti', 'Rychlé odpovědi']),
       disadvantages: JSON.stringify(['Občasné nepřesnosti', 'Omezení délky konverzace', 'Potřeba ověřování faktů']),
       detailInfo: 'ChatGPT je pokročilý jazykový model vyvinutý společností OpenAI. Dokáže vést přirozenou konverzaci, pomáhat s psaním, odpovídat na otázky a řešit různé úkoly.',
-      pricingInfo: JSON.stringify({ basic: '0', pro: '20', enterprise: '100' }),
+      pricingInfo: JSON.stringify({
+        basic: '0',
+        pro: '20',
+        enterprise: '100'
+      }),
       videoUrls: JSON.stringify([]),
       externalUrl: 'https://chat.openai.com',
       hasTrial: true
@@ -33,7 +37,11 @@ async function main() {
       advantages: JSON.stringify(['Dlouhé konverzace', 'Přesné odpovědi', 'Práce s dokumenty']),
       disadvantages: JSON.stringify(['Vyšší cena', 'Méně kreativní', 'Omezená dostupnost']),
       detailInfo: 'Claude je AI asistent vyvinutý společností Anthropic. Vyniká v dlouhých konverzacích, analýze dokumentů a řešení komplexních úkolů.',
-      pricingInfo: JSON.stringify({ basic: '10', pro: '25', enterprise: '150' }),
+      pricingInfo: JSON.stringify({
+        basic: '10',
+        pro: '25',
+        enterprise: '150'
+      }),
       videoUrls: JSON.stringify([]),
       externalUrl: 'https://claude.ai',
       hasTrial: false
@@ -48,7 +56,11 @@ async function main() {
       advantages: JSON.stringify(['Vysoká kvalita výstupů', 'Integrace s Adobe produkty', 'Jednoduchý na použití', 'Komerční licence']),
       disadvantages: JSON.stringify(['Některé funkce pouze v placené verzi', 'Vyžaduje Adobe účet', 'Omezený počet generování zdarma']),
       detailInfo: 'Adobe Firefly je revoluční AI nástroj pro generování a úpravu obrázků. Nabízí pokročilé funkce jako generování obrázků z textu, úpravu existujících fotek, změnu stylů a mnoho dalšího. Je plně integrován do Adobe Creative Cloud a nabízí komerční licenci pro vytvořený obsah.',
-      pricingInfo: JSON.stringify({ basic: '0', pro: '20', enterprise: 'Custom' }),
+      pricingInfo: JSON.stringify({
+        basic: '0',
+        pro: '20',
+        enterprise: 'Custom'
+      }),
       videoUrls: JSON.stringify([]),
       externalUrl: 'https://www.adobe.com/sensei/generative-ai/firefly.html',
       hasTrial: true
@@ -63,7 +75,11 @@ async function main() {
       advantages: JSON.stringify(['Vysoká umělecká kvalita', 'Aktivní komunita', 'Unikátní styl']),
       disadvantages: JSON.stringify(['Vyšší cena', 'Pouze v Discord prostředí', 'Složitější ovládání']),
       detailInfo: 'Midjourney je AI nástroj pro generování uměleckých obrázků. Vyniká v tvorbě unikátních a esteticky působivých vizuálů.',
-      pricingInfo: JSON.stringify({ basic: '10', pro: '30', enterprise: '120' }),
+      pricingInfo: JSON.stringify({
+        basic: '10',
+        pro: '30',
+        enterprise: '120'
+      }),
       videoUrls: JSON.stringify([]),
       externalUrl: 'https://www.midjourney.com',
       hasTrial: true
@@ -78,7 +94,11 @@ async function main() {
       advantages: JSON.stringify(['Přesné následování promptů', 'Editace obrázků', 'Intuitivní rozhraní']),
       disadvantages: JSON.stringify(['Omezený počet kreditů', 'Méně umělecký styl', 'Občas nepřesné detaily']),
       detailInfo: 'DALL-E je AI systém od OpenAI pro generování a úpravu obrázků na základě textového popisu.',
-      pricingInfo: JSON.stringify({ basic: '0', pro: '20', enterprise: '80' }),
+      pricingInfo: JSON.stringify({
+        basic: '0',
+        pro: '20',
+        enterprise: '80'
+      }),
       videoUrls: JSON.stringify([]),
       externalUrl: 'https://openai.com/dall-e-3',
       hasTrial: true
@@ -93,7 +113,11 @@ async function main() {
       advantages: JSON.stringify(['Zdarma', 'Možnost vlastního hostování', 'Velká komunita']),
       disadvantages: JSON.stringify(['Technicky náročnější', 'Vyžaduje výkonný hardware', 'Méně intuitivní']),
       detailInfo: 'Stable Diffusion je open-source AI model pro generování obrázků, který lze provozovat lokálně nebo využít skrze různé hostované služby.',
-      pricingInfo: JSON.stringify({ basic: '0', pro: '0', enterprise: 'Custom' }),
+      pricingInfo: JSON.stringify({
+        basic: '0',
+        pro: '0',
+        enterprise: 'Custom'
+      }),
       videoUrls: JSON.stringify([]),
       externalUrl: 'https://stability.ai',
       hasTrial: true
@@ -108,7 +132,11 @@ async function main() {
       advantages: JSON.stringify(['Specializace na marketing', 'Mnoho šablon', 'SEO optimalizace']),
       disadvantages: JSON.stringify(['Vysoká cena', 'Občas opakující se obsah', 'Nutnost kontroly']),
       detailInfo: 'Jasper je AI nástroj specializovaný na tvorbu marketingového obsahu, včetně blogů, reklam a sociálních médií.',
-      pricingInfo: JSON.stringify({ basic: '40', pro: '70', enterprise: '200' }),
+      pricingInfo: JSON.stringify({
+        basic: '40',
+        pro: '70',
+        enterprise: '200'
+      }),
       videoUrls: JSON.stringify([]),
       externalUrl: 'https://www.jasper.ai',
       hasTrial: true
@@ -123,7 +151,11 @@ async function main() {
       advantages: JSON.stringify(['Jednoduché použití', 'Kvalitní výstupy', 'Mnoho formátů']),
       disadvantages: JSON.stringify(['Vyšší cena', 'Omezení v základní verzi', 'Pouze anglicky']),
       detailInfo: 'Copy.ai pomáhá vytvářet marketingové texty, emaily, produktové popisy a další obsah pomocí AI.',
-      pricingInfo: JSON.stringify({ basic: '0', pro: '35', enterprise: '150' }),
+      pricingInfo: JSON.stringify({
+        basic: '0',
+        pro: '35',
+        enterprise: '150'
+      }),
       videoUrls: JSON.stringify([]),
       externalUrl: 'https://www.copy.ai',
       hasTrial: true
@@ -138,7 +170,11 @@ async function main() {
       advantages: JSON.stringify(['Přesná detekce chyb', 'Návrhy vylepšení', 'Multiplatformní']),
       disadvantages: JSON.stringify(['Měsíční předplatné', 'Občas falešné návrhy', 'Omezená podpora češtiny']),
       detailInfo: 'Grammarly je pokročilý AI nástroj pro kontrolu pravopisu, gramatiky a stylistiky textu.',
-      pricingInfo: JSON.stringify({ basic: '0', pro: '30', enterprise: '100' }),
+      pricingInfo: JSON.stringify({
+        basic: '0',
+        pro: '30',
+        enterprise: '100'
+      }),
       videoUrls: JSON.stringify([]),
       externalUrl: 'https://www.grammarly.com',
       hasTrial: true
@@ -153,7 +189,11 @@ async function main() {
       advantages: JSON.stringify(['Integrace s Notion', 'Všestranné použití', 'Kontextové pochopení']),
       disadvantages: JSON.stringify(['Vyžaduje Notion', 'Omezený počet tokenů', 'Základní AI funkce']),
       detailInfo: 'Notion AI je integrovaný asistent v Notion, který pomáhá s psaním, sumarizací a organizací informací.',
-      pricingInfo: JSON.stringify({ basic: '0', pro: '15', enterprise: '50' }),
+      pricingInfo: JSON.stringify({
+        basic: '0',
+        pro: '15',
+        enterprise: '50'
+      }),
       videoUrls: JSON.stringify([]),
       externalUrl: 'https://www.notion.so',
       hasTrial: true
@@ -192,7 +232,7 @@ async function main() {
 
   for (const product of products) {
     await prisma.product.create({
-      data: product
+      data: product,
     });
   }
 

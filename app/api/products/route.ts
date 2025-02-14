@@ -38,7 +38,6 @@ export async function GET() {
       disadvantages: typeof product.disadvantages === 'string' ? JSON.parse(product.disadvantages) : product.disadvantages || [],
       pricingInfo: typeof product.pricingInfo === 'string' ? JSON.parse(product.pricingInfo) : product.pricingInfo || {},
       videoUrls: typeof product.videoUrls === 'string' ? JSON.parse(product.videoUrls) : product.videoUrls || [],
-      // Zajistíme, že externalUrl není JSON string
       externalUrl: product.externalUrl?.startsWith('"') && product.externalUrl?.endsWith('"') 
         ? JSON.parse(product.externalUrl) 
         : product.externalUrl,
@@ -46,7 +45,14 @@ export async function GET() {
     }))
 
     console.log('Zpracované produkty:', processedProducts)
-    return NextResponse.json(processedProducts)
+    
+    // Přidáme cache-control hlavičku pro lepší výkon
+    return new NextResponse(JSON.stringify(processedProducts), {
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300'
+      }
+    })
   } catch (error) {
     console.error('Chyba při načítání produktů:', error)
     return NextResponse.json(

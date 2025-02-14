@@ -69,9 +69,10 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
       href={externalUrl}
       target="_blank"
       rel="noopener noreferrer"
-      className="block bg-white rounded-lg shadow-md hover:shadow-xl border border-gray-200 transition-all duration-300 hover:scale-[1.02] hover:border-purple-200 cursor-pointer h-full flex flex-col"
+      className="block bg-gradient-to-b from-white to-gray-50 rounded-lg shadow-lg hover:shadow-2xl border border-gray-200 transition-all duration-300 hover:scale-[1.02] hover:border-purple-300 cursor-pointer h-full flex flex-col relative overflow-hidden"
       onClick={handleVisit}
     >
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-50/30 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
       <div className="relative w-full aspect-video">
         <Image
           src={imageUrl || 'https://placehold.co/800x450/f3f4f6/94a3b8?text=No+Image'}

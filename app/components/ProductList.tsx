@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Card,
   CardContent,
@@ -16,6 +16,7 @@ import {
   Select,
   MenuItem,
   SelectChangeEvent,
+  CardMedia,
 } from '@mui/material';
 import { useRouter } from 'next/navigation';
 
@@ -32,6 +33,7 @@ interface AIProduct {
   cons: string[];
   affiliate_link?: string;
   review_count: number;
+  imageUrl: string;
 }
 
 interface ProductListProps {
@@ -41,7 +43,7 @@ interface ProductListProps {
 export default function ProductList({ initialProducts }: ProductListProps) {
   const router = useRouter();
   const [products, setProducts] = useState<AIProduct[]>(initialProducts || []);
-  const [loading, setLoading] = useState(!initialProducts);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   
   // Filtry
@@ -61,7 +63,11 @@ export default function ProductList({ initialProducts }: ProductListProps) {
       if (minPrice) url += `&min_price=${minPrice}`;
       if (maxPrice) url += `&max_price=${maxPrice}`;
       
-      const response = await fetch(url);
+      const response = await fetch(url, {
+        next: {
+          revalidate: 60
+        }
+      });
       if (!response.ok) throw new Error('Nepodařilo se načíst produkty');
       
       const data = await response.json();
@@ -73,6 +79,17 @@ export default function ProductList({ initialProducts }: ProductListProps) {
       setLoading(false);
     }
   };
+  
+  // Použijeme useMemo pro filtrované produkty
+  const filteredProducts = useMemo(() => {
+    return products.filter(product => {
+      if (category && product.category !== category) return false;
+      if (provider && !product.tags.includes(provider)) return false;
+      if (minPrice && product.price < parseFloat(minPrice)) return false;
+      if (maxPrice && product.price > parseFloat(maxPrice)) return false;
+      return true;
+    });
+  }, [products, category, provider, minPrice, maxPrice]);
   
   useEffect(() => {
     if (!initialProducts) {
@@ -151,63 +168,24 @@ export default function ProductList({ initialProducts }: ProductListProps) {
       
       {/* Seznam produktů */}
       <Grid container spacing={3}>
-        {products.map((product) => (
-          <Grid item xs={12} sm={6} md={4} key={product.id}>
-            <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-              <CardContent sx={{ flexGrow: 1 }}>
-                <Typography variant="h5" component="h2" gutterBottom>
+        {filteredProducts.map((product) => (
+          <Grid item key={product.id} xs={12} sm={6} md={4}>
+            <Card>
+              <CardMedia
+                component="img"
+                height="140"
+                image={product.imageUrl}
+                alt={product.name}
+                loading="lazy"
+              />
+              <CardContent>
+                <Typography gutterBottom variant="h5" component="div">
                   {product.name}
                 </Typography>
-                
-                <Box sx={{ mb: 2 }}>
-                  <Chip label={product.category} color="primary" size="small" sx={{ mr: 1 }} />
-                  <Chip label={product.provider} size="small" />
-                </Box>
-                
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                <Typography variant="body2" color="text.secondary">
                   {product.description}
                 </Typography>
-                
-                <Box sx={{ mb: 2 }}>
-                  <Rating value={product.rating} readOnly precision={0.5} />
-                  <Typography variant="body2" color="text.secondary">
-                    ({product.review_count} hodnocení)
-                  </Typography>
-                </Box>
-                
-                <Typography variant="h6" color="primary" sx={{ mb: 2 }}>
-                  {product.price} Kč/měsíc
-                </Typography>
-                
-                <Box sx={{ mb: 2 }}>
-                  <Typography variant="subtitle2">Hlavní funkce:</Typography>
-                  {product.features.slice(0, 3).map((feature, index) => (
-                    <Typography key={index} variant="body2">• {feature}</Typography>
-                  ))}
-                </Box>
               </CardContent>
-              
-              <Box sx={{ p: 2, pt: 0 }}>
-                <Button
-                  variant="contained"
-                  fullWidth
-                  onClick={() => router.push(`/products/${product.id}`)}
-                >
-                  Zobrazit detail
-                </Button>
-                {product.affiliate_link && (
-                  <Button
-                    variant="outlined"
-                    fullWidth
-                    sx={{ mt: 1 }}
-                    href={product.affiliate_link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Vyzkoušet
-                  </Button>
-                )}
-              </Box>
             </Card>
           </Grid>
         ))}
