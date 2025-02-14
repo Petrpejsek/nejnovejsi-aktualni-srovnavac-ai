@@ -18,178 +18,149 @@ import {
   SelectChangeEvent,
   CardMedia,
 } from '@mui/material';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import Image from 'next/image';
+import Link from 'next/link';
 
 interface AIProduct {
-  id: number;
+  id: string;
   name: string;
   description: string;
   category: string;
   price: number;
-  provider: string;
-  rating: number;
-  features: string[];
-  pros: string[];
-  cons: string[];
-  affiliate_link?: string;
-  review_count: number;
   imageUrl: string;
+  tags: string[];
+  advantages: string[];
+  disadvantages: string[];
+  detailInfo: string;
+  pricingInfo: {
+    basic: string;
+    pro: string;
+    enterprise: string;
+  };
+  videoUrls: string[];
+  externalUrl: string;
+  hasTrial: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface ProductListProps {
   initialProducts?: AIProduct[];
 }
 
-export default function ProductList({ initialProducts }: ProductListProps) {
-  const router = useRouter();
-  const [products, setProducts] = useState<AIProduct[]>(initialProducts || []);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+const filterProducts = (products: AIProduct[], category: string | null, provider: string | null, minPrice: string | null, maxPrice: string | null) => {
+  if (!products) return [];
   
-  // Filtry
-  const [category, setCategory] = useState('');
-  const [provider, setProvider] = useState('');
-  const [minPrice, setMinPrice] = useState('');
-  const [maxPrice, setMaxPrice] = useState('');
+  return products.filter(product => {
+    if (category && product.category !== category) return false;
+    if (provider && !product.tags.includes(provider)) return false;
+    if (minPrice && product.price < parseFloat(minPrice)) return false;
+    if (maxPrice && product.price > parseFloat(maxPrice)) return false;
+    return true;
+  });
+};
+
+export default function ProductList() {
+  const [products, setProducts] = useState<AIProduct[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const searchParams = useSearchParams();
   
-  // Načtení produktů
-  const fetchProducts = async () => {
-    try {
-      setLoading(true);
-      let url = '/api/products?';
-      
-      if (category) url += `&category=${category}`;
-      if (provider) url += `&provider=${provider}`;
-      if (minPrice) url += `&min_price=${minPrice}`;
-      if (maxPrice) url += `&max_price=${maxPrice}`;
-      
-      const response = await fetch(url, {
-        next: {
-          revalidate: 60
-        }
-      });
-      if (!response.ok) throw new Error('Nepodařilo se načíst produkty');
-      
-      const data = await response.json();
-      setProducts(data);
-    } catch (err) {
-      setError('Chyba při načítání produktů');
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-  
-  // Použijeme useMemo pro filtrované produkty
-  const filteredProducts = useMemo(() => {
-    return products.filter(product => {
-      if (category && product.category !== category) return false;
-      if (provider && !product.tags.includes(provider)) return false;
-      if (minPrice && product.price < parseFloat(minPrice)) return false;
-      if (maxPrice && product.price > parseFloat(maxPrice)) return false;
-      return true;
-    });
-  }, [products, category, provider, minPrice, maxPrice]);
+  const category = searchParams.get('category');
+  const provider = searchParams.get('provider');
+  const minPrice = searchParams.get('minPrice');
+  const maxPrice = searchParams.get('maxPrice');
   
   useEffect(() => {
-    if (!initialProducts) {
-      fetchProducts();
-    }
-  }, [category, provider, minPrice, maxPrice]);
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch('/api/products');
+        if (!response.ok) {
+          throw new Error('Nepodařilo se načíst produkty');
+        }
+        const data = await response.json();
+        setProducts(data);
+        setLoading(false);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Nastala chyba při načítání produktů');
+        setLoading(false);
+      }
+    };
+    
+    fetchProducts();
+  }, []);
   
-  // Handlery pro filtry
-  const handleCategoryChange = (event: SelectChangeEvent) => {
-    setCategory(event.target.value);
-  };
+  const filteredProducts = filterProducts(products, category, provider, minPrice, maxPrice);
   
-  const handleProviderChange = (event: SelectChangeEvent) => {
-    setProvider(event.target.value);
-  };
-  
-  const handleMinPriceChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setMinPrice(event.target.value);
-  };
-  
-  const handleMaxPriceChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setMaxPrice(event.target.value);
-  };
-  
-  if (loading) return <Typography>Načítání...</Typography>;
-  if (error) return <Typography color="error">{error}</Typography>;
+  if (loading) return <div className="text-center py-8">Načítání produktů...</div>;
+  if (error) return <div className="text-center py-8 text-red-500">{error}</div>;
   
   return (
-    <Box sx={{ p: 3 }}>
-      {/* Filtry */}
-      <Box sx={{ mb: 4 }}>
-        <Grid container spacing={2}>
-          <Grid item xs={12} sm={3}>
-            <FormControl fullWidth>
-              <InputLabel>Kategorie</InputLabel>
-              <Select value={category} onChange={handleCategoryChange}>
-                <MenuItem value="">Všechny</MenuItem>
-                <MenuItem value="chatbot">Chatbot</MenuItem>
-                <MenuItem value="image">Generování obrázků</MenuItem>
-                <MenuItem value="code">Programování</MenuItem>
-                <MenuItem value="text">Zpracování textu</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-          <Grid item xs={12} sm={3}>
-            <FormControl fullWidth>
-              <InputLabel>Poskytovatel</InputLabel>
-              <Select value={provider} onChange={handleProviderChange}>
-                <MenuItem value="">Všichni</MenuItem>
-                <MenuItem value="OpenAI">OpenAI</MenuItem>
-                <MenuItem value="Google">Google</MenuItem>
-                <MenuItem value="Anthropic">Anthropic</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-          <Grid item xs={12} sm={3}>
-            <TextField
-              fullWidth
-              label="Min. cena"
-              type="number"
-              value={minPrice}
-              onChange={handleMinPriceChange}
-            />
-          </Grid>
-          <Grid item xs={12} sm={3}>
-            <TextField
-              fullWidth
-              label="Max. cena"
-              type="number"
-              value={maxPrice}
-              onChange={handleMaxPriceChange}
-            />
-          </Grid>
-        </Grid>
-      </Box>
-      
-      {/* Seznam produktů */}
-      <Grid container spacing={3}>
+    <div className="container mx-auto px-4 py-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredProducts.map((product) => (
-          <Grid item key={product.id} xs={12} sm={6} md={4}>
-            <Card>
-              <CardMedia
-                component="img"
-                height="140"
-                image={product.imageUrl}
-                alt={product.name}
-                loading="lazy"
-              />
-              <CardContent>
-                <Typography gutterBottom variant="h5" component="div">
-                  {product.name}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {product.description}
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
+          <ProductCard key={product.id} product={product} />
         ))}
-      </Grid>
-    </Box>
+      </div>
+      {filteredProducts.length === 0 && (
+        <div className="text-center py-8">
+          Nebyly nalezeny žádné produkty odpovídající zadaným filtrům.
+        </div>
+      )}
+    </div>
   );
-} 
+}
+
+const ProductCard = ({ product }: { product: AIProduct }) => {
+  return (
+    <div className="bg-white rounded-lg shadow-md p-6">
+      <Image
+        src={product.imageUrl}
+        alt={product.name}
+        width={800}
+        height={450}
+        className="w-full h-48 object-cover rounded-md mb-4"
+      />
+      <h3 className="text-xl font-semibold mb-2">{product.name}</h3>
+      <p className="text-gray-600 mb-4">{product.description}</p>
+      <div className="flex justify-between items-center mb-4">
+        <span className="text-lg font-bold">{product.price} €/měsíc</span>
+        <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
+          {product.category}
+        </span>
+      </div>
+      <div className="space-y-4">
+        <div>
+          <h4 className="font-semibold mb-2">Výhody:</h4>
+          <ul className="list-disc list-inside text-green-600">
+            {product.advantages.map((advantage, index) => (
+              <li key={index}>{advantage}</li>
+            ))}
+          </ul>
+        </div>
+        <div>
+          <h4 className="font-semibold mb-2">Nevýhody:</h4>
+          <ul className="list-disc list-inside text-red-600">
+            {product.disadvantages.map((disadvantage, index) => (
+              <li key={index}>{disadvantage}</li>
+            ))}
+          </ul>
+        </div>
+        <div className="flex justify-between items-center pt-4">
+          <Link
+            href={product.externalUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
+          >
+            Vyzkoušet
+          </Link>
+          {product.hasTrial && (
+            <span className="text-green-500 font-semibold">Dostupná trial verze</span>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}; 
