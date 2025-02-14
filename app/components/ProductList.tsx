@@ -1,26 +1,9 @@
 'use client'
 
-import React, { useState, useEffect, useMemo } from 'react';
-import {
-  Card,
-  CardContent,
-  Typography,
-  Grid,
-  Button,
-  Box,
-  Rating,
-  Chip,
-  TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  SelectChangeEvent,
-  CardMedia,
-} from '@mui/material';
-import { useRouter, useSearchParams } from 'next/navigation';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 
 interface AIProduct {
   id: string;
@@ -43,10 +26,6 @@ interface AIProduct {
   hasTrial: boolean;
   createdAt: string;
   updatedAt: string;
-}
-
-interface ProductListProps {
-  initialProducts?: AIProduct[];
 }
 
 const filterProducts = (products: AIProduct[], category: string | null, provider: string | null, minPrice: string | null, maxPrice: string | null) => {
