@@ -77,7 +77,7 @@ export default function ProductList() {
   
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 px-4 md:px-8">
         {filteredProducts.map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}
@@ -136,7 +136,7 @@ const ProductCard = ({ product }: { product: AIProduct }) => {
             Vyzkoušet
           </Link>
           {product.hasTrial && (
-            <span className="text-green-500 font-semibold">Dostupná trial verze</span>
+            <span className="text-green-500 font-semibold text-sm">Dostupná trial verze</span>
           )}
         </div>
       </div>
