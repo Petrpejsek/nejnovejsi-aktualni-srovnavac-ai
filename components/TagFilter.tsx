@@ -9,6 +9,7 @@ interface TagFilterProps {
 
 export default function TagFilter({ selectedTags, onTagsChange }: TagFilterProps) {
   const [availableTags, setAvailableTags] = useState<string[]>([])
+  const [showAllTags, setShowAllTags] = useState(false)
 
   useEffect(() => {
     const fetchTags = async () => {
@@ -98,16 +99,26 @@ export default function TagFilter({ selectedTags, onTagsChange }: TagFilterProps
   `
 
   return (
-    <div className="flex flex-wrap gap-2">
-      {availableTags.map((tag) => (
+    <div className="space-y-4">
+      <div className={`flex flex-wrap gap-2 ${!showAllTags ? 'max-h-[120px] overflow-hidden' : ''}`}>
+        {availableTags.map((tag) => (
+          <button
+            key={tag}
+            onClick={() => toggleTag(tag)}
+            className={buttonClass(tag)}
+          >
+            {tag}
+          </button>
+        ))}
+      </div>
+      {availableTags.length > 12 && (
         <button
-          key={tag}
-          onClick={() => toggleTag(tag)}
-          className={buttonClass(tag)}
+          onClick={() => setShowAllTags(!showAllTags)}
+          className="text-sm text-purple-600 hover:text-purple-700 font-medium"
         >
-          {tag}
+          {showAllTags ? 'Zobrazit méně' : 'Zobrazit více'}
         </button>
-      ))}
+      )}
     </div>
   )
 } 
