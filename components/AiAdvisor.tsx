@@ -1,11 +1,32 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 
 export default function AiAdvisor() {
   const [query, setQuery] = useState('')
+  const [productCount, setProductCount] = useState(0)
   const router = useRouter()
+
+  useEffect(() => {
+    // Načtení počtu produktů
+    const fetchProductCount = async () => {
+      try {
+        const response = await fetch('/api/products/count')
+        if (response.ok) {
+          const data = await response.json()
+          setProductCount(data.count)
+        }
+      } catch (error) {
+        console.error('Chyba při načítání počtu produktů:', error)
+      }
+    }
+
+    fetchProductCount()
+    // Aktualizace každých 30 sekund
+    const interval = setInterval(fetchProductCount, 30000)
+    return () => clearInterval(interval)
+  }, [])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -22,7 +43,11 @@ export default function AiAdvisor() {
           Najděte ideální AI nástroj
         </h1>
         <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-          Popište svůj projekt nebo problém a my vám pomůžeme najít nejlepší AI řešení pro vaše potřeby
+          Vyberte si z našich{' '}
+          <span className="inline-flex items-center bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text text-transparent font-semibold animate-pulse">
+            {productCount} AI řešení
+          </span>
+          {' '}a najděte to nejlepší pro vaše potřeby. Stačí popsat váš projekt nebo problém a my vám pomůžeme s výběrem.
         </p>
       </div>
 

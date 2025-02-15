@@ -46,7 +46,10 @@ export default function DoporuceniPage() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch('/api/products')
+        const response = await fetch('/api/products', {
+          cache: 'no-store',  // Vypneme cacheování
+          next: { revalidate: 0 }  // Vypneme revalidaci
+        })
         if (response.ok) {
           const data = await response.json()
           // Převedeme stringy JSON zpět na objekty a zajistíme správné formátování cen
@@ -58,10 +61,12 @@ export default function DoporuceniPage() {
             pricingInfo: typeof product.pricingInfo === 'string' ? JSON.parse(product.pricingInfo) : product.pricingInfo,
             videoUrls: typeof product.videoUrls === 'string' ? JSON.parse(product.videoUrls) : product.videoUrls,
             hasTrial: typeof product.hasTrial === 'boolean' ? product.hasTrial : false,
-            // Zajistíme, že cena je číslo
             price: typeof product.price === 'string' ? parseFloat(product.price) : product.price
           }))
           setProducts(processedData)
+          console.log(`Načteno ${processedData.length} produktů`)  // Pro debugging
+        } else {
+          console.error('Chyba při načítání:', response.status, response.statusText)
         }
       } catch (error) {
         console.error('Chyba při načítání produktů:', error)
@@ -72,8 +77,8 @@ export default function DoporuceniPage() {
 
     fetchProducts()
 
-    // Automatické obnovení dat každých 5 sekund
-    const interval = setInterval(fetchProducts, 5000)
+    // Aktualizace dat každé 2 sekundy
+    const interval = setInterval(fetchProducts, 2000)
     return () => clearInterval(interval)
   }, [])
 
@@ -351,7 +356,7 @@ export default function DoporuceniPage() {
                       onClick={() => handleVisit(product.externalUrl)}
                       className="w-full px-6 py-3 text-base font-medium rounded-[14px] bg-gradient-primary text-white hover-gradient-primary transition-all"
                     >
-                      Vyzkoušet
+                      {product.hasTrial ? 'Vyzkoušet zdarma' : 'Vyzkoušet'}
                     </button>
                   </div>
                 )}

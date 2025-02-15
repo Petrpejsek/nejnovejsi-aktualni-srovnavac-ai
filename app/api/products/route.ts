@@ -23,40 +23,24 @@ interface Product {
 // GET /api/products - Získat všechny produkty
 export async function GET() {
   try {
-    console.log('Načítám produkty...')
     const products = await prisma.product.findMany({
       orderBy: {
-        createdAt: 'desc'
+        name: 'asc'
       }
     })
-
-    // Zpracování dat před odesláním
-    const processedProducts = products.map((product) => ({
-      ...product,
-      tags: typeof product.tags === 'string' ? JSON.parse(product.tags) : product.tags || [],
-      advantages: typeof product.advantages === 'string' ? JSON.parse(product.advantages) : product.advantages || [],
-      disadvantages: typeof product.disadvantages === 'string' ? JSON.parse(product.disadvantages) : product.disadvantages || [],
-      pricingInfo: typeof product.pricingInfo === 'string' ? JSON.parse(product.pricingInfo) : product.pricingInfo || {},
-      videoUrls: typeof product.videoUrls === 'string' ? JSON.parse(product.videoUrls) : product.videoUrls || [],
-      externalUrl: product.externalUrl?.startsWith('"') && product.externalUrl?.endsWith('"') 
-        ? JSON.parse(product.externalUrl) 
-        : product.externalUrl,
-      hasTrial: product.hasTrial || false
-    }))
-
-    console.log('Zpracované produkty:', processedProducts)
     
-    // Přidáme cache-control hlavičku pro lepší výkon
-    return new NextResponse(JSON.stringify(processedProducts), {
-      headers: {
-        'Content-Type': 'application/json',
-        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300'
-      }
-    })
+    console.log(`API: Načteno ${products.length} produktů`)  // Pro debugging
+    
+    if (!products || products.length === 0) {
+      console.warn('API: Žádné produkty nenalezeny')
+      return NextResponse.json({ error: 'Žádné produkty nenalezeny' }, { status: 404 })
+    }
+
+    return NextResponse.json(products)
   } catch (error) {
-    console.error('Chyba při načítání produktů:', error)
+    console.error('API: Chyba při načítání produktů:', error)
     return NextResponse.json(
-      { error: 'Chyba při načítání produktů' },
+      { error: 'Interní chyba serveru při načítání produktů' },
       { status: 500 }
     )
   }

@@ -16,15 +16,54 @@ export default function TagFilter({ selectedTags, onTagsChange }: TagFilterProps
         const response = await fetch('/api/products')
         if (response.ok) {
           const products = await response.json()
-          // Získáme všechny unikátní tagy ze všech produktů
+          // Získáme všechny unikátní tagy ze všech produktů a normalizujeme je
           const allTags = new Set<string>()
           products.forEach((product: any) => {
             const tags = typeof product.tags === 'string' ? JSON.parse(product.tags) : product.tags
             if (Array.isArray(tags)) {
-              tags.forEach(tag => allTags.add(tag))
+              tags.forEach(tag => {
+                // Normalizace tagů
+                let normalizedTag = tag.trim()
+                
+                // Sjednocení podobných tagů
+                if (normalizedTag.toLowerCase() === 'text na řeč' || 
+                    normalizedTag.toLowerCase() === 'text to speech') {
+                  normalizedTag = 'Text to Speech'
+                }
+                else if (normalizedTag.toLowerCase() === 'úprava fotek' || 
+                         normalizedTag.toLowerCase() === 'úprava obrázků') {
+                  normalizedTag = 'Úprava obrázků'
+                }
+                else if (normalizedTag.toLowerCase() === 'generování obrázků' || 
+                         normalizedTag.toLowerCase() === 'generování obrázkú') {
+                  normalizedTag = 'Generování obrázků'
+                }
+                else if (normalizedTag.toLowerCase() === 'zákaznický servis' || 
+                         normalizedTag.toLowerCase() === 'zákaznická podpora') {
+                  normalizedTag = 'Zákaznická podpora'
+                }
+                else if (normalizedTag.toLowerCase() === 'projektové řízení' || 
+                         normalizedTag.toLowerCase() === 'projektový management') {
+                  normalizedTag = 'Projektový management'
+                }
+                else if (normalizedTag.toLowerCase() === 'avatary' || 
+                         normalizedTag.toLowerCase() === 'digitální avatary') {
+                  normalizedTag = 'Digitální avatary'
+                }
+                else if (normalizedTag.toLowerCase() === 'video' || 
+                         normalizedTag.toLowerCase() === 'video tvorba') {
+                  normalizedTag = 'Video tvorba'
+                }
+                else if (normalizedTag.toLowerCase() === 'voiceover') {
+                  normalizedTag = 'Text to Speech'
+                }
+
+                allTags.add(normalizedTag)
+              })
             }
           })
-          setAvailableTags(Array.from(allTags))
+          // Seřadíme tagy abecedně
+          setAvailableTags(Array.from(allTags).sort())
         }
       } catch (error) {
         console.error('Chyba při načítání tagů:', error)
