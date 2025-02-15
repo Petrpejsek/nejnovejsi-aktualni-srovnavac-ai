@@ -112,12 +112,14 @@ export default function TagFilter({ selectedTags, onTagsChange }: TagFilterProps
         ))}
       </div>
       {availableTags.length > 12 && (
-        <button
-          onClick={() => setShowAllTags(!showAllTags)}
-          className="text-sm text-purple-600 hover:text-purple-700 font-medium"
-        >
-          {showAllTags ? 'Zobrazit méně' : 'Zobrazit více'}
-        </button>
+        <div className="flex justify-center mt-2">
+          <button
+            onClick={() => setShowAllTags(!showAllTags)}
+            className="text-sm text-purple-600 hover:text-purple-700 font-medium"
+          >
+            {showAllTags ? 'Zobrazit méně kategorií' : 'Zobrazit více kategorií'}
+          </button>
+        </div>
       )}
     </div>
   )

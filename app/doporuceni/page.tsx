@@ -81,9 +81,6 @@ export default function DoporuceniPage() {
     }
 
     fetchProducts()
-    // Aktualizace dat každou sekundu
-    const interval = setInterval(fetchProducts, 1000)
-    return () => clearInterval(interval)
   }, [])
 
   const toggleItem = (id: string) => {
@@ -180,6 +177,11 @@ export default function DoporuceniPage() {
       {/* TagFilter */}
       <div className="mb-8">
         <TagFilter selectedTags={selectedTags} onTagsChange={setSelectedTags} />
+        <div className="flex justify-end mt-4">
+          <button className="text-purple-600 hover:text-purple-700 text-sm font-medium">
+            Zobrazit více
+          </button>
+        </div>
       </div>
 
       {/* Seznam produktů */}
@@ -236,47 +238,49 @@ export default function DoporuceniPage() {
                   </div>
                 </div>
                 
-                <p className="text-gray-600 mb-2">
+                <p className="text-gray-600 mb-4">
                   {product.description}
                 </p>
                 
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {product.tags?.map((tag) => (
-                    <span
-                      key={tag}
-                      className="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-full"
+                <div className="space-y-4">
+                  <div className="flex flex-wrap gap-2">
+                    {product.tags?.map((tag) => (
+                      <span
+                        key={tag}
+                        className="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-full"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                  
+                  <div className="flex items-center justify-end w-full gap-3">                  
+                    <button 
+                      onClick={() => toggleExpand(product.id)}
+                      className="md:w-auto px-4 py-2 text-sm font-medium rounded-[14px] bg-gradient-primary text-white hover-gradient-primary transition-all flex items-center justify-center gap-2"
                     >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-                
-                <div className="flex items-center justify-center md:justify-end gap-3 flex-wrap">                  
-                  <button 
-                    onClick={() => toggleExpand(product.id)}
-                    className="w-full md:w-auto px-4 py-2 text-sm font-medium rounded-[14px] bg-gradient-primary text-white hover-gradient-primary transition-all flex items-center justify-center gap-2"
-                  >
-                    <span>{expandedProductId === product.id ? 'Méně informací' : 'Více informací'}</span>
-                    <svg 
-                      xmlns="http://www.w3.org/2000/svg" 
-                      viewBox="0 0 24 24" 
-                      fill="none" 
-                      stroke="currentColor" 
-                      className={`w-4 h-4 transition-transform ${expandedProductId === product.id ? 'rotate-180' : ''}`}
+                      <span>{expandedProductId === product.id ? 'Méně informací' : 'Více informací'}</span>
+                      <svg 
+                        xmlns="http://www.w3.org/2000/svg" 
+                        viewBox="0 0 24 24" 
+                        fill="none" 
+                        stroke="currentColor" 
+                        className={`w-4 h-4 transition-transform ${expandedProductId === product.id ? 'rotate-180' : ''}`}
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                    <button 
+                      onClick={() => handleSave(product.id)}
+                      className={`md:w-auto px-4 py-2 text-sm font-medium rounded-[14px] border transition-all duration-300 ${
+                        savedItems.has(product.id)
+                          ? 'border-green-500 text-green-600 bg-green-50 hover:bg-green-100'
+                          : 'border-gray-200 text-gray-600 hover:bg-gray-50'
+                      }`}
                     >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </button>
-                  <button 
-                    onClick={() => handleSave(product.id)}
-                    className={`w-full md:w-auto px-4 py-2 text-sm font-medium rounded-[14px] border transition-all duration-300 ${
-                      savedItems.has(product.id)
-                        ? 'border-green-500 text-green-600 bg-green-50 hover:bg-green-100'
-                        : 'border-gray-200 text-gray-600 hover:bg-gray-50'
-                    }`}
-                  >
-                    {savedItems.has(product.id) ? 'Uloženo ✓' : 'Uložit'}
-                  </button>
+                      {savedItems.has(product.id) ? 'Uloženo ✓' : 'Uložit'}
+                    </button>
+                  </div>
                 </div>
 
                 {/* Rozbalovací sekce */}

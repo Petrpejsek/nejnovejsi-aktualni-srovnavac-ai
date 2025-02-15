@@ -16,7 +16,7 @@ export default function Navbar() {
         <div className="flex justify-between items-center h-16">
           {/* Logo a název */}
           <Link href="/" className="flex items-center space-x-3">
-            <span className="font-bold text-lg md:text-xl text-gradient-primary">Comparee.ai</span>
+            <span className="font-bold text-xl md:text-2xl text-gradient-primary">Comparee.ai</span>
           </Link>
 
           {/* Mobilní menu tlačítko */}

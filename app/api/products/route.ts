@@ -45,9 +45,7 @@ export async function GET() {
 
     return NextResponse.json(products, {
       headers: {
-        'Cache-Control': 'no-store, no-cache, must-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0'
+        'Cache-Control': 'public, max-age=300, stale-while-revalidate=60'
       }
     })
   } catch (error) {
@@ -57,9 +55,7 @@ export async function GET() {
       { 
         status: 500,
         headers: {
-          'Cache-Control': 'no-store, no-cache, must-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0'
+          'Cache-Control': 'no-store, no-cache, must-revalidate'
         }
       }
     )
