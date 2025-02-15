@@ -33,15 +33,35 @@ export async function GET() {
     
     if (!products || products.length === 0) {
       console.warn('API: Žádné produkty nenalezeny')
-      return NextResponse.json({ error: 'Žádné produkty nenalezeny' }, { status: 404 })
+      return NextResponse.json({ error: 'Žádné produkty nenalezeny' }, { 
+        status: 404,
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
+      })
     }
 
-    return NextResponse.json(products)
+    return NextResponse.json(products, {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    })
   } catch (error) {
     console.error('API: Chyba při načítání produktů:', error)
     return NextResponse.json(
       { error: 'Interní chyba serveru při načítání produktů' },
-      { status: 500 }
+      { 
+        status: 500,
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
+      }
     )
   }
 }

@@ -47,12 +47,15 @@ export default function DoporuceniPage() {
     const fetchProducts = async () => {
       try {
         const response = await fetch('/api/products', {
-          cache: 'no-store',  // Vypneme cacheování
-          next: { revalidate: 0 }  // Vypneme revalidaci
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+          }
         })
         if (response.ok) {
           const data = await response.json()
-          // Převedeme stringy JSON zpět na objekty a zajistíme správné formátování cen
           const processedData = data.map((product: Product) => ({
             ...product,
             tags: typeof product.tags === 'string' ? JSON.parse(product.tags) : product.tags,
@@ -63,8 +66,10 @@ export default function DoporuceniPage() {
             hasTrial: typeof product.hasTrial === 'boolean' ? product.hasTrial : false,
             price: typeof product.price === 'string' ? parseFloat(product.price) : product.price
           }))
+          console.log('Načtená data:', data)  // Pro debugging
+          console.log('Zpracovaná data:', processedData)  // Pro debugging
           setProducts(processedData)
-          console.log(`Načteno ${processedData.length} produktů`)  // Pro debugging
+          console.log(`Načteno ${processedData.length} produktů`)
         } else {
           console.error('Chyba při načítání:', response.status, response.statusText)
         }
@@ -76,9 +81,8 @@ export default function DoporuceniPage() {
     }
 
     fetchProducts()
-
-    // Aktualizace dat každé 2 sekundy
-    const interval = setInterval(fetchProducts, 2000)
+    // Aktualizace dat každou sekundu
+    const interval = setInterval(fetchProducts, 1000)
     return () => clearInterval(interval)
   }, [])
 
@@ -114,7 +118,7 @@ export default function DoporuceniPage() {
   }
 
   const getPersonalizedHeadline = (query: string | null) => {
-    if (!query) return 'Vyberte, kde potřebujete pomoci'
+    if (!query) return `Vyberte si z našich ${products.length} AI řešení`
 
     return (
       <>
@@ -165,7 +169,7 @@ export default function DoporuceniPage() {
         <p className="text-gray-600 text-lg max-w-3xl mx-auto mb-4">
           {query 
             ? 'Na základě vašich potřeb jsme připravili seznam AI nástrojů, které vám pomohou růst a být efektivnější.' 
-            : 'Vyberte si z našich AI řešení, která vám pomohou zefektivnit vaši práci a růst.'
+            : `Vyberte si z našich ${products.length} AI řešení, která vám pomohou zefektivnit vaši práci a růst.`
           }
         </p>
         <p className="text-gray-500 text-base">

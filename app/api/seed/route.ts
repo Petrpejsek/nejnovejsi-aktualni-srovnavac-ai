@@ -58,6 +58,16 @@ const testProducts = [
 
 export async function GET() {
   try {
+    // Kontrola SKIP_DB_RESET proměnné
+    if (process.env.SKIP_DB_RESET === 'true') {
+      console.log('SKIP_DB_RESET je nastaveno na true, přeskakuji reset databáze')
+      return new NextResponse(
+        JSON.stringify({ 
+          message: 'Reset databáze přeskočen (SKIP_DB_RESET=true)'
+        }, null, 2)
+      )
+    }
+
     console.log('Začínám seed proces...')
     
     // Smazat existující produkty
