@@ -5,12 +5,19 @@ import './globals.css'
 import { Providers } from './providers'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
+import Navbar from '@/components/Navbar'
 
-const inter = Inter({ subsets: ['latin', 'latin-ext'] })
+const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'AI nástroje',
-  description: 'Katalog AI nástrojů a jejich srovnání',
+  title: 'Comparee.ai - Compare AI Tools',
+  description: 'Compare features, prices, and reviews of the most popular AI tools.',
+  metadataBase: new URL('https://comparee.ai'),
+  other: {
+    'Cache-Control': 'no-store, no-cache, must-revalidate',
+    'Pragma': 'no-cache',
+    'Expires': '0'
+  }
 }
 
 export default function RootLayout({
@@ -19,11 +26,17 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="cs">
+    <html lang="en">
+      <head>
+        <meta httpEquiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+        <meta httpEquiv="Pragma" content="no-cache" />
+        <meta httpEquiv="Expires" content="0" />
+      </head>
       <body className={inter.className}>
         <Providers>
           <div className="min-h-screen flex flex-col">
             <Header />
+            <Navbar />
             <main className="flex-grow">
               {children}
             </main>
