@@ -23,37 +23,37 @@ export default function TagFilter({ selectedTags, onTagsChange }: TagFilterProps
             const tags = typeof product.tags === 'string' ? JSON.parse(product.tags) : product.tags
             if (Array.isArray(tags)) {
               tags.forEach(tag => {
-                // Normalizace tagů
+                // Normalize tags
                 let normalizedTag = tag.trim()
                 
-                // Sjednocení podobných tagů
+                // Unify similar tags
                 if (normalizedTag.toLowerCase() === 'text na řeč' || 
                     normalizedTag.toLowerCase() === 'text to speech') {
                   normalizedTag = 'Text to Speech'
                 }
                 else if (normalizedTag.toLowerCase() === 'úprava fotek' || 
                          normalizedTag.toLowerCase() === 'úprava obrázků') {
-                  normalizedTag = 'Úprava obrázků'
+                  normalizedTag = 'Image Editing'
                 }
                 else if (normalizedTag.toLowerCase() === 'generování obrázků' || 
                          normalizedTag.toLowerCase() === 'generování obrázkú') {
-                  normalizedTag = 'Generování obrázků'
+                  normalizedTag = 'Image Generation'
                 }
                 else if (normalizedTag.toLowerCase() === 'zákaznický servis' || 
                          normalizedTag.toLowerCase() === 'zákaznická podpora') {
-                  normalizedTag = 'Zákaznická podpora'
+                  normalizedTag = 'Customer Support'
                 }
                 else if (normalizedTag.toLowerCase() === 'projektové řízení' || 
                          normalizedTag.toLowerCase() === 'projektový management') {
-                  normalizedTag = 'Projektový management'
+                  normalizedTag = 'Project Management'
                 }
                 else if (normalizedTag.toLowerCase() === 'avatary' || 
                          normalizedTag.toLowerCase() === 'digitální avatary') {
-                  normalizedTag = 'Digitální avatary'
+                  normalizedTag = 'Digital Avatars'
                 }
                 else if (normalizedTag.toLowerCase() === 'video' || 
                          normalizedTag.toLowerCase() === 'video tvorba') {
-                  normalizedTag = 'Video tvorba'
+                  normalizedTag = 'Video Creation'
                 }
                 else if (normalizedTag.toLowerCase() === 'voiceover') {
                   normalizedTag = 'Text to Speech'
@@ -117,7 +117,7 @@ export default function TagFilter({ selectedTags, onTagsChange }: TagFilterProps
             onClick={() => setShowAllTags(!showAllTags)}
             className="text-sm text-purple-600 hover:text-purple-700 font-medium"
           >
-            {showAllTags ? 'Zobrazit méně kategorií' : 'Zobrazit více kategorií'}
+            {showAllTags ? 'Show Less Categories' : 'Show More Categories'}
           </button>
         </div>
       )}

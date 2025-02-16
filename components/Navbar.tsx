@@ -78,7 +78,7 @@ export default function Navbar() {
                   : 'text-gray-700 hover:text-purple-600'
               }`}
             >
-              Domů
+              Home
             </Link>
             <Link
               href="/doporuceni"
@@ -88,7 +88,7 @@ export default function Navbar() {
                   : 'text-gray-700 hover:text-purple-600'
               }`}
             >
-              Doporučení
+              Recommendations
             </Link>
             <Link
               href="/porovnani"
@@ -98,7 +98,7 @@ export default function Navbar() {
                   : 'text-gray-700 hover:text-purple-600'
               }`}
             >
-              Porovnání
+              Compare
             </Link>
           </div>
 
@@ -120,7 +120,7 @@ export default function Navbar() {
                 d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
               />
             </svg>
-            Porovnat
+            Compare
           </Link>
         </div>
 
@@ -137,7 +137,7 @@ export default function Navbar() {
                 }`}
                 onClick={() => setIsMenuOpen(false)}
               >
-                Domů
+                Home
               </Link>
               <Link
                 href="/doporuceni"
@@ -148,7 +148,7 @@ export default function Navbar() {
                 }`}
                 onClick={() => setIsMenuOpen(false)}
               >
-                Doporučení
+                Recommendations
               </Link>
               <Link
                 href="/porovnani"
@@ -159,7 +159,7 @@ export default function Navbar() {
                 }`}
                 onClick={() => setIsMenuOpen(false)}
               >
-                Porovnání
+                Compare
               </Link>
             </div>
           </div>

@@ -13,7 +13,9 @@
     "db:push": "prisma db push",
     "db:studio": "prisma studio",
     "db:reset": "prisma db push && prisma db seed",
-    "postinstall": "prisma generate && prisma db push && npx prisma db seed"
+    "postinstall": "prisma generate && prisma db push && npx prisma db seed",
+    "backup": "node --loader ts-node/esm scripts/backup.ts",
+    "restore": "node --loader ts-node/esm scripts/restore.ts"
   },
   "prisma": {
     "seed": "node --loader ts-node/esm prisma/seed.ts"
@@ -25,16 +27,19 @@
     "@prisma/client": "^6.3.1",
     "@radix-ui/react-slot": "^1.1.2",
     "@tailwindcss/forms": "^0.5.7",
+    "@types/node-fetch": "^2.6.12",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "critters": "^0.0.25",
     "next": "^14.1.0",
     "next-auth": "^4.24.5",
+    "node-fetch": "^3.3.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.50.1",
     "tailwind-merge": "^3.0.1",
-    "zustand": "^4.5.0"
+    "zustand": "^4.5.0",
+    "sharp": "^0.33.2"
   },
   "devDependencies": {
     "@types/node": "^20.11.16",

@@ -44,13 +44,13 @@ export default function Header() {
                 onClick={() => setIsLoginOpen(true)}
                 className="px-4 py-2 text-sm font-medium rounded-[14px] bg-gradient-primary text-white hover-gradient-primary transition-all"
               >
-                Přihlásit
+                Sign In
               </button>
               <button
                 onClick={() => setIsRegisterOpen(true)}
                 className="text-sm text-gradient-primary font-medium hover:opacity-80 transition-opacity"
               >
-                Registrovat se
+                Sign Up
               </button>
             </div>
           </div>
@@ -61,7 +61,7 @@ export default function Header() {
       <Modal
         isOpen={isLoginOpen}
         onClose={() => setIsLoginOpen(false)}
-        title="Přihlášení"
+        title="Sign In"
       >
         <LoginForm
           onSuccess={handleLoginSuccess}
@@ -72,7 +72,7 @@ export default function Header() {
       <Modal
         isOpen={isRegisterOpen}
         onClose={() => setIsRegisterOpen(false)}
-        title="Registrace"
+        title="Sign Up"
       >
         <RegisterForm
           onSuccess={handleRegisterSuccess}

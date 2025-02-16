@@ -115,13 +115,13 @@ export default function DoporuceniPage() {
   }
 
   const getPersonalizedHeadline = (query: string | null) => {
-    if (!query) return `Vyberte si z našich ${products.length} AI řešení`
+    if (!query) return `Choose from our ${products.length} AI solutions`
 
     return (
       <>
-        <span className="text-gradient-primary">Pomůžeme vám s </span>
+        <span className="text-gradient-primary">We'll help you with </span>
         <span className="text-gray-900">"{query}"</span>
-        <span className="text-gradient-primary"> pomocí AI</span>
+        <span className="text-gradient-primary"> using AI</span>
       </>
     )
   }
@@ -158,33 +158,28 @@ export default function DoporuceniPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      {/* Úvodní sekce */}
+      {/* Introduction section */}
       <div className="text-center mb-12">
         <h1 className="text-4xl font-semibold mb-4">
           {getPersonalizedHeadline(query)}
         </h1>
         <p className="text-gray-600 text-lg max-w-3xl mx-auto mb-4">
           {query 
-            ? 'Na základě vašich potřeb jsme připravili seznam AI nástrojů, které vám pomohou růst a být efektivnější.' 
-            : `Vyberte si z našich ${products.length} AI řešení, která vám pomohou zefektivnit vaši práci a růst.`
+            ? 'Based on your needs, we have prepared a list of AI tools that will help you grow and be more efficient.' 
+            : `Choose from our ${products.length} AI solutions that will help you work more efficiently and grow.`
           }
         </p>
         <p className="text-gray-500 text-base">
-          Procházejte jednotlivé možnosti a uložte si ty, které vás zaujmou. Později si je můžete detailně porovnat.
+          Browse through the options and save the ones that interest you. You can compare them in detail later.
         </p>
       </div>
 
       {/* TagFilter */}
       <div className="mb-8">
         <TagFilter selectedTags={selectedTags} onTagsChange={setSelectedTags} />
-        <div className="flex justify-end mt-4">
-          <button className="text-purple-600 hover:text-purple-700 text-sm font-medium">
-            Zobrazit více
-          </button>
-        </div>
       </div>
 
-      {/* Seznam produktů */}
+      {/* Product list */}
       <div className="space-y-4 mb-12">
         {filteredProducts.map((product) => (
           <div
@@ -209,7 +204,7 @@ export default function DoporuceniPage() {
                     className="w-4 h-4 text-purple-600/90 rounded-[6px] border-gray-300 focus:ring-purple-500"
                   />
                   <span className="text-sm text-gray-600 group-hover:text-gray-800 transition-colors">
-                    Porovnat
+                    Compare
                   </span>
                 </label>
               </div>
@@ -259,7 +254,7 @@ export default function DoporuceniPage() {
                       onClick={() => toggleExpand(product.id)}
                       className="md:w-auto px-4 py-2 text-sm font-medium rounded-[14px] bg-gradient-primary text-white hover-gradient-primary transition-all flex items-center justify-center gap-2"
                     >
-                      <span>{expandedProductId === product.id ? 'Méně informací' : 'Více informací'}</span>
+                      <span>{expandedProductId === product.id ? 'Show Less' : 'Show More'}</span>
                       <svg 
                         xmlns="http://www.w3.org/2000/svg" 
                         viewBox="0 0 24 24" 
@@ -278,18 +273,18 @@ export default function DoporuceniPage() {
                           : 'border-gray-200 text-gray-600 hover:bg-gray-50'
                       }`}
                     >
-                      {savedItems.has(product.id) ? 'Uloženo ✓' : 'Uložit'}
+                      {savedItems.has(product.id) ? 'Saved ✓' : 'Save'}
                     </button>
                   </div>
                 </div>
 
-                {/* Rozbalovací sekce */}
+                {/* Expandable section */}
                 {expandedProductId === product.id && (
                   <div className="mt-6 pt-6 border-t border-gray-100">
                     <div className="grid md:grid-cols-2 gap-6 mb-6">
                       {product.advantages && product.advantages.length > 0 && (
                         <div>
-                          <h4 className="text-lg font-medium text-gray-800 mb-3">Výhody</h4>
+                          <h4 className="text-lg font-medium text-gray-800 mb-3">Advantages</h4>
                           <ul className="space-y-2">
                             {product.advantages.map((advantage, index) => (
                               <li key={index} className="flex items-start gap-2">
@@ -305,7 +300,7 @@ export default function DoporuceniPage() {
 
                       {product.disadvantages && product.disadvantages.length > 0 && (
                         <div>
-                          <h4 className="text-lg font-medium text-gray-800 mb-3">Nevýhody</h4>
+                          <h4 className="text-lg font-medium text-gray-800 mb-3">Disadvantages</h4>
                           <ul className="space-y-2">
                             {product.disadvantages.map((disadvantage, index) => (
                               <li key={index} className="flex items-start gap-2">
@@ -322,16 +317,16 @@ export default function DoporuceniPage() {
 
                     {product.detailInfo && (
                       <div className="mb-6">
-                        <h4 className="text-lg font-medium text-gray-800 mb-3">Detailní popis</h4>
+                        <h4 className="text-lg font-medium text-gray-800 mb-3">Detailed Description</h4>
                         <div className="bg-gray-50/80 rounded-[14px] p-4">
                           <p className="text-gray-600 whitespace-pre-line">{product.detailInfo}</p>
                         </div>
                       </div>
                     )}
 
-                    {/* Cenové informace */}
+                    {/* Pricing information */}
                     <div className="mb-6">
-                      <h4 className="text-lg font-medium text-gray-800 mb-3">Cenové podmínky</h4>
+                      <h4 className="text-lg font-medium text-gray-800 mb-3">Pricing</h4>
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         {product.pricingInfo?.basic && (
                           <div className="bg-gray-50/80 p-4 rounded-[14px]">
@@ -364,7 +359,7 @@ export default function DoporuceniPage() {
                       onClick={() => handleVisit(product.externalUrl)}
                       className="w-full px-6 py-3 text-base font-medium rounded-[14px] bg-gradient-primary text-white hover-gradient-primary transition-all"
                     >
-                      {product.hasTrial ? 'Vyzkoušet zdarma' : 'Vyzkoušet'}
+                      {product.hasTrial ? 'Try for Free' : 'Try Now'}
                     </button>
                   </div>
                 )}

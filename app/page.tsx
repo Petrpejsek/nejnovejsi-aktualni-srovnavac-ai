@@ -1,19 +1,19 @@
-'use client'
-
-import React, { useState } from 'react'
+import React from 'react'
 import AiAdvisor from '../components/AiAdvisor'
-import ProductGrid from '../components/ProductGrid'
-import TagFilter from '../components/TagFilter'
+import ProductGridWrapper from '../components/ProductGridWrapper'
 
 export default function Home() {
-  const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set())
-
   return (
     <main className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto">
+        <h1 className="text-4xl font-bold text-center mb-8">
+          Find the Perfect AI Tool for Your Needs
+        </h1>
+        <p className="text-lg text-gray-600 text-center mb-12">
+          Compare features, prices, and user reviews of the most popular AI tools to make the best choice for your business.
+        </p>
         <AiAdvisor />
-        <TagFilter selectedTags={selectedTags} onTagsChange={setSelectedTags} />
-        <ProductGrid selectedTags={selectedTags} />
+        <ProductGridWrapper />
       </div>
     </main>
   )

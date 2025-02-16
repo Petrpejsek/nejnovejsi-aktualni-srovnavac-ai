@@ -20,7 +20,7 @@ interface Product {
   updatedAt: Date
 }
 
-// GET /api/products - Získat všechny produkty
+// GET /api/products - Get all products
 export async function GET() {
   try {
     const products = await prisma.product.findMany({
@@ -29,11 +29,11 @@ export async function GET() {
       }
     })
     
-    console.log(`API: Načteno ${products.length} produktů`)  // Pro debugging
+    console.log(`API: Loaded ${products.length} products`)  // For debugging
     
     if (!products || products.length === 0) {
-      console.warn('API: Žádné produkty nenalezeny')
-      return NextResponse.json({ error: 'Žádné produkty nenalezeny' }, { 
+      console.warn('API: No products found')
+      return NextResponse.json({ error: 'No products found' }, { 
         status: 404,
         headers: {
           'Cache-Control': 'no-store, no-cache, must-revalidate',
@@ -49,9 +49,9 @@ export async function GET() {
       }
     })
   } catch (error) {
-    console.error('API: Chyba při načítání produktů:', error)
+    console.error('API: Error loading products:', error)
     return NextResponse.json(
-      { error: 'Interní chyba serveru při načítání produktů' },
+      { error: 'Internal server error while loading products' },
       { 
         status: 500,
         headers: {
@@ -62,21 +62,21 @@ export async function GET() {
   }
 }
 
-// POST /api/products - Vytvořit nový produkt
+// POST /api/products - Create a new product
 export async function POST(request: Request) {
   try {
     const data = await request.json()
-    console.log('Přijatá data pro vytvoření produktu:', data)
+    console.log('Received data for product creation:', data)
 
-    // Kontrola povinných polí
+    // Check required fields
     if (!data.name) {
       return NextResponse.json(
-        { error: 'Název produktu je povinný' },
+        { error: 'Product name is required' },
         { status: 400 }
       )
     }
 
-    // Zpracování dat před uložením
+    // Process data before saving
     const processedData = {
       name: data.name,
       description: data.description || '',
@@ -93,15 +93,15 @@ export async function POST(request: Request) {
       hasTrial: Boolean(data.hasTrial)
     }
 
-    console.log('Zpracovaná data před uložením:', processedData)
+    console.log('Processed data before saving:', processedData)
 
     const product = await prisma.product.create({
       data: processedData
     })
 
-    console.log('Vytvořený produkt:', product)
+    console.log('Created product:', product)
     
-    // Zpracování dat pro odpověď
+    // Process data for response
     const responseProduct = {
       ...product,
       tags: JSON.parse(product.tags || '[]'),
@@ -113,9 +113,9 @@ export async function POST(request: Request) {
 
     return NextResponse.json(responseProduct)
   } catch (error) {
-    console.error('Chyba při vytváření produktu:', error)
+    console.error('Error creating product:', error)
     return NextResponse.json(
-      { error: 'Chyba při vytváření produktu', details: error instanceof Error ? error.message : 'Unknown error' },
+      { error: 'Error creating product', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     )
   }
