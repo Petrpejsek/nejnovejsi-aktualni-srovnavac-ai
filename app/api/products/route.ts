@@ -45,7 +45,9 @@ export async function GET() {
 
     return NextResponse.json(products, {
       headers: {
-        'Cache-Control': 'public, max-age=300, stale-while-revalidate=60'
+        'Cache-Control': 'no-store, no-cache, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
       }
     })
   } catch (error) {
@@ -111,7 +113,13 @@ export async function POST(request: Request) {
       videoUrls: JSON.parse(product.videoUrls || '[]')
     }
 
-    return NextResponse.json(responseProduct)
+    return NextResponse.json(responseProduct, {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    })
   } catch (error) {
     console.error('Error creating product:', error)
     return NextResponse.json(
