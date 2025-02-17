@@ -5,15 +5,15 @@
   "type": "module",
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && prisma db push && next build",
-    "vercel-build": "prisma generate && prisma db push && next build",
+    "build": "tsc --project tsconfig.json && prisma generate && next build",
+    "vercel-build": "tsc --project tsconfig.json && prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
     "db:sync": "node scripts/sync-db.js",
     "db:push": "prisma db push",
     "db:studio": "prisma studio",
     "db:reset": "prisma db push && node --loader ts-node/esm prisma/seed.ts",
-    "postinstall": "prisma generate && prisma db push",
+    "postinstall": "prisma generate",
     "backup": "node --loader ts-node/esm scripts/backup.ts",
     "restore": "node --loader ts-node/esm scripts/restore.ts"
   },

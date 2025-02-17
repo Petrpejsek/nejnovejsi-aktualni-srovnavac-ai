@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { useCompareStore } from '../store/compareStore'
 import Modal from './Modal'
 import Image from 'next/image'
 
@@ -8,44 +9,64 @@ interface Product {
   id: string
   name: string
   description: string
-  price: string
-  features: string[]
-  rating: number
   category: string
-  imageUrl: string
+  price: number
+  imageUrl?: string
+  tags?: string[]
+  externalUrl?: string
+  hasTrial?: boolean
 }
 
 interface ProductSelectionModalProps {
   isOpen: boolean
   onClose: () => void
   onSelect: (product: Product) => void
-  availableProducts: Product[]
-  selectedProducts: Product[]
 }
 
 export default function ProductSelectionModal({
   isOpen,
   onClose,
-  onSelect,
-  availableProducts,
-  selectedProducts,
+  onSelect
 }: ProductSelectionModalProps) {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
+  const [availableProducts, setAvailableProducts] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch('/api/products')
+        if (response.ok) {
+          const data = await response.json()
+          setAvailableProducts(data)
+        }
+      } catch (error) {
+        console.error('Chyba při načítání produktů:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    if (isOpen) {
+      fetchProducts()
+    }
+  }, [isOpen])
 
   // Získat unikátní kategorie
-  const categories = ['all', ...new Set(availableProducts.map((p) => p.category))]
+  const categories = ['all', ...availableProducts
+    .map(p => p.category)
+    .filter((value, index, self) => self.indexOf(value) === index)]
 
   // Filtrovat produkty podle vyhledávání a kategorie
   const filteredProducts = availableProducts.filter((product) => {
-    const matchesSearch = product.name
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase())
-    const matchesCategory =
-      selectedCategory === 'all' || product.category === selectedCategory
-    const isNotSelected = !selectedProducts.find((p) => p.id === product.id)
-    return matchesSearch && matchesCategory && isNotSelected
+    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         product.description.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesCategory = selectedCategory === 'all' || product.category === selectedCategory
+    return matchesSearch && matchesCategory
   })
+
+  if (!isOpen) return null
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Vyberte produkt k porovnání">
@@ -93,35 +114,41 @@ export default function ProductSelectionModal({
 
         {/* Seznam produktů */}
         <div className="space-y-4 max-h-[400px] overflow-y-auto">
-          {filteredProducts.map((product) => (
-            <button
-              key={product.id}
-              onClick={() => {
-                onSelect(product)
-                onClose()
-              }}
-              className="w-full flex items-center p-4 bg-white rounded-lg border border-gray-200 hover:border-purple-500 transition-colors"
-            >
-              <div className="relative w-16 h-16 mr-4">
-                <Image
-                  src={product.imageUrl}
-                  alt={product.name}
-                  fill
-                  className="object-contain"
-                />
-              </div>
-              <div className="flex-1 text-left">
-                <h3 className="font-medium">{product.name}</h3>
-                <p className="text-sm text-gray-500">{product.category}</p>
-              </div>
-              <div className="text-purple-600 font-medium">{product.price}</div>
-            </button>
-          ))}
-
-          {filteredProducts.length === 0 && (
+          {loading ? (
+            <div className="flex justify-center items-center h-32">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+            </div>
+          ) : filteredProducts.length === 0 ? (
             <div className="text-center text-gray-500 py-8">
               Žádné produkty nebyly nalezeny
             </div>
+          ) : (
+            filteredProducts.map((product) => (
+              <button
+                key={product.id}
+                onClick={() => {
+                  onSelect(product)
+                  onClose()
+                }}
+                className="w-full flex items-center p-4 bg-white rounded-lg border border-gray-200 hover:border-purple-500 transition-colors"
+              >
+                <div className="relative w-16 h-16 mr-4">
+                  {product.imageUrl && (
+                    <Image
+                      src={product.imageUrl}
+                      alt={product.name}
+                      fill
+                      className="object-contain"
+                    />
+                  )}
+                </div>
+                <div className="flex-1 text-left">
+                  <h3 className="font-medium">{product.name}</h3>
+                  <p className="text-sm text-gray-500">{product.description}</p>
+                </div>
+                <div className="text-purple-600 font-medium">{product.price}</div>
+              </button>
+            ))
           )}
         </div>
       </div>
