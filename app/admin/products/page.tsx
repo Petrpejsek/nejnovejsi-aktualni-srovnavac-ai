@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 
 interface Product {
   id: string
@@ -47,6 +48,11 @@ export default function ProductsAdminPage() {
     externalUrl: '',
     hasTrial: false
   })
+  const [dragActive, setDragActive] = useState(false)
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const [newTag, setNewTag] = useState('')
+  const [newAdvantage, setNewAdvantage] = useState('')
+  const [newDisadvantage, setNewDisadvantage] = useState('')
 
   useEffect(() => {
     fetchProducts()
@@ -175,6 +181,89 @@ export default function ProductsAdminPage() {
     }))
   }
 
+  const handleDrag = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true)
+    } else if (e.type === "dragleave") {
+      setDragActive(false)
+    }
+  }
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setDragActive(false)
+    
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleImageChange({ target: { files: e.dataTransfer.files } } as any)
+    }
+  }
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0]
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string)
+        setFormData(prev => ({ ...prev, imageUrl: reader.result as string }))
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const addTag = () => {
+    if (newTag.trim()) {
+      setFormData(prev => ({
+        ...prev,
+        tags: [...prev.tags || [], newTag.trim()]
+      }))
+      setNewTag('')
+    }
+  }
+
+  const removeTag = (tag: string) => {
+    setFormData(prev => ({
+      ...prev,
+      tags: prev.tags?.filter(t => t !== tag) || []
+    }))
+  }
+
+  const addAdvantage = () => {
+    if (newAdvantage.trim()) {
+      setFormData(prev => ({
+        ...prev,
+        advantages: [...prev.advantages || [], newAdvantage.trim()]
+      }))
+      setNewAdvantage('')
+    }
+  }
+
+  const removeAdvantage = (advantage: string) => {
+    setFormData(prev => ({
+      ...prev,
+      advantages: prev.advantages?.filter(a => a !== advantage) || []
+    }))
+  }
+
+  const addDisadvantage = () => {
+    if (newDisadvantage.trim()) {
+      setFormData(prev => ({
+        ...prev,
+        disadvantages: [...prev.disadvantages || [], newDisadvantage.trim()]
+      }))
+      setNewDisadvantage('')
+    }
+  }
+
+  const removeDisadvantage = (disadvantage: string) => {
+    setFormData(prev => ({
+      ...prev,
+      disadvantages: prev.disadvantages?.filter(d => d !== disadvantage) || []
+    }))
+  }
+
   if (loading) {
     return <div>Načítání...</div>
   }
@@ -234,14 +323,76 @@ export default function ProductsAdminPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">URL obrázku</label>
-            <input
-              type="text"
-              name="imageUrl"
-              value={formData.imageUrl || ''}
-              onChange={handleInputChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
-            />
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Obrázek produktu
+            </label>
+            <div 
+              className={`mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed rounded-md ${
+                dragActive ? 'border-purple-600 bg-purple-50' : 'border-gray-300'
+              }`}
+              onDragEnter={handleDrag}
+              onDragLeave={handleDrag}
+              onDragOver={handleDrag}
+              onDrop={handleDrop}
+            >
+              <div className="space-y-1 text-center">
+                <svg
+                  className="mx-auto h-12 w-12 text-gray-400"
+                  stroke="currentColor"
+                  fill="none"
+                  viewBox="0 0 48 48"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                    strokeWidth={2}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                <div className="flex text-sm text-gray-600">
+                  <label
+                    htmlFor="file-upload"
+                    className="relative cursor-pointer rounded-md font-medium text-purple-600 hover:text-purple-500 focus-within:outline-none"
+                  >
+                    <span>Nahrát soubor</span>
+                    <input
+                      id="file-upload"
+                      name="file-upload"
+                      type="file"
+                      className="sr-only"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                    />
+                  </label>
+                  <p className="pl-1">nebo přetáhněte sem</p>
+                </div>
+                <p className="text-xs text-gray-500">PNG, JPG až do 10MB</p>
+              </div>
+            </div>
+            {imagePreview && (
+              <div className="mt-2 relative">
+                <Image
+                  src={imagePreview}
+                  alt="Náhled"
+                  width={200}
+                  height={200}
+                  className="rounded-md"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    setImagePreview("")
+                    setFormData(prev => ({ ...prev, imageUrl: '' }))
+                  }}
+                  className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            )}
           </div>
 
           <div className="md:col-span-2">
@@ -257,13 +408,41 @@ export default function ProductsAdminPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Tagy (oddělené čárkou)</label>
-            <input
-              type="text"
-              value={formData.tags?.join(', ') || ''}
-              onChange={(e) => handleArrayInputChange(e, 'tags')}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
-            />
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Tagy
+            </label>
+            <div className="flex gap-2 mb-2">
+              <input
+                type="text"
+                value={newTag}
+                onChange={(e) => setNewTag(e.target.value)}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter' && newTag.trim()) {
+                    e.preventDefault()
+                    addTag()
+                  }
+                }}
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500"
+                placeholder="Zadejte tag a stiskněte Enter"
+              />
+            </div>
+            <div className="flex flex-wrap gap-2 min-h-[50px] p-2 border border-gray-200 rounded-md">
+              {formData.tags?.map((tag, index) => (
+                <span
+                  key={index}
+                  className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full flex items-center gap-2 group hover:bg-purple-200 transition-colors"
+                >
+                  {tag}
+                  <button
+                    type="button"
+                    onClick={() => removeTag(tag)}
+                    className="text-purple-600 hover:text-purple-800 opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+            </div>
           </div>
 
           <div>
@@ -278,23 +457,147 @@ export default function ProductsAdminPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Výhody (oddělené čárkou)</label>
-            <input
-              type="text"
-              value={formData.advantages?.join(', ') || ''}
-              onChange={(e) => handleArrayInputChange(e, 'advantages')}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
-            />
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Výhody
+            </label>
+            <div className="flex gap-2 mb-2">
+              <input
+                type="text"
+                value={newAdvantage}
+                onChange={(e) => setNewAdvantage(e.target.value)}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter' && newAdvantage.trim()) {
+                    e.preventDefault()
+                    addAdvantage()
+                  }
+                }}
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500"
+                placeholder="Zadejte výhodu a stiskněte Enter"
+              />
+            </div>
+            <div className="space-y-2 min-h-[50px] p-2 border border-gray-200 rounded-md">
+              {formData.advantages?.map((advantage, index) => (
+                <div
+                  key={index}
+                  className="flex items-center justify-between gap-2 bg-green-50 p-2 rounded-md group hover:bg-green-100 transition-colors"
+                >
+                  <span className="text-green-800 flex-1">{advantage}</span>
+                  <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (index > 0 && formData.advantages?.length) {
+                          const newAdvantages = [...formData.advantages]
+                          const temp = newAdvantages[index]
+                          newAdvantages[index] = newAdvantages[index - 1]
+                          newAdvantages[index - 1] = temp
+                          setFormData(prev => ({ ...prev, advantages: newAdvantages }))
+                        }
+                      }}
+                      className="text-green-600 hover:text-green-800 disabled:opacity-50"
+                      disabled={index === 0}
+                    >
+                      ↑
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (index < (formData.advantages?.length ?? 0) - 1) {
+                          const newAdvantages = [...(formData.advantages ?? [])]
+                          const temp = newAdvantages[index]
+                          newAdvantages[index] = newAdvantages[index + 1]
+                          newAdvantages[index + 1] = temp
+                          setFormData(prev => ({ ...prev, advantages: newAdvantages }))
+                        }
+                      }}
+                      className="text-green-600 hover:text-green-800 disabled:opacity-50"
+                      disabled={index === formData.advantages.length - 1}
+                    >
+                      ↓
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => removeAdvantage(advantage)}
+                      className="text-red-600 hover:text-red-800"
+                    >
+                      ×
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Nevýhody (oddělené čárkou)</label>
-            <input
-              type="text"
-              value={formData.disadvantages?.join(', ') || ''}
-              onChange={(e) => handleArrayInputChange(e, 'disadvantages')}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
-            />
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Nevýhody
+            </label>
+            <div className="flex gap-2 mb-2">
+              <input
+                type="text"
+                value={newDisadvantage}
+                onChange={(e) => setNewDisadvantage(e.target.value)}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter' && newDisadvantage.trim()) {
+                    e.preventDefault()
+                    addDisadvantage()
+                  }
+                }}
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-red-500 focus:border-red-500"
+                placeholder="Zadejte nevýhodu a stiskněte Enter"
+              />
+            </div>
+            <div className="space-y-2 min-h-[50px] p-2 border border-gray-200 rounded-md">
+              {formData.disadvantages?.map((disadvantage, index) => (
+                <div
+                  key={index}
+                  className="flex items-center justify-between gap-2 bg-red-50 p-2 rounded-md group hover:bg-red-100 transition-colors"
+                >
+                  <span className="text-red-800 flex-1">{disadvantage}</span>
+                  <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (index > 0 && formData.disadvantages?.length) {
+                          const newDisadvantages = [...formData.disadvantages]
+                          const temp = newDisadvantages[index]
+                          newDisadvantages[index] = newDisadvantages[index - 1]
+                          newDisadvantages[index - 1] = temp
+                          setFormData(prev => ({ ...prev, disadvantages: newDisadvantages }))
+                        }
+                      }}
+                      className="text-red-600 hover:text-red-800 disabled:opacity-50"
+                      disabled={index === 0}
+                    >
+                      ↑
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (index < (formData.disadvantages?.length ?? 0) - 1) {
+                          const newDisadvantages = [...(formData.disadvantages ?? [])]
+                          const temp = newDisadvantages[index]
+                          newDisadvantages[index] = newDisadvantages[index + 1]
+                          newDisadvantages[index + 1] = temp
+                          setFormData(prev => ({ ...prev, disadvantages: newDisadvantages }))
+                        }
+                      }}
+                      className="text-red-600 hover:text-red-800 disabled:opacity-50"
+                      disabled={index === formData.disadvantages.length - 1}
+                    >
+                      ↓
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => removeDisadvantage(disadvantage)}
+                      className="text-red-600 hover:text-red-800"
+                    >
+                      ×
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
           <div className="md:col-span-2">
