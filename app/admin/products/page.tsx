@@ -145,13 +145,16 @@ export default function ProductsAdminPage() {
     
     if (name.includes('.')) {
       const [parent, child] = name.split('.')
-      setFormData(prev => ({
-        ...prev,
-        [parent]: {
-          ...prev[parent as keyof Product],
-          [child]: value
+      setFormData(prev => {
+        const parentObj = prev[parent as keyof Product] as Record<string, string>
+        return {
+          ...prev,
+          [parent]: {
+            ...parentObj,
+            [child]: value
+          }
         }
-      }))
+      })
     } else {
       setFormData(prev => ({
         ...prev,
