@@ -63,7 +63,12 @@ export default function ProductsAdminPage() {
       const response = await fetch('/api/products')
       if (response.ok) {
         const data = await response.json()
-        setProducts(data)
+        const sortedData = data.sort((a: Product, b: Product) => {
+          if (a.imageUrl && !b.imageUrl) return -1
+          if (!a.imageUrl && b.imageUrl) return 1
+          return 0
+        })
+        setProducts(sortedData)
       }
     } catch (error) {
       console.error('Chyba při načítání produktů:', error)
@@ -684,6 +689,7 @@ export default function ProductsAdminPage() {
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Náhled</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Název</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kategorie</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cena</th>
@@ -693,6 +699,24 @@ export default function ProductsAdminPage() {
           <tbody className="bg-white divide-y divide-gray-200">
             {products.map((product) => (
               <tr key={product.id}>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="relative w-16 h-16">
+                    {product.imageUrl ? (
+                      <Image
+                        src={product.imageUrl}
+                        alt={product.name}
+                        fill
+                        className="object-cover rounded-md"
+                      />
+                    ) : (
+                      <div className="w-16 h-16 bg-gray-100 rounded-md flex items-center justify-center">
+                        <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                      </div>
+                    )}
+                  </div>
+                </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm font-medium text-gray-900">{product.name}</div>
                 </td>
