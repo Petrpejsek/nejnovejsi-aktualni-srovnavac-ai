@@ -14,15 +14,15 @@ export default function Navbar() {
     <nav className="bg-white shadow-lg relative z-50">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
-          {/* Logo a název */}
+          {/* Logo and name */}
           <Link href="/" className="flex items-center space-x-3">
             <span className="font-bold text-xl md:text-2xl text-gradient-primary">Comparee.ai</span>
           </Link>
 
-          {/* Mobilní menu tlačítko */}
+          {/* Mobile menu button */}
           <div className="flex items-center md:hidden">
             <Link
-              href="/porovnani"
+              href="/compare"
               className="mr-4 inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700"
             >
               <svg
@@ -68,7 +68,7 @@ export default function Navbar() {
             </button>
           </div>
 
-          {/* Navigační odkazy - desktop */}
+          {/* Navigation links - desktop */}
           <div className="hidden md:flex md:items-center md:space-x-4">
             <Link
               href="/"
@@ -81,9 +81,9 @@ export default function Navbar() {
               Home
             </Link>
             <Link
-              href="/doporuceni"
+              href="/recommendations"
               className={`px-3 py-2 rounded-md text-sm font-medium ${
-                pathname === '/doporuceni'
+                pathname === '/recommendations'
                   ? 'text-purple-600'
                   : 'text-gray-700 hover:text-purple-600'
               }`}
@@ -91,9 +91,9 @@ export default function Navbar() {
               Recommendations
             </Link>
             <Link
-              href="/porovnani"
+              href="/compare"
               className={`px-3 py-2 rounded-md text-sm font-medium ${
-                pathname === '/porovnani'
+                pathname === '/compare'
                   ? 'text-purple-600'
                   : 'text-gray-700 hover:text-purple-600'
               }`}
@@ -102,9 +102,9 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* Tlačítko pro porovnání - desktop */}
+          {/* Compare button - desktop */}
           <Link
-            href="/porovnani"
+            href="/compare"
             className="hidden md:inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
           >
             <svg
@@ -124,7 +124,7 @@ export default function Navbar() {
           </Link>
         </div>
 
-        {/* Mobilní menu */}
+        {/* Mobile menu */}
         {isMenuOpen && (
           <div className="md:hidden absolute left-0 right-0 bg-white border-b border-gray-200 shadow-lg">
             <div className="px-4 py-3 space-y-2">
@@ -140,9 +140,9 @@ export default function Navbar() {
                 Home
               </Link>
               <Link
-                href="/doporuceni"
+                href="/recommendations"
                 className={`block px-3 py-2 rounded-md text-base font-medium ${
-                  pathname === '/doporuceni'
+                  pathname === '/recommendations'
                     ? 'text-purple-600 bg-purple-50'
                     : 'text-gray-700 hover:text-purple-600 hover:bg-purple-50'
                 }`}
@@ -151,9 +151,9 @@ export default function Navbar() {
                 Recommendations
               </Link>
               <Link
-                href="/porovnani"
+                href="/compare"
                 className={`block px-3 py-2 rounded-md text-base font-medium ${
-                  pathname === '/porovnani'
+                  pathname === '/compare'
                     ? 'text-purple-600 bg-purple-50'
                     : 'text-gray-700 hover:text-purple-600 hover:bg-purple-50'
                 }`}

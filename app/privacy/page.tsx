@@ -1,4 +1,6 @@
-export default function TermsPage() {
+import React from 'react'
+
+export default function PrivacyPage() {
   const lastUpdate = new Date().toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
@@ -10,66 +12,75 @@ export default function TermsPage() {
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-3xl mx-auto">
           <h1 className="text-3xl font-semibold mb-8 bg-gradient-to-r from-purple-600 to-purple-500 bg-clip-text text-transparent">
-            Terms of Use
+            Privacy Policy
           </h1>
           
           <div className="prose prose-purple max-w-none">
             <p className="text-gray-600 mb-8">
-              Welcome to comparee.ai. By using our service, you agree to these terms of use. Please read them carefully.
+              At comparee.ai, we take your privacy seriously. This Privacy Policy explains how we collect, use, and protect your personal information.
             </p>
 
             <div className="space-y-8">
               <section>
                 <h2 className="text-xl font-semibold text-gray-800 mb-4">
-                  Definitions
+                  Information We Collect
                 </h2>
                 <p className="text-gray-600">
-                  "Service" refers to the comparee.ai website and all its features. "User" means any person accessing or using the Service. "Content" includes all information, data, and materials available through the Service.
+                  We collect information that you provide directly to us, such as your name and email address when you register or contact us. We also automatically collect certain information about your device and how you interact with our website.
                 </p>
               </section>
 
               <section>
                 <h2 className="text-xl font-semibold text-gray-800 mb-4">
-                  Service Usage
+                  How We Use Your Information
                 </h2>
                 <p className="text-gray-600">
-                  The Service is provided for informational purposes only. We strive to maintain accurate and up-to-date information, but we cannot guarantee its completeness or accuracy. Users are responsible for verifying any information before making decisions based on it.
+                  We use the information we collect to provide and improve our services, communicate with you, and ensure the security of our website. We do not sell your personal information to third parties.
                 </p>
               </section>
 
               <section>
                 <h2 className="text-xl font-semibold text-gray-800 mb-4">
-                  Intellectual Property
+                  Data Security
                 </h2>
                 <p className="text-gray-600">
-                  All content on the Service is protected by intellectual property rights. Users may not copy, modify, distribute, or use the content without explicit permission from comparee.ai.
+                  We implement appropriate technical and organizational measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction.
                 </p>
               </section>
 
               <section>
                 <h2 className="text-xl font-semibold text-gray-800 mb-4">
-                  Limitation of Liability
+                  Cookies
                 </h2>
                 <p className="text-gray-600">
-                  The Service is provided "as is" without any warranties. We are not liable for any damages arising from the use of the Service or the information it provides.
+                  We use cookies and similar technologies to enhance your experience on our website. You can control cookie settings through your browser preferences.
                 </p>
               </section>
 
               <section>
                 <h2 className="text-xl font-semibold text-gray-800 mb-4">
-                  Changes to Terms
+                  Your Rights
                 </h2>
                 <p className="text-gray-600">
-                  We reserve the right to modify these terms at any time. Continued use of the Service after changes constitutes acceptance of the new terms.
+                  You have the right to access, correct, or delete your personal information. You can also object to or restrict certain processing of your data. Contact us to exercise these rights.
                 </p>
               </section>
 
               <section>
                 <h2 className="text-xl font-semibold text-gray-800 mb-4">
-                  Contact
+                  Changes to Privacy Policy
                 </h2>
                 <p className="text-gray-600">
-                  If you have any questions about these terms, please contact us at info@example.com.
+                  We may update this Privacy Policy from time to time. We will notify you of any material changes by posting the new Privacy Policy on this page.
+                </p>
+              </section>
+
+              <section>
+                <h2 className="text-xl font-semibold text-gray-800 mb-4">
+                  Contact Us
+                </h2>
+                <p className="text-gray-600">
+                  If you have any questions about this Privacy Policy, please contact us at privacy@example.com.
                 </p>
               </section>
 

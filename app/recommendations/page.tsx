@@ -222,7 +222,7 @@ export default function DoporuceniPage() {
                   <div className="text-right">
                     <div>
                       <p className="text-gradient-primary font-medium">
-                        ${product.price.toFixed(2)}
+                        {product.hasTrial ? '$0' : `$${product.price.toFixed(2)}`}
                       </p>
                       {product.hasTrial && (
                         <span className="text-xs text-purple-600/90 bg-purple-50/80 px-2 py-1 rounded-full">
@@ -327,7 +327,13 @@ export default function DoporuceniPage() {
                     {/* Pricing information */}
                     <div className="mb-6">
                       <h4 className="text-lg font-medium text-gray-800 mb-3">Pricing</h4>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        {product.hasTrial && (
+                          <div className="bg-purple-50/80 p-4 rounded-[14px] border-2 border-purple-100">
+                            <h5 className="font-medium text-gray-800 mb-2">Free Trial</h5>
+                            <p className="text-2xl font-bold text-gradient-primary">$0</p>
+                          </div>
+                        )}
                         {product.pricingInfo?.basic && (
                           <div className="bg-gray-50/80 p-4 rounded-[14px]">
                             <h5 className="font-medium text-gray-800 mb-2">Basic</h5>

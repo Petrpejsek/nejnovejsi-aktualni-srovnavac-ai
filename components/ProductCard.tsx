@@ -12,6 +12,12 @@ interface ProductCardProps {
   hasTrial?: boolean
 }
 
+declare global {
+  interface Window {
+    open(url?: string, target?: string, features?: string): Window | null;
+  }
+}
+
 export default function ProductCard({ id, name, description, price, imageUrl, tags, externalUrl, hasTrial }: ProductCardProps) {
   const [visibleTags, setVisibleTags] = useState<string[]>(tags || [])
   const [hiddenTagsCount, setHiddenTagsCount] = useState(0)
@@ -26,19 +32,31 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
       if (!tagsContainerRef.current || !measurementDivRef.current) return
 
       const containerWidth = tagsContainerRef.current.offsetWidth
-      const tagElements = measurementDivRef.current.children
+      const tagElements = Array.from(measurementDivRef.current.children) as HTMLElement[]
       let currentWidth = 0
+      let currentRow = 1
       let visibleCount = 0
+      let rowStartIndex = 0
 
       // Procházíme všechny tagy a počítáme jejich šířky
       for (let i = 0; i < tagElements.length; i++) {
         const tagWidth = tagElements[i].getBoundingClientRect().width + 8 // 8px pro margin
         
-        // Přidáme extra prostor pro čtvrtý tag
-        if (currentWidth + tagWidth <= containerWidth + 20) { // Přidáno 20px extra prostoru
-          currentWidth += tagWidth
-          visibleCount++
+        // Pokud se tag nevejde do aktuálního řádku
+        if (currentWidth + tagWidth > containerWidth) {
+          currentRow++
+          currentWidth = tagWidth
+          rowStartIndex = i
         } else {
+          currentWidth += tagWidth
+        }
+
+        // Pokud jsme stále v rámci dvou řádků, přidáme tag
+        if (currentRow <= 2) {
+          visibleCount = i + 1
+        } else {
+          // Pokud začínáme třetí řádek, vrátíme se na začátek řádku
+          visibleCount = rowStartIndex
           break
         }
       }
@@ -73,7 +91,7 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
       onClick={handleVisit}
     >
       <div className="absolute inset-0 bg-gradient-to-br from-purple-50/30 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
-      <div className="relative w-full aspect-video">
+      <div className="relative w-full aspect-[1.91/1]">
         <Image
           src={imageUrl || 'https://placehold.co/800x450/f3f4f6/94a3b8?text=No+Image'}
           alt={name}
@@ -110,7 +128,7 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
               </div>
 
               {/* Viditelné tagy */}
-              <div ref={tagsContainerRef} className="flex flex-wrap gap-2 mb-4">
+              <div ref={tagsContainerRef} className="flex flex-wrap gap-2 mb-4 max-h-[4.5rem] overflow-hidden">
                 {visibleTags.map((tag) => (
                   <span
                     key={tag}
@@ -121,7 +139,7 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
                 ))}
                 {hiddenTagsCount > 0 && (
                   <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-50 text-gray-600">
-                    +{hiddenTagsCount} další
+                    +{hiddenTagsCount} more
                   </span>
                 )}
               </div>
@@ -131,12 +149,12 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
         
         <div className="flex justify-between items-center mt-auto pt-4 border-t border-gray-100">
           {hasTrial ? (
-            <div className="text-lg font-bold text-purple-600">Free Trial</div>
+            <div className="text-lg font-bold text-purple-600">$0</div>
           ) : (
             <div className="text-lg font-bold text-purple-600">${price}</div>
           )}
           <div className="px-2 py-1.5 bg-gradient-primary text-white text-sm font-medium rounded-[14px] hover:opacity-90 transition-opacity">
-            Vyzkoušet
+            {hasTrial ? 'Try for Free' : 'Try it'}
           </div>
         </div>
       </div>

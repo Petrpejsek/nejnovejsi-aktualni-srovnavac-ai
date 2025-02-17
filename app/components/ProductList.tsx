@@ -133,7 +133,7 @@ const ProductCard = ({ product }: { product: AIProduct }) => {
             rel="noopener noreferrer"
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
           >
-            Vyzkoušet
+            Try it
           </Link>
           {product.hasTrial && (
             <span className="text-green-500 font-semibold text-sm">Dostupná trial verze</span>

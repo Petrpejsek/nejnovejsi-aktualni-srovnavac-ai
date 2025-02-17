@@ -16,7 +16,7 @@ export default function CompareBar({ selectedCount, onCompare, onClear }: Compar
 
   const handleCompare = () => {
     onCompare()
-    router.push('/porovnani')
+    router.push('/compare')
   }
 
   return (
@@ -26,7 +26,7 @@ export default function CompareBar({ selectedCount, onCompare, onClear }: Compar
           <button
             onClick={onClear}
             className="text-gray-400 hover:text-gray-600 transition-colors"
-            aria-label="Zrušit výběr"
+            aria-label="Clear selection"
           >
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -37,7 +37,7 @@ export default function CompareBar({ selectedCount, onCompare, onClear }: Compar
             onClick={handleCompare}
             className="px-6 py-2 text-white rounded-[14px] text-sm font-medium transition-all bg-gradient-primary hover-gradient-primary flex items-center gap-3"
           >
-            <span>Porovnat</span>
+            <span>Compare</span>
             <span className="flex items-center justify-center bg-white/20 w-6 h-6 rounded-full">
               {selectedCount}
             </span>

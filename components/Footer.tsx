@@ -9,35 +9,35 @@ export default function Footer() {
         <div className="flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="flex items-center gap-4">
             <div className="text-sm text-gray-600">
-              © 2024 comparee.ai. Všechna práva vyhrazena.
+              © 2024 comparee.ai. All rights reserved.
             </div>
             <SocialIcons />
           </div>
           
           <div className="flex flex-wrap gap-6">
             <Link 
-              href="/o-nas" 
+              href="/about" 
               className="text-sm text-gray-600 hover:text-purple-600/90 transition-colors"
             >
-              O nás
+              About Us
             </Link>
             <Link 
-              href="/kontakty" 
+              href="/contact" 
               className="text-sm text-gray-600 hover:text-purple-600/90 transition-colors"
             >
-              Kontakty
+              Contact
             </Link>
             <Link 
-              href="/podminky-pouziti" 
+              href="/terms" 
               className="text-sm text-gray-600 hover:text-purple-600/90 transition-colors"
             >
-              Podmínky použití
+              Terms of Use
             </Link>
             <Link 
-              href="/ochrana-osobnich-udaju" 
+              href="/privacy" 
               className="text-sm text-gray-600 hover:text-purple-600/90 transition-colors"
             >
-              Ochrana osobních údajů
+              Privacy Policy
             </Link>
           </div>
         </div>

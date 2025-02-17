@@ -1,8 +1,5 @@
 import { NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
-import prisma from '@/lib/prisma'
-
-const prismaClient = new PrismaClient()
+import prisma from '../../../../lib/prisma'
 
 // GET /api/products/[id] - Získat jeden produkt
 export async function GET(
@@ -58,7 +55,7 @@ export async function PUT(
     // Explicitně zpracujeme externalUrl
     const externalUrl = data.externalUrl === '' ? null : data.externalUrl
 
-    const product = await prismaClient.product.update({
+    const product = await prisma.product.update({
       where: { id: params.id },
       data: {
         name: data.name,
@@ -94,7 +91,7 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    await prismaClient.product.delete({
+    await prisma.product.delete({
       where: { id: params.id },
     })
     return new NextResponse(null, { status: 204 })

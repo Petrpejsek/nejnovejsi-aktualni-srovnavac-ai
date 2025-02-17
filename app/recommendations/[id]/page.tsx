@@ -28,6 +28,8 @@ interface Product {
   videoUrls?: string[]
   externalUrl?: string
   hasTrial?: boolean
+  createdAt: string
+  updatedAt: string
 }
 
 export default function ProductDetail({ params }: { params: { id: string } }) {
@@ -38,21 +40,13 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
+        setLoading(true)
         const response = await fetch(`/api/products/${params.id}`)
-        if (response.ok) {
-          const data = await response.json()
-          // Převedeme stringy JSON zpět na objekty
-          setProduct({
-            ...data,
-            tags: typeof data.tags === 'string' ? JSON.parse(data.tags) : data.tags,
-            advantages: typeof data.advantages === 'string' ? JSON.parse(data.advantages) : data.advantages,
-            disadvantages: typeof data.disadvantages === 'string' ? JSON.parse(data.disadvantages) : data.disadvantages,
-            pricingInfo: typeof data.pricingInfo === 'string' ? JSON.parse(data.pricingInfo) : data.pricingInfo,
-            hasTrial: typeof data.hasTrial === 'boolean' ? data.hasTrial : false
-          })
-        }
-      } catch (error) {
-        console.error('Chyba při načítání produktu:', error)
+        if (!response.ok) throw new Error('Failed to fetch product')
+        const data = await response.json()
+        setProduct(data)
+      } catch (err) {
+        console.error('Error fetching product:', err)
       } finally {
         setLoading(false)
       }
@@ -96,9 +90,9 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-800 mb-4">Produkt nebyl nalezen</h1>
+          <h1 className="text-2xl font-bold text-gray-800 mb-4">Product Not Found</h1>
           <Link href="/" className="text-purple-600 hover:text-purple-700">
-            Zpět na hlavní stránku
+            Back to Homepage
           </Link>
         </div>
       </div>
@@ -109,7 +103,7 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
     <div className="min-h-screen bg-gray-50/50">
       <div className="container mx-auto px-4 py-8">
         <Link 
-          href="/doporuceni" 
+          href="/recommendations" 
           className="inline-flex items-center text-gray-500 hover:text-gray-700 mb-6 group"
         >
           <svg 
@@ -122,7 +116,7 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
           >
             <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
           </svg>
-          Zpět na přehled
+          Back to Overview
         </Link>
 
         <div className="bg-white rounded-[20px] p-6 border border-gray-100 shadow-sm relative">
@@ -151,7 +145,9 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
               </div>
 
               <div className="p-4 rounded-[14px] bg-gray-50/80">
-                <div className="text-2xl font-medium text-gradient-primary mb-4">${product.price}</div>
+                <div className="text-2xl font-medium text-gradient-primary mb-4">
+                  {product.hasTrial ? '$0' : `$${product.price}`}
+                </div>
                 
                 {product.pricingInfo && (
                   <div className="space-y-3">
@@ -191,10 +187,52 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
               <p className="text-gray-600 mb-8">{product.description}</p>
 
               <div className="space-y-8">
+                {/* Cenové kontejnery */}
+                <div>
+                  <h2 className="text-lg font-medium text-gray-800 mb-6">Pricing</h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {/* Free Trial */}
+                    {product.hasTrial && (
+                      <div className="p-6 rounded-[14px] border border-purple-100 bg-purple-50/50 hover:bg-purple-50 transition-all">
+                        <h3 className="text-lg font-medium text-gray-800 mb-2">Free Trial</h3>
+                        <div className="text-2xl font-medium text-gradient-primary mb-4">$0</div>
+                        <p className="text-sm text-gray-600">Try it for free and explore all features</p>
+                      </div>
+                    )}
+                    
+                    {/* Basic */}
+                    {product.pricingInfo?.basic && (
+                      <div className="p-6 rounded-[14px] border border-gray-100 bg-white hover:bg-gray-50/80 transition-all">
+                        <h3 className="text-lg font-medium text-gray-800 mb-2">Basic</h3>
+                        <div className="text-2xl font-medium text-gradient-primary mb-4">${product.pricingInfo.basic}</div>
+                        <p className="text-sm text-gray-600">Perfect for getting started</p>
+                      </div>
+                    )}
+                    
+                    {/* Pro */}
+                    {product.pricingInfo?.pro && (
+                      <div className="p-6 rounded-[14px] border border-gray-100 bg-white hover:bg-gray-50/80 transition-all">
+                        <h3 className="text-lg font-medium text-gray-800 mb-2">Pro</h3>
+                        <div className="text-2xl font-medium text-gradient-primary mb-4">${product.pricingInfo.pro}</div>
+                        <p className="text-sm text-gray-600">For professional users</p>
+                      </div>
+                    )}
+                    
+                    {/* Enterprise */}
+                    {product.pricingInfo?.enterprise && (
+                      <div className="p-6 rounded-[14px] border border-gray-100 bg-white hover:bg-gray-50/80 transition-all">
+                        <h3 className="text-lg font-medium text-gray-800 mb-2">Enterprise</h3>
+                        <div className="text-2xl font-medium text-gradient-primary mb-4">${product.pricingInfo.enterprise}</div>
+                        <p className="text-sm text-gray-600">For large organizations</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
                 <div className="grid md:grid-cols-2 gap-6">
                   {product.advantages && product.advantages.length > 0 && (
                     <div className="space-y-3">
-                      <h2 className="text-lg font-medium text-gray-800">Výhody</h2>
+                      <h2 className="text-lg font-medium text-gray-800">Advantages</h2>
                       <ul className="space-y-2">
                         {product.advantages.map((advantage, index) => (
                           <li key={index} className="flex items-start gap-2">
@@ -210,7 +248,7 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
 
                   {product.disadvantages && product.disadvantages.length > 0 && (
                     <div className="space-y-3">
-                      <h2 className="text-lg font-medium text-gray-800">Nevýhody</h2>
+                      <h2 className="text-lg font-medium text-gray-800">Disadvantages</h2>
                       <ul className="space-y-2">
                         {product.disadvantages.map((disadvantage, index) => (
                           <li key={index} className="flex items-start gap-2">
@@ -227,7 +265,7 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
 
                 {product.detailInfo && (
                   <div>
-                    <h2 className="text-lg font-medium text-gray-800 mb-3">Detailní popis</h2>
+                    <h2 className="text-lg font-medium text-gray-800 mb-3">Detailed Information</h2>
                     <div className="bg-gray-50/80 rounded-[14px] p-4">
                       <p className="text-gray-600 whitespace-pre-line">{product.detailInfo}</p>
                     </div>
@@ -247,7 +285,7 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
                 {/* Video sekce */}
                 {product.videoUrls && product.videoUrls.length > 0 && (
                   <div>
-                    <h2 className="text-lg font-medium text-gray-800 mb-4">Video ukázky</h2>
+                    <h2 className="text-lg font-medium text-gray-800 mb-4">Video Tutorials</h2>
                     <div className="grid md:grid-cols-2 gap-4">
                       {product.videoUrls.map((videoUrl, index) => (
                         <div key={index} className="rounded-[14px] overflow-hidden bg-gray-50">
