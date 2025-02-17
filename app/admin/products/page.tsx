@@ -495,7 +495,7 @@ export default function ProductsAdminPage() {
                         }
                       }}
                       className="text-green-600 hover:text-green-800 disabled:opacity-50"
-                      disabled={index === 0}
+                      disabled={!formData?.advantages || index === 0}
                     >
                       ↑
                     </button>
@@ -511,7 +511,7 @@ export default function ProductsAdminPage() {
                         }
                       }}
                       className="text-green-600 hover:text-green-800 disabled:opacity-50"
-                      disabled={index === formData.advantages.length - 1}
+                      disabled={!formData?.advantages || index === formData.advantages.length - 1}
                     >
                       ↓
                     </button>
@@ -567,7 +567,7 @@ export default function ProductsAdminPage() {
                         }
                       }}
                       className="text-red-600 hover:text-red-800 disabled:opacity-50"
-                      disabled={index === 0}
+                      disabled={!formData?.disadvantages || index === 0}
                     >
                       ↑
                     </button>
@@ -583,7 +583,7 @@ export default function ProductsAdminPage() {
                         }
                       }}
                       className="text-red-600 hover:text-red-800 disabled:opacity-50"
-                      disabled={index === formData.disadvantages.length - 1}
+                      disabled={!formData?.disadvantages || index === formData.disadvantages.length - 1}
                     >
                       ↓
                     </button>
