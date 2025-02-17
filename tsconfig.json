@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "es2017",
-    "module": "commonjs",
+    "module": "esnext",
     "lib": [
       "es2017",
       "esnext.asynciterable",
@@ -11,7 +11,7 @@
     "skipLibCheck": true,
     "sourceMap": true,
     "outDir": "./dist",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "removeComments": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
@@ -47,6 +47,7 @@
   ],
   "include": [
     "./scripts/**/*.ts",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    "prisma/**/*.ts"
   ]
 }

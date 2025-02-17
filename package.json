@@ -12,8 +12,8 @@
     "db:sync": "node scripts/sync-db.js",
     "db:push": "prisma db push",
     "db:studio": "prisma studio",
-    "db:reset": "prisma db push && prisma db seed",
-    "postinstall": "prisma generate && prisma db push && npx prisma db seed",
+    "db:reset": "prisma db push && node --loader ts-node/esm prisma/seed.ts",
+    "postinstall": "prisma generate && prisma db push",
     "backup": "node --loader ts-node/esm scripts/backup.ts",
     "restore": "node --loader ts-node/esm scripts/restore.ts"
   },

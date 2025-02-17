@@ -191,19 +191,22 @@ async function main() {
     ];
 
   for (const product of products) {
-        await prisma.product.create({
-          data: product
-        });
+    await prisma.product.create({
+      data: product
+    });
   }
 
   console.log('Seed dokončen!');
+  await prisma.$disconnect();
 }
 
-main()
-  .catch((e) => {
-    console.error(e);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  }); 
+// Spustí seed
+try {
+  main();
+} catch (error) {
+  console.error(error);
+  prisma.$disconnect();
+  process.exit(1);
+}
+
+export default main; 
