@@ -1,6 +1,6 @@
 [
   {
-    "id": "42da6ed2-122a-48ed-8234-67aa5cada8ac",
+    "id": "b7fc21c3-f2ee-4dde-9782-2959858aa341",
     "name": "ChatGPT",
     "description": "Pokročilý jazykový model pro konverzaci a generování textu",
     "price": 20,
@@ -15,11 +15,11 @@
     "videoUrls": "[]",
     "externalUrl": "https://chat.openai.com",
     "hasTrial": true,
-    "createdAt": "2025-03-21T17:05:22.661Z",
-    "updatedAt": "2025-03-21T17:05:22.661Z"
+    "createdAt": "2025-03-18T16:32:39.088Z",
+    "updatedAt": "2025-03-18T16:32:39.088Z"
   },
   {
-    "id": "eb583d42-bc4d-4cd6-a79d-766ebe400de9",
+    "id": "f0d17566-36c1-49a5-ad4a-b2ede3203c49",
     "name": "Claude",
     "description": "Inteligentní AI asistent pro komplexní úkoly a analýzu",
     "price": 25,
@@ -34,11 +34,11 @@
     "videoUrls": "[]",
     "externalUrl": "https://claude.ai",
     "hasTrial": false,
-    "createdAt": "2025-03-21T17:05:22.711Z",
-    "updatedAt": "2025-03-21T17:05:22.711Z"
+    "createdAt": "2025-03-18T16:32:39.140Z",
+    "updatedAt": "2025-03-18T16:32:39.140Z"
   },
   {
-    "id": "63220d49-6a41-4ff7-9e56-4ce8b3492032",
+    "id": "a5622ab5-6a36-440e-9cde-5a3113a8ff55",
     "name": "Adobe Firefly",
     "description": "Pokročilý AI nástroj pro generování a úpravu obrázků od společnosti Adobe",
     "price": 20,
@@ -53,11 +53,11 @@
     "videoUrls": "[]",
     "externalUrl": "https://www.adobe.com/sensei/generative-ai/firefly.html",
     "hasTrial": true,
-    "createdAt": "2025-03-21T17:05:22.735Z",
-    "updatedAt": "2025-03-21T17:05:22.735Z"
+    "createdAt": "2025-03-18T16:32:39.166Z",
+    "updatedAt": "2025-03-18T16:32:39.166Z"
   },
   {
-    "id": "4a23500c-f984-4e2b-ae58-6b611268a257",
+    "id": "aec0faab-2053-4efc-8fcf-5fab48fe8905",
     "name": "Midjourney",
     "description": "Špičkový nástroj pro generování uměleckých obrázků pomocí AI",
     "price": 30,
@@ -72,11 +72,11 @@
     "videoUrls": "[]",
     "externalUrl": "https://www.midjourney.com",
     "hasTrial": true,
-    "createdAt": "2025-03-21T17:05:22.760Z",
-    "updatedAt": "2025-03-21T17:05:22.760Z"
+    "createdAt": "2025-03-18T16:32:39.192Z",
+    "updatedAt": "2025-03-18T16:32:39.192Z"
   },
   {
-    "id": "996c15f6-d635-48f3-aac3-faa95ef1d510",
+    "id": "8e9e30c4-f312-45df-9556-e991be886de8",
     "name": "DALL-E",
     "description": "AI model od OpenAI pro generování a editaci obrázků",
     "price": 20,
@@ -91,11 +91,11 @@
     "videoUrls": "[]",
     "externalUrl": "https://openai.com/dall-e-3",
     "hasTrial": true,
-    "createdAt": "2025-03-21T17:05:22.784Z",
-    "updatedAt": "2025-03-21T17:05:22.784Z"
+    "createdAt": "2025-03-18T16:32:39.216Z",
+    "updatedAt": "2025-03-18T16:32:39.216Z"
   },
   {
-    "id": "fbe2b9e0-a6fa-4a42-b4df-f08bcd2a5694",
+    "id": "61efc93c-1980-4474-9728-ec4f25f5cc56",
     "name": "Stable Diffusion",
     "description": "Open-source AI model pro generování obrázků",
     "price": 0,
@@ -110,11 +110,11 @@
     "videoUrls": "[]",
     "externalUrl": "https://stability.ai",
     "hasTrial": true,
-    "createdAt": "2025-03-21T17:05:22.809Z",
-    "updatedAt": "2025-03-21T17:05:22.809Z"
+    "createdAt": "2025-03-18T16:32:39.242Z",
+    "updatedAt": "2025-03-18T16:32:39.242Z"
   },
   {
-    "id": "5294ec64-5154-4d3a-9312-6926343b28fc",
+    "id": "cec3ca09-7be1-4393-a123-568d0e072df7",
     "name": "Jasper",
     "description": "AI copywriting asistent pro marketingový obsah",
     "price": 40,
@@ -129,11 +129,11 @@
     "videoUrls": "[]",
     "externalUrl": "https://www.jasper.ai",
     "hasTrial": true,
-    "createdAt": "2025-03-21T17:05:22.834Z",
-    "updatedAt": "2025-03-21T17:05:22.834Z"
+    "createdAt": "2025-03-18T16:32:39.267Z",
+    "updatedAt": "2025-03-18T16:32:39.267Z"
   },
   {
-    "id": "e233d1e9-8b07-4b7a-b016-7e6e5086cef0",
+    "id": "dea18d15-2066-4eca-b35d-c0704e969b76",
     "name": "Copy.ai",
     "description": "AI nástroj pro generování marketingových textů",
     "price": 35,
@@ -148,11 +148,11 @@
     "videoUrls": "[]",
     "externalUrl": "https://www.copy.ai",
     "hasTrial": true,
-    "createdAt": "2025-03-21T17:05:22.858Z",
-    "updatedAt": "2025-03-21T17:05:22.858Z"
+    "createdAt": "2025-03-18T16:32:39.290Z",
+    "updatedAt": "2025-03-18T16:32:39.290Z"
   },
   {
-    "id": "1c23cbee-ca09-4f02-8b47-8d344c6783a7",
+    "id": "fbe8a476-9454-4a7b-a453-59d4e66b8144",
     "name": "Grammarly",
     "description": "AI asistent pro kontrolu a vylepšení textu",
     "price": 30,
@@ -167,11 +167,11 @@
     "videoUrls": "[]",
     "externalUrl": "https://www.grammarly.com",
     "hasTrial": true,
-    "createdAt": "2025-03-21T17:05:22.883Z",
-    "updatedAt": "2025-03-21T17:05:22.883Z"
+    "createdAt": "2025-03-18T16:32:39.314Z",
+    "updatedAt": "2025-03-18T16:32:39.314Z"
   },
   {
-    "id": "a6d8d5b2-b427-443c-9c0a-36511b161da4",
+    "id": "52e727ec-96fe-4ddc-ad37-fe3737633ea5",
     "name": "Notion AI",
     "description": "AI asistent integrovaný do Notion pro psaní a organizaci",
     "price": 15,
@@ -186,11 +186,11 @@
     "videoUrls": "[]",
     "externalUrl": "https://www.notion.so",
     "hasTrial": true,
-    "createdAt": "2025-03-21T17:05:22.908Z",
-    "updatedAt": "2025-03-21T17:05:22.908Z"
+    "createdAt": "2025-03-18T16:32:39.338Z",
+    "updatedAt": "2025-03-18T16:32:39.338Z"
   },
   {
-    "id": "4aa4de10-3b0f-454e-97bc-e7af952e891b",
+    "id": "8b923d62-c9ed-4cb1-b6ed-de74ce5ce4dc",
     "name": "CapCut",
     "description": "Všestranný editor videa s pokročilými AI funkcemi",
     "price": 0,
@@ -205,11 +205,11 @@
     "videoUrls": "[]",
     "externalUrl": "https://www.capcut.com",
     "hasTrial": true,
-    "createdAt": "2025-03-21T17:05:22.933Z",
-    "updatedAt": "2025-03-21T17:05:22.933Z"
+    "createdAt": "2025-03-18T16:32:39.363Z",
+    "updatedAt": "2025-03-18T16:32:39.363Z"
   },
   {
-    "id": "98eccc1c-19c8-4649-9b7e-a8f7d44eb6ca",
+    "id": "5b9c2bc0-50a1-469c-bc5d-deed9f4eb476",
     "name": "InVideo",
     "description": "Online platforma pro tvorbu profesionálních videí s pomocí AI",
     "price": 15,
@@ -224,7 +224,7 @@
     "videoUrls": "[]",
     "externalUrl": "https://invideo.io",
     "hasTrial": true,
-    "createdAt": "2025-03-21T17:05:22.957Z",
-    "updatedAt": "2025-03-21T17:05:22.957Z"
+    "createdAt": "2025-03-18T16:32:39.388Z",
+    "updatedAt": "2025-03-18T16:32:39.388Z"
   }
 ]

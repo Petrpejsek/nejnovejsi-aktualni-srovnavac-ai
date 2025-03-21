@@ -16,30 +16,29 @@ export async function GET(
     })
 
     if (!product) {
-      return new NextResponse(JSON.stringify({ error: 'Produkt nebyl nalezen' }), {
-        status: 404,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
+      return NextResponse.json(
+        { error: 'Produkt nebyl nalezen' },
+        { status: 404 }
+      )
     }
 
-    console.log('Načtený produkt:', product)
-    
-    return new NextResponse(JSON.stringify(product), {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
+    // Zpracování JSON dat
+    const processedProduct = {
+      ...product,
+      tags: product.tags ? JSON.parse(product.tags) : [],
+      advantages: product.advantages ? JSON.parse(product.advantages) : [],
+      disadvantages: product.disadvantages ? JSON.parse(product.disadvantages) : [],
+      pricingInfo: product.pricingInfo ? JSON.parse(product.pricingInfo) : {},
+      videoUrls: product.videoUrls ? JSON.parse(product.videoUrls) : []
+    }
+
+    return NextResponse.json(processedProduct)
   } catch (error) {
     console.error('Chyba při načítání produktu:', error)
-    return new NextResponse(JSON.stringify({ error: 'Interní chyba serveru' }), {
-      status: 500,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
+    return NextResponse.json(
+      { error: 'Interní chyba serveru' },
+      { status: 500 }
+    )
   }
 }
 

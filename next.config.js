@@ -1,16 +1,16 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
+    dangerouslyAllowSVG: true,
     remotePatterns: [
       {
         protocol: 'https',
         hostname: 'placehold.co',
+        port: '',
+        pathname: '/**',
       },
     ],
-    dangerouslyAllowSVG: true,
-    contentDispositionType: 'attachment',
-    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
-    domains: ['raw.githubusercontent.com'],
+    domains: ['localhost'],
   },
   async headers() {
     return [
@@ -40,4 +40,4 @@ const nextConfig = {
   generateEtags: false
 }
 
-export default nextConfig 
+module.exports = nextConfig 

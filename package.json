@@ -2,7 +2,6 @@
   "name": "muj-web",
   "version": "0.1.0",
   "private": true,
-  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "tsc --project tsconfig.json && prisma generate && next build",
@@ -15,7 +14,8 @@
     "db:reset": "prisma db push && node --loader ts-node/esm prisma/seed.ts",
     "postinstall": "prisma generate",
     "backup": "node --loader ts-node/esm scripts/backup.ts",
-    "restore": "node --loader ts-node/esm scripts/restore.ts"
+    "restore": "node --loader ts-node/esm scripts/restore.ts",
+    "translate": "node --loader ts-node/esm scripts/translate.ts"
   },
   "prisma": {
     "seed": "node --loader ts-node/esm prisma/seed.ts"

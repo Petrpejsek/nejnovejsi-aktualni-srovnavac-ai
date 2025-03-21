@@ -3,9 +3,8 @@
 import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useSearchParams } from 'next/navigation'
-import TagFilter from '../../components/TagFilter'
-import CompareBar from '../../components/CompareBar'
+import { useSearchParams, useRouter } from 'next/navigation'
+import TagFilter from '@/components/TagFilter'
 
 interface Product {
   id: string
@@ -17,6 +16,8 @@ interface Product {
   tags?: string[]
   advantages?: string[]
   disadvantages?: string[]
+  matchScore?: number
+  matchReason?: string
   reviews?: Array<{
     author: string
     rating: number
@@ -33,67 +34,80 @@ interface Product {
   hasTrial?: boolean
 }
 
-export default function DoporuceniPage() {
+export default function RecommendationsPage() {
+  const router = useRouter()
   const searchParams = useSearchParams()
   const query = searchParams.get('query')
-  const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set())
+  const [searchInput, setSearchInput] = useState(query || '')
   const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set())
   const [expandedProductId, setExpandedProductId] = useState<string | null>(null)
-  const [savedItems, setSavedItems] = useState<Set<string>>(new Set())
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [isSearching, setIsSearching] = useState(false)
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch('/api/products', {
-          cache: 'no-store',
-          headers: {
-            'Cache-Control': 'no-cache, no-store, must-revalidate',
-            'Pragma': 'no-cache',
-            'Expires': '0'
-          }
-        })
-        if (response.ok) {
+        setLoading(true)
+        let url = '/api/products'
+        
+        if (query) {
+          const response = await fetch('/api/recommend', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ query })
+          })
+          
+          if (!response.ok) throw new Error('Failed to get recommendations')
           const data = await response.json()
-          const processedData = data.map((product: Product) => ({
+          setProducts(data.map((product: Product) => ({
             ...product,
-            tags: typeof product.tags === 'string' ? JSON.parse(product.tags) : product.tags,
-            advantages: typeof product.advantages === 'string' ? JSON.parse(product.advantages) : product.advantages,
-            disadvantages: typeof product.disadvantages === 'string' ? JSON.parse(product.disadvantages) : product.disadvantages,
-            pricingInfo: typeof product.pricingInfo === 'string' ? JSON.parse(product.pricingInfo) : product.pricingInfo,
-            videoUrls: typeof product.videoUrls === 'string' ? JSON.parse(product.videoUrls) : product.videoUrls,
+            tags: typeof product.tags === 'string' ? JSON.parse(product.tags) : product.tags || [],
+            advantages: typeof product.advantages === 'string' ? JSON.parse(product.advantages) : product.advantages || [],
+            disadvantages: typeof product.disadvantages === 'string' ? JSON.parse(product.disadvantages) : product.disadvantages || [],
+            pricingInfo: typeof product.pricingInfo === 'string' ? JSON.parse(product.pricingInfo) : product.pricingInfo || {},
+            videoUrls: typeof product.videoUrls === 'string' ? JSON.parse(product.videoUrls) : product.videoUrls || [],
             hasTrial: typeof product.hasTrial === 'boolean' ? product.hasTrial : false,
             price: typeof product.price === 'string' ? parseFloat(product.price) : product.price
-          }))
-          console.log('Načtená data:', data)  // Pro debugging
-          console.log('Zpracovaná data:', processedData)  // Pro debugging
-          setProducts(processedData)
-          console.log(`Načteno ${processedData.length} produktů`)
+          })))
         } else {
-          console.error('Chyba při načítání:', response.status, response.statusText)
+          const response = await fetch(url)
+          if (!response.ok) throw new Error('Failed to load products')
+          const data = await response.json()
+          setProducts(data.map((product: Product) => ({
+            ...product,
+            tags: typeof product.tags === 'string' ? JSON.parse(product.tags) : product.tags || [],
+            advantages: typeof product.advantages === 'string' ? JSON.parse(product.advantages) : product.advantages || [],
+            disadvantages: typeof product.disadvantages === 'string' ? JSON.parse(product.disadvantages) : product.disadvantages || [],
+            pricingInfo: typeof product.pricingInfo === 'string' ? JSON.parse(product.pricingInfo) : product.pricingInfo || {},
+            videoUrls: typeof product.videoUrls === 'string' ? JSON.parse(product.videoUrls) : product.videoUrls || [],
+            hasTrial: typeof product.hasTrial === 'boolean' ? product.hasTrial : false,
+            price: typeof product.price === 'string' ? parseFloat(product.price) : product.price
+          })))
         }
-      } catch (error) {
-        console.error('Chyba při načítání produktů:', error)
+        setError(null)
+      } catch (err) {
+        console.error('Error loading products:', err)
+        setError('An error occurred while loading products')
       } finally {
         setLoading(false)
+        setIsSearching(false)
       }
     }
 
     fetchProducts()
-  }, [])
+  }, [query])
 
-  const toggleItem = (id: string) => {
-    const newSelected = new Set(selectedItems)
-    if (newSelected.has(id)) {
-      newSelected.delete(id)
-    } else {
-      newSelected.add(id)
-    }
-    setSelectedItems(newSelected)
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!searchInput.trim()) return
+    setIsSearching(true)
+    router.push(`/recommendations?query=${encodeURIComponent(searchInput.trim())}`)
   }
 
-  // Filtrování produktů podle vybraných tagů
   const filteredProducts = products.filter(product => {
     if (selectedTags.size === 0) return true
     const productTags = product.tags || []
@@ -104,47 +118,16 @@ export default function DoporuceniPage() {
     setExpandedProductId(expandedProductId === id ? null : id)
   }
 
-  const handleSave = (id: string) => {
-    const newSaved = new Set(savedItems)
-    if (newSaved.has(id)) {
-      newSaved.delete(id)
-    } else {
-      newSaved.add(id)
-    }
-    setSavedItems(newSaved)
-  }
-
-  const getPersonalizedHeadline = (query: string | null) => {
-    if (!query) return `Choose from our ${products.length} AI solutions`
-
-    return (
-      <>
-        <span className="text-gradient-primary">We'll help you with </span>
-        <span className="text-gray-900">"{query}"</span>
-        <span className="text-gradient-primary"> using AI</span>
-      </>
-    )
-  }
-
-  const handleCompare = () => {
-    // TODO: Implementovat logiku pro srovnání
-    console.log('Srovnávám produkty:', Array.from(selectedItems))
-  }
-
-  const handleClearSelection = () => {
-    setSelectedItems(new Set())
-  }
-
   const handleVisit = (url?: string) => {
     if (!url) {
-      console.log('Chybí URL!')
+      console.log('URL is missing!')
       return
     }
 
     try {
       window.open(url, '_blank', 'noopener,noreferrer')
     } catch (error) {
-      console.error('Chyba při otevírání URL:', error)
+      console.error('Error opening URL:', error)
     }
   }
 
@@ -156,30 +139,62 @@ export default function DoporuceniPage() {
     )
   }
 
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center text-red-600">
+          <h2 className="text-2xl font-semibold mb-4">Error</h2>
+          <p>{error}</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="container mx-auto px-4 py-8">
-      {/* Introduction section */}
       <div className="text-center mb-12">
         <h1 className="text-4xl font-semibold mb-4">
-          {getPersonalizedHeadline(query)}
+          {query ? (
+            <>
+              <span className="text-gradient-primary">Let us help you with </span>
+              <span className="text-gray-900">"{query}"</span>
+              <span className="text-gradient-primary"> using AI</span>
+            </>
+          ) : (
+            `Choose from our ${products.length} AI Solutions`
+          )}
         </h1>
         <p className="text-gray-600 text-lg max-w-3xl mx-auto mb-4">
           {query 
-            ? 'Based on your needs, we have prepared a list of AI tools that will help you grow and be more efficient.' 
-            : `Choose from our ${products.length} AI solutions that will help you work more efficiently and grow.`
+            ? 'Based on your needs, we have prepared a list of AI tools to help you grow and be more efficient.' 
+            : 'Describe your needs and we will recommend the most suitable AI tools.'
           }
         </p>
-        <p className="text-gray-500 text-base">
-          Browse through the options and save the ones that interest you. You can compare them in detail later.
-        </p>
+        
+        <form onSubmit={handleSearch} className="max-w-2xl mx-auto mb-8">
+          <div className="flex gap-3">
+            <input
+              type="text"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              placeholder="Describe your needs and we'll recommend suitable AI tools..."
+              className="flex-1 px-4 py-3 rounded-full border border-gray-200 focus:border-purple-400 focus:ring-2 focus:ring-purple-100 transition-all"
+            />
+            <button
+              type="submit"
+              disabled={isSearching}
+              className="px-6 py-3 bg-gradient-primary text-white rounded-full font-medium hover-gradient-primary transition-all disabled:opacity-50"
+            >
+              {isSearching ? 'Searching...' : 'Find Solutions'}
+            </button>
+          </div>
+        </form>
       </div>
 
-      {/* TagFilter */}
       <div className="mb-8">
         <TagFilter selectedTags={selectedTags} onTagsChange={setSelectedTags} />
       </div>
 
-      {/* Product list */}
       <div className="space-y-4 mb-12">
         {filteredProducts.map((product) => (
           <div
@@ -192,21 +207,11 @@ export default function DoporuceniPage() {
                   <Image
                     src={product.imageUrl || 'https://placehold.co/800x450/f3f4f6/94a3b8?text=No+Image'}
                     alt={product.name}
-                    fill
+                    width={800}
+                    height={450}
                     className="object-cover"
                   />
                 </div>
-                <label className="flex items-center justify-center md:justify-start gap-2">
-                  <input
-                    type="checkbox"
-                    checked={selectedItems.has(product.id)}
-                    onChange={() => toggleItem(product.id)}
-                    className="w-4 h-4 text-purple-600/90 rounded-[6px] border-gray-300 focus:ring-purple-500"
-                  />
-                  <span className="text-sm text-gray-600 group-hover:text-gray-800 transition-colors">
-                    Compare
-                  </span>
-                </label>
               </div>
               
               <div className="flex-1">
@@ -214,6 +219,11 @@ export default function DoporuceniPage() {
                   <div>
                     <h3 className="text-xl font-medium text-gray-800">
                       {product.name}
+                      {product.matchScore && (
+                        <span className="ml-2 text-sm font-bold text-white bg-purple-600 px-3 py-1 rounded-full">
+                          {Math.round(product.matchScore * 100)}% match
+                        </span>
+                      )}
                     </h3>
                     {product.category && (
                       <span className="text-sm text-gray-500">{product.category}</span>
@@ -236,6 +246,12 @@ export default function DoporuceniPage() {
                 <p className="text-gray-600 mb-4">
                   {product.description}
                 </p>
+
+                {product.matchReason && (
+                  <p className="text-sm text-purple-600 bg-purple-50/50 px-3 py-2 rounded-[10px] mb-4">
+                    {product.matchReason}
+                  </p>
+                )}
                 
                 <div className="space-y-4">
                   <div className="flex flex-wrap gap-2">
@@ -254,7 +270,7 @@ export default function DoporuceniPage() {
                       onClick={() => toggleExpand(product.id)}
                       className="md:w-auto px-4 py-2 text-sm font-medium rounded-[14px] bg-gradient-primary text-white hover-gradient-primary transition-all flex items-center justify-center gap-2"
                     >
-                      <span>{expandedProductId === product.id ? 'Show Less' : 'Show More'}</span>
+                      <span>{expandedProductId === product.id ? 'Less' : 'More'}</span>
                       <svg 
                         xmlns="http://www.w3.org/2000/svg" 
                         viewBox="0 0 24 24" 
@@ -266,19 +282,14 @@ export default function DoporuceniPage() {
                       </svg>
                     </button>
                     <button 
-                      onClick={() => handleSave(product.id)}
-                      className={`md:w-auto px-4 py-2 text-sm font-medium rounded-[14px] border transition-all duration-300 ${
-                        savedItems.has(product.id)
-                          ? 'border-green-500 text-green-600 bg-green-50 hover:bg-green-100'
-                          : 'border-gray-200 text-gray-600 hover:bg-gray-50'
-                      }`}
+                      onClick={() => handleVisit(product.externalUrl)}
+                      className="md:w-auto px-4 py-2 text-sm font-medium rounded-[14px] bg-purple-600 text-white hover:bg-purple-700 transition-colors"
                     >
-                      {savedItems.has(product.id) ? 'Saved ✓' : 'Save'}
+                      Try it
                     </button>
                   </div>
                 </div>
 
-                {/* Expandable section */}
                 {expandedProductId === product.id && (
                   <div className="mt-6 pt-6 border-t border-gray-100">
                     <div className="grid md:grid-cols-2 gap-6 mb-6">
@@ -287,27 +298,23 @@ export default function DoporuceniPage() {
                           <h4 className="text-lg font-medium text-gray-800 mb-3">Advantages</h4>
                           <ul className="space-y-2">
                             {product.advantages.map((advantage, index) => (
-                              <li key={index} className="flex items-start gap-2">
-                                <svg className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                                </svg>
-                                <span className="text-gray-600">{advantage}</span>
+                              <li key={index} className="flex items-start gap-2 text-green-600">
+                                <span className="mt-1">✓</span>
+                                <span>{advantage}</span>
                               </li>
                             ))}
                           </ul>
                         </div>
                       )}
-
+                      
                       {product.disadvantages && product.disadvantages.length > 0 && (
                         <div>
                           <h4 className="text-lg font-medium text-gray-800 mb-3">Disadvantages</h4>
                           <ul className="space-y-2">
                             {product.disadvantages.map((disadvantage, index) => (
-                              <li key={index} className="flex items-start gap-2">
-                                <svg className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                                <span className="text-gray-600">{disadvantage}</span>
+                              <li key={index} className="flex items-start gap-2 text-red-600">
+                                <span className="mt-1">✗</span>
+                                <span>{disadvantage}</span>
                               </li>
                             ))}
                           </ul>
@@ -315,58 +322,56 @@ export default function DoporuceniPage() {
                       )}
                     </div>
 
-                    {product.detailInfo && (
-                      <div className="mb-6">
-                        <h4 className="text-lg font-medium text-gray-800 mb-3">Detailed Description</h4>
-                        <div className="bg-gray-50/80 rounded-[14px] p-4">
-                          <p className="text-gray-600 whitespace-pre-line">{product.detailInfo}</p>
+                    {product.pricingInfo && (
+                      <div className="border-t border-gray-100 pt-6">
+                        <h4 className="text-lg font-medium text-gray-800 mb-4">Pricing Plans</h4>
+                        <div className="grid md:grid-cols-3 gap-4">
+                          {product.pricingInfo.basic && (
+                            <div className="p-4 rounded-lg border border-gray-200 bg-white">
+                              <h5 className="font-medium text-gray-800 mb-2">Basic</h5>
+                              <p className="text-sm text-gray-600">{product.pricingInfo.basic}</p>
+                              <button 
+                                onClick={() => handleVisit(product.externalUrl)}
+                                className="mt-3 w-full px-3 py-2 text-sm font-medium rounded-[14px] bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
+                              >
+                                Start with Basic
+                              </button>
+                            </div>
+                          )}
+                          
+                          {product.pricingInfo.pro && (
+                            <div className="p-4 rounded-lg border-2 border-purple-400 bg-white relative">
+                              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                                <span className="px-3 py-1 bg-purple-100 text-purple-600 text-xs font-medium rounded-full">
+                                  Most Popular
+                                </span>
+                              </div>
+                              <h5 className="font-medium text-gray-800 mb-2">Pro</h5>
+                              <p className="text-sm text-gray-600">{product.pricingInfo.pro}</p>
+                              <button 
+                                onClick={() => handleVisit(product.externalUrl)}
+                                className="mt-3 w-full px-3 py-2 text-sm font-medium rounded-[14px] bg-gradient-primary text-white hover-gradient-primary transition-all"
+                              >
+                                Try Pro
+                              </button>
+                            </div>
+                          )}
+                          
+                          {product.pricingInfo.enterprise && (
+                            <div className="p-4 rounded-lg border border-gray-200 bg-white">
+                              <h5 className="font-medium text-gray-800 mb-2">Enterprise</h5>
+                              <p className="text-sm text-gray-600">{product.pricingInfo.enterprise}</p>
+                              <button 
+                                onClick={() => handleVisit(product.externalUrl)}
+                                className="mt-3 w-full px-3 py-2 text-sm font-medium rounded-[14px] bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
+                              >
+                                Contact Sales
+                              </button>
+                            </div>
+                          )}
                         </div>
                       </div>
                     )}
-
-                    {/* Pricing information */}
-                    <div className="mb-6">
-                      <h4 className="text-lg font-medium text-gray-800 mb-3">Pricing</h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                        {product.hasTrial && (
-                          <div className="bg-purple-50/80 p-4 rounded-[14px] border-2 border-purple-100">
-                            <h5 className="font-medium text-gray-800 mb-2">Free Trial</h5>
-                            <p className="text-2xl font-bold text-gradient-primary">$0</p>
-                          </div>
-                        )}
-                        {product.pricingInfo?.basic && (
-                          <div className="bg-gray-50/80 p-4 rounded-[14px]">
-                            <h5 className="font-medium text-gray-800 mb-2">Basic</h5>
-                            <p className="text-2xl font-bold text-gradient-primary">
-                              ${parseFloat(product.pricingInfo.basic).toFixed(2)}
-                            </p>
-                          </div>
-                        )}
-                        {product.pricingInfo?.pro && (
-                          <div className="bg-purple-50/80 p-4 rounded-[14px] border-2 border-purple-100">
-                            <h5 className="font-medium text-gray-800 mb-2">Pro</h5>
-                            <p className="text-2xl font-bold text-gradient-primary">
-                              ${parseFloat(product.pricingInfo.pro).toFixed(2)}
-                            </p>
-                          </div>
-                        )}
-                        {product.pricingInfo?.enterprise && (
-                          <div className="bg-gray-50/80 p-4 rounded-[14px]">
-                            <h5 className="font-medium text-gray-800 mb-2">Enterprise</h5>
-                            <p className="text-2xl font-bold text-gradient-primary">
-                              {product.pricingInfo.enterprise === 'Custom' ? 'Custom' : `$${parseFloat(product.pricingInfo.enterprise).toFixed(2)}`}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    <button
-                      onClick={() => handleVisit(product.externalUrl)}
-                      className="w-full px-6 py-3 text-base font-medium rounded-[14px] bg-gradient-primary text-white hover-gradient-primary transition-all"
-                    >
-                      {product.hasTrial ? 'Try for Free' : 'Try Now'}
-                    </button>
                   </div>
                 )}
               </div>
@@ -374,13 +379,6 @@ export default function DoporuceniPage() {
           </div>
         ))}
       </div>
-
-      {/* CompareBar */}
-      <CompareBar 
-        selectedCount={selectedItems.size}
-        onCompare={handleCompare}
-        onClear={handleClearSelection}
-      />
     </div>
   )
 } 

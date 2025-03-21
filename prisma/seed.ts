@@ -3,192 +3,192 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
-  // Vymaže existující data
+  // Clear existing data
   await prisma.product.deleteMany();
 
-  // Vytvoří nové produkty
+  // Create new products
   const products = [
     {
       name: 'ChatGPT',
-      description: 'Pokročilý jazykový model pro konverzaci a generování textu',
-        price: 20,
+      description: 'Advanced language model for conversation and text generation',
+      price: 20,
       category: 'Chatbot',
       imageUrl: 'https://placehold.co/800x450/f3f4f6/94a3b8?text=ChatGPT',
-      tags: JSON.stringify(['AI', 'Chatbot', 'Generování textu']),
-      advantages: JSON.stringify(['Přirozená konverzace', 'Široké znalosti', 'Rychlé odpovědi']),
-      disadvantages: JSON.stringify(['Občasné nepřesnosti', 'Omezení délky konverzace', 'Potřeba ověřování faktů']),
-      detailInfo: 'ChatGPT je pokročilý jazykový model vyvinutý společností OpenAI. Dokáže vést přirozenou konverzaci, pomáhat s psaním, odpovídat na otázky a řešit různé úkoly.',
+      tags: JSON.stringify(['AI', 'Chatbot', 'Text Generation']),
+      advantages: JSON.stringify(['Natural conversation', 'Broad knowledge', 'Quick responses']),
+      disadvantages: JSON.stringify(['Occasional inaccuracies', 'Limited conversation length', 'Need for fact verification']),
+      detailInfo: 'ChatGPT is an advanced language model developed by OpenAI. It can engage in natural conversation, assist with writing, answer questions, and solve various tasks.',
       pricingInfo: JSON.stringify({ basic: '0', pro: '20', enterprise: '100' }),
-        videoUrls: JSON.stringify([]),
+      videoUrls: JSON.stringify([]),
       externalUrl: 'https://chat.openai.com',
-        hasTrial: true
-      },
-      {
+      hasTrial: true
+    },
+    {
       name: 'Claude',
-      description: 'Inteligentní AI asistent pro komplexní úkoly a analýzu',
-        price: 25,
+      description: 'Intelligent AI assistant for complex tasks and analysis',
+      price: 25,
       category: 'Chatbot',
       imageUrl: 'https://placehold.co/800x450/f3f4f6/94a3b8?text=Claude',
-      tags: JSON.stringify(['AI', 'Chatbot', 'Analýza']),
-      advantages: JSON.stringify(['Dlouhé konverzace', 'Přesné odpovědi', 'Práce s dokumenty']),
-      disadvantages: JSON.stringify(['Vyšší cena', 'Méně kreativní', 'Omezená dostupnost']),
-      detailInfo: 'Claude je AI asistent vyvinutý společností Anthropic. Vyniká v dlouhých konverzacích, analýze dokumentů a řešení komplexních úkolů.',
+      tags: JSON.stringify(['AI', 'Chatbot', 'Analysis']),
+      advantages: JSON.stringify(['Long conversations', 'Accurate responses', 'Document processing']),
+      disadvantages: JSON.stringify(['Higher price', 'Less creative', 'Limited availability']),
+      detailInfo: 'Claude is an AI assistant developed by Anthropic. It excels in long conversations, document analysis, and solving complex tasks.',
       pricingInfo: JSON.stringify({ basic: '10', pro: '25', enterprise: '150' }),
-        videoUrls: JSON.stringify([]),
+      videoUrls: JSON.stringify([]),
       externalUrl: 'https://claude.ai',
       hasTrial: false
-      },
-      {
-        name: 'Adobe Firefly',
-        description: 'Pokročilý AI nástroj pro generování a úpravu obrázků od společnosti Adobe',
-        price: 20,
-        category: 'Generování obrázků',
+    },
+    {
+      name: 'Adobe Firefly',
+      description: 'Advanced AI tool for image generation and editing from Adobe',
+      price: 20,
+      category: 'Image Generation',
       imageUrl: '/screenshots/adobe-firefly.png',
-      tags: JSON.stringify(['AI', 'Generování obrázků', 'Úprava fotek', 'Adobe']),
-      advantages: JSON.stringify(['Vysoká kvalita výstupů', 'Integrace s Adobe produkty', 'Jednoduchý na použití', 'Komerční licence']),
-      disadvantages: JSON.stringify(['Některé funkce pouze v placené verzi', 'Vyžaduje Adobe účet', 'Omezený počet generování zdarma']),
-      detailInfo: 'Adobe Firefly je revoluční AI nástroj pro generování a úpravu obrázků. Nabízí pokročilé funkce jako generování obrázků z textu, úpravu existujících fotek, změnu stylů a mnoho dalšího. Je plně integrován do Adobe Creative Cloud a nabízí komerční licenci pro vytvořený obsah.',
+      tags: JSON.stringify(['AI', 'Image Generation', 'Photo Editing', 'Adobe']),
+      advantages: JSON.stringify(['High-quality outputs', 'Adobe products integration', 'Easy to use', 'Commercial license']),
+      disadvantages: JSON.stringify(['Some features only in paid version', 'Requires Adobe account', 'Limited free generations']),
+      detailInfo: 'Adobe Firefly is a revolutionary AI tool for image generation and editing. It offers advanced features like text-to-image generation, photo editing, style transfer, and much more. It\'s fully integrated with Adobe Creative Cloud and offers commercial licensing for created content.',
       pricingInfo: JSON.stringify({ basic: '0', pro: '20', enterprise: 'Custom' }),
-        videoUrls: JSON.stringify([]),
+      videoUrls: JSON.stringify([]),
       externalUrl: 'https://www.adobe.com/sensei/generative-ai/firefly.html',
-        hasTrial: true
-      },
-      {
-        name: 'Midjourney',
-      description: 'Špičkový nástroj pro generování uměleckých obrázků pomocí AI',
+      hasTrial: true
+    },
+    {
+      name: 'Midjourney',
+      description: 'Premium tool for generating artistic images using AI',
       price: 30,
-        category: 'Generování obrázků',
-        imageUrl: 'https://placehold.co/800x450/f3f4f6/94a3b8?text=Midjourney',
-        tags: JSON.stringify(['AI', 'Generování obrázků', 'Umění']),
-      advantages: JSON.stringify(['Vysoká umělecká kvalita', 'Aktivní komunita', 'Unikátní styl']),
-      disadvantages: JSON.stringify(['Vyšší cena', 'Pouze v Discord prostředí', 'Složitější ovládání']),
-      detailInfo: 'Midjourney je AI nástroj pro generování uměleckých obrázků. Vyniká v tvorbě unikátních a esteticky působivých vizuálů.',
+      category: 'Image Generation',
+      imageUrl: 'https://placehold.co/800x450/f3f4f6/94a3b8?text=Midjourney',
+      tags: JSON.stringify(['AI', 'Image Generation', 'Art']),
+      advantages: JSON.stringify(['High artistic quality', 'Active community', 'Unique style']),
+      disadvantages: JSON.stringify(['Higher price', 'Discord environment only', 'Complex controls']),
+      detailInfo: 'Midjourney is an AI tool for generating artistic images. It excels in creating unique and aesthetically pleasing visuals.',
       pricingInfo: JSON.stringify({ basic: '10', pro: '30', enterprise: '120' }),
-        videoUrls: JSON.stringify([]),
-        externalUrl: 'https://www.midjourney.com',
-        hasTrial: true
-      },
+      videoUrls: JSON.stringify([]),
+      externalUrl: 'https://www.midjourney.com',
+      hasTrial: true
+    },
     {
       name: 'DALL-E',
-      description: 'AI model od OpenAI pro generování a editaci obrázků',
+      description: 'AI model from OpenAI for image generation and editing',
       price: 20,
-      category: 'Generování obrázků',
+      category: 'Image Generation',
       imageUrl: 'https://placehold.co/800x450/f3f4f6/94a3b8?text=DALL-E',
-      tags: JSON.stringify(['AI', 'Generování obrázků', 'OpenAI']),
-      advantages: JSON.stringify(['Přesné následování promptů', 'Editace obrázků', 'Intuitivní rozhraní']),
-      disadvantages: JSON.stringify(['Omezený počet kreditů', 'Méně umělecký styl', 'Občas nepřesné detaily']),
-      detailInfo: 'DALL-E je AI systém od OpenAI pro generování a úpravu obrázků na základě textového popisu.',
+      tags: JSON.stringify(['AI', 'Image Generation', 'OpenAI']),
+      advantages: JSON.stringify(['Accurate prompt following', 'Image editing', 'Intuitive interface']),
+      disadvantages: JSON.stringify(['Limited credits', 'Less artistic style', 'Occasional detail inaccuracies']),
+      detailInfo: 'DALL-E is an AI system from OpenAI for generating and editing images based on text descriptions.',
       pricingInfo: JSON.stringify({ basic: '0', pro: '20', enterprise: '80' }),
       videoUrls: JSON.stringify([]),
       externalUrl: 'https://openai.com/dall-e-3',
       hasTrial: true
     },
-      {
-        name: 'Stable Diffusion',
-        description: 'Open-source AI model pro generování obrázků',
-        price: 0,
-        category: 'Generování obrázků',
-        imageUrl: 'https://placehold.co/800x450/f3f4f6/94a3b8?text=Stable+Diffusion',
-      tags: JSON.stringify(['AI', 'Generování obrázků', 'Open Source']),
-      advantages: JSON.stringify(['Zdarma', 'Možnost vlastního hostování', 'Velká komunita']),
-      disadvantages: JSON.stringify(['Technicky náročnější', 'Vyžaduje výkonný hardware', 'Méně intuitivní']),
-      detailInfo: 'Stable Diffusion je open-source AI model pro generování obrázků, který lze provozovat lokálně nebo využít skrze různé hostované služby.',
+    {
+      name: 'Stable Diffusion',
+      description: 'Open-source AI model for image generation',
+      price: 0,
+      category: 'Image Generation',
+      imageUrl: 'https://placehold.co/800x450/f3f4f6/94a3b8?text=Stable+Diffusion',
+      tags: JSON.stringify(['AI', 'Image Generation', 'Open Source']),
+      advantages: JSON.stringify(['Free', 'Self-hosting possible', 'Large community']),
+      disadvantages: JSON.stringify(['Technically challenging', 'Requires powerful hardware', 'Less intuitive']),
+      detailInfo: 'Stable Diffusion is an open-source AI model for image generation that can be run locally or used through various hosted services.',
       pricingInfo: JSON.stringify({ basic: '0', pro: '0', enterprise: 'Custom' }),
-        videoUrls: JSON.stringify([]),
-        externalUrl: 'https://stability.ai',
-        hasTrial: true
-      },
-      {
+      videoUrls: JSON.stringify([]),
+      externalUrl: 'https://stability.ai',
+      hasTrial: true
+    },
+    {
       name: 'Jasper',
-      description: 'AI copywriting asistent pro marketingový obsah',
+      description: 'AI copywriting assistant for marketing content',
       price: 40,
       category: 'Copywriting',
       imageUrl: 'https://placehold.co/800x450/f3f4f6/94a3b8?text=Jasper',
       tags: JSON.stringify(['AI', 'Copywriting', 'Marketing']),
-      advantages: JSON.stringify(['Specializace na marketing', 'Mnoho šablon', 'SEO optimalizace']),
-      disadvantages: JSON.stringify(['Vysoká cena', 'Občas opakující se obsah', 'Nutnost kontroly']),
-      detailInfo: 'Jasper je AI nástroj specializovaný na tvorbu marketingového obsahu, včetně blogů, reklam a sociálních médií.',
+      advantages: JSON.stringify(['Marketing specialization', 'Many templates', 'SEO optimization']),
+      disadvantages: JSON.stringify(['High price', 'Occasional repetitive content', 'Requires review']),
+      detailInfo: 'Jasper is an AI tool specialized in creating marketing content, including blogs, ads, and social media posts.',
       pricingInfo: JSON.stringify({ basic: '40', pro: '70', enterprise: '200' }),
-        videoUrls: JSON.stringify([]),
+      videoUrls: JSON.stringify([]),
       externalUrl: 'https://www.jasper.ai',
-        hasTrial: true
-      },
-      {
+      hasTrial: true
+    },
+    {
       name: 'Copy.ai',
-      description: 'AI nástroj pro generování marketingových textů',
+      description: 'AI tool for generating marketing copy',
       price: 35,
       category: 'Copywriting',
       imageUrl: 'https://placehold.co/800x450/f3f4f6/94a3b8?text=Copy.ai',
       tags: JSON.stringify(['AI', 'Copywriting', 'Marketing']),
-      advantages: JSON.stringify(['Jednoduché použití', 'Kvalitní výstupy', 'Mnoho formátů']),
-      disadvantages: JSON.stringify(['Vyšší cena', 'Omezení v základní verzi', 'Pouze anglicky']),
-      detailInfo: 'Copy.ai pomáhá vytvářet marketingové texty, emaily, produktové popisy a další obsah pomocí AI.',
+      advantages: JSON.stringify(['Easy to use', 'Quality outputs', 'Multiple formats']),
+      disadvantages: JSON.stringify(['Higher price', 'Basic version limitations', 'English only']),
+      detailInfo: 'Copy.ai helps create marketing copy, emails, product descriptions, and other content using AI.',
       pricingInfo: JSON.stringify({ basic: '0', pro: '35', enterprise: '150' }),
-        videoUrls: JSON.stringify([]),
+      videoUrls: JSON.stringify([]),
       externalUrl: 'https://www.copy.ai',
-        hasTrial: true
-      },
-      {
+      hasTrial: true
+    },
+    {
       name: 'Grammarly',
-      description: 'AI asistent pro kontrolu a vylepšení textu',
+      description: 'AI assistant for text checking and improvement',
       price: 30,
-      category: 'Psaní',
+      category: 'Writing',
       imageUrl: 'https://placehold.co/800x450/f3f4f6/94a3b8?text=Grammarly',
-      tags: JSON.stringify(['AI', 'Gramatika', 'Psaní']),
-      advantages: JSON.stringify(['Přesná detekce chyb', 'Návrhy vylepšení', 'Multiplatformní']),
-      disadvantages: JSON.stringify(['Měsíční předplatné', 'Občas falešné návrhy', 'Omezená podpora češtiny']),
-      detailInfo: 'Grammarly je pokročilý AI nástroj pro kontrolu pravopisu, gramatiky a stylistiky textu.',
+      tags: JSON.stringify(['AI', 'Grammar', 'Writing']),
+      advantages: JSON.stringify(['Accurate error detection', 'Improvement suggestions', 'Multi-platform']),
+      disadvantages: JSON.stringify(['Monthly subscription', 'Occasional false suggestions', 'Limited language support']),
+      detailInfo: 'Grammarly is an advanced AI tool for checking spelling, grammar, and style in text.',
       pricingInfo: JSON.stringify({ basic: '0', pro: '30', enterprise: '100' }),
-        videoUrls: JSON.stringify([]),
+      videoUrls: JSON.stringify([]),
       externalUrl: 'https://www.grammarly.com',
-        hasTrial: true
-      },
-      {
-        name: 'Notion AI',
-      description: 'AI asistent integrovaný do Notion pro psaní a organizaci',
+      hasTrial: true
+    },
+    {
+      name: 'Notion AI',
+      description: 'AI assistant integrated into Notion for writing and organization',
       price: 15,
-        category: 'Produktivita',
-        imageUrl: 'https://placehold.co/800x450/f3f4f6/94a3b8?text=Notion+AI',
-      tags: JSON.stringify(['AI', 'Produktivita', 'Organizace']),
-      advantages: JSON.stringify(['Integrace s Notion', 'Všestranné použití', 'Kontextové pochopení']),
-      disadvantages: JSON.stringify(['Vyžaduje Notion', 'Omezený počet tokenů', 'Základní AI funkce']),
-      detailInfo: 'Notion AI je integrovaný asistent v Notion, který pomáhá s psaním, sumarizací a organizací informací.',
+      category: 'Productivity',
+      imageUrl: 'https://placehold.co/800x450/f3f4f6/94a3b8?text=Notion+AI',
+      tags: JSON.stringify(['AI', 'Productivity', 'Organization']),
+      advantages: JSON.stringify(['Notion integration', 'Versatile use', 'Contextual understanding']),
+      disadvantages: JSON.stringify(['Requires Notion', 'Limited tokens', 'Basic AI features']),
+      detailInfo: 'Notion AI is an integrated assistant in Notion that helps with writing, summarizing, and organizing information.',
       pricingInfo: JSON.stringify({ basic: '0', pro: '15', enterprise: '50' }),
-        videoUrls: JSON.stringify([]),
+      videoUrls: JSON.stringify([]),
       externalUrl: 'https://www.notion.so',
-        hasTrial: true
-      },
-      {
+      hasTrial: true
+    },
+    {
       name: 'CapCut',
-      description: 'Všestranný editor videa s pokročilými AI funkcemi',
+      description: 'Versatile video editor with advanced AI features',
       price: 0,
-      category: 'Video editace',
+      category: 'Video Editing',
       imageUrl: '/screenshots/capcut.png',
-      tags: JSON.stringify(['AI', 'Video editace', 'Sociální sítě']),
-      advantages: JSON.stringify(['Zdarma základní verze', 'Snadné použití', 'Pokročilé AI funkce', 'Mobilní i desktop verze']),
-      disadvantages: JSON.stringify(['Vodoznak ve free verzi', 'Omezené rozlišení exportu zdarma', 'Některé pokročilé funkce jen v PRO verzi']),
-      detailInfo: 'CapCut je moderní video editor s integrovanými AI funkcemi. Nabízí jednoduché rozhraní pro začátečníky i pokročilé funkce pro profesionály. Automatické úpravy, efekty a přechody dělají z CapCutu skvělý nástroj pro tvorbu videí na sociální sítě.',
+      tags: JSON.stringify(['AI', 'Video Editing', 'Social Media']),
+      advantages: JSON.stringify(['Free basic version', 'Easy to use', 'Advanced AI features', 'Mobile and desktop versions']),
+      disadvantages: JSON.stringify(['Watermark in free version', 'Limited export resolution in free', 'Some advanced features PRO only']),
+      detailInfo: 'CapCut is a modern video editor with integrated AI features. It offers a simple interface for beginners and advanced features for professionals. Automatic adjustments, effects, and transitions make CapCut great for creating social media videos.',
       pricingInfo: JSON.stringify({ basic: '0', pro: '12', enterprise: 'Custom' }),
-        videoUrls: JSON.stringify([]),
+      videoUrls: JSON.stringify([]),
       externalUrl: 'https://www.capcut.com',
-        hasTrial: true
-      },
-      {
+      hasTrial: true
+    },
+    {
       name: 'InVideo',
-      description: 'Online platforma pro tvorbu profesionálních videí s pomocí AI',
-        price: 15,
-      category: 'Video tvorba',
+      description: 'Online platform for creating professional videos with AI assistance',
+      price: 15,
+      category: 'Video Creation',
       imageUrl: '/screenshots/invideo.png',
-      tags: JSON.stringify(['AI', 'Video tvorba', 'Online nástroj']),
-      advantages: JSON.stringify(['Rozsáhlá knihovna šablon', 'Automatické překlady', 'Text na video', 'Cloudové úložiště']),
-      disadvantages: JSON.stringify(['Vyžaduje internetové připojení', 'Omezení ve free verzi', 'Složitější pokročilé funkce']),
-      detailInfo: 'InVideo je webová platforma pro tvorbu profesionálních videí. Využívá AI pro automatické generování videí z textu, nabízí tisíce šablon a umožňuje snadnou spolupráci v týmu. Vhodné pro marketéry, podnikatele i tvůrce obsahu.',
+      tags: JSON.stringify(['AI', 'Video Creation', 'Online Tool']),
+      advantages: JSON.stringify(['Extensive template library', 'Automatic translations', 'Text to video', 'Cloud storage']),
+      disadvantages: JSON.stringify(['Requires internet connection', 'Free version limitations', 'Complex advanced features']),
+      detailInfo: 'InVideo is a web platform for creating professional videos. It uses AI to automatically generate videos from text, offers thousands of templates, and enables easy team collaboration. Suitable for marketers, business owners, and content creators.',
       pricingInfo: JSON.stringify({ basic: '0', pro: '15', enterprise: '30' }),
-        videoUrls: JSON.stringify([]),
+      videoUrls: JSON.stringify([]),
       externalUrl: 'https://invideo.io',
-        hasTrial: true
-      }
-    ];
+      hasTrial: true
+    }
+  ];
 
   for (const product of products) {
     await prisma.product.create({
@@ -196,11 +196,11 @@ async function main() {
     });
   }
 
-  console.log('Seed dokončen!');
+  console.log('Seed completed!');
   await prisma.$disconnect();
 }
 
-// Spustí seed
+// Run seed
 try {
   main();
 } catch (error) {

@@ -87,7 +87,7 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
       href={externalUrl}
       target="_blank"
       rel="noopener noreferrer"
-      className="block bg-gradient-to-b from-white to-gray-50 rounded-lg shadow-lg hover:shadow-2xl border border-gray-200 transition-all duration-300 hover:scale-[1.02] hover:border-purple-300 cursor-pointer h-full flex flex-col relative overflow-hidden"
+      className="block bg-gradient-to-b from-white to-gray-50 rounded-lg shadow-lg hover:shadow-2xl border border-gray-200 transition-all duration-300 hover:scale-[1.02] hover:border-purple-300 cursor-pointer h-full flex flex-col relative overflow-hidden mb-4 sm:mb-0"
       onClick={handleVisit}
     >
       <div className="absolute inset-0 bg-gradient-to-br from-purple-50/30 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
@@ -104,7 +104,7 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
           </div>
         )}
       </div>
-      <div className="p-4 flex flex-col flex-grow">
+      <div className="p-4 flex flex-col flex-grow bg-white border-t border-gray-100 shadow-inner">
         <div className="flex-grow">
           <h2 className="text-lg font-semibold text-gray-800 mb-2">{name}</h2>
           <p className="text-gray-600 text-sm mb-4 line-clamp-2">{description}</p>
@@ -147,7 +147,7 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
           )}
         </div>
         
-        <div className="flex justify-between items-center mt-auto pt-4 border-t border-gray-100">
+        <div className="flex justify-between items-center mt-auto pt-4 border-t border-gray-100 bg-gradient-to-r from-purple-50/50 to-transparent">
           {hasTrial ? (
             <div className="text-lg font-bold text-purple-600">$0</div>
           ) : (
