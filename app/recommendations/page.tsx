@@ -41,6 +41,7 @@ export default function RecommendationsPage() {
   const [searchInput, setSearchInput] = useState(query || '')
   const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set())
   const [expandedProductId, setExpandedProductId] = useState<string | null>(null)
+  const [savedItems, setSavedItems] = useState<Set<string>>(new Set())
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -116,6 +117,16 @@ export default function RecommendationsPage() {
 
   const toggleExpand = (id: string) => {
     setExpandedProductId(expandedProductId === id ? null : id)
+  }
+
+  const handleSave = (id: string) => {
+    const newSaved = new Set(savedItems)
+    if (newSaved.has(id)) {
+      newSaved.delete(id)
+    } else {
+      newSaved.add(id)
+    }
+    setSavedItems(newSaved)
   }
 
   const handleVisit = (url?: string) => {
@@ -203,7 +214,10 @@ export default function RecommendationsPage() {
           >
             <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
               <div className="w-full md:max-w-[240px] flex flex-col gap-3">
-                <div className="w-full aspect-video relative rounded-[14px] overflow-hidden bg-gray-50">
+                <div 
+                  className="w-full aspect-video relative rounded-[14px] overflow-hidden bg-gray-50 cursor-pointer hover:opacity-90 transition-opacity"
+                  onClick={() => handleVisit(product.externalUrl)}
+                >
                   <Image
                     src={product.imageUrl || 'https://placehold.co/800x450/f3f4f6/94a3b8?text=No+Image'}
                     alt={product.name}
@@ -248,9 +262,19 @@ export default function RecommendationsPage() {
                 </p>
 
                 {product.matchReason && (
-                  <p className="text-sm text-purple-600 bg-purple-50/50 px-3 py-2 rounded-[10px] mb-4">
-                    {product.matchReason}
-                  </p>
+                  <>
+                    <div className="mb-2 flex items-center gap-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 text-purple-600">
+                        <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
+                      </svg>
+                      <h4 className="text-lg font-medium text-purple-700">Our AI Recommendation</h4>
+                    </div>
+                    <div className="bg-gradient-to-r from-purple-50 to-purple-100 px-4 py-3 rounded-[14px] mb-4 border border-purple-200">
+                      <p className="text-purple-700 font-medium">
+                        {product.matchReason}
+                      </p>
+                    </div>
+                  </>
                 )}
                 
                 <div className="space-y-4">
@@ -270,7 +294,7 @@ export default function RecommendationsPage() {
                       onClick={() => toggleExpand(product.id)}
                       className="md:w-auto px-4 py-2 text-sm font-medium rounded-[14px] bg-gradient-primary text-white hover-gradient-primary transition-all flex items-center justify-center gap-2"
                     >
-                      <span>{expandedProductId === product.id ? 'Less' : 'More'}</span>
+                      <span>{expandedProductId === product.id ? 'Less' : 'More information'}</span>
                       <svg 
                         xmlns="http://www.w3.org/2000/svg" 
                         viewBox="0 0 24 24" 
@@ -285,7 +309,7 @@ export default function RecommendationsPage() {
                       onClick={() => handleVisit(product.externalUrl)}
                       className="md:w-auto px-4 py-2 text-sm font-medium rounded-[14px] bg-purple-600 text-white hover:bg-purple-700 transition-colors"
                     >
-                      Try it
+                      {product.hasTrial || (product.pricingInfo?.basic === "0") ? "Try it for free" : "Try it"}
                     </button>
                   </div>
                 </div>
@@ -327,12 +351,23 @@ export default function RecommendationsPage() {
                         <h4 className="text-lg font-medium text-gray-800 mb-4">Pricing Plans</h4>
                         <div className="grid md:grid-cols-3 gap-4">
                           {product.pricingInfo.basic && (
-                            <div className="p-4 rounded-lg border border-gray-200 bg-white">
+                            <div className={`p-4 rounded-lg border ${(product.hasTrial || product.pricingInfo.basic === "0") ? 'border-2 border-purple-400' : 'border-gray-200'} bg-white relative`}>
+                              {(product.hasTrial || product.pricingInfo.basic === "0") && (
+                                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                                  <span className="px-3 py-1 bg-purple-100 text-purple-600 text-xs font-medium rounded-full">
+                                    Most Popular
+                                  </span>
+                                </div>
+                              )}
                               <h5 className="font-medium text-gray-800 mb-2">Basic</h5>
                               <p className="text-sm text-gray-600">{product.pricingInfo.basic}</p>
                               <button 
                                 onClick={() => handleVisit(product.externalUrl)}
-                                className="mt-3 w-full px-3 py-2 text-sm font-medium rounded-[14px] bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
+                                className={`mt-3 w-full px-3 py-2 text-sm font-medium rounded-[14px] ${
+                                  (product.hasTrial || product.pricingInfo.basic === "0")
+                                    ? 'bg-gradient-primary text-white hover-gradient-primary'
+                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                } transition-colors`}
                               >
                                 Start with Basic
                               </button>
@@ -340,17 +375,12 @@ export default function RecommendationsPage() {
                           )}
                           
                           {product.pricingInfo.pro && (
-                            <div className="p-4 rounded-lg border-2 border-purple-400 bg-white relative">
-                              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                                <span className="px-3 py-1 bg-purple-100 text-purple-600 text-xs font-medium rounded-full">
-                                  Most Popular
-                                </span>
-                              </div>
+                            <div className="p-4 rounded-lg border border-gray-200 bg-white">
                               <h5 className="font-medium text-gray-800 mb-2">Pro</h5>
                               <p className="text-sm text-gray-600">{product.pricingInfo.pro}</p>
                               <button 
                                 onClick={() => handleVisit(product.externalUrl)}
-                                className="mt-3 w-full px-3 py-2 text-sm font-medium rounded-[14px] bg-gradient-primary text-white hover-gradient-primary transition-all"
+                                className="mt-3 w-full px-3 py-2 text-sm font-medium rounded-[14px] bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
                               >
                                 Try Pro
                               </button>
