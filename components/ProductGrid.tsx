@@ -5,6 +5,9 @@ import ProductCard from './ProductCard'
 import CompareBar from './CompareBar'
 import { useCompareStore } from '../store/compareStore'
 
+// Konstanta pro zapnutí/vypnutí funkcí srovnávání
+const COMPARE_FEATURE_ENABLED = false;
+
 interface Product {
   id: string
   name: string
@@ -122,11 +125,14 @@ export default function ProductGrid({ selectedTags }: { selectedTags: Set<string
         </div>
       )}
 
-      <CompareBar 
-        selectedCount={selectedProducts.length}
-        onCompare={handleCompare}
-        onClear={clearProducts}
-      />
+      {/* CompareBar - skrytý */}
+      {COMPARE_FEATURE_ENABLED && (
+        <CompareBar 
+          selectedCount={selectedProducts.length}
+          onCompare={handleCompare}
+          onClear={clearProducts}
+        />
+      )}
     </div>
   )
 } 

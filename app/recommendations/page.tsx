@@ -7,6 +7,10 @@ import { useSearchParams } from 'next/navigation'
 import TagFilter from '../../components/TagFilter'
 import CompareBar from '../../components/CompareBar'
 
+// Konstanty pro zapnutí/vypnutí funkcí 
+const COMPARE_FEATURE_ENABLED = false;
+const SAVE_FEATURE_ENABLED = false;
+
 interface Product {
   id: string
   name: string
@@ -33,6 +37,18 @@ interface Product {
   hasTrial?: boolean
 }
 
+interface Recommendation {
+  id: string
+  matchPercentage: number
+  recommendation: string
+  product: Product
+}
+
+interface DisplayProduct extends Product {
+  matchPercentage?: number;
+  recommendation?: string;
+}
+
 export default function DoporuceniPage() {
   const searchParams = useSearchParams()
   const query = searchParams.get('query')
@@ -41,11 +57,15 @@ export default function DoporuceniPage() {
   const [expandedProductId, setExpandedProductId] = useState<string | null>(null)
   const [savedItems, setSavedItems] = useState<Set<string>>(new Set())
   const [products, setProducts] = useState<Product[]>([])
+  const [recommendations, setRecommendations] = useState<Recommendation[]>([])
   const [loading, setLoading] = useState(true)
+  const [recommending, setRecommending] = useState(true)
 
+  // Načtení produktů
   useEffect(() => {
     const fetchProducts = async () => {
       try {
+        setLoading(true);
         const response = await fetch('/api/products', {
           cache: 'no-store',
           headers: {
@@ -66,10 +86,12 @@ export default function DoporuceniPage() {
             hasTrial: typeof product.hasTrial === 'boolean' ? product.hasTrial : false,
             price: typeof product.price === 'string' ? parseFloat(product.price) : product.price
           }))
-          console.log('Načtená data:', data)  // Pro debugging
-          console.log('Zpracovaná data:', processedData)  // Pro debugging
           setProducts(processedData)
-          console.log(`Načteno ${processedData.length} produktů`)
+          
+          // Pokud nemáme dotaz, zobrazíme všechny produkty
+          if (!query) {
+            setRecommending(false);
+          }
         } else {
           console.error('Chyba při načítání:', response.status, response.statusText)
         }
@@ -81,7 +103,43 @@ export default function DoporuceniPage() {
     }
 
     fetchProducts()
-  }, [])
+  }, [query])
+
+  // Získáme doporučení, pokud máme dotaz
+  useEffect(() => {
+    const fetchRecommendations = async () => {
+      if (!query) return;
+      
+      try {
+        setRecommending(true);
+        
+        const response = await fetch('/api/recommendations', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ query })
+        });
+        
+        if (!response.ok) {
+          throw new Error('Nepodařilo se získat doporučení');
+        }
+        
+        const data = await response.json();
+        setRecommendations(data.recommendations || []);
+      } catch (error) {
+        console.error('Chyba při získávání doporučení:', error);
+        // Při chybě zobrazíme všechny produkty
+        setRecommendations([]);
+      } finally {
+        setRecommending(false);
+      }
+    };
+    
+    if (query && products.length > 0) {
+      fetchRecommendations();
+    }
+  }, [query, products]);
 
   const toggleItem = (id: string) => {
     const newSelected = new Set(selectedItems)
@@ -93,12 +151,27 @@ export default function DoporuceniPage() {
     setSelectedItems(newSelected)
   }
 
-  // Filtrování produktů podle vybraných tagů
-  const filteredProducts = products.filter(product => {
-    if (selectedTags.size === 0) return true
-    const productTags = product.tags || []
-    return Array.from(selectedTags).some(tag => productTags.includes(tag))
-  })
+  // Získáme produkty pro zobrazení - buď všechny, nebo jen doporučené
+  const getDisplayProducts = (): DisplayProduct[] => {
+    // Pokud máme doporučení, použijeme je
+    if (recommendations.length > 0) {
+      // Vrátíme všechna doporučení, bez omezení na počet, seřazena podle matchPercentage
+      return recommendations.map(rec => ({
+        ...rec.product,
+        matchPercentage: rec.matchPercentage,
+        recommendation: rec.recommendation
+      })).sort((a, b) => (b.matchPercentage || 0) - (a.matchPercentage || 0));
+    }
+    
+    // Jinak filtrujeme podle tagů
+    return products.filter(product => {
+      if (selectedTags.size === 0) return true
+      const productTags = product.tags || []
+      return Array.from(selectedTags).some(tag => productTags.includes(tag))
+    });
+  }
+
+  const displayProducts = getDisplayProducts();
 
   const toggleExpand = (id: string) => {
     setExpandedProductId(expandedProductId === id ? null : id)
@@ -165,30 +238,54 @@ export default function DoporuceniPage() {
         </h1>
         <p className="text-gray-600 text-lg max-w-3xl mx-auto mb-4">
           {query 
-            ? 'Based on your needs, we have prepared a list of AI tools that will help you grow and be more efficient.' 
+            ? `Based on your needs, we found ${displayProducts.length} AI tools that are specifically relevant to your requirements.` 
             : `Choose from our ${products.length} AI solutions that will help you work more efficiently and grow.`
           }
         </p>
         <p className="text-gray-500 text-base">
-          Browse through the options and save the ones that interest you. You can compare them in detail later.
+          {query
+            ? "We've filtered out tools that don't match your specific needs to save you time."
+            : "Browse through the options and save the ones that interest you. You can compare them in detail later."
+          }
         </p>
       </div>
 
-      {/* TagFilter */}
-      <div className="mb-8">
-        <TagFilter selectedTags={selectedTags} onTagsChange={setSelectedTags} />
-      </div>
+      {/* Loading state pro doporučení */}
+      {recommending && (
+        <div className="flex justify-center items-center py-8">
+          <div className="flex flex-col items-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mb-4"></div>
+            <p className="text-purple-600 font-medium">Generating personalized recommendations...</p>
+          </div>
+        </div>
+      )}
+
+      {/* TagFilter - zobrazit jen pokud nemáme doporučení */}
+      {recommendations.length === 0 && !recommending && (
+        <div className="mb-8">
+          <TagFilter selectedTags={selectedTags} onTagsChange={setSelectedTags} />
+        </div>
+      )}
 
       {/* Product list */}
       <div className="space-y-4 mb-12">
-        {filteredProducts.map((product) => (
+        {displayProducts.map((product) => (
           <div
             key={product.id}
             className="bg-white rounded-[20px] p-6 border border-gray-100 shadow-sm hover:shadow-md transition-all group relative"
           >
             <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
               <div className="w-full md:max-w-[240px] flex flex-col gap-3">
-                <div className="w-full aspect-video relative rounded-[14px] overflow-hidden bg-gray-50">
+                {/* Přidáváme zobrazení procentuální shody */}
+                {product.matchPercentage !== undefined && (
+                  <div className="bg-gradient-to-r from-purple-600 to-pink-500 text-white text-center py-2 px-4 rounded-t-[14px] font-medium">
+                    {product.matchPercentage}% Match
+                  </div>
+                )}
+                <div 
+                  className="w-full aspect-video relative rounded-[14px] overflow-hidden bg-gray-50 cursor-pointer hover:opacity-90 transition-opacity"
+                  onClick={() => handleVisit(product.externalUrl)}
+                >
                   <Image
                     src={product.imageUrl || 'https://placehold.co/800x450/f3f4f6/94a3b8?text=No+Image'}
                     alt={product.name}
@@ -196,17 +293,20 @@ export default function DoporuceniPage() {
                     className="object-cover"
                   />
                 </div>
-                <label className="flex items-center justify-center md:justify-start gap-2">
-                  <input
-                    type="checkbox"
-                    checked={selectedItems.has(product.id)}
-                    onChange={() => toggleItem(product.id)}
-                    className="w-4 h-4 text-purple-600/90 rounded-[6px] border-gray-300 focus:ring-purple-500"
-                  />
-                  <span className="text-sm text-gray-600 group-hover:text-gray-800 transition-colors">
-                    Compare
-                  </span>
-                </label>
+                {/* Checkbox pro srovnávání - skrytý */}
+                {COMPARE_FEATURE_ENABLED && (
+                  <label className="flex items-center justify-center md:justify-start gap-2">
+                    <input
+                      type="checkbox"
+                      checked={selectedItems.has(product.id)}
+                      onChange={() => toggleItem(product.id)}
+                      className="w-4 h-4 text-purple-600/90 rounded-[6px] border-gray-300 focus:ring-purple-500"
+                    />
+                    <span className="text-sm text-gray-600 group-hover:text-gray-800 transition-colors">
+                      Compare
+                    </span>
+                  </label>
+                )}
               </div>
               
               <div className="flex-1">
@@ -237,6 +337,14 @@ export default function DoporuceniPage() {
                   {product.description}
                 </p>
                 
+                {/* Personalizované doporučení */}
+                {product.recommendation && (
+                  <div className="mb-4 p-4 bg-purple-50 rounded-[14px] border border-purple-100">
+                    <h4 className="text-purple-800 font-medium mb-1">Personalized Recommendation</h4>
+                    <p className="text-purple-900">{product.recommendation}</p>
+                  </div>
+                )}
+                
                 <div className="space-y-4">
                   <div className="flex flex-wrap gap-2">
                     {product.tags?.map((tag) => (
@@ -247,6 +355,15 @@ export default function DoporuceniPage() {
                         {tag}
                       </span>
                     ))}
+                  </div>
+                  
+                  <div className="flex flex-col sm:flex-row items-center gap-3 mt-8 mb-6">
+                    <button
+                      onClick={() => handleVisit(product.externalUrl)}
+                      className="w-full sm:w-auto px-6 py-3 text-base font-medium rounded-[14px] bg-gradient-primary text-white hover-gradient-primary transition-all"
+                    >
+                      {product.hasTrial ? 'Try for Free' : 'Try Now'}
+                    </button>
                   </div>
                   
                   <div className="flex items-center justify-end w-full gap-3">                  
@@ -265,16 +382,18 @@ export default function DoporuceniPage() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                       </svg>
                     </button>
-                    <button 
-                      onClick={() => handleSave(product.id)}
-                      className={`md:w-auto px-4 py-2 text-sm font-medium rounded-[14px] border transition-all duration-300 ${
-                        savedItems.has(product.id)
-                          ? 'border-green-500 text-green-600 bg-green-50 hover:bg-green-100'
-                          : 'border-gray-200 text-gray-600 hover:bg-gray-50'
-                      }`}
-                    >
-                      {savedItems.has(product.id) ? 'Saved ✓' : 'Save'}
-                    </button>
+                    {SAVE_FEATURE_ENABLED && (
+                      <button 
+                        onClick={() => handleSave(product.id)}
+                        className={`md:w-auto px-4 py-2 text-sm font-medium rounded-[14px] border transition-all duration-300 ${
+                          savedItems.has(product.id)
+                            ? 'border-green-500 text-green-600 bg-green-50 hover:bg-green-100'
+                            : 'border-gray-200 text-gray-600 hover:bg-gray-50'
+                        }`}
+                      >
+                        {savedItems.has(product.id) ? 'Saved ✓' : 'Save'}
+                      </button>
+                    )}
                   </div>
                 </div>
 
@@ -376,11 +495,13 @@ export default function DoporuceniPage() {
       </div>
 
       {/* CompareBar */}
-      <CompareBar 
-        selectedCount={selectedItems.size}
-        onCompare={handleCompare}
-        onClear={handleClearSelection}
-      />
+      {COMPARE_FEATURE_ENABLED && (
+        <CompareBar 
+          selectedCount={selectedItems.size}
+          onCompare={handleCompare}
+          onClear={handleClearSelection}
+        />
+      )}
     </div>
   )
 } 
