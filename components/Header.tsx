@@ -39,7 +39,8 @@ export default function Header() {
               comparee.ai
             </Link>
             
-            <div className="flex items-center gap-4">
+            {/* Přihlašovací tlačítka jsou skrytá */}
+            {/* <div className="flex items-center gap-4">
               <button 
                 onClick={() => setIsLoginOpen(true)}
                 className="px-4 py-2 text-sm font-medium rounded-[14px] bg-gradient-primary text-white hover-gradient-primary transition-all"
@@ -52,13 +53,13 @@ export default function Header() {
               >
                 Sign Up
               </button>
-            </div>
+            </div> */}
           </div>
         </div>
       </header>
 
-      {/* Modální okna mimo header */}
-      <Modal
+      {/* Modální okna jsou také skrytá */}
+      {/* <Modal
         isOpen={isLoginOpen}
         onClose={() => setIsLoginOpen(false)}
         title="Sign In"
@@ -78,7 +79,7 @@ export default function Header() {
           onSuccess={handleRegisterSuccess}
           onSwitchToLogin={switchToLogin}
         />
-      </Modal>
+      </Modal> */}
     </>
   )
 } 
