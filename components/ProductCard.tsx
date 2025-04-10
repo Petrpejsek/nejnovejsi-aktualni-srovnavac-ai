@@ -82,13 +82,31 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
     }
   }
 
+  const handleClick = async (productId: string) => {
+    try {
+      // Odešleme klik na server
+      await fetch('/api/clicks', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ productId }),
+      })
+    } catch (error) {
+      console.error('Error tracking click:', error)
+    }
+  }
+
   return (
     <a 
       href={externalUrl}
       target="_blank"
       rel="noopener noreferrer"
       className="block bg-gradient-to-b from-white to-gray-50 rounded-lg shadow-lg hover:shadow-2xl border border-gray-200 transition-all duration-300 hover:scale-[1.02] hover:border-purple-300 cursor-pointer h-full flex flex-col relative overflow-hidden"
-      onClick={handleVisit}
+      onClick={(e) => {
+        handleVisit(e)
+        handleClick(id)
+      }}
     >
       <div className="absolute inset-0 bg-gradient-to-br from-purple-50/30 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
       <div className="relative w-full aspect-[1.91/1]">
