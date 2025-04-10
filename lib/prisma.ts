@@ -13,10 +13,12 @@ export const prisma = globalForPrisma.prisma ?? new PrismaClient({
   }
 })
 
-// Nastavení pro Neon serverless
-prisma.$on('beforeExit', async () => {
-  await prisma.$disconnect()
-})
+// Správné ošetření odpojení pro Neon serverless (od Prisma 5.0.0)
+if (process.env.NODE_ENV !== 'production') {
+  process.on('beforeExit', async () => {
+    await prisma.$disconnect()
+  })
+}
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
 
