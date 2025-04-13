@@ -28,6 +28,18 @@ interface AIProduct {
   updatedAt: string;
 }
 
+interface Pagination {
+  page: number;
+  pageSize: number;
+  totalProducts: number;
+  totalPages: number;
+}
+
+interface ProductsResponse {
+  products: AIProduct[];
+  pagination: Pagination;
+}
+
 const filterProducts = (products: AIProduct[], category: string | null, provider: string | null, minPrice: string | null, maxPrice: string | null) => {
   if (!products) return [];
   
@@ -44,36 +56,61 @@ export default function ProductList() {
   const [products, setProducts] = useState<AIProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [pagination, setPagination] = useState<Pagination>({ 
+    page: 1, 
+    pageSize: 30, 
+    totalProducts: 0, 
+    totalPages: 0 
+  });
   const searchParams = useSearchParams();
   
   const category = searchParams.get('category');
   const provider = searchParams.get('provider');
   const minPrice = searchParams.get('minPrice');
   const maxPrice = searchParams.get('maxPrice');
+  const page = searchParams.get('page') ? parseInt(searchParams.get('page')!, 10) : 1;
   
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch('/api/products');
+        setLoading(true);
+        // Vytvoření URL s parametry
+        const url = new URL('/api/products', window.location.origin);
+        url.searchParams.set('page', page.toString());
+        url.searchParams.set('pageSize', '30');
+        if (category) url.searchParams.set('category', category);
+        
+        // Načtení dat
+        const response = await fetch(url.toString());
         if (!response.ok) {
           throw new Error('Nepodařilo se načíst produkty');
         }
-        const data = await response.json();
-        setProducts(data);
+        
+        const data: ProductsResponse = await response.json();
+        setProducts(data.products);
+        setPagination(data.pagination);
         setLoading(false);
       } catch (err) {
+        console.error('Chyba při načítání produktů:', err);
         setError(err instanceof Error ? err.message : 'Nastala chyba při načítání produktů');
         setLoading(false);
       }
     };
     
     fetchProducts();
-  }, []);
+  }, [page, category]);
   
   const filteredProducts = filterProducts(products, category, provider, minPrice, maxPrice);
   
-  if (loading) return <div className="text-center py-8">Načítání produktů...</div>;
+  if (loading && page === 1) return <div className="text-center py-8">Načítání produktů...</div>;
   if (error) return <div className="text-center py-8 text-red-500">{error}</div>;
+  
+  // Funkce pro vytvoření odkazů na stránkování
+  const getPageLink = (pageNum: number) => {
+    const url = new URL(window.location.href);
+    url.searchParams.set('page', pageNum.toString());
+    return url.toString();
+  };
   
   return (
     <div className="container mx-auto px-4 py-8">
@@ -82,7 +119,74 @@ export default function ProductList() {
           <ProductCard key={product.id} product={product} />
         ))}
       </div>
-      {filteredProducts.length === 0 && (
+      
+      {/* Stránkování */}
+      {pagination.totalPages > 1 && (
+        <div className="flex justify-center mt-8">
+          <nav className="flex items-center space-x-2">
+            {/* Tlačítko Předchozí */}
+            {pagination.page > 1 && (
+              <Link
+                href={getPageLink(pagination.page - 1)}
+                className="px-3 py-2 rounded bg-gray-100 hover:bg-gray-200"
+              >
+                &laquo; Předchozí
+              </Link>
+            )}
+            
+            {/* Čísla stránek */}
+            {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
+              // Zobrazení max 5 stránek
+              const pagesToShow = 5;
+              let startPage = Math.max(1, pagination.page - Math.floor(pagesToShow / 2));
+              let endPage = Math.min(pagination.totalPages, startPage + pagesToShow - 1);
+              
+              // Pokud jsme na konci, upravíme začátek
+              if (endPage - startPage + 1 < pagesToShow) {
+                startPage = Math.max(1, endPage - pagesToShow + 1);
+              }
+              
+              const pageNum = startPage + i;
+              
+              if (pageNum <= endPage) {
+                return (
+                  <Link
+                    key={pageNum}
+                    href={getPageLink(pageNum)}
+                    className={`px-3 py-2 rounded ${
+                      pageNum === pagination.page
+                        ? 'bg-purple-600 text-white'
+                        : 'bg-gray-100 hover:bg-gray-200'
+                    }`}
+                  >
+                    {pageNum}
+                  </Link>
+                );
+              }
+              return null;
+            })}
+            
+            {/* Tlačítko Další */}
+            {pagination.page < pagination.totalPages && (
+              <Link
+                href={getPageLink(pagination.page + 1)}
+                className="px-3 py-2 rounded bg-gray-100 hover:bg-gray-200"
+              >
+                Další &raquo;
+              </Link>
+            )}
+          </nav>
+        </div>
+      )}
+      
+      {/* Indikátor načítání pro další stránky */}
+      {loading && page > 1 && (
+        <div className="flex justify-center mt-4">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+        </div>
+      )}
+      
+      {filteredProducts.length === 0 && !loading && (
         <div className="text-center py-8">
           Nebyly nalezeny žádné produkty odpovídající zadaným filtrům.
         </div>

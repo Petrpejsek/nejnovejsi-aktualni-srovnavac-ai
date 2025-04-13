@@ -32,10 +32,12 @@ export async function POST(request: NextRequest) {
 
     // Získáme produkty z databáze
     console.log('API /recommendations: Začínám načítat produkty z databáze');
+    // Použijeme limit 100 produktů, což by mělo být dostatečné pro doporučení
     const products = await prisma.product.findMany({
       orderBy: {
         name: 'asc'
-      }
+      },
+      take: 100
     });
     console.log(`API /recommendations: Načteno ${products.length} produktů z databáze`);
 

@@ -39,7 +39,7 @@ export default function ProductSelectionModal({
         const response = await fetch('/api/products')
         if (response.ok) {
           const data = await response.json()
-          setAvailableProducts(data)
+          setAvailableProducts(data.products || [])
         }
       } catch (error) {
         console.error('Chyba při načítání produktů:', error)

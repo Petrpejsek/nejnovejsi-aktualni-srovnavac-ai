@@ -76,7 +76,8 @@ export default function DoporuceniPage() {
         })
         if (response.ok) {
           const data = await response.json()
-          const processedData = data.map((product: Product) => ({
+          const productArray = data.products || [];
+          const processedData = productArray.map((product: Product) => ({
             ...product,
             tags: typeof product.tags === 'string' ? JSON.parse(product.tags) : product.tags,
             advantages: typeof product.advantages === 'string' ? JSON.parse(product.advantages) : product.advantages,
