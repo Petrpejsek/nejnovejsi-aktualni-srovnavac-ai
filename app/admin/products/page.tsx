@@ -63,12 +63,29 @@ export default function ProductsAdminPage() {
       const response = await fetch('/api/products')
       if (response.ok) {
         const data = await response.json()
-        const sortedData = data.sort((a: Product, b: Product) => {
+        // API vrací objekty v data.products
+        const productsData = data.products || [];
+        
+        // Zpracování produktů a zajištění správného formátu
+        const processedProducts = productsData.map((product: any) => ({
+          ...product,
+          // Ujistíme se, že všechny potřebné vlastnosti jsou správně naformátovány
+          tags: typeof product.tags === 'string' ? JSON.parse(product.tags) : product.tags || [],
+          advantages: typeof product.advantages === 'string' ? JSON.parse(product.advantages) : product.advantages || [],
+          disadvantages: typeof product.disadvantages === 'string' ? JSON.parse(product.disadvantages) : product.disadvantages || [],
+          pricingInfo: typeof product.pricingInfo === 'string' ? JSON.parse(product.pricingInfo) : product.pricingInfo || {},
+          videoUrls: typeof product.videoUrls === 'string' ? JSON.parse(product.videoUrls) : product.videoUrls || []
+        }));
+        
+        // Seřazení podle obrázků
+        const sortedData = processedProducts.sort((a: Product, b: Product) => {
           if (a.imageUrl && !b.imageUrl) return -1
           if (!a.imageUrl && b.imageUrl) return 1
           return 0
-        })
-        setProducts(sortedData)
+        });
+        
+        setProducts(sortedData);
+        console.log('Načtené produkty:', sortedData);
       }
     } catch (error) {
       console.error('Chyba při načítání produktů:', error)
