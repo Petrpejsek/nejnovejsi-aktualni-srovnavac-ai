@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
@@ -40,6 +40,10 @@ interface ProductsResponse {
   pagination: Pagination;
 }
 
+// Cache pro uložení dat
+const cache: { [key: string]: { data: ProductsResponse; timestamp: number } } = {};
+const CACHE_DURATION = 60 * 1000; // 60 sekund v milisekundách
+
 const filterProducts = (products: AIProduct[], category: string | null, provider: string | null, minPrice: string | null, maxPrice: string | null) => {
   if (!products) return [];
   
@@ -58,62 +62,129 @@ export default function ProductList() {
   const [error, setError] = useState<string | null>(null);
   const [pagination, setPagination] = useState<Pagination>({ 
     page: 1, 
-    pageSize: 30, 
+    pageSize: 3, 
     totalProducts: 0, 
     totalPages: 0 
   });
+
   const searchParams = useSearchParams();
-  
   const category = searchParams.get('category');
   const provider = searchParams.get('provider');
   const minPrice = searchParams.get('minPrice');
   const maxPrice = searchParams.get('maxPrice');
   const page = searchParams.get('page') ? parseInt(searchParams.get('page')!, 10) : 1;
-  
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        setLoading(true);
-        // Vytvoření URL s parametry
-        const url = new URL('/api/products', window.location.origin);
-        url.searchParams.set('page', page.toString());
-        url.searchParams.set('pageSize', '30');
-        if (category) url.searchParams.set('category', category);
-        
-        // Načtení dat
-        const response = await fetch(url.toString());
-        if (!response.ok) {
-          throw new Error('Nepodařilo se načíst produkty');
-        }
-        
-        const data: ProductsResponse = await response.json();
-        setProducts(data.products);
-        setPagination(data.pagination);
+
+  // Vytvoření cache klíče na základě parametrů
+  const cacheKey = useMemo(() => {
+    return JSON.stringify({
+      page,
+      category,
+      provider,
+      minPrice,
+      maxPrice
+    });
+  }, [page, category, provider, minPrice, maxPrice]);
+
+  // Kontrola platnosti cache
+  const isValidCache = useCallback((key: string) => {
+    const cacheEntry = cache[key];
+    if (!cacheEntry) return false;
+    return Date.now() - cacheEntry.timestamp < CACHE_DURATION;
+  }, []);
+
+  const fetchProducts = useCallback(async () => {
+    try {
+      // Kontrola, zda už načítáme
+      if (loading) return;
+
+      setLoading(true);
+
+      // Kontrola cache
+      if (isValidCache(cacheKey)) {
+        const cachedData = cache[cacheKey].data;
+        setProducts(cachedData.products);
+        setPagination(cachedData.pagination);
         setLoading(false);
-      } catch (err) {
-        console.error('Chyba při načítání produktů:', err);
-        setError(err instanceof Error ? err.message : 'Nastala chyba při načítání produktů');
-        setLoading(false);
+        return;
       }
-    };
-    
+
+      // Vytvoření URL s parametry
+      const url = new URL('/api/products', window.location.origin);
+      url.searchParams.set('page', page.toString());
+      url.searchParams.set('pageSize', page === 1 ? '3' : '9');
+      if (category) url.searchParams.set('category', category);
+      if (provider) url.searchParams.set('provider', provider);
+      if (minPrice) url.searchParams.set('minPrice', minPrice);
+      if (maxPrice) url.searchParams.set('maxPrice', maxPrice);
+
+      // Načtení dat
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        throw new Error('Nepodařilo se načíst produkty');
+      }
+
+      const data: ProductsResponse = await response.json();
+
+      // Uložení do cache
+      cache[cacheKey] = {
+        data,
+        timestamp: Date.now()
+      };
+
+      setProducts(data.products);
+      setPagination(data.pagination);
+      setError(null);
+    } catch (err) {
+      console.error('Chyba při načítání produktů:', err);
+      setError(err instanceof Error ? err.message : 'Nastala chyba při načítání produktů');
+    } finally {
+      setLoading(false);
+    }
+  }, [page, category, provider, minPrice, maxPrice, cacheKey, isValidCache, loading]);
+
+  useEffect(() => {
     fetchProducts();
-  }, [page, category]);
-  
+  }, [fetchProducts]);
+
   const filteredProducts = filterProducts(products, category, provider, minPrice, maxPrice);
   
-  if (loading && page === 1) return <div className="text-center py-8">Načítání produktů...</div>;
-  if (error) return <div className="text-center py-8 text-red-500">{error}</div>;
-  
   // Funkce pro vytvoření odkazů na stránkování
-  const getPageLink = (pageNum: number) => {
+  const getPageLink = useCallback((pageNum: number) => {
     const url = new URL(window.location.href);
     url.searchParams.set('page', pageNum.toString());
     return url.toString();
-  };
+  }, []);
   
+  if (loading && page === 1) {
+    return (
+      <div className="flex justify-center items-center py-8">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-8">
+        <div className="text-red-500 mb-4">{error}</div>
+        <button 
+          onClick={() => fetchProducts()} 
+          className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
+        >
+          Zkusit znovu
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto px-4 py-8">
+      {/* Informace o počtu produktů */}
+      <div className="text-center mb-6 text-gray-600">
+        Nalezeno {pagination.totalProducts} produktů
+      </div>
+
+      {/* Seznam produktů */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 px-4 md:px-8">
         {filteredProducts.map((product) => (
           <ProductCard key={product.id} product={product} />

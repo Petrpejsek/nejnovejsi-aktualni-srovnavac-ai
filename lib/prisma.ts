@@ -7,21 +7,24 @@ import { PrismaClient } from '@prisma/client'
  */
 
 // Globální instance Prisma klienta
-const globalForPrisma = globalThis as unknown as {
+const globalForPrisma = global as unknown as {
   prisma: PrismaClient | undefined
 }
 
-// Vytvoření Prisma klienta s optimalizovaným nastavením
-export const prisma = globalForPrisma.prisma ?? new PrismaClient({
-  log: ['error', 'warn'],
-  
-  // Nastavení datasource
-  datasources: {
-    db: {
-      url: process.env.DATABASE_URL
+// Vytvoření instance PrismaClient s optimalizovaným connection poolingem
+const prisma =
+  globalForPrisma.prisma ??
+  new PrismaClient({
+    log: ['error'],
+    datasources: {
+      db: {
+        url: process.env.DATABASE_URL?.replace(
+          '?sslmode=require',
+          '?sslmode=require&connection_limit=15&pool_timeout=30&connect_timeout=15'
+        )
+      }
     }
-  }
-})
+  })
 
 // Správa ukončení pro všechny režimy - produkce i vývoj
 // Neon serverless potřebuje správné odpojení pro každý proces

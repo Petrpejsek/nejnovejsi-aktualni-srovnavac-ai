@@ -2,36 +2,18 @@
 
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-
-interface ProductCountResponse {
-  count: number
-}
+import { useProductStore } from '../store/productStore'
 
 export default function AiAdvisor() {
   const [query, setQuery] = useState('')
-  const [productCount, setProductCount] = useState(0)
   const [loading, setLoading] = useState(false)
   const router = useRouter()
+  const { pagination, fetchProducts } = useProductStore()
 
   useEffect(() => {
-    // Load product count
-    const fetchProductCount = async () => {
-      try {
-        const response = await fetch('/api/products/count')
-        if (response.ok) {
-          const data = await response.json() as ProductCountResponse
-          setProductCount(data.count)
-        }
-      } catch (error) {
-        console.error('Error loading product count:', error)
-      }
-    }
-
-    fetchProductCount()
-    // Update every 30 seconds
-    const interval = setInterval(fetchProductCount, 30000)
-    return () => clearInterval(interval)
-  }, [])
+    // Načteme pouze jeden produkt pro získání celkového počtu
+    fetchProducts(1, 1)
+  }, [fetchProducts])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -72,7 +54,7 @@ export default function AiAdvisor() {
         <p className="text-gray-600 text-lg max-w-2xl mx-auto">
           Choose from our{' '}
           <span className="inline-flex items-center bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text text-transparent font-semibold animate-pulse">
-            {productCount} AI solutions
+            {pagination.totalProducts} AI solutions
           </span>
           {' '}and find the best one for your needs. Just describe your project or problem and we'll help you choose.
         </p>

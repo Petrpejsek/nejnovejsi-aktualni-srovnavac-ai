@@ -1,78 +1,11 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
+import { useProductStore } from '../store/productStore'
 
-interface TagFilterProps {
-  selectedTags: Set<string>
-  onTagsChange: (tags: Set<string>) => void
-}
-
-export default function TagFilter({ selectedTags, onTagsChange }: TagFilterProps) {
-  const [availableTags, setAvailableTags] = useState<string[]>([])
+export default function TagFilter() {
   const [showAllTags, setShowAllTags] = useState(false)
-
-  useEffect(() => {
-    const fetchTags = async () => {
-      try {
-        const response = await fetch('/api/products')
-        if (response.ok) {
-          const products = await response.json()
-          // Získáme všechny unikátní tagy ze všech produktů a normalizujeme je
-          const allTags = new Set<string>()
-          products.forEach((product: any) => {
-            const tags = typeof product.tags === 'string' ? JSON.parse(product.tags) : product.tags
-            if (Array.isArray(tags)) {
-              tags.forEach(tag => {
-                // Normalize tags
-                let normalizedTag = tag.trim()
-                
-                // Unify similar tags
-                if (normalizedTag.toLowerCase() === 'text na řeč' || 
-                    normalizedTag.toLowerCase() === 'text to speech') {
-                  normalizedTag = 'Text to Speech'
-                }
-                else if (normalizedTag.toLowerCase() === 'úprava fotek' || 
-                         normalizedTag.toLowerCase() === 'úprava obrázků') {
-                  normalizedTag = 'Image Editing'
-                }
-                else if (normalizedTag.toLowerCase() === 'generování obrázků' || 
-                         normalizedTag.toLowerCase() === 'generování obrázkú') {
-                  normalizedTag = 'Image Generation'
-                }
-                else if (normalizedTag.toLowerCase() === 'zákaznický servis' || 
-                         normalizedTag.toLowerCase() === 'zákaznická podpora') {
-                  normalizedTag = 'Customer Support'
-                }
-                else if (normalizedTag.toLowerCase() === 'projektové řízení' || 
-                         normalizedTag.toLowerCase() === 'projektový management') {
-                  normalizedTag = 'Project Management'
-                }
-                else if (normalizedTag.toLowerCase() === 'avatary' || 
-                         normalizedTag.toLowerCase() === 'digitální avatary') {
-                  normalizedTag = 'Digital Avatars'
-                }
-                else if (normalizedTag.toLowerCase() === 'video' || 
-                         normalizedTag.toLowerCase() === 'video tvorba') {
-                  normalizedTag = 'Video Creation'
-                }
-                else if (normalizedTag.toLowerCase() === 'voiceover') {
-                  normalizedTag = 'Text to Speech'
-                }
-
-                allTags.add(normalizedTag)
-              })
-            }
-          })
-          // Seřadíme tagy abecedně
-          setAvailableTags(Array.from(allTags).sort())
-        }
-      } catch (error) {
-        console.error('Chyba při načítání tagů:', error)
-      }
-    }
-
-    fetchTags()
-  }, [])
+  const { availableTags, selectedTags, setSelectedTags } = useProductStore()
 
   const toggleTag = (tag: string) => {
     const newTags = new Set(selectedTags)
@@ -81,7 +14,7 @@ export default function TagFilter({ selectedTags, onTagsChange }: TagFilterProps
     } else {
       newTags.add(tag)
     }
-    onTagsChange(newTags)
+    setSelectedTags(newTags)
   }
 
   const buttonClass = (tag: string) => `

@@ -21,96 +21,110 @@ interface Product {
   updatedAt: Date
 }
 
-// GET /api/products - Get all products
+// GET /api/products - Get all products with pagination and filters
 export async function GET(request: NextRequest) {
-  let retries = 3; // Maximální počet pokusů o připojení
+  let retries = 3
+  const cacheTime = 60 // Cache time in seconds
 
   while (retries > 0) {
     try {
-      // Získání parametrů z URL
       const { searchParams } = new URL(request.url)
       const page = parseInt(searchParams.get('page') || '1', 10)
-      const pageSize = parseInt(searchParams.get('pageSize') || '30', 10)
+      const pageSize = parseInt(searchParams.get('pageSize') || '3', 10) // Test s 3 produkty
       const category = searchParams.get('category')
+      const provider = searchParams.get('provider')
+      const minPrice = searchParams.get('minPrice')
+      const maxPrice = searchParams.get('maxPrice')
+      
+      console.time('API Request')
       
       // Validace parametrů
       const validPage = page > 0 ? page : 1
-      const validPageSize = pageSize > 0 && pageSize <= 100 ? pageSize : 30
+      const validPageSize = pageSize > 0 && pageSize <= 100 ? pageSize : 3
       
       // Výpočet offsetu pro stránkování
       const skip = (validPage - 1) * validPageSize
       
-      // Sestavení dotazu s filtry
-      const where: { category?: string } = {}
-      if (category) {
-        where.category = category
-      }
+      // Sestavení where podmínky pro filtry
+      const where: any = {}
+      if (category) where.category = category
+      if (provider) where.tags = { contains: provider }
+      if (minPrice) where.price = { ...where.price, gte: parseFloat(minPrice) }
+      if (maxPrice) where.price = { ...where.price, lte: parseFloat(maxPrice) }
       
-      // Získání celkového počtu produktů
-      const totalProducts = await prisma.product.count({
-        where
-      })
+      // Získání dat v jedné transakci
+      const [totalProducts, products] = await prisma.$transaction([
+        prisma.product.count({ where }),
+        prisma.product.findMany({
+          where,
+          orderBy: { name: 'asc' },
+          skip,
+          take: validPageSize,
+        })
+      ])
       
-      // Získání produktů pro aktuální stránku
-      const products = await prisma.product.findMany({
-        where,
-        orderBy: {
-          name: 'asc'
-        },
-        skip,
-        take: validPageSize
-      })
+      const totalPages = Math.ceil(totalProducts / validPageSize)
       
+      console.timeEnd('API Request')
       console.log(`API: Loaded ${products.length} products (page ${validPage}, pageSize ${validPageSize}, total ${totalProducts})`)
       
       if (!products || products.length === 0) {
-        console.warn('API: No products found')
-        return NextResponse.json({ error: 'No products found', totalProducts: 0, page: validPage, pageSize: validPageSize, totalPages: 0 }, { 
-          status: 404,
-          headers: {
-            'Cache-Control': 'public, max-age=60', // Cache na 1 minutu
+        return NextResponse.json(
+          { 
+            products: [],
+            pagination: {
+              page: validPage,
+              pageSize: validPageSize,
+              totalProducts: 0,
+              totalPages: 0
+            }
+          },
+          { 
+            status: 200,
+            headers: {
+              'Cache-Control': `public, max-age=${cacheTime}`,
+            }
           }
-        })
+        )
       }
 
-      const totalPages = Math.ceil(totalProducts / validPageSize)
-
-      return NextResponse.json({
-        products,
+      // Formátování odpovědi
+      const response = {
+        products: products.map(product => ({
+          ...product,
+          tags: JSON.parse(product.tags || '[]'),
+          advantages: JSON.parse(product.advantages || '[]'),
+          disadvantages: JSON.parse(product.disadvantages || '[]'),
+          pricingInfo: JSON.parse(product.pricingInfo || '{}'),
+          videoUrls: JSON.parse(product.videoUrls || '[]')
+        })),
         pagination: {
           page: validPage,
           pageSize: validPageSize,
           totalProducts,
           totalPages
         }
-      }, {
+      }
+
+      return NextResponse.json(response, {
+        status: 200,
         headers: {
-          'Cache-Control': 'public, max-age=60', // Cache na 1 minutu
+          'Cache-Control': `public, max-age=${cacheTime}`,
         }
       })
     } catch (error) {
-      retries--;
+      console.error('Chyba při načítání produktů:', error)
+      retries--
       
-      // Při chybě připojení zkusíme znovu po krátké pauze
-      if (retries > 0 && error instanceof Error && 
-          (error.message.includes('Connection') || error.message.includes('timeout') || error.message.includes('Connection pool'))) {
-        console.error(`API: Database connection error, retrying (${retries} attempts left)...`, error);
-        
-        // Počkáme před dalším pokusem
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        continue;
+      if (retries === 0) {
+        return NextResponse.json(
+          { error: 'Nepodařilo se načíst produkty' },
+          { status: 500 }
+        )
       }
       
-      console.error('API: Error loading products:', error)
-      return NextResponse.json(
-        { error: 'Internal server error while loading products', details: error instanceof Error ? error.message : 'Unknown error' },
-        { 
-          status: 500,
-          headers: {
-            'Cache-Control': 'no-store, no-cache, must-revalidate'
-          }
-        }
-      )
+      // Počkáme před dalším pokusem
+      await new Promise(resolve => setTimeout(resolve, 1000))
     }
   }
 }

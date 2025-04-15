@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react'
 import ProductCard from './ProductCard'
 import CompareBar from './CompareBar'
 import { useCompareStore } from '../store/compareStore'
+import { useProductStore } from '../store/productStore'
 
 // Konstanta pro zapnutí/vypnutí funkcí srovnávání
 const COMPARE_FEATURE_ENABLED = false;
@@ -41,73 +42,27 @@ interface Pagination {
   totalPages: number
 }
 
-export default function ProductGrid({ selectedTags }: { selectedTags: Set<string> }) {
-  const [products, setProducts] = useState<Product[]>([])
+export default function ProductGrid() {
   const [currentPage, setCurrentPage] = useState(1)
-  const [pagination, setPagination] = useState<Pagination>({
-    page: 1,
-    pageSize: 30,
-    totalProducts: 0,
-    totalPages: 0
-  })
-  const [isCompactView, setIsCompactView] = useState(false)
-  const [loading, setLoading] = useState(true)
   const [loadingMore, setLoadingMore] = useState(false)
-  const { selectedProducts, addProduct, removeProduct, clearProducts } = useCompareStore()
-
-  const fetchProducts = async (page: number) => {
-    try {
-      const isFirstPage = page === 1
-      if (isFirstPage) {
-        setLoading(true)
-      } else {
-        setLoadingMore(true)
-      }
-
-      // Vytvoření URL s parametry
-      const url = new URL('/api/products', window.location.origin)
-      url.searchParams.set('page', page.toString())
-      url.searchParams.set('pageSize', '30')
-      
-      const response = await fetch(url.toString())
-      if (response.ok) {
-        const data = await response.json()
-        
-        // Zpracování produktů
-        const processedData = data.products.map((product: Product) => ({
-          ...product,
-          tags: typeof product.tags === 'string' ? JSON.parse(product.tags) : product.tags || [],
-          advantages: typeof product.advantages === 'string' ? JSON.parse(product.advantages) : product.advantages || [],
-          disadvantages: typeof product.disadvantages === 'string' ? JSON.parse(product.disadvantages) : product.disadvantages || [],
-          pricingInfo: typeof product.pricingInfo === 'string' ? JSON.parse(product.pricingInfo) : product.pricingInfo || {},
-          videoUrls: typeof product.videoUrls === 'string' ? JSON.parse(product.videoUrls) : product.videoUrls || [],
-          hasTrial: typeof product.hasTrial === 'boolean' ? product.hasTrial : false
-        }))
-        
-        if (isFirstPage) {
-          setProducts(processedData)
-        } else {
-          setProducts(prev => [...prev, ...processedData])
-        }
-        
-        setPagination(data.pagination)
-        setCurrentPage(data.pagination.page)
-      }
-    } catch (error) {
-      console.error('Chyba při načítání produktů:', error)
-    } finally {
-      setLoading(false)
-      setLoadingMore(false)
-    }
-  }
+  const { selectedProducts, clearProducts } = useCompareStore()
+  const { products, pagination, loading, error, fetchProducts, selectedTags } = useProductStore()
 
   useEffect(() => {
     fetchProducts(1)
-  }, [])
+  }, [fetchProducts])
 
-  const handleLoadMore = () => {
-    if (currentPage < pagination.totalPages) {
-      fetchProducts(currentPage + 1)
+  const handleLoadMore = async () => {
+    if (currentPage < pagination.totalPages && !loadingMore) {
+      setLoadingMore(true)
+      try {
+        await fetchProducts(currentPage + 1)
+        setCurrentPage(prev => prev + 1)
+      } catch (error) {
+        console.error('Chyba při načítání dalších produktů:', error)
+      } finally {
+        setLoadingMore(false)
+      }
     }
   }
 
@@ -128,6 +83,20 @@ export default function ProductGrid({ selectedTags }: { selectedTags: Set<string
     return (
       <div className="flex justify-center items-center min-h-[200px]">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-8">
+        <div className="text-red-500 mb-4">{error}</div>
+        <button 
+          onClick={() => fetchProducts(1)}
+          className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
+        >
+          Zkusit znovu
+        </button>
       </div>
     )
   }
