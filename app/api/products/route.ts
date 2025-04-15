@@ -30,17 +30,19 @@ export async function GET(request: NextRequest) {
     try {
       const { searchParams } = new URL(request.url)
       const page = parseInt(searchParams.get('page') || '1', 10)
-      const pageSize = parseInt(searchParams.get('pageSize') || '3', 10) // Test s 3 produkty
+      const pageSize = parseInt(searchParams.get('pageSize') || '3', 10)
       const category = searchParams.get('category')
       const provider = searchParams.get('provider')
       const minPrice = searchParams.get('minPrice')
       const maxPrice = searchParams.get('maxPrice')
+      const isAdmin = searchParams.get('admin') === 'true'
       
       console.time('API Request')
       
       // Validace parametrů
       const validPage = page > 0 ? page : 1
-      const validPageSize = pageSize > 0 && pageSize <= 100 ? pageSize : 3
+      // Pro admin rozhraní nebo když je explicitně požadována velká stránka, povolíme vyšší limit
+      const validPageSize = pageSize > 100 || isAdmin ? pageSize : (pageSize > 0 && pageSize <= 100 ? pageSize : 3)
       
       // Výpočet offsetu pro stránkování
       const skip = (validPage - 1) * validPageSize

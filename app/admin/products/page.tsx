@@ -60,7 +60,8 @@ export default function ProductsAdminPage() {
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch('/api/products')
+      // Použijeme speciální parametr pro admin rozhraní, který vrátí všechny produkty
+      const response = await fetch('/api/products?pageSize=1000')
       if (response.ok) {
         const data = await response.json()
         // API vrací objekty v data.products
@@ -85,7 +86,7 @@ export default function ProductsAdminPage() {
         });
         
         setProducts(sortedData);
-        console.log('Načtené produkty:', sortedData);
+        console.log(`Načteno ${sortedData.length} produktů:`);
       }
     } catch (error) {
       console.error('Chyba při načítání produktů:', error)
