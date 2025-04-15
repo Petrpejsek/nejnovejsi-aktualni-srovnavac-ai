@@ -264,7 +264,7 @@ export default function DoporuceniPage() {
       {/* TagFilter - zobrazit jen pokud nemáme doporučení */}
       {recommendations.length === 0 && !recommending && (
         <div className="mb-8">
-          <TagFilter selectedTags={selectedTags} onTagsChange={setSelectedTags} />
+          <TagFilter />
         </div>
       )}
 
