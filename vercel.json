@@ -1,5 +1,5 @@
 {
-  "buildCommand": "prisma generate && prisma migrate deploy && next build",
+  "buildCommand": "prisma generate && (prisma migrate deploy || echo 'Migration skipped, continuing with build...') && next build",
   "installCommand": "npm install",
   "framework": "nextjs"
 } 

@@ -1,0 +1,2 @@
+# Zvyšujeme timeout pro získání advisory lock na 30 sekund (výchozí je 10s)
+migration_advisory_lock_timeout = 30000 

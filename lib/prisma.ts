@@ -20,7 +20,7 @@ const prisma =
       db: {
         url: process.env.DATABASE_URL?.replace(
           '?sslmode=require',
-          '?sslmode=require&connection_limit=15&pool_timeout=30&connect_timeout=15'
+          '?sslmode=require&connection_limit=15&pool_timeout=60&connect_timeout=30'
         )
       }
     }
