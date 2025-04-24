@@ -61,6 +61,7 @@ export default function ProductsAdminPage() {
   const fetchProducts = async () => {
     try {
       setLoading(true);
+      console.log("Admin: Načítám produkty z API...");
       const response = await fetch('/api/products?pageSize=100')
       if (response.ok) {
         const data = await response.json()
@@ -71,12 +72,12 @@ export default function ProductsAdminPage() {
           return 0
         })
         setProducts(sortedData)
-        console.log("Načteno produktů:", sortedData.length);
+        console.log("Admin: Načteno produktů:", sortedData.length, "z celkových", data.pagination?.totalProducts || 0);
       } else {
-        console.error('Chyba při načítání produktů:', response.statusText);
+        console.error('Admin: Chyba při načítání produktů:', response.statusText);
       }
     } catch (error) {
-      console.error('Chyba při načítání produktů:', error)
+      console.error('Admin: Chyba při načítání produktů:', error)
     } finally {
       setLoading(false)
     }
