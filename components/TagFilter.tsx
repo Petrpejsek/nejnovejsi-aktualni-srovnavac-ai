@@ -3,9 +3,18 @@
 import React, { useState } from 'react'
 import { useProductStore } from '../store/productStore'
 
-export default function TagFilter() {
+interface TagFilterProps {
+  selectedTags?: Set<string>;
+  onTagsChange?: (tags: Set<string>) => void;
+}
+
+export default function TagFilter({ selectedTags: propSelectedTags, onTagsChange: propOnTagsChange }: TagFilterProps = {}) {
   const [showAllTags, setShowAllTags] = useState(false)
-  const { availableTags, selectedTags, setSelectedTags } = useProductStore()
+  const storeValues = useProductStore()
+  
+  // Použijeme buď props nebo hodnoty ze store
+  const selectedTags = propSelectedTags !== undefined ? propSelectedTags : storeValues.selectedTags
+  const setSelectedTags = propOnTagsChange || storeValues.setSelectedTags
 
   const toggleTag = (tag: string) => {
     const newTags = new Set(selectedTags)
@@ -16,6 +25,9 @@ export default function TagFilter() {
     }
     setSelectedTags(newTags)
   }
+
+  // Získáme tagy buď ze store nebo použijeme prázdné pole pokud používáme props
+  const availableTags = storeValues.availableTags || []
 
   const buttonClass = (tag: string) => `
     px-3 
