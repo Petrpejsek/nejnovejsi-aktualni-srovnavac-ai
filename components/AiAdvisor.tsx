@@ -12,7 +12,7 @@ export default function AiAdvisor() {
 
   useEffect(() => {
     // Načteme pouze jeden produkt pro získání celkového počtu
-    fetchProducts(1, 1)
+    fetchProducts(1)
   }, [fetchProducts])
 
   const handleSubmit = async (e: React.FormEvent) => {
