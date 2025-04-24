@@ -60,15 +60,20 @@ export default function ProductsAdminPage() {
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch('/api/products')
+      setLoading(true);
+      const response = await fetch('/api/products?pageSize=100')
       if (response.ok) {
         const data = await response.json()
-        const sortedData = data.sort((a: Product, b: Product) => {
+        const products = data.products || [];
+        const sortedData = products.sort((a: Product, b: Product) => {
           if (a.imageUrl && !b.imageUrl) return -1
           if (!a.imageUrl && b.imageUrl) return 1
           return 0
         })
         setProducts(sortedData)
+        console.log("Načteno produktů:", sortedData.length);
+      } else {
+        console.error('Chyba při načítání produktů:', response.statusText);
       }
     } catch (error) {
       console.error('Chyba při načítání produktů:', error)
@@ -143,11 +148,11 @@ export default function ProductsAdminPage() {
     setEditingProduct(product)
     setFormData({
       ...product,
-      tags: typeof product.tags === 'string' ? JSON.parse(product.tags) : product.tags,
-      advantages: typeof product.advantages === 'string' ? JSON.parse(product.advantages) : product.advantages,
-      disadvantages: typeof product.disadvantages === 'string' ? JSON.parse(product.disadvantages) : product.disadvantages,
-      pricingInfo: typeof product.pricingInfo === 'string' ? JSON.parse(product.pricingInfo) : product.pricingInfo,
-      videoUrls: typeof product.videoUrls === 'string' ? JSON.parse(product.videoUrls) : product.videoUrls
+      tags: Array.isArray(product.tags) ? product.tags : [],
+      advantages: Array.isArray(product.advantages) ? product.advantages : [],
+      disadvantages: Array.isArray(product.disadvantages) ? product.disadvantages : [],
+      pricingInfo: typeof product.pricingInfo === 'object' ? product.pricingInfo : { basic: '0', pro: '0', enterprise: '0' },
+      videoUrls: Array.isArray(product.videoUrls) ? product.videoUrls : []
     })
   }
 
