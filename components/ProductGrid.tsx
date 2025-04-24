@@ -42,11 +42,19 @@ interface Pagination {
   totalPages: number
 }
 
-export default function ProductGrid() {
+interface ProductGridProps {
+  selectedTags?: Set<string>;
+}
+
+export default function ProductGrid({ selectedTags: propSelectedTags }: ProductGridProps = {}) {
   const [currentPage, setCurrentPage] = useState(1)
   const [loadingMore, setLoadingMore] = useState(false)
   const { selectedProducts, clearProducts } = useCompareStore()
-  const { products, pagination, loading, error, fetchProducts, selectedTags } = useProductStore()
+  const storeValues = useProductStore()
+  
+  // Použijeme buď prop selectedTags nebo hodnotu ze store
+  const selectedTags = propSelectedTags !== undefined ? propSelectedTags : storeValues.selectedTags
+  const { products, pagination, loading, error, fetchProducts } = storeValues
 
   useEffect(() => {
     fetchProducts(1)
