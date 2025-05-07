@@ -26,7 +26,36 @@ export async function GET(
 
     console.log('Loaded product:', product)
     
-    return new NextResponse(JSON.stringify(product), {
+    // Formátování dat pro front-end
+    const formattedProduct = {
+      ...product,
+      tags: JSON.parse(product.tags || '[]'),
+      advantages: JSON.parse(product.advantages || '[]'),
+      disadvantages: JSON.parse(product.disadvantages || '[]'),
+      videoUrls: JSON.parse(product.videoUrls || '[]'),
+    }
+    
+    // Bezpečné zpracování pricingInfo
+    try {
+      if (product.pricingInfo) {
+        const parsed = JSON.parse(product.pricingInfo);
+        // @ts-ignore - frontend očekává objekt, i když typování očekává string
+        formattedProduct.pricingInfo = {
+          basic: typeof parsed.basic === 'string' ? parsed.basic : '0',
+          pro: typeof parsed.pro === 'string' ? parsed.pro : '0',
+          enterprise: typeof parsed.enterprise === 'string' ? parsed.enterprise : '0'
+        };
+      } else {
+        // @ts-ignore
+        formattedProduct.pricingInfo = { basic: '0', pro: '0', enterprise: '0' };
+      }
+    } catch (error) {
+      console.error('Error parsing pricingInfo:', error);
+      // @ts-ignore
+      formattedProduct.pricingInfo = { basic: '0', pro: '0', enterprise: '0' };
+    }
+    
+    return new NextResponse(JSON.stringify(formattedProduct), {
       status: 200,
       headers: {
         'Content-Type': 'application/json',
@@ -54,6 +83,40 @@ export async function PUT(
 
     // Explicitly process externalUrl
     const externalUrl = data.externalUrl === '' ? null : data.externalUrl
+    
+    // Bezpečné zpracování pricingInfo před uložením do DB
+    let pricingInfoStr;
+    try {
+      if (typeof data.pricingInfo === 'object' && data.pricingInfo !== null) {
+        // Zajistíme správnou strukturu
+        const pricingObj = {
+          basic: typeof data.pricingInfo.basic === 'string' ? data.pricingInfo.basic : '0',
+          pro: typeof data.pricingInfo.pro === 'string' ? data.pricingInfo.pro : '0',
+          enterprise: typeof data.pricingInfo.enterprise === 'string' ? data.pricingInfo.enterprise : '0'
+        };
+        pricingInfoStr = JSON.stringify(pricingObj);
+      } else if (typeof data.pricingInfo === 'string') {
+        // Zkusíme parsovat string, abychom zajistili, že má správný formát
+        try {
+          const parsed = JSON.parse(data.pricingInfo);
+          const validated = {
+            basic: typeof parsed.basic === 'string' ? parsed.basic : '0',
+            pro: typeof parsed.pro === 'string' ? parsed.pro : '0',
+            enterprise: typeof parsed.enterprise === 'string' ? parsed.enterprise : '0'
+          };
+          pricingInfoStr = JSON.stringify(validated);
+        } catch (e) {
+          // Neplatný JSON, použijeme výchozí hodnoty
+          pricingInfoStr = JSON.stringify({ basic: '0', pro: '0', enterprise: '0' });
+        }
+      } else {
+        // Undefined nebo neplatný typ, zachováme původní hodnotu (undefined)
+        pricingInfoStr = undefined;
+      }
+    } catch (error) {
+      console.error('Error processing pricingInfo:', error);
+      pricingInfoStr = JSON.stringify({ basic: '0', pro: '0', enterprise: '0' });
+    }
 
     const product = await prisma.product.update({
       where: { id: params.id },
@@ -67,7 +130,7 @@ export async function PUT(
         advantages: data.advantages !== undefined ? (typeof data.advantages === 'string' ? data.advantages : JSON.stringify(data.advantages || [])) : undefined,
         disadvantages: data.disadvantages !== undefined ? (typeof data.disadvantages === 'string' ? data.disadvantages : JSON.stringify(data.disadvantages || [])) : undefined,
         detailInfo: data.detailInfo,
-        pricingInfo: data.pricingInfo !== undefined ? (typeof data.pricingInfo === 'string' ? data.pricingInfo : JSON.stringify(data.pricingInfo || {})) : undefined,
+        pricingInfo: pricingInfoStr,
         videoUrls: data.videoUrls !== undefined ? (typeof data.videoUrls === 'string' ? data.videoUrls : JSON.stringify(data.videoUrls || [])) : undefined,
         externalUrl: externalUrl,
         hasTrial: data.hasTrial !== undefined ? Boolean(data.hasTrial) : undefined
