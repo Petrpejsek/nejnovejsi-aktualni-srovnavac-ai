@@ -165,12 +165,12 @@ async function addNewProducts() {
             category: product.category,
             imageUrl: product.imageUrl,
             tags: product.tags,
-            advantages: product.advantages,
-            disadvantages: product.disadvantages,
-            detailInfo: product.detailInfo,
-            pricingInfo: product.pricingInfo,
-            externalUrl: product.externalUrl,
-            hasTrial: product.hasTrial
+            advantages: JSON.stringify(product.advantages || []),
+            disadvantages: JSON.stringify(product.disadvantages || []),
+            detailInfo: product.detailInfo || '',
+            pricingInfo: typeof product.pricingInfo === 'object' ? JSON.stringify(product.pricingInfo) : product.pricingInfo,
+            externalUrl: product.externalUrl || '',
+            hasTrial: Boolean(product.hasTrial)
           }
         })
         console.log(`Product ${product.name} has been successfully added.`)
