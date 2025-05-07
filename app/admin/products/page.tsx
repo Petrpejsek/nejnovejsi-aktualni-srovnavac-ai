@@ -88,14 +88,78 @@ export default function ProductsAdminPage() {
           setError("API vrátila prázdné pole produktů. Zkontrolujte připojení k databázi nebo jestli jsou nějaké produkty v databázi.");
         }
         
-        const sortedData = products.sort((a: Product, b: Product) => {
+        // Zpracování a normalizace dat z API
+        const processedProducts = products.map((product: any) => {
+          try {
+            // Zajistíme, že pricingInfo má správnou strukturu i když API vrátí neplatná data
+            let normalizedPricingInfo = { basic: '0', pro: '0', enterprise: '0' };
+            
+            if (product.pricingInfo) {
+              // Pokud je pricingInfo string, zkusíme ho parsovat
+              if (typeof product.pricingInfo === 'string') {
+                try {
+                  const parsed = JSON.parse(product.pricingInfo);
+                  normalizedPricingInfo = {
+                    basic: typeof parsed.basic === 'string' ? parsed.basic : '0',
+                    pro: typeof parsed.pro === 'string' ? parsed.pro : '0',
+                    enterprise: typeof parsed.enterprise === 'string' ? parsed.enterprise : '0'
+                  };
+                } catch (e) {
+                  console.error("Admin: Error parsing pricingInfo string:", e);
+                  // Použijeme výchozí hodnoty
+                }
+              } 
+              // Pokud je pricingInfo objekt, ověříme že má správnou strukturu
+              else if (typeof product.pricingInfo === 'object' && product.pricingInfo !== null) {
+                normalizedPricingInfo = {
+                  basic: typeof product.pricingInfo.basic === 'string' ? product.pricingInfo.basic : '0',
+                  pro: typeof product.pricingInfo.pro === 'string' ? product.pricingInfo.pro : '0',
+                  enterprise: typeof product.pricingInfo.enterprise === 'string' ? product.pricingInfo.enterprise : '0'
+                };
+              }
+            }
+            
+            // Zajistíme, že všechny ostatní properties mají správný formát/typ
+            return {
+              ...product,
+              pricingInfo: normalizedPricingInfo,
+              tags: Array.isArray(product.tags) ? product.tags : [],
+              advantages: Array.isArray(product.advantages) ? product.advantages : [],
+              disadvantages: Array.isArray(product.disadvantages) ? product.disadvantages : [],
+              videoUrls: Array.isArray(product.videoUrls) ? product.videoUrls : [],
+              price: typeof product.price === 'number' ? product.price : 0,
+              hasTrial: typeof product.hasTrial === 'boolean' ? product.hasTrial : false
+            };
+          } catch (err) {
+            console.error("Admin: Error processing product:", err, product);
+            // Pokud nastane chyba, vrátíme alespoň ID a název produktu, ale s výchozími hodnotami
+            return {
+              id: product.id || 'unknown',
+              name: product.name || 'Neznámý produkt',
+              description: product.description || '',
+              price: 0,
+              category: product.category || '',
+              imageUrl: product.imageUrl || '',
+              tags: [],
+              advantages: [],
+              disadvantages: [],
+              detailInfo: product.detailInfo || '',
+              pricingInfo: { basic: '0', pro: '0', enterprise: '0' },
+              videoUrls: [],
+              externalUrl: product.externalUrl || '',
+              hasTrial: false
+            };
+          }
+        });
+        
+        const sortedData = processedProducts.sort((a: Product, b: Product) => {
           if (a.imageUrl && !b.imageUrl) return -1
           if (!a.imageUrl && b.imageUrl) return 1
           return 0
         });
         
         setProducts(sortedData);
-        console.log("Admin: Loaded products:", sortedData.length, "of total", data.pagination?.totalProducts || 0);
+        console.log("Admin: Processed products:", sortedData.length, "of total", data.pagination?.totalProducts || 0);
       } else {
         console.error('Admin: Error loading products. Status:', response.status, response.statusText);
         setError(`Chyba při načítání produktů: ${response.status} ${response.statusText}`);
@@ -179,15 +243,47 @@ export default function ProductsAdminPage() {
   }
 
   const handleEdit = (product: Product) => {
-    setEditingProduct(product)
-    setFormData({
-      ...product,
-      tags: Array.isArray(product.tags) ? product.tags : [],
-      advantages: Array.isArray(product.advantages) ? product.advantages : [],
-      disadvantages: Array.isArray(product.disadvantages) ? product.disadvantages : [],
-      pricingInfo: typeof product.pricingInfo === 'object' ? product.pricingInfo : { basic: '0', pro: '0', enterprise: '0' },
-      videoUrls: Array.isArray(product.videoUrls) ? product.videoUrls : []
-    })
+    try {
+      // Zajistíme správný formát pricingInfo před nastavením do formuláře
+      let normalizedPricingInfo = { basic: '0', pro: '0', enterprise: '0' };
+      
+      if (product.pricingInfo) {
+        if (typeof product.pricingInfo === 'string') {
+          try {
+            const parsed = JSON.parse(product.pricingInfo as unknown as string);
+            normalizedPricingInfo = {
+              basic: typeof parsed.basic === 'string' ? parsed.basic : '0',
+              pro: typeof parsed.pro === 'string' ? parsed.pro : '0',
+              enterprise: typeof parsed.enterprise === 'string' ? parsed.enterprise : '0'
+            };
+          } catch (e) {
+            console.error("Admin: Error parsing pricingInfo string in handleEdit:", e);
+            // Použijeme výchozí hodnoty
+          }
+        } else {
+          // Zde očekáváme objekt, protože normalizace už proběhla ve fetchProducts
+          normalizedPricingInfo = {
+            basic: typeof product.pricingInfo.basic === 'string' ? product.pricingInfo.basic : '0',
+            pro: typeof product.pricingInfo.pro === 'string' ? product.pricingInfo.pro : '0',
+            enterprise: typeof product.pricingInfo.enterprise === 'string' ? product.pricingInfo.enterprise : '0'
+          };
+        }
+      }
+      
+      setEditingProduct(product);
+      
+      setFormData({
+        ...product,
+        tags: Array.isArray(product.tags) ? product.tags : [],
+        advantages: Array.isArray(product.advantages) ? product.advantages : [],
+        disadvantages: Array.isArray(product.disadvantages) ? product.disadvantages : [],
+        pricingInfo: normalizedPricingInfo,
+        videoUrls: Array.isArray(product.videoUrls) ? product.videoUrls : []
+      });
+    } catch (error) {
+      console.error("Admin: Error setting up edit form:", error);
+      alert("Nastala chyba při úpravě produktu. Zkuste to prosím znovu.");
+    }
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -811,6 +907,21 @@ export default function ProductsAdminPage() {
             ))}
           </tbody>
         </table>
+      </div>
+
+      {/* Pro ladění - výpis JSON s produkty */}
+      <div className="mt-8 p-4 bg-gray-100 rounded-lg">
+        <h2 className="text-lg font-semibold mb-2">Debug - JSON data</h2>
+        <pre className="text-xs overflow-auto max-h-96">
+          {(() => {
+            try {
+              // Použijeme normalizovaná data z fetchProducts
+              return JSON.stringify(products, null, 2);
+            } catch (error) {
+              return `Chyba při vykreslování JSON dat: ${error}`;
+            }
+          })()}
+        </pre>
       </div>
     </div>
   )

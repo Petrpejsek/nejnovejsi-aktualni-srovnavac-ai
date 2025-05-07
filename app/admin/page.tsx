@@ -46,6 +46,30 @@ export default function AdminPage() {
             </div>
             <p className="text-gray-600">Configure basic website settings.</p>
           </Link>
+
+          {/* Jednoduchá správa produktů */}
+          <Link href="/admin/simple-products" 
+               className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+            <div className="flex items-center mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+              </svg>
+              <h2 className="text-xl font-semibold ml-2 text-gray-800">Jednoduchá správa</h2>
+            </div>
+            <p className="text-gray-600">Základní přehled produktů s omezenými funkcemi</p>
+          </Link>
+          
+          {/* Nouzová správa produktů */}
+          <Link href="/admin/simple-products-new" 
+               className="bg-amber-50 p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow border border-amber-200">
+            <div className="flex items-center mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <h2 className="text-xl font-semibold ml-2 text-amber-700">Nouzová správa produktů</h2>
+            </div>
+            <p className="text-amber-700">Vysoce stabilní verze pro případ problémů s hlavní administrací</p>
+          </Link>
         </div>
       </div>
     </div>
