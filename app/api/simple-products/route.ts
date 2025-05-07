@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server'
 import prisma from '../../../lib/prisma'
 
+// Konfigurační objekt pro statické renderování API endpointu
+export const dynamic = 'force-static'
+export const revalidate = 3600 // Revalidace jednou za hodinu
+
 // Maximálně jednoduchý endpoint, který vrací omezená data
 export async function GET() {
   try {
