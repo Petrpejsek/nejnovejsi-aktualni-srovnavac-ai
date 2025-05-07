@@ -43,6 +43,26 @@ export async function GET(request: NextRequest) {
       const validPage = page > 0 ? page : 1
       const validPageSize = pageSize > 0 && pageSize <= 500 ? pageSize : 3
       
+      // Database connection test
+      try {
+        console.log('API: Testing database connection...')
+        await prisma.$queryRaw`SELECT 1 as test`
+        console.log('API: Database connection successful')
+      } catch (dbConnectionError) {
+        console.error('API: Database connection error:', dbConnectionError)
+        return NextResponse.json(
+          { 
+            error: 'Database connection failed', 
+            details: dbConnectionError instanceof Error ? dbConnectionError.message : 'Unknown error',
+            env: {
+              DATABASE_URL: process.env.DATABASE_URL ? 'Defined' : 'Not defined',
+              NODE_ENV: process.env.NODE_ENV
+            }
+          },
+          { status: 500 }
+        )
+      }
+      
       // Calculate offset for pagination
       const skip = (validPage - 1) * validPageSize
       

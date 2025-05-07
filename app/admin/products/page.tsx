@@ -53,6 +53,7 @@ export default function ProductsAdminPage() {
   const [newTag, setNewTag] = useState('')
   const [newAdvantage, setNewAdvantage] = useState('')
   const [newDisadvantage, setNewDisadvantage] = useState('')
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     fetchProducts()
@@ -65,6 +66,7 @@ export default function ProductsAdminPage() {
       
       // Použijeme čas jako query parametr pro vynucení obnovení cache
       const timestamp = new Date().getTime();
+      console.log("Admin: Calling API with URL:", `/api/products?pageSize=300&t=${timestamp}`);
       const response = await fetch(`/api/products?pageSize=300&t=${timestamp}`, {
         cache: 'no-store',
         headers: {
@@ -73,13 +75,17 @@ export default function ProductsAdminPage() {
         }
       });
       
+      console.log("Admin: API response status:", response.status, response.statusText);
+      
       if (response.ok) {
         const data = await response.json();
+        console.log("Admin: API response data:", data);
         const products = data.products || [];
         console.log("Admin: Raw products data:", products);
         
         if (products.length === 0) {
           console.warn("Admin: Received empty products array from API");
+          setError("API vrátila prázdné pole produktů. Zkontrolujte připojení k databázi nebo jestli jsou nějaké produkty v databázi.");
         }
         
         const sortedData = products.sort((a: Product, b: Product) => {
@@ -92,15 +98,19 @@ export default function ProductsAdminPage() {
         console.log("Admin: Loaded products:", sortedData.length, "of total", data.pagination?.totalProducts || 0);
       } else {
         console.error('Admin: Error loading products. Status:', response.status, response.statusText);
+        setError(`Chyba při načítání produktů: ${response.status} ${response.statusText}`);
         try {
           const errorData = await response.json();
           console.error('Admin: Error details:', errorData);
+          setError(`Chyba při načítání produktů: ${JSON.stringify(errorData)}`);
         } catch (e) {
           console.error('Admin: Could not parse error response');
+          setError(`Chyba při načítání produktů: ${response.status} ${response.statusText} (nelze načíst detaily chyby)`);
         }
       }
     } catch (error) {
       console.error('Admin: Error loading products:', error);
+      setError(`Chyba: ${error instanceof Error ? error.message : String(error)}`);
     } finally {
       setLoading(false);
     }
@@ -300,6 +310,34 @@ export default function ProductsAdminPage() {
 
   if (loading) {
     return <div>Loading...</div>
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-2xl font-bold">Products Administration</h1>
+          <Link 
+            href="/admin"
+            className="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200"
+          >
+            Back to Admin
+          </Link>
+        </div>
+        
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          <p className="font-bold">Chyba!</p>
+          <p>{error}</p>
+        </div>
+        
+        <button 
+          onClick={fetchProducts}
+          className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700"
+        >
+          Zkusit znovu
+        </button>
+      </div>
+    );
   }
 
   return (
