@@ -6,11 +6,19 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'placehold.co',
       },
+      {
+        protocol: 'https',
+        hostname: 'auxia.ai',
+      },
+      {
+        protocol: 'https',
+        hostname: '**',
+      }
     ],
     dangerouslyAllowSVG: true,
     contentDispositionType: 'attachment',
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
-    domains: ['raw.githubusercontent.com'],
+    domains: ['raw.githubusercontent.com', 'auxia.ai'],
   },
   async headers() {
     return [
@@ -36,6 +44,16 @@ const nextConfig = {
         ],
       },
     ]
+  },
+  webpack: (config) => {
+    config.watchOptions = {
+      aggregateTimeout: 300,
+      poll: 1000,
+    }
+    return config
+  },
+  experimental: {
+    largePageDataBytes: 512 * 1000,
   },
   generateEtags: false
 }

@@ -1,13 +1,13 @@
 import { NextResponse } from 'next/server'
 import prisma from '../../../../lib/prisma'
 
-// GET /api/products/[id] - Získat jeden produkt
+// GET /api/products/[id] - Get a single product
 export async function GET(
   request: Request,
   { params }: { params: { id: string } }
 ) {
   try {
-    console.log('Načítám detail produktu s ID:', params.id)
+    console.log('Loading product details with ID:', params.id)
     
     const product = await prisma.product.findUnique({
       where: {
@@ -16,7 +16,7 @@ export async function GET(
     })
 
     if (!product) {
-      return new NextResponse(JSON.stringify({ error: 'Produkt nebyl nalezen' }), {
+      return new NextResponse(JSON.stringify({ error: 'Product not found' }), {
         status: 404,
         headers: {
           'Content-Type': 'application/json',
@@ -24,7 +24,7 @@ export async function GET(
       })
     }
 
-    console.log('Načtený produkt:', product)
+    console.log('Loaded product:', product)
     
     return new NextResponse(JSON.stringify(product), {
       status: 200,
@@ -33,8 +33,8 @@ export async function GET(
       },
     })
   } catch (error) {
-    console.error('Chyba při načítání produktu:', error)
-    return new NextResponse(JSON.stringify({ error: 'Interní chyba serveru' }), {
+    console.error('Error loading product:', error)
+    return new NextResponse(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,
       headers: {
         'Content-Type': 'application/json',
@@ -43,16 +43,16 @@ export async function GET(
   }
 }
 
-// PUT /api/products/[id] - Aktualizovat produkt
+// PUT /api/products/[id] - Update a product
 export async function PUT(
   request: Request,
   { params }: { params: { id: string } }
 ) {
   try {
     const data = await request.json()
-    console.log('Přijatá data pro aktualizaci:', data) // Pro debugování
+    console.log('Received data for update:', data) // For debugging
 
-    // Explicitně zpracujeme externalUrl
+    // Explicitly process externalUrl
     const externalUrl = data.externalUrl === '' ? null : data.externalUrl
 
     const product = await prisma.product.update({
@@ -74,18 +74,18 @@ export async function PUT(
       },
     })
 
-    console.log('Aktualizovaný produkt:', product) // Pro debugování
+    console.log('Updated product:', product) // For debugging
     return NextResponse.json(product)
   } catch (error) {
-    console.error('Chyba při aktualizaci produktu:', error)
+    console.error('Error updating product:', error)
     return NextResponse.json(
-      { error: 'Chyba při aktualizaci produktu' },
+      { error: 'Error updating product' },
       { status: 500 }
     )
   }
 }
 
-// DELETE /api/products/[id] - Smazat produkt
+// DELETE /api/products/[id] - Delete a product
 export async function DELETE(
   request: Request,
   { params }: { params: { id: string } }
@@ -96,9 +96,9 @@ export async function DELETE(
     })
     return new NextResponse(null, { status: 204 })
   } catch (error) {
-    console.error('Chyba při mazání produktu:', error)
+    console.error('Error deleting product:', error)
     return NextResponse.json(
-      { error: 'Chyba při mazání produktu' },
+      { error: 'Error deleting product' },
       { status: 500 }
     )
   }

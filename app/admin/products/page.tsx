@@ -61,25 +61,45 @@ export default function ProductsAdminPage() {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      console.log("Admin: Načítám produkty z API...");
-      const response = await fetch('/api/products?pageSize=100')
+      console.log("Admin: Loading products from API...");
+      const response = await fetch('/api/products?pageSize=100', {
+        cache: 'no-store',
+        headers: {
+          'Pragma': 'no-cache',
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+        }
+      });
+      
       if (response.ok) {
-        const data = await response.json()
+        const data = await response.json();
         const products = data.products || [];
+        console.log("Admin: Raw products data:", products);
+        
+        if (products.length === 0) {
+          console.warn("Admin: Received empty products array from API");
+        }
+        
         const sortedData = products.sort((a: Product, b: Product) => {
           if (a.imageUrl && !b.imageUrl) return -1
           if (!a.imageUrl && b.imageUrl) return 1
           return 0
-        })
-        setProducts(sortedData)
-        console.log("Admin: Načteno produktů:", sortedData.length, "z celkových", data.pagination?.totalProducts || 0);
+        });
+        
+        setProducts(sortedData);
+        console.log("Admin: Loaded products:", sortedData.length, "of total", data.pagination?.totalProducts || 0);
       } else {
-        console.error('Admin: Chyba při načítání produktů:', response.statusText);
+        console.error('Admin: Error loading products. Status:', response.status, response.statusText);
+        try {
+          const errorData = await response.json();
+          console.error('Admin: Error details:', errorData);
+        } catch (e) {
+          console.error('Admin: Could not parse error response');
+        }
       }
     } catch (error) {
-      console.error('Admin: Chyba při načítání produktů:', error)
+      console.error('Admin: Error loading products:', error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
@@ -125,12 +145,12 @@ export default function ProductsAdminPage() {
         })
       }
     } catch (error) {
-      console.error('Chyba při ukládání produktu:', error)
+      console.error('Error saving product:', error)
     }
   }
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Opravdu chcete smazat tento produkt?')) return
+    if (!confirm('Are you sure you want to delete this product?')) return
 
     try {
       const response = await fetch(`/api/products/${id}`, {
@@ -141,7 +161,7 @@ export default function ProductsAdminPage() {
         fetchProducts()
       }
     } catch (error) {
-      console.error('Chyba při mazání produktu:', error)
+      console.error('Error deleting product:', error)
     }
   }
 
@@ -276,29 +296,29 @@ export default function ProductsAdminPage() {
   }
 
   if (loading) {
-    return <div>Načítání...</div>
+    return <div>Loading...</div>
   }
 
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-bold">Správa produktů</h1>
+        <h1 className="text-2xl font-bold">Products Administration</h1>
         <Link 
           href="/admin"
           className="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200"
         >
-          Zpět do administrace
+          Back to Admin
         </Link>
       </div>
 
       <form onSubmit={handleSubmit} className="mb-8 space-y-4 bg-white p-6 rounded-lg shadow">
         <h2 className="text-xl font-semibold mb-4">
-          {editingProduct ? 'Upravit produkt' : 'Přidat nový produkt'}
+          {editingProduct ? 'Edit Product' : 'Add New Product'}
         </h2>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700">Název</label>
+            <label className="block text-sm font-medium text-gray-700">Name</label>
             <input
               type="text"
               name="name"
@@ -310,7 +330,7 @@ export default function ProductsAdminPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Kategorie</label>
+            <label className="block text-sm font-medium text-gray-700">Category</label>
             <input
               type="text"
               name="category"
@@ -322,7 +342,7 @@ export default function ProductsAdminPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Cena</label>
+            <label className="block text-sm font-medium text-gray-700">Price</label>
             <input
               type="number"
               name="price"
@@ -335,7 +355,7 @@ export default function ProductsAdminPage() {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Obrázek produktu
+              Product Image
             </label>
             <div 
               className={`mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed rounded-md ${
@@ -366,7 +386,7 @@ export default function ProductsAdminPage() {
                     htmlFor="file-upload"
                     className="relative cursor-pointer rounded-md font-medium text-purple-600 hover:text-purple-500 focus-within:outline-none"
                   >
-                    <span>Nahrát soubor</span>
+                    <span>Upload file</span>
                     <input
                       id="file-upload"
                       name="file-upload"
@@ -376,16 +396,16 @@ export default function ProductsAdminPage() {
                       onChange={handleImageChange}
                     />
                   </label>
-                  <p className="pl-1">nebo přetáhněte sem</p>
+                  <p className="pl-1">or drag and drop</p>
                 </div>
-                <p className="text-xs text-gray-500">PNG, JPG až do 10MB</p>
+                <p className="text-xs text-gray-500">PNG, JPG up to 10MB</p>
               </div>
             </div>
             {imagePreview && (
               <div className="mt-2 relative">
                 <Image
                   src={imagePreview}
-                  alt="Náhled"
+                  alt="Preview"
                   width={200}
                   height={200}
                   className="rounded-md"
@@ -407,7 +427,7 @@ export default function ProductsAdminPage() {
           </div>
 
           <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-gray-700">Popis</label>
+            <label className="block text-sm font-medium text-gray-700">Description</label>
             <textarea
               name="description"
               value={formData.description || ''}
@@ -420,7 +440,7 @@ export default function ProductsAdminPage() {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Tagy
+              Tags
             </label>
             <div className="flex gap-2 mb-2">
               <input
@@ -434,7 +454,7 @@ export default function ProductsAdminPage() {
                   }
                 }}
                 className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500"
-                placeholder="Zadejte tag a stiskněte Enter"
+                placeholder="Enter tag and press Enter"
               />
             </div>
             <div className="flex flex-wrap gap-2 min-h-[50px] p-2 border border-gray-200 rounded-md">
@@ -457,7 +477,7 @@ export default function ProductsAdminPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Externí URL</label>
+            <label className="block text-sm font-medium text-gray-700">External URL</label>
             <input
               type="text"
               name="externalUrl"
@@ -469,7 +489,7 @@ export default function ProductsAdminPage() {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Výhody
+              Advantages
             </label>
             <div className="flex gap-2 mb-2">
               <input
@@ -483,7 +503,7 @@ export default function ProductsAdminPage() {
                   }
                 }}
                 className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500"
-                placeholder="Zadejte výhodu a stiskněte Enter"
+                placeholder="Enter advantage and press Enter"
               />
             </div>
             <div className="space-y-2 min-h-[50px] p-2 border border-gray-200 rounded-md">
@@ -541,7 +561,7 @@ export default function ProductsAdminPage() {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Nevýhody
+              Disadvantages
             </label>
             <div className="flex gap-2 mb-2">
               <input
@@ -555,7 +575,7 @@ export default function ProductsAdminPage() {
                   }
                 }}
                 className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-red-500 focus:border-red-500"
-                placeholder="Zadejte nevýhodu a stiskněte Enter"
+                placeholder="Enter disadvantage and press Enter"
               />
             </div>
             <div className="space-y-2 min-h-[50px] p-2 border border-gray-200 rounded-md">
@@ -612,7 +632,7 @@ export default function ProductsAdminPage() {
           </div>
 
           <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-gray-700">Detailní informace</label>
+            <label className="block text-sm font-medium text-gray-700">Detail Information</label>
             <textarea
               name="detailInfo"
               value={formData.detailInfo || ''}
@@ -623,7 +643,7 @@ export default function ProductsAdminPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Základní cena</label>
+            <label className="block text-sm font-medium text-gray-700">Basic Price</label>
             <input
               type="text"
               name="pricingInfo.basic"
@@ -634,7 +654,7 @@ export default function ProductsAdminPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Pro cena</label>
+            <label className="block text-sm font-medium text-gray-700">Pro Price</label>
             <input
               type="text"
               name="pricingInfo.pro"
@@ -645,7 +665,7 @@ export default function ProductsAdminPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Enterprise cena</label>
+            <label className="block text-sm font-medium text-gray-700">Enterprise Price</label>
             <input
               type="text"
               name="pricingInfo.enterprise"
@@ -664,7 +684,7 @@ export default function ProductsAdminPage() {
                 onChange={(e) => setFormData(prev => ({ ...prev, hasTrial: e.target.checked }))}
                 className="rounded border-gray-300 text-purple-600 shadow-sm focus:border-purple-500 focus:ring-purple-500"
               />
-              <span className="text-sm font-medium text-gray-700">Má trial verzi</span>
+              <span className="text-sm font-medium text-gray-700">Has Trial Version</span>
             </label>
           </div>
         </div>
@@ -679,14 +699,14 @@ export default function ProductsAdminPage() {
               }}
               className="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200"
             >
-              Zrušit
+              Cancel
             </button>
           )}
           <button
             type="submit"
             className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
           >
-            {editingProduct ? 'Uložit změny' : 'Přidat produkt'}
+            {editingProduct ? 'Save Changes' : 'Add Product'}
           </button>
         </div>
       </form>
@@ -695,11 +715,11 @@ export default function ProductsAdminPage() {
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Náhled</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Název</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kategorie</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cena</th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Akce</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Preview</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
@@ -737,13 +757,13 @@ export default function ProductsAdminPage() {
                     onClick={() => handleEdit(product)}
                     className="text-purple-600 hover:text-purple-900 mr-4"
                   >
-                    Upravit
+                    Edit
                   </button>
                   <button
                     onClick={() => handleDelete(product.id)}
                     className="text-red-600 hover:text-red-900"
                   >
-                    Smazat
+                    Delete
                   </button>
                 </td>
               </tr>

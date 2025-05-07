@@ -24,44 +24,61 @@ interface Product {
 // GET /api/products - Get all products with pagination and filters
 export async function GET(request: NextRequest) {
   let retries = 3
-  const cacheTime = 60 // Cache time in seconds
+  const cacheTime = 0 // Cache time in seconds - nastaveno na 0 pro vynucení čerstvých dat
 
   while (retries > 0) {
     try {
       const { searchParams } = new URL(request.url)
       const page = parseInt(searchParams.get('page') || '1', 10)
-      const pageSize = parseInt(searchParams.get('pageSize') || '3', 10) // Test s 3 produkty
+      const pageSize = parseInt(searchParams.get('pageSize') || '3', 10) // Test with 3 products
       const category = searchParams.get('category')
       const provider = searchParams.get('provider')
       const minPrice = searchParams.get('minPrice')
       const maxPrice = searchParams.get('maxPrice')
       
       console.time('API Request')
+      console.log('API: Processing request for products with params:', { page, pageSize, category, provider })
       
-      // Validace parametrů
+      // Parameter validation
       const validPage = page > 0 ? page : 1
       const validPageSize = pageSize > 0 && pageSize <= 100 ? pageSize : 3
       
-      // Výpočet offsetu pro stránkování
+      // Calculate offset for pagination
       const skip = (validPage - 1) * validPageSize
       
-      // Sestavení where podmínky pro filtry
+      // Build where condition for filters
       const where: any = {}
       if (category) where.category = category
       if (provider) where.tags = { contains: provider }
       if (minPrice) where.price = { ...where.price, gte: parseFloat(minPrice) }
       if (maxPrice) where.price = { ...where.price, lte: parseFloat(maxPrice) }
       
-      // Získání dat v jedné transakci
-      const [totalProducts, products] = await prisma.$transaction([
-        prisma.product.count({ where }),
-        prisma.product.findMany({
+      console.log('API: Querying database with where clause:', where)
+      
+      // Get total count of products (first query)
+      let totalProducts = 0
+      try {
+        totalProducts = await prisma.product.count({ where })
+        console.log('API: Total products count:', totalProducts)
+      } catch (countError) {
+        console.error('API: Error counting products:', countError)
+        totalProducts = 0
+      }
+      
+      // Get paginated products (second query)
+      let products: Product[] = []
+      try {
+        products = await prisma.product.findMany({
           where,
           orderBy: { name: 'asc' },
           skip,
           take: validPageSize,
         })
-      ])
+        console.log('API: Found products:', products.length)
+      } catch (findError) {
+        console.error('API: Error finding products:', findError)
+        products = []
+      }
       
       const totalPages = Math.ceil(totalProducts / validPageSize)
       
@@ -69,6 +86,7 @@ export async function GET(request: NextRequest) {
       console.log(`API: Loaded ${products.length} products (page ${validPage}, pageSize ${validPageSize}, total ${totalProducts})`)
       
       if (!products || products.length === 0) {
+        console.log('API: No products found')
         return NextResponse.json(
           { 
             products: [],
@@ -83,21 +101,38 @@ export async function GET(request: NextRequest) {
             status: 200,
             headers: {
               'Cache-Control': `public, max-age=${cacheTime}`,
+              'Content-Type': 'application/json'
             }
           }
         )
       }
 
-      // Formátování odpovědi
+      // Format response
+      const formattedProducts = products.map(product => {
+        try {
+          return {
+            ...product,
+            tags: JSON.parse(product.tags || '[]'),
+            advantages: JSON.parse(product.advantages || '[]'),
+            disadvantages: JSON.parse(product.disadvantages || '[]'),
+            pricingInfo: JSON.parse(product.pricingInfo || '{}'),
+            videoUrls: JSON.parse(product.videoUrls || '[]')
+          }
+        } catch (parseError) {
+          console.error('API: Error parsing product data:', parseError, product)
+          return {
+            ...product,
+            tags: [],
+            advantages: [],
+            disadvantages: [],
+            pricingInfo: {},
+            videoUrls: []
+          }
+        }
+      })
+      
       const response = {
-        products: products.map(product => ({
-          ...product,
-          tags: JSON.parse(product.tags || '[]'),
-          advantages: JSON.parse(product.advantages || '[]'),
-          disadvantages: JSON.parse(product.disadvantages || '[]'),
-          pricingInfo: JSON.parse(product.pricingInfo || '{}'),
-          videoUrls: JSON.parse(product.videoUrls || '[]')
-        })),
+        products: formattedProducts,
         pagination: {
           page: validPage,
           pageSize: validPageSize,
@@ -110,20 +145,28 @@ export async function GET(request: NextRequest) {
         status: 200,
         headers: {
           'Cache-Control': `public, max-age=${cacheTime}`,
+          'Content-Type': 'application/json'
         }
       })
     } catch (error) {
-      console.error('Chyba při načítání produktů:', error)
+      console.error('Error loading products:', error)
       retries--
       
       if (retries === 0) {
         return NextResponse.json(
-          { error: 'Nepodařilo se načíst produkty' },
-          { status: 500 }
+          { error: 'Failed to load products', details: error instanceof Error ? error.message : 'Unknown error' },
+          { 
+            status: 500,
+            headers: {
+              'Content-Type': 'application/json',
+              'Cache-Control': 'no-store'
+            }
+          }
         )
       }
       
-      // Počkáme před dalším pokusem
+      // Wait before retry
+      console.log(`Retrying product loading (${retries} attempts left)...`)
       await new Promise(resolve => setTimeout(resolve, 1000))
     }
   }
