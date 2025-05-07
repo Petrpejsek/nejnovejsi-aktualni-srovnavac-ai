@@ -28,10 +28,9 @@ type ProcessedProduct = {
 }
 
 // GET /api/admin-products - Speciální endpoint pro admin sekci
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     console.log('Admin API: Načítám produkty z databáze')
-    const { searchParams } = new URL(request.url)
     
     // Získáme všechny produkty
     const products = await prisma.product.findMany({
