@@ -86,7 +86,9 @@ async function translateProductsToEnglish() {
 }
 
 // Translation helper functions
-function translateDescription(text: string): string {
+function translateDescription(text: string | null): string {
+  if (!text) return '';
+  
   const translations: Record<string, string> = {
     "účetní": "accounting",
     "účetnictví": "accounting",
@@ -117,7 +119,9 @@ function translateDescription(text: string): string {
   return translatedText;
 }
 
-function translateDetailInfo(text: string): string {
+function translateDetailInfo(text: string | null): string {
+  if (!text) return '';
+  
   const translations: Record<string, string> = {
     "účetní": "accounting",
     "účetnictví": "accounting",
@@ -178,7 +182,9 @@ function translateDetailInfo(text: string): string {
   return translatedText;
 }
 
-function translateCategory(category: string): string {
+function translateCategory(category: string | null): string {
+  if (!category) return '';
+  
   const translations: Record<string, string> = {
     "Účetní software": "Accounting Software",
     "Účetní služby": "Accounting Services",
@@ -249,7 +255,8 @@ function translateTags(tags: string[]): string[] {
 }
 
 function translateAdvantages(advantages: string[]): string[] {
-  const translations: Record<string, Record<string, string>> = {
+  // Direct one-to-one translations
+  const translations: Record<string, string> = {
     "Automatické zpracování a extrakce dat z dokladů": "Automatic processing and data extraction from documents",
     "Rychlé digitální zachycení účtenek a faktur": "Fast digital capture of receipts and invoices",
     "Integrace s populárními účetními softwary": "Integration with popular accounting software",
@@ -355,7 +362,8 @@ function translateAdvantages(advantages: string[]): string[] {
 }
 
 function translateDisadvantages(disadvantages: string[]): string[] {
-  const translations: Record<string, Record<string, string>> = {
+  // Direct one-to-one translations
+  const translations: Record<string, string> = {
     "Vyšší cena pro velmi malé firmy": "Higher price for very small companies",
     "Některé pokročilé funkce pouze v dražších tarifech": "Some advanced features only in more expensive plans",
     "Může vyžadovat doladění rozpoznávání specifických dokladů": "May require fine-tuning for recognizing specific documents",
