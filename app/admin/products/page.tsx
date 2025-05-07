@@ -62,7 +62,7 @@ export default function ProductsAdminPage() {
     try {
       setLoading(true);
       console.log("Admin: Loading products from API...");
-      const response = await fetch('/api/products?pageSize=100', {
+      const response = await fetch('/api/products?pageSize=300', {
         cache: 'no-store',
         headers: {
           'Pragma': 'no-cache',
