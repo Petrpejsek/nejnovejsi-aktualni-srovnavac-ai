@@ -551,7 +551,7 @@ async function updateOrCreateProducts() {
             advantages: product.advantages,
             disadvantages: product.disadvantages,
             detailInfo: product.detailInfo,
-            pricingInfo: product.pricingInfo,
+            pricingInfo: JSON.stringify(product.pricingInfo),
             videoUrls: product.videoUrls,
             hasTrial: product.hasTrial
           }
@@ -562,8 +562,13 @@ async function updateOrCreateProducts() {
         console.log(`Creating new product: ${product.name}`);
         
         // Create new product
+        const productToCreate = {
+          ...product,
+          pricingInfo: JSON.stringify(product.pricingInfo)
+        };
+        
         const newProduct = await prisma.product.create({
-          data: product
+          data: productToCreate
         });
         
         console.log(`✅ Created: ${product.name} with ID ${newProduct.id}`);
