@@ -112,7 +112,7 @@ async function updateOrCreateProducts() {
             advantages: product.advantages,
             disadvantages: product.disadvantages,
             detailInfo: product.detailInfo,
-            pricingInfo: product.pricingInfo,
+            pricingInfo: JSON.stringify(product.pricingInfo),
             videoUrls: product.videoUrls,
             hasTrial: product.hasTrial
           }
@@ -121,22 +121,13 @@ async function updateOrCreateProducts() {
       } else {
         // Vytvoř nový produkt
         console.log(`Vytvářím nový produkt: ${product.name}`);
+        const productToCreate = {
+          ...product,
+          pricingInfo: JSON.stringify(product.pricingInfo)
+        };
+        
         const newProduct = await prisma.product.create({
-          data: {
-            name: product.name,
-            description: product.description,
-            price: product.price,
-            category: product.category,
-            imageUrl: product.imageUrl,
-            tags: product.tags,
-            advantages: product.advantages,
-            disadvantages: product.disadvantages,
-            detailInfo: product.detailInfo,
-            pricingInfo: product.pricingInfo,
-            externalUrl: product.externalUrl,
-            videoUrls: product.videoUrls,
-            hasTrial: product.hasTrial
-          }
+          data: productToCreate
         });
         console.log(`✅ Vytvořeno: ${newProduct.name} s ID ${newProduct.id}`);
       }
