@@ -62,7 +62,10 @@ export default function ProductsAdminPage() {
     try {
       setLoading(true);
       console.log("Admin: Loading products from API...");
-      const response = await fetch('/api/products?pageSize=300', {
+      
+      // Použijeme čas jako query parametr pro vynucení obnovení cache
+      const timestamp = new Date().getTime();
+      const response = await fetch(`/api/products?pageSize=300&t=${timestamp}`, {
         cache: 'no-store',
         headers: {
           'Pragma': 'no-cache',

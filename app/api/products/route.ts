@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
       
       // Parameter validation
       const validPage = page > 0 ? page : 1
-      const validPageSize = pageSize > 0 && pageSize <= 100 ? pageSize : 3
+      const validPageSize = pageSize > 0 && pageSize <= 500 ? pageSize : 3
       
       // Calculate offset for pagination
       const skip = (validPage - 1) * validPageSize
