@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server'
 import prisma from '../../../lib/prisma'
+import { NextRequest } from 'next/server'
 
 // Konfigurační objekt pro statické renderování API endpointu
-export const dynamic = 'force-static'
+export const dynamic = 'auto'
 export const revalidate = 3600 // Revalidace jednou za hodinu
 
 // Základní typ pro produkt bez velkých polí dat
@@ -20,13 +21,27 @@ type BriefProduct = {
 }
 
 // GET /api/admin-products - Speciální endpoint pro admin sekci
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     console.log('Admin API: Načítám produkty z databáze')
     
-    // Získáme všechny produkty, ale jen vybraná pole
+    // Zjištění parametrů paginace
+    const searchParams = request.nextUrl.searchParams
+    const page = parseInt(searchParams.get('page') || '1', 10)
+    const limit = parseInt(searchParams.get('limit') || '30', 10) // Výchozí je 30 produktů
+    
+    // Omezení maximálního počtu záznamů
+    const safeLimit = Math.min(limit, 50) // Maximálně 50 produktů na stránku
+    const offset = (page - 1) * safeLimit
+    
+    // Načtení celkového počtu produktů
+    const totalCount = await prisma.product.count()
+    
+    // Získáme jen část produktů podle paginace
     const products = await prisma.product.findMany({
       orderBy: { name: 'asc' },
+      skip: offset,
+      take: safeLimit,
       select: {
         id: true,
         name: true,
@@ -37,16 +52,10 @@ export async function GET() {
         tags: true,
         externalUrl: true,
         hasTrial: true,
-        // Vynecháváme velká pole, abychom snížili velikost odpovědi
-        // advantages: false,
-        // disadvantages: false, 
-        // detailInfo: false,
-        // pricingInfo: false,
-        // videoUrls: false,
       }
     })
     
-    console.log(`Admin API: Načteno ${products.length} produktů`)
+    console.log(`Admin API: Načteno ${products.length} produktů (stránka ${page}, celkem ${totalCount})`)
     
     // Zpracování produktů, ale jen základních polí
     const processedProducts = products.map(product => {
@@ -90,9 +99,16 @@ export async function GET() {
       }
     })
     
+    // Vrátíme data s informacemi o paginaci
     return NextResponse.json({ 
       products: processedProducts,
-      count: processedProducts.length,
+      pagination: {
+        page,
+        limit: safeLimit,
+        totalCount,
+        totalPages: Math.ceil(totalCount / safeLimit),
+        hasMore: offset + products.length < totalCount
+      },
       success: true
     })
   } catch (error) {

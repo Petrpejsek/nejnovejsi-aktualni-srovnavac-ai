@@ -11,49 +11,73 @@ type SimpleProduct = {
   category: string
 }
 
+type Pagination = {
+  page: number
+  limit: number
+  totalCount: number
+  totalPages: number
+  hasMore: boolean
+}
+
 export default function SuperSimpleAdminPage() {
   const [products, setProducts] = useState<SimpleProduct[]>([])
+  const [pagination, setPagination] = useState<Pagination | null>(null)
+  const [currentPage, setCurrentPage] = useState(1)
   const [isLoading, setIsLoading] = useState(true)
+  const [isLoadingMore, setIsLoadingMore] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Jednoduchá fetch funkce - téměř identická s tou, která se používá na homepage
-  useEffect(() => {
-    async function loadProducts() {
-      try {
+  // Funkce pro načtení produktů
+  const loadProducts = async (page: number, resetList: boolean = false) => {
+    try {
+      if (resetList) {
         setIsLoading(true)
-        setError(null)
-        
-        // Použijeme nové super-jednoduché API
-        const response = await fetch('/api/simple-products')
-        
-        if (!response.ok) {
-          throw new Error(`API vrátila chybu: ${response.status}`)
-        }
-        
-        const data = await response.json()
-        
-        if (data && data.products && Array.isArray(data.products)) {
-          // Jednoduchá konverze - bereme jen data která zobrazujeme
-          const simpleProducts = data.products.map((p: any) => ({
-            id: p.id || '',
-            name: p.name || '',
-            price: typeof p.price === 'number' ? p.price : 0,
-            category: p.category || ''
-          }))
-          setProducts(simpleProducts)
-        } else {
-          setError('Neplatná odpověď z API')
-        }
-      } catch (err) {
-        setError(`Chyba při načítání produktů: ${err instanceof Error ? err.message : 'Neznámá chyba'}`)
-        console.error(err)
-      } finally {
-        setIsLoading(false)
+      } else {
+        setIsLoadingMore(true)
       }
+      setError(null)
+
+      // Použijeme API s paginací
+      const response = await fetch(`/api/simple-products?page=${page}&limit=30`)
+
+      if (!response.ok) {
+        throw new Error(`API vrátila chybu: ${response.status}`)
+      }
+
+      const data = await response.json()
+
+      if (data && data.products && Array.isArray(data.products) && data.pagination) {
+        // Aktualizujeme stav podle toho, zda reset nebo přidáváme další
+        if (resetList) {
+          setProducts(data.products)
+        } else {
+          setProducts(prev => [...prev, ...data.products])
+        }
+        setPagination(data.pagination)
+        setCurrentPage(page)
+      } else {
+        setError('Neplatná odpověď z API')
+      }
+    } catch (err) {
+      setError(`Chyba při načítání produktů: ${err instanceof Error ? err.message : 'Neznámá chyba'}`)
+      console.error(err)
+    } finally {
+      setIsLoading(false)
+      setIsLoadingMore(false)
     }
-    
-    loadProducts()
+  }
+
+  // Načtení první stránky při startu
+  useEffect(() => {
+    loadProducts(1, true)
   }, [])
+
+  // Funkce pro načtení další stránky
+  const handleLoadMore = () => {
+    if (pagination?.hasMore) {
+      loadProducts(currentPage + 1)
+    }
+  }
 
   // Jednoduchá komponenta pro zobrazení načítání
   if (isLoading) {
@@ -74,7 +98,7 @@ export default function SuperSimpleAdminPage() {
           <p>Chyba: {error}</p>
           <button 
             className="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-            onClick={() => window.location.reload()}
+            onClick={() => loadProducts(1, true)}
           >
             Zkusit znovu
           </button>
@@ -93,7 +117,17 @@ export default function SuperSimpleAdminPage() {
         </Link>
       </div>
       
-      <p className="mb-4">Nalezeno produktů: {products.length}</p>
+      <div className="mb-4 flex justify-between items-center">
+        <p>
+          Zobrazeno produktů: {products.length} 
+          {pagination && ` z celkových ${pagination.totalCount}`}
+        </p>
+        {pagination && (
+          <p className="text-sm text-gray-500">
+            Stránka {pagination.page} z {pagination.totalPages}
+          </p>
+        )}
+      </div>
       
       <div className="overflow-auto">
         <table className="min-w-full bg-white border">
@@ -125,6 +159,19 @@ export default function SuperSimpleAdminPage() {
           </tbody>
         </table>
       </div>
+
+      {/* Tlačítko pro načtení dalších produktů */}
+      {pagination && pagination.hasMore && (
+        <div className="mt-4 text-center">
+          <button
+            onClick={handleLoadMore}
+            disabled={isLoadingMore}
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
+          >
+            {isLoadingMore ? 'Načítání...' : 'Načíst další produkty'}
+          </button>
+        </div>
+      )}
     </div>
   )
 } 

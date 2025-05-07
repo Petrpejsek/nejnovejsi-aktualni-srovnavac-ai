@@ -1,19 +1,33 @@
 import { NextResponse } from 'next/server'
 import prisma from '../../../lib/prisma'
+import { NextRequest } from 'next/server'
 
-// Konfigurační objekt pro statické renderování API endpointu
-export const dynamic = 'force-static'
+// Konfigurační objekt pro API endpoint
+export const dynamic = 'auto'
 export const revalidate = 3600 // Revalidace jednou za hodinu
 
-// Maximálně jednoduchý endpoint, který vrací omezená data
-export async function GET() {
+// Jednoduchý endpoint s paginací
+export async function GET(request: NextRequest) {
   try {
     console.log('Simple-API: Načítám produkty z databáze')
     
-    // Jednoduchý dotaz na všechny produkty, ale se základními poli
+    // Získání parametrů stránkování
+    const searchParams = request.nextUrl.searchParams
+    const page = parseInt(searchParams.get('page') || '1', 10)
+    const limit = parseInt(searchParams.get('limit') || '30', 10)
+    
+    // Bezpečný limit - max 50 produktů na stránku
+    const safeLimit = Math.min(limit, 50)
+    const offset = (page - 1) * safeLimit
+    
+    // Zjištění celkového počtu produktů
+    const totalCount = await prisma.product.count()
+    
+    // Dotaz na produkty s paginací
     const products = await prisma.product.findMany({
       orderBy: { name: 'asc' },
-      // Vybíráme jen nejnutnější pole, abychom omezili velikost odpovědi
+      skip: offset,
+      take: safeLimit,
       select: {
         id: true,
         name: true,
@@ -22,12 +36,18 @@ export async function GET() {
       }
     })
     
-    console.log(`Simple-API: Načteno ${products.length} produktů`)
+    console.log(`Simple-API: Načteno ${products.length} produktů (stránka ${page}, limit ${safeLimit})`)
     
-    // Vrátíme omezená data bez složitých transformací
+    // Vrátíme omezená data s informací o stránkování
     return NextResponse.json({ 
       products,
-      count: products.length
+      pagination: {
+        page,
+        limit: safeLimit,
+        totalCount,
+        totalPages: Math.ceil(totalCount / safeLimit),
+        hasMore: offset + products.length < totalCount
+      }
     })
   } catch (error) {
     console.error('Simple-API: Chyba při načítání produktů:', error)

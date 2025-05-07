@@ -17,43 +17,75 @@ interface Product {
   hasTrial?: boolean
 }
 
+interface Pagination {
+  page: number
+  limit: number
+  totalCount: number
+  totalPages: number
+  hasMore: boolean
+}
+
 export default function NovaSpravaProduktu() {
   const [products, setProducts] = useState<Product[]>([])
+  const [pagination, setPagination] = useState<Pagination | null>(null)
+  const [currentPage, setCurrentPage] = useState(1)
   const [isLoading, setIsLoading] = useState(true)
+  const [isLoadingMore, setIsLoadingMore] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Načtení produktů z API
+  // Načtení první stránky produktů
   useEffect(() => {
-    async function loadProducts() {
-      try {
-        setIsLoading(true)
-        setError(null)
-        
-        // Použijeme zjednodušený admin API endpoint
-        const response = await fetch('/api/admin-products')
-        
-        if (!response.ok) {
-          throw new Error(`API vrátila chybu: ${response.status}`)
-        }
-        
-        const data = await response.json()
-        
-        if (data && data.products && Array.isArray(data.products)) {
-          setProducts(data.products)
-          console.log(`Načteno ${data.count || data.products.length} produktů`)
-        } else {
-          setError('Neplatná odpověď z API')
-        }
-      } catch (err) {
-        setError(`Chyba při načítání produktů: ${err instanceof Error ? err.message : 'Neznámá chyba'}`)
-        console.error(err)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-    
-    loadProducts()
+    loadProducts(1, true)
   }, [])
+
+  // Funkce pro načtení produktů z API
+  const loadProducts = async (page: number, resetProducts: boolean = false) => {
+    try {
+      if (resetProducts) {
+        setIsLoading(true)
+      } else {
+        setIsLoadingMore(true)
+      }
+      setError(null)
+
+      // Použijeme zjednodušený admin API endpoint s paginací
+      const response = await fetch(`/api/admin-products?page=${page}&limit=30`)
+      
+      if (!response.ok) {
+        throw new Error(`API vrátila chybu: ${response.status}`)
+      }
+      
+      const data = await response.json()
+      
+      if (data && data.products && Array.isArray(data.products) && data.pagination) {
+        if (resetProducts) {
+          setProducts(data.products)
+        } else {
+          setProducts(prev => [...prev, ...data.products])
+        }
+        
+        setPagination(data.pagination)
+        setCurrentPage(page)
+        
+        console.log(`Načteno ${data.products.length} produktů (stránka ${page} z ${data.pagination.totalPages})`)
+      } else {
+        setError('Neplatná odpověď z API')
+      }
+    } catch (err) {
+      setError(`Chyba při načítání produktů: ${err instanceof Error ? err.message : 'Neznámá chyba'}`)
+      console.error(err)
+    } finally {
+      setIsLoading(false)
+      setIsLoadingMore(false)
+    }
+  }
+
+  // Funkce pro načtení další stránky
+  const handleLoadMore = () => {
+    if (pagination && pagination.hasMore) {
+      loadProducts(currentPage + 1)
+    }
+  }
 
   // Komponenta pro zobrazení načítání
   if (isLoading) {
@@ -74,7 +106,7 @@ export default function NovaSpravaProduktu() {
           <p>Chyba: {error}</p>
           <button 
             className="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-            onClick={() => window.location.reload()}
+            onClick={() => loadProducts(1, true)}
           >
             Zkusit znovu
           </button>
@@ -93,7 +125,15 @@ export default function NovaSpravaProduktu() {
         </Link>
       </div>
       
-      <p className="mb-4">Nalezeno produktů: {products.length}</p>
+      <div className="mb-4 flex justify-between items-center">
+        <p>
+          Zobrazeno produktů: {products.length} 
+          {pagination && ` z celkových ${pagination.totalCount}`}
+        </p>
+        <p className="text-gray-500 text-sm">
+          Stránka {currentPage} z {pagination?.totalPages || 1}
+        </p>
+      </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {products.length === 0 ? (
@@ -144,6 +184,26 @@ export default function NovaSpravaProduktu() {
           ))
         )}
       </div>
+      
+      {/* Tlačítko pro načtení dalších produktů */}
+      {pagination && pagination.hasMore && (
+        <div className="mt-8 text-center">
+          <button
+            className="px-6 py-3 bg-purple-600 text-white rounded-lg shadow hover:bg-purple-700 disabled:opacity-50"
+            onClick={handleLoadMore}
+            disabled={isLoadingMore}
+          >
+            {isLoadingMore ? (
+              <>
+                <span className="inline-block mr-2 animate-spin">⟳</span>
+                Načítání...
+              </>
+            ) : (
+              `Načíst další produkty (${pagination.page}/${pagination.totalPages})`
+            )}
+          </button>
+        </div>
+      )}
     </div>
   )
 } 
