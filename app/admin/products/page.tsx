@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { safeProcessProduct } from './safe-parser'
 
 interface Product {
   id: string
@@ -80,78 +81,19 @@ export default function ProductsAdminPage() {
       if (response.ok) {
         const data = await response.json();
         console.log("Admin: API response data:", data);
-        const products = data.products || [];
-        console.log("Admin: Raw products data:", products);
+        const rawProducts = data.products || [];
+        console.log("Admin: Raw products data:", rawProducts);
         
-        if (products.length === 0) {
+        if (rawProducts.length === 0) {
           console.warn("Admin: Received empty products array from API");
           setError("API vrátila prázdné pole produktů. Zkontrolujte připojení k databázi nebo jestli jsou nějaké produkty v databázi.");
+          return;
         }
         
-        // Zpracování a normalizace dat z API
-        const processedProducts = products.map((product: any) => {
-          try {
-            // Zajistíme, že pricingInfo má správnou strukturu i když API vrátí neplatná data
-            let normalizedPricingInfo = { basic: '0', pro: '0', enterprise: '0' };
-            
-            if (product.pricingInfo) {
-              // Pokud je pricingInfo string, zkusíme ho parsovat
-              if (typeof product.pricingInfo === 'string') {
-                try {
-                  const parsed = JSON.parse(product.pricingInfo);
-                  normalizedPricingInfo = {
-                    basic: typeof parsed.basic === 'string' ? parsed.basic : '0',
-                    pro: typeof parsed.pro === 'string' ? parsed.pro : '0',
-                    enterprise: typeof parsed.enterprise === 'string' ? parsed.enterprise : '0'
-                  };
-                } catch (e) {
-                  console.error("Admin: Error parsing pricingInfo string:", e);
-                  // Použijeme výchozí hodnoty
-                }
-              } 
-              // Pokud je pricingInfo objekt, ověříme že má správnou strukturu
-              else if (typeof product.pricingInfo === 'object' && product.pricingInfo !== null) {
-                normalizedPricingInfo = {
-                  basic: typeof product.pricingInfo.basic === 'string' ? product.pricingInfo.basic : '0',
-                  pro: typeof product.pricingInfo.pro === 'string' ? product.pricingInfo.pro : '0',
-                  enterprise: typeof product.pricingInfo.enterprise === 'string' ? product.pricingInfo.enterprise : '0'
-                };
-              }
-            }
-            
-            // Zajistíme, že všechny ostatní properties mají správný formát/typ
-            return {
-              ...product,
-              pricingInfo: normalizedPricingInfo,
-              tags: Array.isArray(product.tags) ? product.tags : [],
-              advantages: Array.isArray(product.advantages) ? product.advantages : [],
-              disadvantages: Array.isArray(product.disadvantages) ? product.disadvantages : [],
-              videoUrls: Array.isArray(product.videoUrls) ? product.videoUrls : [],
-              price: typeof product.price === 'number' ? product.price : 0,
-              hasTrial: typeof product.hasTrial === 'boolean' ? product.hasTrial : false
-            };
-          } catch (err) {
-            console.error("Admin: Error processing product:", err, product);
-            // Pokud nastane chyba, vrátíme alespoň ID a název produktu, ale s výchozími hodnotami
-            return {
-              id: product.id || 'unknown',
-              name: product.name || 'Neznámý produkt',
-              description: product.description || '',
-              price: 0,
-              category: product.category || '',
-              imageUrl: product.imageUrl || '',
-              tags: [],
-              advantages: [],
-              disadvantages: [],
-              detailInfo: product.detailInfo || '',
-              pricingInfo: { basic: '0', pro: '0', enterprise: '0' },
-              videoUrls: [],
-              externalUrl: product.externalUrl || '',
-              hasTrial: false
-            };
-          }
-        });
+        // Použijeme bezpečnou funkci pro zpracování dat z API
+        const processedProducts = rawProducts.map((product: any) => safeProcessProduct(product));
         
+        // Řazení produktů
         const sortedData = processedProducts.sort((a: Product, b: Product) => {
           if (a.imageUrl && !b.imageUrl) return -1
           if (!a.imageUrl && b.imageUrl) return 1
@@ -244,42 +186,10 @@ export default function ProductsAdminPage() {
 
   const handleEdit = (product: Product) => {
     try {
-      // Zajistíme správný formát pricingInfo před nastavením do formuláře
-      let normalizedPricingInfo = { basic: '0', pro: '0', enterprise: '0' };
-      
-      if (product.pricingInfo) {
-        if (typeof product.pricingInfo === 'string') {
-          try {
-            const parsed = JSON.parse(product.pricingInfo as unknown as string);
-            normalizedPricingInfo = {
-              basic: typeof parsed.basic === 'string' ? parsed.basic : '0',
-              pro: typeof parsed.pro === 'string' ? parsed.pro : '0',
-              enterprise: typeof parsed.enterprise === 'string' ? parsed.enterprise : '0'
-            };
-          } catch (e) {
-            console.error("Admin: Error parsing pricingInfo string in handleEdit:", e);
-            // Použijeme výchozí hodnoty
-          }
-        } else {
-          // Zde očekáváme objekt, protože normalizace už proběhla ve fetchProducts
-          normalizedPricingInfo = {
-            basic: typeof product.pricingInfo.basic === 'string' ? product.pricingInfo.basic : '0',
-            pro: typeof product.pricingInfo.pro === 'string' ? product.pricingInfo.pro : '0',
-            enterprise: typeof product.pricingInfo.enterprise === 'string' ? product.pricingInfo.enterprise : '0'
-          };
-        }
-      }
-      
-      setEditingProduct(product);
-      
-      setFormData({
-        ...product,
-        tags: Array.isArray(product.tags) ? product.tags : [],
-        advantages: Array.isArray(product.advantages) ? product.advantages : [],
-        disadvantages: Array.isArray(product.disadvantages) ? product.disadvantages : [],
-        pricingInfo: normalizedPricingInfo,
-        videoUrls: Array.isArray(product.videoUrls) ? product.videoUrls : []
-      });
+      // Použijeme safeProcessProduct pro zajištění bezpečného zpracování dat
+      const safeProduct = safeProcessProduct(product);
+      setEditingProduct(safeProduct);
+      setFormData(safeProduct);
     } catch (error) {
       console.error("Admin: Error setting up edit form:", error);
       alert("Nastala chyba při úpravě produktu. Zkuste to prosím znovu.");
