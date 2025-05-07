@@ -4,21 +4,16 @@ import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 
-// Základní typy podobné těm na homepage
+// Zjednodušený typ produktu odpovídající novému formátu z API
 interface Product {
   id: string
   name: string
-  description: string
+  description: string | null
   price: number
-  category: string
-  imageUrl?: string
+  category: string | null
+  imageUrl?: string | null
   tags?: string[]
-  pricingInfo?: {
-    basic?: string
-    pro?: string
-    enterprise?: string
-  }
-  externalUrl?: string
+  externalUrl?: string | null
   hasTrial?: boolean
 }
 
@@ -27,14 +22,14 @@ export default function NovaSpravaProduktu() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  // Načtení produktů z API podobným způsobem jako na hlavní stránce
+  // Načtení produktů z API
   useEffect(() => {
     async function loadProducts() {
       try {
         setIsLoading(true)
         setError(null)
         
-        // Použijeme nový admin API endpoint, který je optimalizovaný pro admin sekci
+        // Použijeme zjednodušený admin API endpoint
         const response = await fetch('/api/admin-products')
         
         if (!response.ok) {
@@ -45,6 +40,7 @@ export default function NovaSpravaProduktu() {
         
         if (data && data.products && Array.isArray(data.products)) {
           setProducts(data.products)
+          console.log(`Načteno ${data.count || data.products.length} produktů`)
         } else {
           setError('Neplatná odpověď z API')
         }
@@ -87,7 +83,7 @@ export default function NovaSpravaProduktu() {
     )
   }
 
-  // UI pro zobrazení produktů s více detaily
+  // UI pro zobrazení produktů
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">

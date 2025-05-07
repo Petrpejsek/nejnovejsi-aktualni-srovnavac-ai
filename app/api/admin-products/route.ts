@@ -1,30 +1,18 @@
 import { NextResponse } from 'next/server'
 import prisma from '../../../lib/prisma'
-import { NextRequest } from 'next/server'
 
-// Definice typu pro zpracovaný produkt
-type ProcessedProduct = {
+// Základní typ pro produkt bez velkých polí dat
+type BriefProduct = {
   id: string
   name: string
   description: string | null
   price: number
   category: string | null
   imageUrl: string | null
-  // Změna typů - nyní jsou to pole a objekty, ne stringy
-  tags: string[]
-  advantages: string[]
-  disadvantages: string[]
-  detailInfo: string | null
-  pricingInfo: {
-    basic?: string
-    pro?: string
-    enterprise?: string
-  }
-  videoUrls: string[]
   externalUrl: string | null
   hasTrial: boolean
-  createdAt: Date
-  updatedAt: Date
+  // Zachováváme pole tagů pro zobrazení, ale omezujeme ostatní velká pole
+  tags: string[]
 }
 
 // GET /api/admin-products - Speciální endpoint pro admin sekci
@@ -32,105 +20,75 @@ export async function GET() {
   try {
     console.log('Admin API: Načítám produkty z databáze')
     
-    // Získáme všechny produkty
+    // Získáme všechny produkty, ale jen vybraná pole
     const products = await prisma.product.findMany({
       orderBy: { name: 'asc' },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        price: true,
+        category: true,
+        imageUrl: true,
+        tags: true,
+        externalUrl: true,
+        hasTrial: true,
+        // Vynecháváme velká pole, abychom snížili velikost odpovědi
+        // advantages: false,
+        // disadvantages: false, 
+        // detailInfo: false,
+        // pricingInfo: false,
+        // videoUrls: false,
+      }
     })
     
     console.log(`Admin API: Načteno ${products.length} produktů`)
     
-    // Zpracování produktů podobným způsobem jako na hlavní stránce
+    // Zpracování produktů, ale jen základních polí
     const processedProducts = products.map(product => {
       try {
-        // Vytvoříme nový objekt místo kopie původního produktu
-        const processedProduct: Partial<ProcessedProduct> = {
+        // Vytvoříme nový zjednodušený objekt
+        const briefProduct: Partial<BriefProduct> = {
           id: product.id,
           name: product.name,
           description: product.description,
           price: product.price,
           category: product.category,
           imageUrl: product.imageUrl,
-          detailInfo: product.detailInfo,
           externalUrl: product.externalUrl,
-          hasTrial: product.hasTrial,
-          createdAt: product.createdAt,
-          updatedAt: product.updatedAt
+          hasTrial: product.hasTrial
         }
         
-        // Zpracování jednotlivých JSON polí
+        // Zpracujeme jen tagy, které jsou potřeba pro zobrazení
         try {
-          processedProduct.tags = product.tags 
+          briefProduct.tags = product.tags 
             ? JSON.parse(product.tags) 
             : []
         } catch (e) {
           console.error(`Admin API: Chyba při parsování tags pro produkt ${product.id}:`, e)
-          processedProduct.tags = []
+          briefProduct.tags = []
         }
         
-        try {
-          processedProduct.advantages = product.advantages 
-            ? JSON.parse(product.advantages) 
-            : []
-        } catch (e) {
-          console.error(`Admin API: Chyba při parsování advantages pro produkt ${product.id}:`, e)
-          processedProduct.advantages = []
-        }
-        
-        try {
-          processedProduct.disadvantages = product.disadvantages 
-            ? JSON.parse(product.disadvantages) 
-            : []
-        } catch (e) {
-          console.error(`Admin API: Chyba při parsování disadvantages pro produkt ${product.id}:`, e)
-          processedProduct.disadvantages = []
-        }
-        
-        try {
-          processedProduct.videoUrls = product.videoUrls 
-            ? JSON.parse(product.videoUrls) 
-            : []
-        } catch (e) {
-          console.error(`Admin API: Chyba při parsování videoUrls pro produkt ${product.id}:`, e)
-          processedProduct.videoUrls = []
-        }
-        
-        try {
-          processedProduct.pricingInfo = product.pricingInfo 
-            ? JSON.parse(product.pricingInfo) 
-            : { basic: "0", pro: "0", enterprise: "0" }
-        } catch (e) {
-          console.error(`Admin API: Chyba při parsování pricingInfo pro produkt ${product.id}:`, e)
-          processedProduct.pricingInfo = { basic: "0", pro: "0", enterprise: "0" }
-        }
-        
-        return processedProduct as ProcessedProduct
+        return briefProduct as BriefProduct
       } catch (e) {
         console.error(`Admin API: Závažná chyba při zpracování produktu ${product.id}:`, e)
-        // Převedeme nejprve na unknown, abychom se vyhnuli typovým chybám
-        const fallbackProduct = {
+        return {
           id: product.id,
-          name: product.name,
-          description: product.description,
-          price: product.price,
-          category: product.category,
-          imageUrl: product.imageUrl,
-          detailInfo: product.detailInfo, // Přidáno chybějící pole
-          tags: [] as string[],
-          advantages: [] as string[],
-          disadvantages: [] as string[],
-          pricingInfo: { basic: "0", pro: "0", enterprise: "0" },
-          videoUrls: [] as string[],
-          externalUrl: product.externalUrl,
-          hasTrial: product.hasTrial,
-          createdAt: product.createdAt,
-          updatedAt: product.updatedAt
-        }
-        return fallbackProduct as unknown as ProcessedProduct
+          name: product.name || 'Neznámý produkt',
+          description: product.description || '',
+          price: product.price || 0,
+          category: product.category || '',
+          imageUrl: product.imageUrl || '',
+          tags: [],
+          externalUrl: product.externalUrl || '',
+          hasTrial: !!product.hasTrial
+        } as BriefProduct
       }
     })
     
     return NextResponse.json({ 
       products: processedProducts,
+      count: processedProducts.length,
       success: true
     })
   } catch (error) {
