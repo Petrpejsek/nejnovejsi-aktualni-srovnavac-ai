@@ -20,6 +20,12 @@ const nextConfig = {
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
     domains: ['raw.githubusercontent.com', 'auxia.ai'],
   },
+  env: {
+    DATABASE_URL: "postgres://neondb_owner:npg_1DPXCjFSnvO2@ep-empty-sea-a2114k4k-pooler.eu-central-1.aws.neon.tech/neondb?sslmode=require&pgbouncer=true&connect_timeout=15&pool_timeout=30&connection_limit=15",
+    DATABASE_URL_UNPOOLED: "postgresql://neondb_owner:npg_1DPXCjFSnvO2@ep-empty-sea-a2114k4k.eu-central-1.aws.neon.tech/neondb?sslmode=require",
+    NEXT_PUBLIC_API_URL: "https://nejnovejsi-aktualni-srovnavac-ai.vercel.app",
+    NEXT_PUBLIC_SITE_URL: "https://nejnovejsi-aktualni-srovnavac-ai.vercel.app"
+  },
   async headers() {
     return [
       {
