@@ -2,50 +2,27 @@
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { safeProcessProducts } from './simple-parser'
 import ErrorDisplay from './ErrorDisplay'
 
-interface Product {
-  id: string
-  name: string
-  description: string
-  price: number
-  category: string
-}
-
-interface Pagination {
-  page: number
-  limit: number
-  totalCount: number
-  totalPages: number
-  hasMore: boolean
-}
-
+// Extrémně jednoduchá verze stránky bez složitého zpracování
 export default function SimpleProductsAdminPage() {
-  const [products, setProducts] = useState<Product[]>([])
-  const [pagination, setPagination] = useState<Pagination | null>(null) 
-  const [currentPage, setCurrentPage] = useState(1)
+  const [products, setProducts] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
-  const [loadingMore, setLoadingMore] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    fetchProducts(1, true)
+    loadProducts()
   }, [])
 
-  const fetchProducts = async (page: number = 1, resetList: boolean = false) => {
+  const loadProducts = async () => {
     try {
-      if (resetList) {
       setLoading(true)
-      } else {
-        setLoadingMore(true)
-      }
       setError(null)
-      console.log(`SimpleAdmin: Načítám produkty, stránka ${page}...`)
       
-      // Použijeme parametr page a limit pro paginaci
-      const timestamp = new Date().getTime()
-      const response = await fetch(`/api/products?page=${page}&pageSize=300&t=${timestamp}`, {
+      console.log('Načítám produkty...')
+      
+      // Jednoduchý požadavek bez parametrů
+      const response = await fetch('/api/products?pageSize=300', {
         cache: 'no-store',
         headers: {
           'Pragma': 'no-cache',
@@ -53,150 +30,84 @@ export default function SimpleProductsAdminPage() {
         }
       })
       
-      if (response.ok) {
-        // Přidáme další ošetření chyb při zpracování JSON
-        let data;
-        try {
-          data = await response.json();
-        } catch (jsonError) {
-          console.error('SimpleAdmin: Error parsing JSON response:', jsonError);
-          setError(`Chyba při zpracování odpovědi: ${jsonError instanceof Error ? jsonError.message : 'Neplatný JSON'}`);
-          setLoading(false);
-          setLoadingMore(false);
-          return;
+      if (!response.ok) {
+        setError(`Chyba serveru: ${response.status} ${response.statusText}`)
+        return
+      }
+      
+      let responseText
+      try {
+        // Získáme odpověď jako text
+        responseText = await response.text()
+        
+        // Ověříme, že odpověď není prázdná
+        if (!responseText || responseText.trim() === '') {
+          setError('Server vrátil prázdnou odpověď')
+          return
         }
         
-        if (data.products && Array.isArray(data.products)) {
-          try {
-            // Použijeme bezpečný parser pro zpracování produktů
-            const processedProducts = safeProcessProducts(data.products);
-            
-            // Přidáme produkty buď jako nový seznam nebo na konec existujícího
-            if (resetList) {
-              setProducts(processedProducts);
-            } else {
-              setProducts(prev => [...prev, ...processedProducts]);
-            }
-            
-            // Nastavíme informace o stránkování pokud existují
-            if (data.pagination) {
-              setPagination({
-                page: data.pagination.page || page,
-                limit: data.pagination.pageSize || 300,
-                totalCount: data.pagination.totalProducts || 0,
-                totalPages: data.pagination.totalPages || 1,
-                hasMore: data.pagination.page < data.pagination.totalPages
-              });
-            } else {
-              // Pokud neexistuje pagination, vytvoříme fiktivní
-              setPagination({
-                page: page,
-                limit: 300,
-                totalCount: processedProducts.length,
-                totalPages: 1,
-                hasMore: false
-              });
-            }
-            
-            setCurrentPage(page);
-            console.log(`SimpleAdmin: Načteno ${processedProducts.length} produktů (stránka ${page})`);
-          } catch (processingError) {
-            console.error('SimpleAdmin: Error processing products:', processingError);
-            setError(`Chyba při zpracování produktů: ${processingError instanceof Error ? processingError.message : 'Neznámá chyba'}`);
-          }
-        } else {
-          console.error('SimpleAdmin: Invalid API response structure:', data);
-          setError('Neplatná odpověď z API: chybí pole "products" nebo není pole');
-        }
-      } else {
-        console.error('SimpleAdmin: Error loading products:', response.status, response.statusText)
-        setError(`Chyba při načítání produktů: ${response.status} ${response.statusText}`)
+        console.log('Odpověď serveru:', responseText.substring(0, 100) + '...')
         
-        try {
-          const errorData = await response.json()
-          console.error('SimpleAdmin: Error details:', errorData)
-          setError(`Chyba při načítání produktů: ${errorData.error || 'Neznámá chyba'}`)
-        } catch (e) {
-          console.error('SimpleAdmin: Could not parse error response')
+        // Zkusíme text parsovat jako JSON
+        const data = JSON.parse(responseText)
+        
+        // Jednoduchá kontrola struktury
+        if (!data || !data.products || !Array.isArray(data.products)) {
+          setError('Neplatná struktura dat z API')
+          return
         }
+        
+        // Zpracování produktů bez složitého parsování
+        const safeProducts = data.products.map((item: any) => ({
+          id: item?.id || 'unknown',
+          name: item?.name || 'Neznámý produkt',
+          description: item?.description || '',
+          price: typeof item?.price === 'number' ? item.price : 0,
+          category: item?.category || ''
+        }))
+        
+        setProducts(safeProducts)
+        console.log(`Načteno ${safeProducts.length} produktů`)
+      } catch (parseError) {
+        console.error('Chyba při zpracování odpovědi:', parseError, responseText?.substring(0, 500))
+        setError(`Chyba při zpracování odpovědi: ${parseError instanceof Error ? parseError.message : 'Neplatná data'}`)
       }
     } catch (error) {
-      console.error('SimpleAdmin: Error:', error)
+      console.error('Chyba při načítání produktů:', error)
       setError(`Chyba: ${error instanceof Error ? error.message : 'Neznámá chyba'}`)
     } finally {
       setLoading(false)
-      setLoadingMore(false)
     }
   }
 
-  // Funkce pro načtení další stránky
-  const handleLoadMore = () => {
-    if (pagination && currentPage < pagination.totalPages) {
-      fetchProducts(currentPage + 1, false)
-    }
-  }
-
-  if (loading && products.length === 0) {
+  // Zjednodušené zobrazení při načítání
+  if (loading) {
     return (
       <div className="p-8">
-        <h1 className="text-2xl font-bold mb-4">Jednoduchá správa produktů</h1>
+        <h1 className="text-2xl font-bold mb-4">Produkty</h1>
         <div>Načítání...</div>
       </div>
     )
   }
 
-  if (error && products.length === 0) {
+  // Zjednodušené zobrazení při chybě
+  if (error) {
     return (
       <div className="p-8">
-        <h1 className="text-2xl font-bold mb-4">Jednoduchá správa produktů</h1>
+        <h1 className="text-2xl font-bold mb-4">Produkty</h1>
         <ErrorDisplay 
           error={error} 
-          onRetry={() => fetchProducts(1, true)} 
-          className="mb-4"
+          onRetry={loadProducts} 
         />
       </div>
     )
   }
 
-  // Pokud nemáme žádné produkty, ale není chyba, zobrazíme stránku bez produktů
-  if (products.length === 0) {
-    return (
-      <div className="p-8">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-2xl font-bold">Jednoduchá správa produktů</h1>
-          <div className="space-x-2">
-            <Link 
-              href="/admin"
-              className="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200"
-            >
-              Zpět do administrace
-            </Link>
-            <button
-              onClick={() => fetchProducts(1, true)}
-              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700"
-            >
-              Obnovit data
-            </button>
-          </div>
-        </div>
-        
-        <div className="bg-white rounded-lg shadow p-8 text-center">
-          <p className="text-lg">Žádné produkty nebyly nalezeny.</p>
-          <button
-            onClick={() => fetchProducts(1, true)}
-            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700"
-          >
-            Obnovit data
-          </button>
-        </div>
-      </div>
-    )
-  }
-
+  // Zjednodušené zobrazení tabulky
   return (
     <div className="p-8">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-bold">Jednoduchá správa produktů</h1>
+        <h1 className="text-2xl font-bold">Produkty</h1>
         <div className="space-x-2">
           <Link 
             href="/admin"
@@ -205,24 +116,16 @@ export default function SimpleProductsAdminPage() {
             Zpět do administrace
           </Link>
           <button
-            onClick={() => fetchProducts(1, true)}
+            onClick={loadProducts}
             className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700"
           >
-            Obnovit data
+            Obnovit
           </button>
         </div>
       </div>
       
-      <div className="mb-4 flex justify-between items-center">
-        <p>
-          Zobrazeno: {products.length} produktů
-          {pagination && ` z celkových ${pagination.totalCount}`}
-        </p>
-        {pagination && (
-          <p className="text-sm text-gray-500">
-            Stránka {currentPage} z {pagination.totalPages}
-          </p>
-        )}
+      <div className="mb-4">
+        <p>Zobrazeno: {products.length} produktů</p>
       </div>
 
       <div className="bg-white rounded-lg shadow overflow-hidden">
@@ -262,46 +165,6 @@ export default function SimpleProductsAdminPage() {
             )}
           </tbody>
         </table>
-      </div>
-      
-      {/* Tlačítko pro načtení dalších produktů */}
-      {pagination && currentPage < pagination.totalPages && (
-        <div className="mt-6 text-center">
-          <button
-            onClick={handleLoadMore}
-            disabled={loadingMore}
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none disabled:opacity-50"
-          >
-            {loadingMore ? (
-              <>
-                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Načítání...
-              </>
-            ) : (
-              `Načíst další produkty (${currentPage}/${pagination.totalPages})`
-            )}
-          </button>
-        </div>
-      )}
-      
-      {/* Zobrazení chyby, pokud existuje, i když máme produkty */}
-      {error && (
-        <ErrorDisplay 
-          error={error} 
-          onRetry={() => fetchProducts(1, true)} 
-          className="mt-8"
-        />
-      )}
-      
-      {/* Pro ladění - výpis JSON s produkty */}
-      <div className="mt-8 p-4 bg-gray-100 rounded-lg">
-        <h2 className="text-lg font-semibold mb-2">Debug - JSON data</h2>
-        <pre className="text-xs overflow-auto max-h-96">
-          {JSON.stringify(products, null, 2)}
-        </pre>
       </div>
     </div>
   )

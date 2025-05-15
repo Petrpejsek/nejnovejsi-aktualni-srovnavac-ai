@@ -24,57 +24,35 @@ interface Product {
 // Konfigurujeme API jako dynamické, aby se mohlo používat request.url
 export const dynamic = 'auto'
 
-// GET /api/products - Get all products with pagination and filters
+// GET /api/products - Get all products
 export async function GET(request: NextRequest) {
     try {
       const { searchParams } = new URL(request.url)
-      const page = parseInt(searchParams.get('page') || '1', 10)
-    const pageSize = parseInt(searchParams.get('pageSize') || '3', 10)
-    
-    console.log('API: Processing request for products with params:', { page, pageSize })
+      // Nastavíme defaultní hodnotu na vyšší číslo, aby se načetly všechny produkty
+      const pageSize = parseInt(searchParams.get('pageSize') || '300', 10)
+      const validPageSize = pageSize > 0 && pageSize <= 500 ? pageSize : 300
       
-      // Parameter validation
-      const validPage = page > 0 ? page : 1
-    const validPageSize = pageSize > 0 && pageSize <= 500 ? pageSize : 3
+      console.log('API: Načítám produkty, limit:', validPageSize)
       
-      // Calculate offset for pagination
-      const skip = (validPage - 1) * validPageSize
+      // Co nejjednodušší dotaz do databáze
+      const products = await prisma.product.findMany({
+        orderBy: { name: 'asc' },
+        take: validPageSize,
+      })
       
-    // Get total count of products
-    const totalProducts = await prisma.product.count()
-      
-    // Get paginated products - JEDNODUCHÁ VERZE BEZ SLOŽITÉHO ZPRACOVÁNÍ
-    const products = await prisma.product.findMany({
-          orderBy: { name: 'asc' },
-          skip,
-          take: validPageSize,
-        })
-      
-      const totalPages = Math.ceil(totalProducts / validPageSize)
-      
-    console.log(`API: Loaded ${products.length} products (page ${validPage}, total ${totalProducts})`)
-      
-    // ŽÁDNÉ ZPRACOVÁNÍ, žádné parsování - prostě vrátíme data z databáze tak jak jsou
-      const response = {
-      products,
-        pagination: {
-          page: validPage,
-          pageSize: validPageSize,
-          totalProducts,
-          totalPages
-        }
-      }
-
-    return NextResponse.json(response, { status: 200 })
+      // Vrátíme data přímo, bez složitého zpracování
+      return NextResponse.json({ 
+        products,
+        success: true
+      }, { status: 200 })
     } catch (error) {
-      console.error('Error loading products:', error)
-        return NextResponse.json(
-      { 
-        error: 'Failed to load products', 
-        details: error instanceof Error ? error.message : 'Unknown error'
-      },
-      { status: 500 }
-        )
+      console.error('API: Chyba při načítání produktů:', error)
+      
+      // Vrátíme základní chybovou odpověď
+      return NextResponse.json({ 
+        error: 'Chyba při načítání produktů', 
+        success: false
+      }, { status: 500 })
   }
 }
 
