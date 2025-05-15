@@ -2,15 +2,47 @@ import { NextResponse } from 'next/server'
 import prisma from '../../../lib/prisma'
 import { NextRequest } from 'next/server'
 
+// Konfigurace dynamického API endpointu
+export const dynamic = 'force-dynamic'
+export const fetchCache = 'force-no-store'
+export const revalidate = 0
+
 // API endpoint pro admin stránku s kompletními produkty
 export async function GET(request: NextRequest) {
     try {
-      // Základní query pro kompletní produkty
+      const { searchParams } = new URL(request.url)
+      // Omezíme počet vracených produktů na 30, abychom se vešli do limitu Vercelu
+      const limit = parseInt(searchParams.get('limit') || '30', 10)
+      const page = parseInt(searchParams.get('page') || '1', 10) 
+      const skip = (page - 1) * limit
+      
+      // Nejprve zjistíme celkový počet produktů
+      const totalCount = await prisma.product.count()
+      
+      // Základní query pro kompletní produkty s limitem
       const products = await prisma.product.findMany({
         orderBy: {
           name: 'asc'
         },
-        take: 100
+        take: limit,
+        skip: skip,
+        // Vybereme jen potřebná pole
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          price: true,
+          category: true,
+          imageUrl: true,
+          tags: true,
+          advantages: true,
+          disadvantages: true,
+          detailInfo: true,
+          pricingInfo: true,
+          videoUrls: true,
+          externalUrl: true,
+          hasTrial: true
+        }
       })
       
       // Zpracování dat pro front-end
@@ -34,11 +66,21 @@ export async function GET(request: NextRequest) {
         }
       })
       
-      // Vrátíme zpracovaná data
+      // Vypočítáme informace o stránkování
+      const totalPages = Math.ceil(totalCount / limit)
+      
+      // Vrátíme zpracovaná data s paginací
       return new NextResponse(
         JSON.stringify({ 
           products: processedProducts,
-          count: processedProducts.length
+          count: processedProducts.length,
+          pagination: {
+            page,
+            limit,
+            totalCount,
+            totalPages,
+            hasMore: page < totalPages
+          }
         }),
         { 
           status: 200, 

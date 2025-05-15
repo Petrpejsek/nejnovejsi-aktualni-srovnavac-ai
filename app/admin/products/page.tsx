@@ -26,9 +26,20 @@ interface Product {
   hasTrial: boolean
 }
 
+interface Pagination {
+  page: number
+  limit: number
+  totalCount: number
+  totalPages: number
+  hasMore: boolean
+}
+
 export default function ProductsAdminPage() {
   const [products, setProducts] = useState<Product[]>([])
+  const [pagination, setPagination] = useState<Pagination | null>(null)
+  const [currentPage, setCurrentPage] = useState(1)
   const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
   const [formData, setFormData] = useState<Partial<Product>>({
     name: '',
@@ -57,17 +68,22 @@ export default function ProductsAdminPage() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    fetchProducts()
+    fetchProducts(1)
   }, [])
 
-  const fetchProducts = async () => {
+  const fetchProducts = async (page: number = 1) => {
     try {
-      setLoading(true);
+      if (page === 1) {
+        setLoading(true);
+      } else {
+        setLoadingMore(true);
+      }
+      
       console.log("Admin: Loading products from API...");
       
-      // Použijeme nový API endpoint
+      // Používáme nový API endpoint s paginací
       const timestamp = new Date().getTime();
-      const response = await fetch(`/api/admin-products?t=${timestamp}`, {
+      const response = await fetch(`/api/admin-products?page=${page}&limit=30&t=${timestamp}`, {
         cache: 'no-store',
         headers: {
           'Pragma': 'no-cache',
@@ -103,7 +119,7 @@ export default function ProductsAdminPage() {
         
         const productsList = data.products;
         
-        if (productsList.length === 0) {
+        if (productsList.length === 0 && page === 1) {
           console.warn("Admin: Received empty products array from API");
           setError("API vrátila prázdné pole produktů. Zkontrolujte připojení k databázi nebo jestli jsou nějaké produkty v databázi.");
           return;
@@ -116,7 +132,19 @@ export default function ProductsAdminPage() {
           return 0
         });
         
-        setProducts(sortedData);
+        // Přidáme nové produkty k existujícím nebo nahradíme všechny
+        if (page === 1) {
+          setProducts(sortedData);
+        } else {
+          setProducts(prev => [...prev, ...sortedData]);
+        }
+        
+        // Nastavíme paginaci
+        if (data.pagination) {
+          setPagination(data.pagination);
+          setCurrentPage(page);
+        }
+        
         console.log("Admin: Processed products:", sortedData.length);
       } catch (parseError) {
         console.error('Admin: Error parsing API response:', parseError);
@@ -127,6 +155,14 @@ export default function ProductsAdminPage() {
       setError(`Chyba: ${error instanceof Error ? error.message : String(error)}`);
     } finally {
       setLoading(false);
+      setLoadingMore(false);
+    }
+  }
+
+  // Funkce pro načtení další stránky
+  const handleLoadMore = () => {
+    if (pagination && currentPage < pagination.totalPages) {
+      fetchProducts(currentPage + 1);
     }
   }
 
@@ -322,6 +358,25 @@ export default function ProductsAdminPage() {
     }))
   }
 
+  // Přidáme tlačítko pro načtení dalších produktů na konec komponenty
+  const renderPagination = () => {
+    if (!pagination || currentPage >= pagination.totalPages) {
+      return null;
+    }
+    
+    return (
+      <div className="mt-6 text-center">
+        <button
+          onClick={handleLoadMore}
+          disabled={loadingMore}
+          className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+        >
+          {loadingMore ? 'Načítání...' : `Načíst další produkty (${currentPage}/${pagination.totalPages})`}
+        </button>
+      </div>
+    );
+  }
+
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -333,7 +388,7 @@ export default function ProductsAdminPage() {
     )
   }
 
-  if (error) {
+  if (error && products.length === 0) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-8">
@@ -352,7 +407,7 @@ export default function ProductsAdminPage() {
         </div>
         
         <button 
-          onClick={fetchProducts}
+          onClick={() => fetchProducts(1)}
           className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700"
         >
           Zkusit znovu
@@ -365,13 +420,36 @@ export default function ProductsAdminPage() {
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-2xl font-bold">Products Administration</h1>
-        <Link 
-          href="/admin"
-          className="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200"
-        >
-          Back to Admin
-        </Link>
+        <div className="space-x-2">
+          <Link 
+            href="/admin"
+            className="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200"
+          >
+            Back to Admin
+          </Link>
+          <button 
+            onClick={() => fetchProducts(1)}
+            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700"
+          >
+            Refresh Products
+          </button>
+        </div>
       </div>
+
+      {/* Přidáme info o paginaci zde */}
+      {pagination && (
+        <div className="mb-4 text-gray-600">
+          Zobrazeno {products.length} produktů z celkových {pagination.totalCount} 
+          (Stránka {currentPage} z {pagination.totalPages})
+        </div>
+      )}
+
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          <p className="font-bold">Chyba!</p>
+          <p>{error}</p>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="mb-8 space-y-4 bg-white p-6 rounded-lg shadow">
         <h2 className="text-xl font-semibold mb-4">
@@ -848,6 +926,9 @@ export default function ProductsAdminPage() {
           })()}
         </pre>
       </div>
+
+      {/* Add pagination at the bottom */}
+      {renderPagination()}
     </div>
   )
 } 
