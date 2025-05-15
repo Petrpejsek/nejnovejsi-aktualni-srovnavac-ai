@@ -19,13 +19,22 @@ export default function AdminPage() {
           <p className="text-blue-700 mb-4">
             Zde můžete spravovat veškeré produkty v katalogu - přidávat, upravovat a mazat položky.
           </p>
-          <Link href="/admin/products" 
-                className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-            </svg>
-            Přejít na správu produktů
-          </Link>
+          <div className="flex flex-wrap gap-2">
+            <Link href="/admin/products" 
+                  className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+              </svg>
+              Přejít na správu produktů
+            </Link>
+            <Link href="/admin/products/ultra-simple-page" 
+                  className="inline-flex items-center px-6 py-3 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              Zjednodušená správa (funguje na Vercelu)
+            </Link>
+          </div>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -39,6 +48,18 @@ export default function AdminPage() {
               <h2 className="text-xl font-semibold ml-2 text-gray-800">Správa produktů</h2>
             </div>
             <p className="text-gray-600">Přidávejte, upravujte a odstraňujte produkty v katalogu.</p>
+          </Link>
+
+          {/* Simple Products Card */}
+          <Link href="/admin/products/ultra-simple-page" 
+                className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+            <div className="flex items-center mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              <h2 className="text-xl font-semibold ml-2 text-gray-800">Zjednodušená správa</h2>
+            </div>
+            <p className="text-gray-600">Funguje spolehlivě i na Vercelu - náhradní zobrazení produktů.</p>
           </Link>
 
           {/* Category Management Card */}
