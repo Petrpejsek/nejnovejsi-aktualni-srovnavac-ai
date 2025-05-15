@@ -4,25 +4,46 @@ import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import ErrorDisplay from './ErrorDisplay'
 
-// Extrémně jednoduchá verze stránky bez složitého zpracování
+interface Product {
+  id: string
+  name: string
+  description: string
+  price: number
+  category: string
+}
+
+interface Pagination {
+  page: number
+  pageSize: number
+  totalProducts: number
+  totalPages: number
+}
+
 export default function SimpleProductsAdminPage() {
-  const [products, setProducts] = useState<any[]>([])
+  const [products, setProducts] = useState<Product[]>([])
+  const [pagination, setPagination] = useState<Pagination | null>(null)
+  const [currentPage, setCurrentPage] = useState(1)
   const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    loadProducts()
+    loadProducts(1, true)
   }, [])
 
-  const loadProducts = async () => {
+  const loadProducts = async (page: number = 1, resetList: boolean = false) => {
     try {
-      setLoading(true)
+      if (resetList) {
+        setLoading(true)
+      } else {
+        setLoadingMore(true)
+      }
       setError(null)
+      console.log(`SimpleAdmin: Načítám produkty, stránka ${page}...`)
       
-      console.log('Načítám produkty...')
-      
-      // Jednoduchý požadavek bez parametrů
-      const response = await fetch('/api/products?pageSize=300', {
+      // Použijeme parametr page a limit pro paginaci
+      const timestamp = new Date().getTime()
+      const response = await fetch(`/api/products?page=${page}&pageSize=50&t=${timestamp}`, {
         cache: 'no-store',
         headers: {
           'Pragma': 'no-cache',
@@ -31,83 +52,69 @@ export default function SimpleProductsAdminPage() {
       })
       
       if (!response.ok) {
-        setError(`Chyba serveru: ${response.status} ${response.statusText}`)
+        setError(`Chyba při načítání produktů: ${response.status} ${response.statusText}`)
         return
       }
       
-      let responseText
       try {
-        // Získáme odpověď jako text
-        responseText = await response.text()
+        const data = await response.json()
         
-        // Ověříme, že odpověď není prázdná
-        if (!responseText || responseText.trim() === '') {
-          setError('Server vrátil prázdnou odpověď')
-          return
-        }
-        
-        console.log('Odpověď serveru:', responseText.substring(0, 100) + '...')
-        
-        // Zkusíme text parsovat jako JSON
-        const data = JSON.parse(responseText)
-        
-        // Jednoduchá kontrola struktury
         if (!data || !data.products || !Array.isArray(data.products)) {
-          setError('Neplatná struktura dat z API')
+          setError('Neplatná struktura dat z API: chybí produkty')
           return
         }
         
-        // Zpracování produktů bez složitého parsování
-        const safeProducts = data.products.map((item: any) => ({
-          id: item?.id || 'unknown',
-          name: item?.name || 'Neznámý produkt',
-          description: item?.description || '',
-          price: typeof item?.price === 'number' ? item.price : 0,
-          category: item?.category || ''
+        console.log(`SimpleAdmin: API vrátila ${data.products.length} produktů`)
+        
+        // Bezpečné zpracování produktů bez složitého parsování
+        const safeProducts = data.products.map((product: any) => ({
+          id: product?.id || 'unknown',
+          name: product?.name || 'Neznámý produkt',
+          description: product?.description || '',
+          price: typeof product?.price === 'number' ? product.price : 0,
+          category: product?.category || ''
         }))
         
-        setProducts(safeProducts)
-        console.log(`Načteno ${safeProducts.length} produktů`)
+        // Aktualizujeme stav
+        if (resetList) {
+          setProducts(safeProducts)
+        } else {
+          setProducts(prev => [...prev, ...safeProducts])
+        }
+        
+        // Aktualizujeme informace o stránkování
+        if (data.pagination) {
+          setPagination(data.pagination)
+          setCurrentPage(page)
+        }
+        
+        console.log(`SimpleAdmin: Zpracováno ${safeProducts.length} produktů`)
       } catch (parseError) {
-        console.error('Chyba při zpracování odpovědi:', parseError, responseText?.substring(0, 500))
-        setError(`Chyba při zpracování odpovědi: ${parseError instanceof Error ? parseError.message : 'Neplatná data'}`)
+        console.error('SimpleAdmin: Chyba při zpracování dat:', parseError)
+        setError(`Chyba při zpracování dat: ${parseError instanceof Error ? parseError.message : 'Neznámá chyba'}`)
       }
     } catch (error) {
-      console.error('Chyba při načítání produktů:', error)
+      console.error('SimpleAdmin: Chyba:', error)
       setError(`Chyba: ${error instanceof Error ? error.message : 'Neznámá chyba'}`)
     } finally {
       setLoading(false)
+      setLoadingMore(false)
     }
   }
 
-  // Zjednodušené zobrazení při načítání
-  if (loading) {
+  if (loading && products.length === 0) {
     return (
       <div className="p-8">
-        <h1 className="text-2xl font-bold mb-4">Produkty</h1>
+        <h1 className="text-2xl font-bold mb-4">Jednoduchá správa produktů</h1>
         <div>Načítání...</div>
       </div>
     )
   }
 
-  // Zjednodušené zobrazení při chybě
-  if (error) {
-    return (
-      <div className="p-8">
-        <h1 className="text-2xl font-bold mb-4">Produkty</h1>
-        <ErrorDisplay 
-          error={error} 
-          onRetry={loadProducts} 
-        />
-      </div>
-    )
-  }
-
-  // Zjednodušené zobrazení tabulky
   return (
     <div className="p-8">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-bold">Produkty</h1>
+        <h1 className="text-2xl font-bold">Jednoduchá správa produktů</h1>
         <div className="space-x-2">
           <Link 
             href="/admin"
@@ -116,16 +123,26 @@ export default function SimpleProductsAdminPage() {
             Zpět do administrace
           </Link>
           <button
-            onClick={loadProducts}
+            onClick={() => loadProducts(1, true)}
             className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700"
           >
-            Obnovit
+            Obnovit data
           </button>
         </div>
       </div>
       
-      <div className="mb-4">
-        <p>Zobrazeno: {products.length} produktů</p>
+      {error && <ErrorDisplay error={error} onRetry={() => loadProducts(1, true)} className="mb-4" />}
+
+      <div className="mb-4 flex justify-between items-center">
+        <p>
+          Zobrazeno: {products.length} produktů
+          {pagination && ` z celkových ${pagination.totalProducts}`}
+        </p>
+        {pagination && (
+          <p className="text-sm text-gray-500">
+            Stránka {currentPage} z {pagination.totalPages}
+          </p>
+        )}
       </div>
 
       <div className="bg-white rounded-lg shadow overflow-hidden">
@@ -166,6 +183,29 @@ export default function SimpleProductsAdminPage() {
           </tbody>
         </table>
       </div>
+      
+      {/* Tlačítko pro načtení dalších produktů */}
+      {pagination && currentPage < pagination.totalPages && (
+        <div className="mt-6 text-center">
+          <button
+            onClick={() => loadProducts(currentPage + 1, false)}
+            disabled={loadingMore}
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none disabled:opacity-50"
+          >
+            {loadingMore ? (
+              <>
+                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Načítání...
+              </>
+            ) : (
+              `Načíst další produkty (${currentPage}/${pagination.totalPages})`
+            )}
+          </button>
+        </div>
+      )}
     </div>
   )
 } 
