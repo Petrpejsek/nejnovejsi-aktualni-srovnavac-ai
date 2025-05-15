@@ -65,10 +65,9 @@ export default function ProductsAdminPage() {
       setLoading(true);
       console.log("Admin: Loading products from API...");
       
-      // Použijeme čas jako query parametr pro vynucení obnovení cache
+      // Použijeme nový API endpoint
       const timestamp = new Date().getTime();
-      console.log("Admin: Calling API with URL:", `/api/products?pageSize=300&t=${timestamp}`);
-      const response = await fetch(`/api/products?pageSize=300&t=${timestamp}`, {
+      const response = await fetch(`/api/admin-products?t=${timestamp}`, {
         cache: 'no-store',
         headers: {
           'Pragma': 'no-cache',
@@ -78,41 +77,50 @@ export default function ProductsAdminPage() {
       
       console.log("Admin: API response status:", response.status, response.statusText);
       
-      if (response.ok) {
-        const data = await response.json();
-        console.log("Admin: API response data:", data);
-        const rawProducts = data.products || [];
-        console.log("Admin: Raw products data:", rawProducts);
+      if (!response.ok) {
+        console.error('Admin: Error loading products. Status:', response.status, response.statusText);
+        setError(`Chyba při načítání produktů: ${response.status} ${response.statusText}`);
+        return;
+      }
+      
+      try {
+        // Získáme text odpovědi
+        const responseText = await response.text();
         
-        if (rawProducts.length === 0) {
+        if (!responseText || responseText.trim() === '') {
+          setError('API vrátila prázdnou odpověď');
+          return;
+        }
+        
+        // Zparsujeme JSON
+        const data = JSON.parse(responseText);
+        console.log("Admin: API response data received");
+        
+        if (!data.products || !Array.isArray(data.products)) {
+          setError('API vrátila neplatnou strukturu dat');
+          return;
+        }
+        
+        const productsList = data.products;
+        
+        if (productsList.length === 0) {
           console.warn("Admin: Received empty products array from API");
           setError("API vrátila prázdné pole produktů. Zkontrolujte připojení k databázi nebo jestli jsou nějaké produkty v databázi.");
           return;
         }
         
-        // Použijeme bezpečnou funkci pro zpracování dat z API
-        const processedProducts = rawProducts.map((product: any) => safeProcessProduct(product));
-        
         // Řazení produktů
-        const sortedData = processedProducts.sort((a: Product, b: Product) => {
+        const sortedData = productsList.sort((a: Product, b: Product) => {
           if (a.imageUrl && !b.imageUrl) return -1
           if (!a.imageUrl && b.imageUrl) return 1
           return 0
         });
         
         setProducts(sortedData);
-        console.log("Admin: Processed products:", sortedData.length, "of total", data.pagination?.totalProducts || 0);
-      } else {
-        console.error('Admin: Error loading products. Status:', response.status, response.statusText);
-        setError(`Chyba při načítání produktů: ${response.status} ${response.statusText}`);
-        try {
-          const errorData = await response.json();
-          console.error('Admin: Error details:', errorData);
-          setError(`Chyba při načítání produktů: ${JSON.stringify(errorData)}`);
-        } catch (e) {
-          console.error('Admin: Could not parse error response');
-          setError(`Chyba při načítání produktů: ${response.status} ${response.statusText} (nelze načíst detaily chyby)`);
-        }
+        console.log("Admin: Processed products:", sortedData.length);
+      } catch (parseError) {
+        console.error('Admin: Error parsing API response:', parseError);
+        setError(`Chyba při zpracování odpovědi z API: ${parseError instanceof Error ? parseError.message : 'Neznámá chyba'}`);
       }
     } catch (error) {
       console.error('Admin: Error loading products:', error);
@@ -315,7 +323,14 @@ export default function ProductsAdminPage() {
   }
 
   if (loading) {
-    return <div>Loading...</div>
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <h1 className="text-2xl font-bold mb-4">Products Administration</h1>
+        <div className="p-6 bg-gray-100 rounded-lg">
+          <p className="text-lg">Načítám produkty...</p>
+        </div>
+      </div>
+    )
   }
 
   if (error) {
