@@ -1,11 +1,14 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import prisma from '../../../lib/prisma';
 
-const prisma = new PrismaClient();
+// Konfigurace dynamického API endpointu
+export const dynamic = 'force-dynamic'
+export const fetchCache = 'force-no-store'
+export const revalidate = 0
 
 export async function GET() {
   try {
-    console.log('🔄 Markdown Export: Načítám všechny produkty...');
+    console.log('🔄 Markdown Export: Loading all products...');
     
     const products = await prisma.product.findMany({
       orderBy: {
@@ -13,76 +16,27 @@ export async function GET() {
       }
     });
 
-    console.log(`✅ Markdown Export: Načteno ${products.length} produktů`);
+    console.log(`✅ Markdown Export: Loaded ${products.length} products`);
 
-    let markdownContent = `# AI Nástroje - Kompletní Databáze
+    // Funkce pro čištění textu pro Markdown
+    const cleanText = (text: string | null): string => {
+      if (!text) return '';
+      return text.replace(/\|/g, '\\|').replace(/\n/g, ' ').replace(/\r/g, ' ');
+    };
 
-> **Datum exportu:** ${new Date().toLocaleDateString('cs-CZ')}  
-> **Celkem nástrojů:** ${products.length}
+    // Markdown hlavička
+    let markdownContent = '# AI Tools Database\n\n';
+    markdownContent += '| Name | Description | Price | Category | Has Trial | External URL |\n';
+    markdownContent += '|------|-------------|-------|----------|-----------|-------------|\n';
 
----
-
-`;
-
-    products.forEach((product, index) => {
-      markdownContent += `## ${index + 1}. ${product.name}
-
-**ID:** \`${product.id}\`
-
-### 📋 Základní informace
-- **Kategorie:** ${product.category || 'Nezařazeno'}
-- **Cena:** ${product.price || 'Neuvedeno'}
-- **Trial verze:** ${product.hasTrial ? '✅ Ano' : '❌ Ne'}
-
-### 📝 Popis
-${product.description || 'Žádný popis není k dispozici'}
-
-### 🏷️ Tagy
-\`${product.tags || 'Žádné tagy'}\`
-
-### ✅ Výhody
-${product.advantages || 'Neuvedeno'}
-
-### ❌ Nevýhody
-${product.disadvantages || 'Neuvedeno'}
-
-### ⭐ Recenze
-${product.reviews || 'Žádné recenze'}
-
-### 💰 Cenové informace
-${product.pricingInfo || 'Neuvedeno'}
-
-### 📖 Detailní informace
-${product.detailInfo || 'Neuvedeno'}
-
-### 🔗 Odkazy
-- **Externí URL:** ${product.externalUrl ? `[Link](${product.externalUrl})` : 'Neuvedeno'}
-- **Obrázek:** ${product.imageUrl ? `[Obrázek](${product.imageUrl})` : 'Neuvedeno'}
-- **Video:** ${product.videoUrls ? `[Video](${product.videoUrls})` : 'Neuvedeno'}
-
-### ⏰ Metadata
-- **Vytvořeno:** ${product.createdAt.toLocaleDateString('cs-CZ')}
-- **Aktualizováno:** ${product.updatedAt.toLocaleDateString('cs-CZ')}
-
----
-
-`;
+    // Markdown řádky
+    products.forEach(product => {
+      markdownContent += `| ${cleanText(product.name)} | ${cleanText(product.description)} | $${product.price || 0} | ${cleanText(product.category)} | ${product.hasTrial ? 'Yes' : 'No'} | ${cleanText(product.externalUrl)} |\n`;
     });
-
-    markdownContent += `
-## 📊 Statistiky
-
-- **Celkem exportováno:** ${products.length} AI nástrojů
-- **Export vytvořen:** ${new Date().toLocaleString('cs-CZ')}
-
----
-
-*Konec databáze*
-`;
 
     const headers = new Headers({
       'Content-Type': 'text/markdown; charset=utf-8',
-      'Content-Disposition': 'attachment; filename="ai-tools-databaze.md"',
+      'Content-Disposition': 'attachment; filename="ai-tools-database.md"',
       'Cache-Control': 'no-cache'
     });
 
@@ -92,9 +46,9 @@ ${product.detailInfo || 'Neuvedeno'}
     });
 
   } catch (error) {
-    console.error('❌ Markdown Export chyba:', error);
+    console.error('❌ Markdown Export error:', error);
     return NextResponse.json(
-      { error: 'Chyba při Markdown exportu', details: error instanceof Error ? error.message : 'Neznámá chyba' },
+      { error: 'Markdown export error', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   } finally {

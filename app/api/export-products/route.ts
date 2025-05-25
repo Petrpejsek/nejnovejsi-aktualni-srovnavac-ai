@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import prisma from '../../../lib/prisma';
 
-const prisma = new PrismaClient();
+// Konfigurace dynamického API endpointu
+export const dynamic = 'force-dynamic'
+export const fetchCache = 'force-no-store'
+export const revalidate = 0
 
 export async function GET(request: NextRequest) {
   try {
-    console.log('🔄 Export: Načítám všechny produkty z databáze...');
+    console.log('🔄 Export: Loading all products from database...');
     
     // Načti všechny produkty bez stránkování
     const products = await prisma.product.findMany({
@@ -14,14 +17,14 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    console.log(`✅ Export: Načteno ${products.length} produktů`);
+    console.log(`✅ Export: Loaded ${products.length} products`);
 
     // Připrav data pro export
     const exportData = {
       metadata: {
         exportDate: new Date().toISOString(),
         totalProducts: products.length,
-        description: "Kompletní export všech AI nástrojů z databáze"
+        description: "Complete export of all AI tools from database"
       },
       products: products.map(product => ({
         id: product.id,
@@ -30,11 +33,11 @@ export async function GET(request: NextRequest) {
         category: product.category,
         price: product.price,
         imageUrl: product.imageUrl,
-        tags: product.tags,
-        advantages: product.advantages,
-        disadvantages: product.disadvantages,
-        pricingInfo: product.pricingInfo,
-        videoUrls: product.videoUrls,
+        tags: typeof product.tags === 'string' ? JSON.parse(product.tags || '[]') : product.tags,
+        advantages: typeof product.advantages === 'string' ? JSON.parse(product.advantages || '[]') : product.advantages,
+        disadvantages: typeof product.disadvantages === 'string' ? JSON.parse(product.disadvantages || '[]') : product.disadvantages,
+        pricingInfo: typeof product.pricingInfo === 'string' ? JSON.parse(product.pricingInfo || '{}') : product.pricingInfo,
+        videoUrls: typeof product.videoUrls === 'string' ? JSON.parse(product.videoUrls || '[]') : product.videoUrls,
         detailInfo: product.detailInfo,
         externalUrl: product.externalUrl,
         hasTrial: product.hasTrial,
@@ -47,7 +50,9 @@ export async function GET(request: NextRequest) {
     const headers = new Headers({
       'Content-Type': 'application/json',
       'Content-Disposition': 'attachment; filename="ai-tools-complete-database.json"',
-      'Cache-Control': 'no-cache'
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0'
     });
 
     return new NextResponse(JSON.stringify(exportData, null, 2), {
@@ -56,9 +61,9 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('❌ Export chyba:', error);
+    console.error('❌ Export error:', error);
     return NextResponse.json(
-      { error: 'Chyba při exportu produktů', details: error instanceof Error ? error.message : 'Neznámá chyba' },
+      { error: 'Product export error', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   } finally {

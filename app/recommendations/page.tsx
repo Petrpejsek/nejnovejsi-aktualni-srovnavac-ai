@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, Suspense } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
@@ -49,7 +49,7 @@ interface DisplayProduct extends Product {
   recommendation?: string;
 }
 
-export default function RecommendationsPage() {
+function RecommendationsPageContent() {
   const searchParams = useSearchParams()
   const query = searchParams.get('query')
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set())
@@ -126,7 +126,7 @@ export default function RecommendationsPage() {
               : [];
 
           if (!Array.isArray(list) || list.length === 0) {
-            console.warn('API vrátilo neočekávanou strukturu nebo prázdné pole produktů:', raw);
+            console.warn('API returned unexpected structure or empty product array:', raw);
           }
 
           const processedData = list.map((product: Product) => ({
@@ -698,5 +698,13 @@ export default function RecommendationsPage() {
         />
       )}
     </div>
+  )
+}
+
+export default function RecommendationsPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <RecommendationsPageContent />
+    </Suspense>
   )
 } 

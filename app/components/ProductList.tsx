@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
@@ -56,7 +56,7 @@ const filterProducts = (products: AIProduct[], category: string | null, provider
   });
 };
 
-export default function ProductList() {
+function ProductListContent() {
   const [products, setProducts] = useState<AIProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -120,7 +120,7 @@ export default function ProductList() {
       // Načtení dat
       const response = await fetch(url.toString());
       if (!response.ok) {
-        throw new Error('Nepodařilo se načíst produkty');
+        throw new Error('Failed to load products');
       }
 
       const data: ProductsResponse = await response.json();
@@ -135,8 +135,8 @@ export default function ProductList() {
       setPagination(data.pagination);
       setError(null);
     } catch (err) {
-      console.error('Chyba při načítání produktů:', err);
-      setError(err instanceof Error ? err.message : 'Nastala chyba při načítání produktů');
+      console.error('Error loading products:', err);
+      setError(err instanceof Error ? err.message : 'An error occurred while loading products');
     } finally {
       setLoading(false);
     }
@@ -171,7 +171,7 @@ export default function ProductList() {
           onClick={() => fetchProducts()} 
           className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
         >
-          Zkusit znovu
+          Try Again
         </button>
       </div>
     );
@@ -181,7 +181,7 @@ export default function ProductList() {
     <div className="container mx-auto px-4 py-8">
       {/* Informace o počtu produktů */}
       <div className="text-center mb-6 text-gray-600">
-        Nalezeno {pagination.totalProducts} produktů
+        Found {pagination.totalProducts} products
       </div>
 
       {/* Seznam produktů */}
@@ -317,4 +317,12 @@ const ProductCard = ({ product }: { product: AIProduct }) => {
       </div>
     </div>
   );
-}; 
+};
+
+export default function ProductList() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ProductListContent />
+    </Suspense>
+  );
+} 

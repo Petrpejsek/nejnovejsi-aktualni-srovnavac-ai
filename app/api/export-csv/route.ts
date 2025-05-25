@@ -1,9 +1,14 @@
 import { NextResponse } from 'next/server';
 import prisma from '../../../lib/prisma';
 
+// Konfigurace dynamického API endpointu
+export const dynamic = 'force-dynamic'
+export const fetchCache = 'force-no-store'
+export const revalidate = 0
+
 export async function GET() {
   try {
-    console.log('🔄 CSV Export: Načítám všechny produkty...');
+    console.log('🔄 CSV Export: Loading all products...');
     
     const products = await prisma.product.findMany({
       orderBy: {
@@ -11,7 +16,7 @@ export async function GET() {
       }
     });
 
-    console.log(`✅ CSV Export: Načteno ${products.length} produktů`);
+    console.log(`✅ CSV Export: Loaded ${products.length} products`);
 
     // Funkce pro čištění textu pro CSV
     const cleanText = (text: string | null): string => {
@@ -59,9 +64,9 @@ export async function GET() {
     });
 
   } catch (error) {
-    console.error('❌ CSV Export chyba:', error);
+    console.error('❌ CSV Export error:', error);
     return NextResponse.json(
-      { error: 'Chyba při CSV exportu', details: error instanceof Error ? error.message : 'Neznámá chyba' },
+      { error: 'CSV export error', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   } finally {
