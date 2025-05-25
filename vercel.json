@@ -20,6 +20,9 @@
     },
     "app/api/recommendations/route.ts": {
       "maxDuration": 60
+    },
+    "app/api/test-timeout/route.ts": {
+      "maxDuration": 60
     }
   }
 } 
