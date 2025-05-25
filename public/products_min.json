@@ -1,0 +1,982 @@
+[
+  {
+    "id": "a8196ba8-6c89-4259-aca0-fbab388b201c",
+    "name": "Typeface.ai",
+    "description": "AI platform for generating and personalizing branded content."
+  },
+  {
+    "id": "ce39c909-c250-4cc9-ba79-b05503a31f2c",
+    "name": "Soundraw",
+    "description": "AI platform for generating unique royalty-free music."
+  },
+  {
+    "id": "19c9b50c-7b75-4bab-9287-0df002d9eb95",
+    "name": "Teikametrics",
+    "description": "AI platform for optimizing advertising on Amazon and other marketplace platforms using machine learning."
+  },
+  {
+    "id": "6fd2fc17-0d9b-466b-a9be-4c3cb96c730c",
+    "name": "Reflektion",
+    "description": "AI platform for personalizing e-commerce experiences with individualized product recommendations based on customer behavior."
+  },
+  {
+    "id": "97c659e2-21e6-4c12-aeba-620a7788b108",
+    "name": "Webflow",
+    "description": "Webflow is the first-ever website experience platform that allows marketers, designers, and developers to collaborate in building, managing, and optimizing web experiences that deliver results."
+  },
+  {
+    "id": "0aa48306-60c9-41d0-8366-07fa77d3fc41",
+    "name": "D-ID",
+    "description": "AI platform for creating and animating digital avatars and synthetic media."
+  },
+  {
+    "id": "7dcd98d8-7028-4c5e-bece-9781809efb0f",
+    "name": "Covariant AI",
+    "description": "Robotic AI system that enables industrial robots to see, reason, and handle a wide variety of items in warehouse environments."
+  },
+  {
+    "id": "37162e6d-95bb-41eb-b217-84f76cd6b485",
+    "name": "Kaiser Permanente AI Health Hub",
+    "description": "Integrated healthcare system using AI for disease prevention, treatment personalization, and improved patient outcomes."
+  },
+  {
+    "id": "417a5a03-9471-48eb-9a6b-0685375cf142",
+    "name": "Ucraft",
+    "description": "Ucraft is a website and online store builder that offers no-code solutions for creating professional websites, landing pages, and e-commerce stores with customizable templates and drag-and-drop functionality."
+  },
+  {
+    "id": "1c2bab3d-4532-4601-a8c5-1ea94624a8cf",
+    "name": "Hostinger Website Builder",
+    "description": "Create your own website in minutes with Hostinger Website Builder. Choose from more than 150 responsive templates, or let AI build a website for you."
+  },
+  {
+    "id": "b486f312-7c6a-488f-ba38-33bbc3e20c0f",
+    "name": "Wix.com",
+    "description": "Everything you need to create your website, your way. From an intuitive website builder to built-in hosting and business solutions—Try Wix for free."
+  },
+  {
+    "id": "cbfcb592-158d-452f-b314-4b8267e2e116",
+    "name": "B12",
+    "description": "B12 is the easiest AI website builder that allows you to instantly generate a personalized website using AI. Launch for free with the tools you need to grow."
+  },
+  {
+    "id": "62341d5f-bd04-420f-bc43-ff5944265fde",
+    "name": "Zest AI",
+    "description": "Zest AI provides AI-powered credit underwriting software that helps lenders make more accurate decisions, reduce bias, and approve more loans while maintaining risk levels."
+  },
+  {
+    "id": "2aad9ace-e1dd-4552-b3c6-d71397ec1f54",
+    "name": "ChatGPT Website Builder",
+    "description": "ChatGPT Website Builder is an AI-powered platform that allows users to create custom websites by conversing with an AI assistant, requiring no coding or design skills."
+  },
+  {
+    "id": "1187ce53-0c52-48b2-90bc-0c0900865c3d",
+    "name": "Symbotic",
+    "description": "AI-powered robotic warehouse automation system for high-density storage, retrieval, and case picking in distribution centers."
+  },
+  {
+    "id": "03e6d9d6-f2f6-4d8d-8cf9-05fa56076a9d",
+    "name": "PathAI",
+    "description": "AI platform for digital pathology that helps pathologists with more precise diagnostics, quantification of biomarkers, and supports clinical studies."
+  },
+  {
+    "id": "8a153f9d-290a-482b-9b9d-e5961081937c",
+    "name": "Squarespace",
+    "description": "Squarespace is a professional website builder that allows users to create their own websites using customizable templates, AI tools, and domain names. It offers a free trial to get started."
+  },
+  {
+    "id": "9c1ef456-4c60-4524-894f-07a584bd5acd",
+    "name": "Chef Robotics",
+    "description": "Automated food preparation robotics system using AI for consistent, efficient, and scalable food assembly operations."
+  },
+  {
+    "id": "6e93edb5-0d47-4722-8915-a35a44c658e5",
+    "name": "Elementor",
+    "description": "Elementor's Free Website Builder makes it easy for anyone to create a website or online store without any coding needed."
+  },
+  {
+    "id": "b29198e3-728e-4462-8c45-5bdebd21a73e",
+    "name": "K Health",
+    "description": "AI-powered health platform combining symptom diagnosis with virtual doctor consultations."
+  },
+  {
+    "id": "26f8398a-05b3-44ff-8c7a-84b6a5c19f28",
+    "name": "Wealthfront",
+    "description": "Wealthfront is an automated investment service that uses AI to provide personalized, low-cost investment management, financial planning, and banking services."
+  },
+  {
+    "id": "692fc806-e664-471f-835b-b671b7ae2165",
+    "name": "Jimdo",
+    "description": "Jimdo is a platform that allows you to build a professional website that reflects your expertise, tells your story, and earns trust—all without the tech hassle. Whether you’re starting fresh or improving your online presence, Jimdo simplifies the process so you can focus on running and growing a successful business."
+  },
+  {
+    "id": "471fab15-7b8a-4ce1-b85d-f3fb446a8454",
+    "name": "Academy of Robotics (Kar-go)",
+    "description": "Autonomous delivery vehicle system using AI for last-mile logistics and contactless delivery operations."
+  },
+  {
+    "id": "065ac8da-c87b-48ea-a1b0-e81a6a07652d",
+    "name": "Mubert",
+    "description": "AI platform for generating adaptive music and soundscapes."
+  },
+  {
+    "id": "dbab24bf-0b0b-4245-9eba-b1fabb5f8346",
+    "name": "ZipWP",
+    "description": "ZipWP: The AI-Powered Website Builder for WordPress. Create a professional website in minutes, without any coding. Start now!"
+  },
+  {
+    "id": "440d8918-57e3-4c21-91fc-c4bec1859c1d",
+    "name": "GetResponse",
+    "description": "GetResponse is an all-in-one marketing platform that combines email marketing, automation, landing pages, webinars, and e-commerce tools to help businesses grow their online presence and revenue."
+  },
+  {
+    "id": "034db9ef-640c-4a61-9b18-3d6e242a9018",
+    "name": "Webnode",
+    "description": "Webnode is a user-friendly website builder that allows anyone to create responsive websites without coding, offering AI-powered website creation, multilingual support, and a variety of templates for personal and business use."
+  },
+  {
+    "id": "2da3d39f-a442-42a9-b7c7-faf436e22cc3",
+    "name": "Spectra One",
+    "description": "Spectra One is a design system platform that helps teams create, manage, and scale consistent user interfaces across products and platforms through component libraries, documentation, and collaboration tools."
+  },
+  {
+    "id": "63f97c42-6002-44bc-88a4-935328297ac9",
+    "name": "Recombee",
+    "description": "Recombee is an AI-powered recommendation engine that helps businesses deliver personalized product, content, and service recommendations to their customers across all digital channels."
+  },
+  {
+    "id": "7a15d64f-cccc-4215-892d-09b1725f426e",
+    "name": "10Web",
+    "description": "Unlock powerful tools for hosting, building, optimizing, and securing your site. Elevate your web presence with 10Web."
+  },
+  {
+    "id": "c77bb64a-573d-4fc0-9287-d1949d94dfd3",
+    "name": "ViSenze",
+    "description": "ViSenze is an AI company that develops visual search and image recognition solutions to simplify product discovery and improve shopping experiences across e-commerce platforms."
+  },
+  {
+    "id": "34a6615d-2402-4fdd-8848-8f7e5104865d",
+    "name": "Transmetrics",
+    "description": "Predictive analytics and AI optimization platform for cargo transport planning and logistics network optimization."
+  },
+  {
+    "id": "96b6a3d8-7010-41a0-8c92-d829aa6f4d71",
+    "name": "Wflow",
+    "description": "Wflow is an AI-powered workflow automation platform that streamlines accounting and finance processes by automating document handling, approval workflows, and data integration between systems."
+  },
+  {
+    "id": "a135df2a-d56f-47e6-8a2f-88182bf31578",
+    "name": "Colossyan",
+    "description": "AI platform for tvorbu vyukovych videi s realistickymi avatary."
+  },
+  {
+    "id": "93c1f468-6a78-4614-b2d0-2dbbfc9e7572",
+    "name": "Vidau.ai",
+    "description": "AI tool for automatickou tvorbu produktovych a reklamnich videi."
+  },
+  {
+    "id": "d8add475-4c45-40fc-a7ae-dfd9e5791a39",
+    "name": "Nuvocargo",
+    "description": "Digital platform with AI tools for cross-border shipping between US and Mexico, offering freight, customs, and trade compliance automation."
+  },
+  {
+    "id": "668a33d0-80f1-4b00-8d15-23b834c6daee",
+    "name": "Reface",
+    "description": "Mobilni application pro zabavnou vymenu tvari ve videich using AI."
+  },
+  {
+    "id": "cebc93cf-eae8-4bc8-a111-9b26eb879f03",
+    "name": "FlexClip",
+    "description": "Online video editor s AI featuresmi pro rychlou tvorbu videi."
+  },
+  {
+    "id": "bc65cd48-72a6-47e1-bb52-9cf96c41da35",
+    "name": "SwapAnything",
+    "description": "AI platform for vymenu objektu a pozadi ve videich."
+  },
+  {
+    "id": "4cfdee1b-0f5e-4d4f-8c20-4c2d2f646c8d",
+    "name": "InVideo",
+    "description": "Online platform for tvorbu videi s AI asistenci."
+  },
+  {
+    "id": "e2568d0b-8c48-45ce-97d8-d086b25f266b",
+    "name": "Zoho Books",
+    "description": "Zoho Books is an intelligent accounting software that uses AI to automate routine accounting tasks, streamline workflows, and provide insights for better financial decision-making."
+  },
+  {
+    "id": "f46dd86d-399d-4dc1-957a-8c0b700f0e38",
+    "name": "Sage Intacct",
+    "description": "Sage Intacct is an advanced cloud financial management platform with AI capabilities that automates complex accounting processes, provides real-time insights, and supports multi-entity operations."
+  },
+  {
+    "id": "4e3ba9e8-acfb-4c45-916a-8d56a1b34930",
+    "name": "Syte",
+    "description": "Syte is a visual AI platform that enables retailers to deliver personalized shopping experiences through visual search, product discovery, and recommendation technologies."
+  },
+  {
+    "id": "eab138b6-a37b-4940-930f-c63c169ad1b3",
+    "name": "Browse AI",
+    "description": "Browse AI is a no-code web scraping and automation platform that enables businesses to extract data from websites, monitor changes, and automate workflows without programming knowledge."
+  },
+  {
+    "id": "74870810-5f5e-47e5-a26f-f5a8fc0e2a59",
+    "name": "Lily AI",
+    "description": "Lily AI is a product attribute platform that uses deep learning to understand product features and customer preferences, enhancing e-commerce search, recommendations, and demand forecasting with detailed product intelligence."
+  },
+  {
+    "id": "97d6b834-df7d-43dd-bf45-fd46d4220133",
+    "name": "Boomtrain (by Zeta Global)",
+    "description": "Boomtrain is an AI-powered personalization platform, now part of Zeta Global, that helps marketers deliver individualized content and product recommendations across email, web, and mobile experiences."
+  },
+  {
+    "id": "21cb1c6e-5917-44fb-98b3-4f8f48196195",
+    "name": "Conversica",
+    "description": "Conversica is an AI-powered conversational platform that uses intelligent virtual assistants to engage prospects and customers in human-like conversations, helping businesses automate sales and marketing engagement at scale."
+  },
+  {
+    "id": "2e5876d4-618d-4348-8aab-b27997e357ff",
+    "name": "Crowdy AI Accounting",
+    "description": "Crowdy AI Accounting is an AI-powered chatbot and automation platform specifically designed for accounting services, helping accounting firms automate client communication, data collection, and routine accounting tasks."
+  },
+  {
+    "id": "84125262-fe89-4ca6-98bf-26b87ae82b28",
+    "name": "FullStory",
+    "description": "digital analyticky tool for sledovani chovani useru a optimalizaci digitalnich zkusenosti."
+  },
+  {
+    "id": "7fdf2782-081d-42e6-aa9b-98899482a984",
+    "name": "Swap",
+    "description": "AI-powered product returns management platform that automates processing, reduces costs, and enables circular commerce."
+  },
+  {
+    "id": "6e7f1806-edff-48a5-b951-7c2abd60fef6",
+    "name": "Veryfi",
+    "description": "Veryfi is an AI-powered document processing platform that extracts data from receipts, invoices, and financial documents in seconds to automate accounting, expense management, and data entry."
+  },
+  {
+    "id": "4963aaea-706e-4873-b277-479314e0eb95",
+    "name": "Lyro",
+    "description": "Lyro (formerly Remi AI) is an AI-powered inventory optimization platform that helps businesses automate forecasting, replenishment, and purchasing decisions to reduce costs and prevent stockouts."
+  },
+  {
+    "id": "400cd554-1223-4e8e-8ddc-05509f2cd847",
+    "name": "Sprout Social",
+    "description": "platform for spravu socialnich siti a analyzu socialnich medii."
+  },
+  {
+    "id": "1ba08a5e-0982-4248-bd3b-df024efdd7a2",
+    "name": "WeGrow.ai",
+    "description": "WeGrow.ai is an AI-powered growth marketing platform that helps businesses acquire and retain customers through personalized recommendations, predictive analytics, and automated marketing campaigns."
+  },
+  {
+    "id": "16d61ba8-31a5-4e6b-8888-a99906b10709",
+    "name": "Chatfuel",
+    "description": "platform for tvorbu chatbotu for socialni site a messaging platformy."
+  },
+  {
+    "id": "0e11dda0-1bdf-478a-acbe-0105d776f659",
+    "name": "Auxia",
+    "description": "Auxia (formerly Forethought) is an AI customer service platform that provides intelligent automation, agent assistance, and self-service solutions to enhance support efficiency and customer experience."
+  },
+  {
+    "id": "ecc7b945-68d9-42cc-819a-c66bf6ff4b58",
+    "name": "TapClicks",
+    "description": "comprehensive marketingova platform for analyzu dat, reporting a automatizaci marketingovych aktivit."
+  },
+  {
+    "id": "ed0293fe-e30f-4cc3-b23e-98feecd65da3",
+    "name": "Replo",
+    "description": "No-code platform for tvorbu a optimalizaci e-commerce stranek s AI asistenci."
+  },
+  {
+    "id": "24a4836f-2d7e-47fa-bb96-e0071545e125",
+    "name": "Surfer SEO",
+    "description": "AI-powered platform for optimalizaci obsahu a analyzu SEO."
+  },
+  {
+    "id": "c98b5aea-a20e-480e-bece-571f2e648e04",
+    "name": "Dext",
+    "description": "Dext provides intelligent tools for digital accounting, automating document processing and financial reporting for accountants and small businesses."
+  },
+  {
+    "id": "1b8729b2-98e7-4ac3-a38c-5c93d4551f9b",
+    "name": "Vic.ai",
+    "description": "Vic.ai is an autonomous accounting platform powered by artificial intelligence that automates invoice processing and accounting processes for accounting firms and finance departments."
+  },
+  {
+    "id": "1a549dc0-a631-4895-a629-e69ecd900474",
+    "name": "SalesLoft",
+    "description": "comprehensive platform for sales engagement s AI featuresmi."
+  },
+  {
+    "id": "4ca66ef6-2a65-4f7c-b8fe-9c4bc2b35b1c",
+    "name": "Docyt",
+    "description": "Docyt is an AI platform for financial reporting and accounting that automates data collection and categorization and provides real-time financial insights and analysis."
+  },
+  {
+    "id": "475a3c7e-ecc8-4700-9047-e8893d702815",
+    "name": "LedgerGurus",
+    "description": "LedgerGurus provides outsourced accounting services enhanced by technology and artificial intelligence, offering complete accounting solutions for e-commerce and SaaS companies."
+  },
+  {
+    "id": "8b19ec10-7d20-47ad-a01f-38ae6b5f782c",
+    "name": "Rossum",
+    "description": "Rossum is an AI platform for document automation that uses advanced machine learning to extract data from invoices, orders, and other business documents."
+  },
+  {
+    "id": "0caed780-7348-4cb8-8789-3af897748125",
+    "name": "Pilot",
+    "description": "Pilot combines expert accountants with intelligent technology to provide accounting, tax services, and financial reporting for startups and growing companies."
+  },
+  {
+    "id": "a4405f0e-2ed4-477c-8a98-925024fd9ce8",
+    "name": "Process Street",
+    "description": "AI-enhanced workflow management platform that automates documented procedures, checklists, and recurring business processes."
+  },
+  {
+    "id": "0faf3410-db39-4a8b-890b-d4a5f326fd52",
+    "name": "Plate IQ",
+    "description": "Plate IQ is an AI-powered accounts payable automation platform that digitizes invoices, automates approval workflows, and provides spend analytics, primarily for restaurants and hospitality businesses."
+  },
+  {
+    "id": "bfe81850-b1c5-4f66-ae29-9e2f7dee38de",
+    "name": "Vidnoz",
+    "description": "AI platform for automaticke vytvareni profesionalnich videi s avatary."
+  },
+  {
+    "id": "2cfcf353-affe-4799-94ea-421517d79c43",
+    "name": "ZenHub",
+    "description": "AI-powered project management platform for software teams that automates workflows, planning, and reporting within GitHub."
+  },
+  {
+    "id": "f6e11703-e649-43d4-a307-613dddb198e2",
+    "name": "Autobooks",
+    "description": "Autobooks is an integrated financial and accounting solution that enables small businesses to accept online payments, track finances, and automate accounting directly through their bank account."
+  },
+  {
+    "id": "4d317e51-dd49-42f7-9f39-e68c5f4ac3e5",
+    "name": "Aprio",
+    "description": "Aprio is an accounting and advisory firm that utilizes AI and automation to provide accounting, tax advisory, and business consulting services for various types of companies."
+  },
+  {
+    "id": "71875066-3d33-4f4d-8225-4ea1ee353dab",
+    "name": "Billy",
+    "description": "Billy is an intuitive accounting software designed for freelancers and small businesses that automates invoicing, expenses, and basic accounting with an AI assistant."
+  },
+  {
+    "id": "bf31321b-430c-4b2d-8b76-5db2a4a4c42e",
+    "name": "Booke AI",
+    "description": "Booke AI is an intelligent accounting assistant that automates accounting processes and provides financial insights for small and medium businesses using artificial intelligence."
+  },
+  {
+    "id": "80d695d6-e815-4ab0-862a-80c6c82b0b2b",
+    "name": "ZipBooks",
+    "description": "ZipBooks is an intuitive accounting software with integrated artificial intelligence that automates invoicing, accounting, and financial reporting for small businesses and freelancers."
+  },
+  {
+    "id": "5d1fc9c3-2ac5-4cec-8bfe-574edd31086c",
+    "name": "ELAI",
+    "description": "AI platform for tvorbu videi s digitalnimi prezentatory."
+  },
+  {
+    "id": "565eff33-20b4-4782-81ab-f210ee5cbf08",
+    "name": "RTB House",
+    "description": "platform for personalizovanou retargetingovou reklamu vyuzivajici deep learning."
+  },
+  {
+    "id": "30e6f158-1a8b-4adb-abcc-aed51a84468c",
+    "name": "Ramp",
+    "description": "Ramp is an AI-powered financial automation platform that combines corporate cards, expense management, bill payments, and accounting integrations to help businesses save time and reduce costs."
+  },
+  {
+    "id": "e3218aaa-2eb0-4b86-94a6-47e9f2453a99",
+    "name": "Numerai",
+    "description": "Numerai is a hedge fund built on a global network of data scientists who compete to create the best predictive models for the stock market using AI and machine learning."
+  },
+  {
+    "id": "b8ddab23-5631-46d1-96b1-022520288542",
+    "name": "Aiva",
+    "description": "AI kompozicni engine pro tvorbu emocionalni hudby."
+  },
+  {
+    "id": "286d9c7d-ef1b-4768-b272-1f9b1b4c832d",
+    "name": "Personal Capital",
+    "description": "Personal Capital is a wealth management platform that combines AI-powered financial tools with human financial advisors to help users track, manage, and optimize their investments and financial planning."
+  },
+  {
+    "id": "59e69d8b-7c31-449c-a04e-de018d433e0a",
+    "name": "PostNL",
+    "description": "Dutch postal and courier service using AI to optimize parcel delivery and logistics processes."
+  },
+  {
+    "id": "b4b7ead3-f058-4217-b369-87e24a2a3972",
+    "name": "Suning",
+    "description": "One of the largest e-commerce platforms in China that uses AI for product recommendations and supply chain optimization."
+  },
+  {
+    "id": "2304a68f-5816-4033-96ae-cc94b8b7abfe",
+    "name": "Samsung SDS Logistics AI",
+    "description": "Enterprise AI platform for logistics optimization, warehouse management, and supply chain intelligence with predictive analytics."
+  },
+  {
+    "id": "9b0e174c-32ba-4da0-883b-85503aa3aae4",
+    "name": "Capital One CreditWise",
+    "description": "Capital One CreditWise is an AI-powered credit monitoring and financial health tool that helps users track their credit score, detect fraud, and receive personalized recommendations to improve their credit."
+  },
+  {
+    "id": "34317734-caf9-4f62-9240-078d591ae2f8",
+    "name": "BlackRock Aladdin",
+    "description": "Aladdin is BlackRock's comprehensive investment management and risk analytics platform that uses AI to help institutional investors manage portfolios, assess risk, and make data-driven investment decisions."
+  },
+  {
+    "id": "a5bbb211-4f62-4ec5-bdd5-c1c80a2980eb",
+    "name": "Outright (GoDaddy Bookkeeping)",
+    "description": "Outright, now known as GoDaddy Bookkeeping, is a simple accounting solution with AI elements that automates financial management, tax preparation, and reporting for small businesses and e-commerce sellers."
+  },
+  {
+    "id": "058fa178-3e49-4745-9ff9-2d5895560a08",
+    "name": "Rocket Mortgage",
+    "description": "Rocket Mortgage is an AI-powered digital mortgage platform that streamlines the home loan application and approval process, offering personalized recommendations and rapid decisions."
+  },
+  {
+    "id": "4a8cb269-5b42-40b5-b43b-be1b9e2c2178",
+    "name": "Aider",
+    "description": "Aider is an AI-powered assistant for small businesses that processes financial and accounting data, provides business insights, and helps with strategic decision-making through a natural language interface."
+  },
+  {
+    "id": "0ff6b5d0-c4c9-4a34-b76c-3a6f9955d558",
+    "name": "Upstart",
+    "description": "Upstart is an AI lending platform that uses machine learning to evaluate borrowers beyond traditional credit scores, helping lenders expand access to credit while reducing risk."
+  },
+  {
+    "id": "c228e879-afcc-4e09-97ba-8f94f24b4108",
+    "name": "Digitoo",
+    "description": "Digitoo is an AI-powered invoice and receipt processing platform that automates accounting tasks by digitizing documents, extracting data, and integrating with accounting systems."
+  },
+  {
+    "id": "75cc8dc5-b8c5-44f3-bf45-7656d0586058",
+    "name": "Accounting Prose",
+    "description": "Accounting Prose is a modern accounting firm that combines professional accounting services with technological innovation and automation for small and medium-sized businesses."
+  },
+  {
+    "id": "5ffaa522-5870-43ef-8854-b880e79d446a",
+    "name": "Raft AI",
+    "description": "AI-driven inventory and supply chain optimization platform that reduces stockouts and excess inventory."
+  },
+  {
+    "id": "6f188f1a-ca22-466e-aa7b-ed840ee7f196",
+    "name": "Botkeeper",
+    "description": "Botkeeper provides automated bookkeeping using human-assisted AI technology to deliver accurate accounting services for businesses and accounting firms at scale."
+  },
+  {
+    "id": "7a5fab5f-3def-46c5-a6d7-1803d22f0e3e",
+    "name": "ZenLedger",
+    "description": "ZenLedger is a tax software built for cryptocurrency investors and accountants that uses AI to automate crypto transaction tracking, tax reporting, and portfolio monitoring."
+  },
+  {
+    "id": "b7626905-902f-4bf6-86c8-2a04bae9a131",
+    "name": "Bookipi",
+    "description": "Bookipi is a free invoicing and accounting software designed for small businesses and entrepreneurs to manage finances, create professional invoices, track expenses, and generate financial reports."
+  },
+  {
+    "id": "ae5cd4a7-75db-42bb-88f1-3c6fc2f9433d",
+    "name": "Personetics",
+    "description": "Personetics is an AI-driven financial data analytics platform that helps banks provide personalized financial guidance and automated money management to their customers."
+  },
+  {
+    "id": "ece395fb-18b8-4be5-a4a8-54e8029b8e37",
+    "name": "MindTitan",
+    "description": "MindTitan is a company specializing in custom AI solution development for financial and accounting processes, helping businesses implement artificial intelligence for automation and optimization of financial operations."
+  },
+  {
+    "id": "63aea06d-fd11-47cd-a4a1-e9a12dc0858b",
+    "name": "Mobirise",
+    "description": "Mobirise is a free offline website builder software for Windows and Mac that allows users to create small/medium websites, landing pages, and online stores without coding."
+  },
+  {
+    "id": "2bef31d9-fd86-4217-a78b-3c0366dd8b19",
+    "name": "SITE123",
+    "description": "SITE123 es un constructor de sitios web gratuito que permite crear una pagina web con diseños y estilos prediseñados. No se requieren habilidades de diseño o codificacion. Simplemente ingrese su contenido y 1, 2, 3 - ¡esta en marcha!"
+  },
+  {
+    "id": "43a0cd70-ba0b-4119-b381-02052c118c4f",
+    "name": "Duda",
+    "description": "Duda is a professional website builder that allows users to build and sell high-converting websites at scale. It offers a free trial to get started."
+  },
+  {
+    "id": "cfdf75e7-2050-42b6-9b83-33dde6b968e8",
+    "name": "Feedzai",
+    "description": "Feedzai is an AI-powered financial risk management platform that helps financial institutions detect and prevent fraud in real-time across multiple channels using advanced machine learning."
+  },
+  {
+    "id": "89bdf474-2cd2-4b3c-a55e-861e793280b0",
+    "name": "Jasper",
+    "description": "Jasper is an AI content creation platform that helps marketers, writers, and businesses generate high-quality, SEO-optimized content at scale, with features for blog posts, social media, emails, and more."
+  },
+  {
+    "id": "7877a619-8085-4199-97ea-00af6ee821ba",
+    "name": "Betterment",
+    "description": "Betterment is a robo-advisor that uses AI algorithms to provide automated, personalized investment management and financial planning services at a fraction of traditional costs."
+  },
+  {
+    "id": "cf792c86-0912-4894-83aa-91238f787733",
+    "name": "Schwab Intelligent Portfolios",
+    "description": "Schwab Intelligent Portfolios is Charles Schwab's automated investment service that uses AI to build, monitor, and rebalance diversified portfolios based on clients' risk profiles."
+  },
+  {
+    "id": "e98e14a8-cb13-4d55-91a4-7e129d54afd7",
+    "name": "Auquan",
+    "description": "Platform using AI to identify and analysis risks in financial data and supply chains."
+  },
+  {
+    "id": "78fa0ddc-f57c-4bda-bd88-49c1c1b9bba6",
+    "name": "Babylon Health",
+    "description": "AI platform for digital zdravotni diagnostiku, consultations a monitoring zdravotniho stavu"
+  },
+  {
+    "id": "f8817f7f-6b94-48c1-955c-e2062b953127",
+    "name": "Appy Pie",
+    "description": "Appy Pie is an all-in-one no-code development platform that allows users to create mobile apps, websites, chatbots, automation workflows, and design assets without coding skills."
+  },
+  {
+    "id": "f1e5ac18-82da-47bd-b34a-7a15a7b62ee4",
+    "name": "Brizy.io",
+    "description": "Create a stunning website in minutes with our 'no-code' website builder. Choose from a variety of beautiful templates and customize your website to fit your brand with our White Label builder."
+  },
+  {
+    "id": "c1e0b936-9dfe-493a-9531-0f4acdb217bc",
+    "name": "CashFlow Frog",
+    "description": "CashFlow Frog is a specialized financial tool with AI functions for cash flow prediction and management that helps small and medium businesses improve financial planning and liquidity."
+  },
+  {
+    "id": "38863e92-b2b5-42e5-b18a-7e67932c427c",
+    "name": "Kensho",
+    "description": "AI platform for financial data analysis that provides automated research and analysis for investment decisions."
+  },
+  {
+    "id": "262d6c70-93b7-4e6a-9a59-3cd63d01444d",
+    "name": "LogiNext",
+    "description": "Cloud-based transportation automation platform with AI for route optimization, dispatch automation, and last-mile delivery management."
+  },
+  {
+    "id": "fc344fa8-1a91-45b0-bbbe-4e4bb32f7399",
+    "name": "Make",
+    "description": "Visual automation platform with AI capabilities that connects apps and automates workflows with powerful data transformation and complex scenario creation."
+  },
+  {
+    "id": "a01a1bfa-9ffa-4b07-8041-1aadce4f987e",
+    "name": "Dorik",
+    "description": "Dorik is a modern website builder that allows users to create responsive websites with a drag-and-drop interface, AI-powered features, and professional design elements."
+  },
+  {
+    "id": "68cb7110-75e7-4450-b1b8-235a59cc357b",
+    "name": "Woebot Health",
+    "description": "AI chatbot for mentalni zdravi, which provides kognitivne-behavioralni terapii, monitoring nalady a emocionalni podporu 24/7"
+  },
+  {
+    "id": "75b196b1-afe2-432c-b93c-427a3527a1c0",
+    "name": "Pabbly Connect",
+    "description": "Cost-effective workflow automation tool with AI integration capabilities that connects apps and automates tasks with unlimited workflows and users."
+  },
+  {
+    "id": "1b32f2d7-94de-4fb2-9d6e-d84b68fa3596",
+    "name": "Bloomreach",
+    "description": "AI platform for personalizaci a optimalizaci digitalnich zazitku v e-commerce, which helps zlepsovat konverze a zakaznickou loajalitu"
+  },
+  {
+    "id": "905a4bf2-ab70-4031-914c-6ccdaa880ffd",
+    "name": "Siemens Healthineers AI-Rad Companion",
+    "description": "Rodina AI-pohanenych aplikaci for radiologii, which help lekarum analyzovat medicinske obrazy a zefektivnit diagnostically proces"
+  },
+  {
+    "id": "f781d3a2-6dbe-4d45-9f65-d1c127a8c208",
+    "name": "Adobe GenStudio",
+    "description": "comprehensive AI platform for tvorbu, spravu a optimalizaci kreativniho obsahu."
+  },
+  {
+    "id": "aee8f38d-d67f-4743-99d4-0d3fa27cbbc3",
+    "name": "Enlitic Curie",
+    "description": "AI platform for radiologii, which automatizuje workflow, standardizuje reportovani a increases diagnostickou presnost using hlubokeho learning"
+  },
+  {
+    "id": "ec4fc10b-21f3-41f9-bfbd-bd75e84661ee",
+    "name": "Johns Hopkins AI Precision Medicine",
+    "description": "Spickovy system zdravotni pece vyuzivajici artificial intelligence for precizni medicinu, pokrocilou diagnostiku a personalizovanou lecbu"
+  },
+  {
+    "id": "4fd632a5-76f9-43c5-93f1-7dc72f938e3e",
+    "name": "Lemonaid Health",
+    "description": "Online lekarna a telemedicinska service s AI support, which provides consultations, diagnostiku a doruceni leku na predpis"
+  },
+  {
+    "id": "4f87db2d-f25e-45e6-8acf-51031f9390fd",
+    "name": "Synthesia",
+    "description": "AI platform for generating realistic videos with virtual presenters, allowing you to create professional videos without a camera, studio, or actors."
+  },
+  {
+    "id": "1de7fcec-a4b6-4cc5-8a27-c0544fc97283",
+    "name": "Cred.ai",
+    "description": "Fintech platform with AI assistant for credit card and finance management, focused on improving credit scores and financial health."
+  },
+  {
+    "id": "8b1ad8a1-5afb-40d4-b11d-48c33b606723",
+    "name": "Based Labs",
+    "description": "AI platform for creating authentic marketing videos with generative avatars, focused on naturalness and personalization."
+  },
+  {
+    "id": "d13c5205-7f5a-429f-9080-26e0f87e8dad",
+    "name": "Assiduus AI",
+    "description": "AI platform for automating accounting and financial management for e-commerce businesses and online sellers."
+  },
+  {
+    "id": "ae2da4c1-830a-488c-a4b7-ba124316eebd",
+    "name": "Klaviyo",
+    "description": "AI-powered email marketing platform specialized in personalization and automation for e-commerce."
+  },
+  {
+    "id": "5c4fba04-be22-43c1-b9ad-a392495f07de",
+    "name": "Voicemod",
+    "description": "AI software for real-time voice modification."
+  },
+  {
+    "id": "a211c18b-d067-4068-89d2-2ba5d0532445",
+    "name": "Artbreeder",
+    "description": "AI platform for creative mixing and generating artistic images."
+  },
+  {
+    "id": "64a789b9-ea6d-4216-a873-754f32e4744a",
+    "name": "Runway ML",
+    "description": "Creative AI toolkit for video editing and visual effects creation."
+  },
+  {
+    "id": "ead6a1e1-f1e8-46c0-9ce0-59b06a36b06c",
+    "name": "ProcessMaker",
+    "description": "Enterprise business process management platform with AI capabilities that automates complex workflows, approvals, and operations across organizations."
+  },
+  {
+    "id": "709c56d9-8bed-46a5-8b07-4fbec9447c45",
+    "name": "Nintex",
+    "description": "Comprehensive process automation platform with AI capabilities that combines workflow, document automation, and process intelligence for enterprise transformation."
+  },
+  {
+    "id": "76a552bd-0322-483b-ac05-bbf942387477",
+    "name": "IBM Watson Health",
+    "description": "AI platform for zdravotnictvi offerci pokrocilou analyzu dat, vyzkum a optimalizaci clinical processes"
+  },
+  {
+    "id": "d2b6bf8d-5ae7-46fd-b3ca-8a14b15a61bc",
+    "name": "HealthTap",
+    "description": "platform propojujici AI diagnostiku s virtualnimi konzultacemi lekaru, accessem k lekarske databazi a personalizovanou zdravotni peci"
+  },
+  {
+    "id": "b7e54a6d-f4fa-4239-bcd9-60103eadcf99",
+    "name": "Philips IntelliSpace AI Workflow Suite",
+    "description": "comprehensive AI platform for radiologii a kardiologii, which integruje artificial intelligence do clinical workflow a helps zlepsit diagnostickou presnost"
+  },
+  {
+    "id": "af8e8461-9e9c-4b56-8d25-ec84c55b872a",
+    "name": "Zapier",
+    "description": "Cloud-based automation platform with AI capabilities that connects apps and automates workflows without coding, enabling seamless data transfer between services."
+  },
+  {
+    "id": "8f0e5a4c-bf39-41e4-9f67-dd83d757edfc",
+    "name": "Alpaca",
+    "description": "API platform for trading stocks and cryptocurrencies that allows developers to create automated trading algorithms and applications."
+  },
+  {
+    "id": "07095f3a-87ed-4244-abd1-80e2532ecdc3",
+    "name": "Microsoft Healthcare AI",
+    "description": "Komplexni sada AI toolu a cloudovych reseni pro zdravotnictvi zamerena na zlepseni zdravotni pece, klinicky vyzkum a zdravotnicke operace"
+  },
+  {
+    "id": "f75947b7-d217-4aa1-b743-60daa8d558c9",
+    "name": "Workato",
+    "description": "Enterprise-grade intelligent automation platform with AI capabilities that integrates applications, processes, and experiences across organizations."
+  },
+  {
+    "id": "293863b8-2689-45fd-b4f3-c5c5187eae92",
+    "name": "Ayasdi",
+    "description": "Machine learning and AI platform for complex data analysis that helps organizations identify hidden patterns and relationships in data."
+  },
+  {
+    "id": "719cf92d-a334-436c-b09d-f81baca258b1",
+    "name": "Buoy Health",
+    "description": "AI navigator zdravotni pece, which analyzuje symptomy, doporucuje vhodnou uroven pece a helps optimalizovat naklady na zdravotni peci"
+  },
+  {
+    "id": "1c77d2bb-3fb1-4b4d-8e28-8c7f4c3e4055",
+    "name": "Cainiao Smart Logistics",
+    "description": "AI-powered logistics network offering intelligent supply chain solutions, automated warehousing, and delivery optimization at massive scale."
+  },
+  {
+    "id": "c64ef2bd-17d0-4c04-9f1e-38ab5e0aecae",
+    "name": "Mount Sinai AI Healthcare Platform",
+    "description": "Inovativni zdravotnicky system propojujici AI technologie s clinical peci for more precise diagnostiku, lecbu a vyzkum onemocneni"
+  },
+  {
+    "id": "99b78c38-3636-4448-abcd-f926d77e1be7",
+    "name": "Blue Yonder",
+    "description": "AI-powered supply chain management platform that optimizes inventory, logistics, and fulfillment operations."
+  },
+  {
+    "id": "6c919d37-96bf-4d7b-9dd7-ed305fb6b05e",
+    "name": "Pipio",
+    "description": "AI tool for automaticke vytvareni kratkych videi for socialni site."
+  },
+  {
+    "id": "ca7b8b27-b5bc-40a5-be71-ee3d1edaf7da",
+    "name": "Microsoft Power Pages",
+    "description": "Microsoft Power Pages is a low-code website and portal builder that allows organizations to create secure, modern external-facing business websites with customized user experiences."
+  },
+  {
+    "id": "e61e4b05-3bde-45da-a0d9-8e61bffd64f9",
+    "name": "Omneky",
+    "description": "AI platform for personalizovanou tvorbu a optimalizaci vizualnich reklam."
+  },
+  {
+    "id": "6526fdbb-840f-4694-a9ef-06d40be74335",
+    "name": "Mayo Clinic AI Healthcare Platform",
+    "description": "Prestigious healthcare institution using artificial intelligence for diagnostics, personalized treatment, and medical research."
+  },
+  {
+    "id": "f3ff4bf9-07f7-48b2-a337-55903f785f13",
+    "name": "Ada Health",
+    "description": "Personalizovany AI assistant for zdravotni diagnostiku a analyzu symptomu s globalni lekarskou databazi"
+  },
+  {
+    "id": "b12f78ac-f2ce-4fb3-b9f0-6dcc15ebf300",
+    "name": "LALAL.AI",
+    "description": "AI tool for separating music into individual tracks."
+  },
+  {
+    "id": "9a3862b6-b3cc-4bfa-8d7d-81697f15cfda",
+    "name": "Berkshire Grey",
+    "description": "AI-powered robotic automation solutions for retail, e-commerce, and logistics operations focusing on order fulfillment and processing."
+  },
+  {
+    "id": "68ac1730-969b-4315-bbf2-448df2f137da",
+    "name": "GE Healthcare Edison AI Platform",
+    "description": "comprehensive AI ekosystem for zdravotnictvi, which integruje artificial intelligence do zobrazovacich metod, workflow a klinickeho rozhodovani"
+  },
+  {
+    "id": "e248539d-8d37-454c-901b-7c72e7a891b5",
+    "name": "Numbrs AI",
+    "description": "Pokrocily financni assistant vyuzivajici artificial intelligence k analysis osobnich financi, predpovidani cash flow a optimalizaci uspor a investic."
+  },
+  {
+    "id": "0a1f498c-3374-4277-9c5e-63dd54c7d1a4",
+    "name": "Spendesk",
+    "description": "comprehensive platform for spravu firemnich vydaju, which kombinuje fyzicke a virtualni platebni karty s analyzou vydaju a automatizaci pracovnich postupu using AI."
+  },
+  {
+    "id": "97c5b4c7-13ef-4556-8f21-62d6d4b7becb",
+    "name": "Foreceipt",
+    "description": "Mobilni application for sledovani vydaju a spravu uctenek, which utilizes AI k automaticmu skenovani, kategorizaci a organizaci financnich dokladu."
+  },
+  {
+    "id": "f58d6408-edf5-481a-a43f-24579f1bbdfe",
+    "name": "Uber Freight",
+    "description": "AI-powered digital freight marketplace that connects shippers and carriers while automating pricing, matching, and booking."
+  },
+  {
+    "id": "ae8d25db-79b4-414c-82e6-6360b2800db7",
+    "name": "Vorto AI",
+    "description": "AI-powered supply chain optimization platform for industrial materials and equipment, automating procurement, logistics, and inventory management."
+  },
+  {
+    "id": "0a78a520-c1e7-41e5-af54-92ad05ca51ed",
+    "name": "Sifted",
+    "description": "AI-powered shipping intelligence platform that analyzes parcel data to optimize carrier selection, service levels, and shipping costs."
+  },
+  {
+    "id": "5aa631dc-fd73-4bbb-b0df-6163623ba0e8",
+    "name": "Throughput",
+    "description": "AI supply chain optimization platform that identifies and resolves bottlenecks in manufacturing and distribution operations."
+  },
+  {
+    "id": "f58ad317-24f2-47b9-977f-124e558c2d1b",
+    "name": "Reply.io",
+    "description": "Automatizacni platform for sales outreach a email marketing."
+  },
+  {
+    "id": "780fa1aa-9d63-4353-a677-28fc4b4c780b",
+    "name": "nTask",
+    "description": "AI-enhanced project and task management platform that automates workflows, resource allocation, and team collaboration."
+  },
+  {
+    "id": "8be08872-8003-4512-9e29-61c53dbd3174",
+    "name": "Pneumatic",
+    "description": "AI-powered workflow automation platform designed for human-in-the-loop processes and approval workflows across teams and systems."
+  },
+  {
+    "id": "90923237-f3e0-430b-839d-c444a99e8487",
+    "name": "Jitterbit",
+    "description": "AI-powered integration platform that automates data flows and connects applications, APIs, and systems across enterprises."
+  },
+  {
+    "id": "90c07319-0d9b-4227-85dd-ccb381b15a00",
+    "name": "Reclaim.ai",
+    "description": "AI time management assistant that automatically schedules tasks, meetings, and personal time in your calendar based on priorities and preferences."
+  },
+  {
+    "id": "17cc2ae6-7614-4de7-bba4-b58d6c1e6bb2",
+    "name": "ProcessGPT",
+    "description": "AI platform that analyzes, optimizes and automates business processes by understanding process documentation and executing workflow improvements."
+  },
+  {
+    "id": "566287c4-bae6-4dbb-b5a6-f1fd605983a9",
+    "name": "Microsoft Power Automate",
+    "description": "Cloud-based service with AI capabilities that helps create automated workflows between apps and services to synchronize files, get notifications, and collect data."
+  },
+  {
+    "id": "68221b5e-3f09-49ac-8890-646ff365cbd7",
+    "name": "Otio",
+    "description": "AI workflow automation tool that helps teams create, visualize, and execute processes with natural language instructions and no-code building blocks."
+  },
+  {
+    "id": "1b251f1c-d151-454a-9cda-8c7dbd560ccf",
+    "name": "cflow",
+    "description": "AI-enhanced workflow automation platform that digitizes business processes and approval workflows with form-based automation and process intelligence."
+  },
+  {
+    "id": "ea62d9ba-5ef4-4a1a-8f67-217d1430d320",
+    "name": "n8n",
+    "description": "Open-source workflow automation platform with AI capabilities that connects apps, databases, and services with a powerful, flexible node-based approach."
+  },
+  {
+    "id": "87c44d11-1580-42b4-9b39-05fe34881bdd",
+    "name": "MeisterTask",
+    "description": "AI-supported project and task management platform with automated workflows and smart features for team collaboration and productivity."
+  },
+  {
+    "id": "a5f4246c-92db-4287-907d-da1965952c90",
+    "name": "Wrike",
+    "description": "AI-enhanced collaborative work management platform that automates workflows, project tracking, and team coordination across organizations."
+  },
+  {
+    "id": "0f3be3fa-5099-47f8-9664-c24c6f6bf205",
+    "name": "Trello",
+    "description": "Visual work management tool with AI capabilities that automates workflows using cards, lists, and boards to organize projects and collaboration."
+  },
+  {
+    "id": "a59ce69d-012e-49f9-b9fd-11e85002a3ff",
+    "name": "Albert.ai",
+    "description": "AI platform for automatizaci a optimalizaci digitalnich marketingovych kampani."
+  },
+  {
+    "id": "ea860d5f-8809-4e6b-a071-c1d2b6e94f60",
+    "name": "This Person Does Not Exist",
+    "description": "AI generator of realistic portraits of non-existent people."
+  },
+  {
+    "id": "e4374dca-c97e-4025-829b-c379a9779536",
+    "name": "Shopify",
+    "description": "Comprehensive e-commerce platform with integrated AI features for personalization, automation, and optimization."
+  },
+  {
+    "id": "a1140c4a-3f65-40c8-a1b4-5a43433afa02",
+    "name": "Kissflow",
+    "description": "No-code workflow and process automation platform with AI capabilities that streamlines operations, approvals, and data management for businesses."
+  },
+  {
+    "id": "b0da424b-58c7-4504-98fa-cc3766c858ae",
+    "name": "Talkspace",
+    "description": "Online therapy platform using AI to connect patients with therapists and provide digital mental health services."
+  },
+  {
+    "id": "4c397d73-064a-41a2-b61c-c801957c9334",
+    "name": "Airbase",
+    "description": "Airbase is a comprehensive spend management platform that unifies accounts payable, corporate cards, and employee expense reimbursements with approval workflows, accounting automation, and real-time reporting."
+  },
+  {
+    "id": "d2ac8787-1e26-4774-bb37-a9aaa34227c1",
+    "name": "Algolia",
+    "description": "AI-pohaneny vyhledavaci a doporucovaci engine for e-commerce weby, which zlepsuje zakaznickou zkusenost a konverze"
+  },
+  {
+    "id": "d12cb292-4574-48e8-a48a-fd12fede9f21",
+    "name": "Albato",
+    "description": "No-code integration platform with AI capabilities that connects applications and automates data flows between business tools and services."
+  },
+  {
+    "id": "0efbc1b4-9c0f-4754-8016-f160689df809",
+    "name": "Anyword",
+    "description": "AI platform for generovani a optimalizaci marketingoveho obsahu s predikci vykonu."
+  },
+  {
+    "id": "cb783814-dfdd-4543-9be3-812aa864e2c0",
+    "name": "Ardent AI Health Assistant",
+    "description": "AI platform for proaktivni zdravotni management, which kombinuje prediktivni analyzu, personalizovane intervence a koordinaci pece"
+  },
+  {
+    "id": "3266f1c5-dbb4-4d76-8e03-3486bd59e6eb",
+    "name": "Butterfly iQ+",
+    "description": "Prenosny ultrazvukovy system s AI support, which premenuje smartphone na diagnostically tool a demokratizuje access k medicinskemu zobrazovani"
+  },
+  {
+    "id": "ff6fd039-7c62-4582-99dd-f9edf36b70a2",
+    "name": "Candis",
+    "description": "Automatizovana ucetni platform, which utilizes AI k zpracovani faktur, sprave vydaju a automatizaci ucetnich processes for male a stredni podniky."
+  },
+  {
+    "id": "f29107ed-015d-4a4e-b1cb-28d3b88683cf",
+    "name": "Clerk.io",
+    "description": "Clerk.io is an AI-powered e-commerce personalization platform that provides product recommendations, email marketing, and search functionality to increase conversion rates and average order value."
+  },
+  {
+    "id": "ba4eb3bb-71b2-42fa-9098-cea1a8a438d5",
+    "name": "Cleveland Clinic AI Healthcare System",
+    "description": "Prestizni lekarske centrum implementujici AI technologie for zlepseni diagnostics, personalizovane lecby a research zavaznych onemocneni"
+  },
+  {
+    "id": "14bdaf28-7246-44fb-874f-163c2d11e129",
+    "name": "Decisions",
+    "description": "Advanced business process automation platform with AI capabilities for creating, visualizing, and managing complex workflows and decision logic."
+  },
+  {
+    "id": "d80fac2c-2953-4c05-9d89-f9f01f6be7a6",
+    "name": "DeckMatch",
+    "description": "DeckMatch is an AI-powered platform that helps startups and businesses connect with investors by analyzing pitch decks, matching them with relevant investors, and providing insights to optimize fundraising strategies."
+  },
+  {
+    "id": "e819611c-c848-4d3d-8dd5-f299b7383ff4",
+    "name": "DeepBrain AI",
+    "description": "Platform for creating hyper-realistic AI avatars and virtual humans for video content, interactive kiosks, and assistants."
+  },
+  {
+    "id": "74834f8a-1d62-4bba-b252-c4a462468dd8",
+    "name": "Fyle",
+    "description": "Fyle is an AI-powered expense management platform that automates receipt capture, expense categorization, and compliance checking for businesses of all sizes."
+  },
+  {
+    "id": "d8c04de2-58af-4679-8b60-889f9dbda85e",
+    "name": "GXO Logistics",
+    "description": "Contract logistics provider offering AI-powered warehouse management and automation solutions for supply chain optimization."
+  },
+  {
+    "id": "5d80dc01-5899-40d7-80a1-40136928c6f5",
+    "name": "Gorgias",
+    "description": "AI-pohanena helpdeskova platform specializovana na zakaznicky servis for e-commerce obchody"
+  },
+  {
+    "id": "ecdb62c9-6b06-4df2-b039-69fcb071c368",
+    "name": "Hello Wellness",
+    "description": "AI wellness platform kombinujici personalizovane zdravotni doporuceni, monitoring zivotniho stylu a integraci s nositelnou elektronikou"
+  },
+  {
+    "id": "53cdc676-f63f-4b9a-8399-a8ceaeff008c",
+    "name": "Ginger",
+    "description": "Comprehensive mental health platform with AI coaching, therapy, and psychiatry care on demand."
+  },
+  {
+    "id": "73a7e14a-92f9-4a42-a7fa-28fe2c5fb9cf",
+    "name": "Google Health",
+    "description": "AI iniciativa spolecnosti Google zamerena na zdravotnicke technologie, vcetne diagnostic toolu, analyzy medicinskych obrazu a zdravotnickeho research"
+  },
+  {
+    "id": "bdfe9413-294f-4d16-8116-4999ceb5906e",
+    "name": "HeyGen",
+    "description": "AI platform for creating personalized videos with virtual presenters in various languages without the need for filming."
+  }
+]

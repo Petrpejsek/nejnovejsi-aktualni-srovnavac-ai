@@ -29,30 +29,11 @@ export async function GET(
     // Formátování dat pro front-end
     const formattedProduct = {
       ...product,
-      tags: JSON.parse(product.tags || '[]'),
-      advantages: JSON.parse(product.advantages || '[]'),
-      disadvantages: JSON.parse(product.disadvantages || '[]'),
-      videoUrls: JSON.parse(product.videoUrls || '[]'),
-    }
-    
-    // Bezpečné zpracování pricingInfo
-    try {
-      if (product.pricingInfo) {
-        const parsed = JSON.parse(product.pricingInfo);
-        // @ts-ignore - frontend očekává objekt, i když typování očekává string
-        formattedProduct.pricingInfo = {
-          basic: typeof parsed.basic === 'string' ? parsed.basic : '0',
-          pro: typeof parsed.pro === 'string' ? parsed.pro : '0',
-          enterprise: typeof parsed.enterprise === 'string' ? parsed.enterprise : '0'
-        };
-      } else {
-        // @ts-ignore
-        formattedProduct.pricingInfo = { basic: '0', pro: '0', enterprise: '0' };
-      }
-    } catch (error) {
-      console.error('Error parsing pricingInfo:', error);
-      // @ts-ignore
-      formattedProduct.pricingInfo = { basic: '0', pro: '0', enterprise: '0' };
+      tags: product.tags || [],
+      advantages: product.advantages || [],
+      disadvantages: product.disadvantages || [],
+      videoUrls: product.videoUrls || [],
+      pricingInfo: product.pricingInfo || { basic: '0', pro: '0', enterprise: '0' }
     }
     
     return new NextResponse(JSON.stringify(formattedProduct), {

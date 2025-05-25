@@ -69,13 +69,13 @@ export default function ProductSelectionModal({
   if (!isOpen) return null
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Vyberte produkt k porovnání">
+    <Modal isOpen={isOpen} onClose={onClose} title="Select Product to Compare">
       <div className="space-y-6">
-        {/* Vyhledávání */}
+        {/* Search */}
         <div className="relative">
           <input
             type="text"
-            placeholder="Vyhledat produkt..."
+            placeholder="Search product..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
@@ -95,7 +95,7 @@ export default function ProductSelectionModal({
           </svg>
         </div>
 
-        {/* Filtry kategorií */}
+        {/* Category filters */}
         <div className="flex flex-wrap gap-2">
           {categories.map((category) => (
             <button
@@ -112,7 +112,7 @@ export default function ProductSelectionModal({
           ))}
         </div>
 
-        {/* Seznam produktů */}
+        {/* Product list */}
         <div className="space-y-4 max-h-[400px] overflow-y-auto">
           {loading ? (
             <div className="flex justify-center items-center h-32">

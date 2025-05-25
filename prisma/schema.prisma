@@ -17,13 +17,13 @@ model Product {
   price       Float
   category    String?
   imageUrl    String?
-  tags        String?  // Uloženo jako JSON string
-  advantages  String?  // Uloženo jako JSON string
-  disadvantages String? // Uloženo jako JSON string
-  reviews     String?  // Uloženo jako JSON string
+  tags        Json?    // Uloženo jako JSON
+  advantages  Json?    // Uloženo jako JSON
+  disadvantages Json?  // Uloženo jako JSON
+  reviews     Json?    // Uloženo jako JSON
   detailInfo  String?  // Detailní popis
-  pricingInfo String?  // Cenové podmínky jako JSON string
-  videoUrls   String?  // Seznam URL videí jako JSON string
+  pricingInfo Json?    // Cenové podmínky jako JSON
+  videoUrls   Json?    // Seznam URL videí jako JSON
   externalUrl String?  // Externí odkaz na produkt
   hasTrial    Boolean  @default(false) // Indikuje, zda produkt má zkušební verzi
   createdAt   DateTime @default(now())

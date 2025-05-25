@@ -1,0 +1,4341 @@
+[
+  {
+    "id": "a8196ba8-6c89-4259-aca0-fbab388b201c",
+    "name": "Typeface.ai",
+    "description": "AI platform for generating and personalizing branded content.",
+    "category": "content-creation",
+    "price": 1500,
+    "advantages": [
+      "Brand-consistent content generation",
+      "Enterprise-grade content controls",
+      "Multi-channel output formats",
+      "Integration with existing tech stacks"
+    ],
+    "disadvantages": [
+      "Enterprise focus with premium pricing",
+      "Significant setup time for brand voice training",
+      "Complex user permissions system"
+    ],
+    "externalUrl": "https://www.typeface.ai"
+  },
+  {
+    "id": "ce39c909-c250-4cc9-ba79-b05503a31f2c",
+    "name": "Soundraw",
+    "description": "AI platform for generating unique royalty-free music.",
+    "category": "music",
+    "price": 900,
+    "advantages": [
+      "High-quality music generation",
+      "Intuitive customization controls",
+      "Full copyright clearance",
+      "Regular updates with new styles"
+    ],
+    "disadvantages": [
+      "Limited free plan options",
+      "Advanced edits require musical knowledge",
+      "Some genres better represented than others"
+    ],
+    "externalUrl": "https://www.soundraw.io"
+  },
+  {
+    "id": "19c9b50c-7b75-4bab-9287-0df002d9eb95",
+    "name": "Teikametrics",
+    "description": "AI platform for optimizing advertising on Amazon and other marketplace platforms using machine learning.",
+    "category": "E-commerce Marketing",
+    "price": 99,
+    "advantages": [
+      "Automated bid optimization",
+      "Amazon-specific insights",
+      "Comprehensive marketplace analytics",
+      "Profit-driven advertising strategy"
+    ],
+    "disadvantages": [
+      "Primarily focused on Amazon and Walmart",
+      "Significant investment for small sellers",
+      "Learning curve for advanced features"
+    ],
+    "externalUrl": "https://www.teikametrics.com"
+  },
+  {
+    "id": "6fd2fc17-0d9b-466b-a9be-4c3cb96c730c",
+    "name": "Reflektion",
+    "description": "AI platform for personalizing e-commerce experiences with individualized product recommendations based on customer behavior.",
+    "category": "E-commerce",
+    "price": 2000,
+    "advantages": [
+      "Real-time personalization",
+      "1:1 individualized experiences",
+      "Advanced search functionality",
+      "Cross-channel consistency"
+    ],
+    "disadvantages": [
+      "Enterprise-level solution not suited for small retailers",
+      "Complex implementation",
+      "Requires significant data volume for optimal results"
+    ],
+    "externalUrl": "https://www.reflektion.com"
+  },
+  {
+    "id": "97c659e2-21e6-4c12-aeba-620a7788b108",
+    "name": "Webflow",
+    "description": "Webflow is the first-ever website experience platform that allows marketers, designers, and developers to collaborate in building, managing, and optimizing web experiences that deliver results.",
+    "category": "Website Builder",
+    "price": 6,
+    "advantages": [
+      "Visual website builder",
+      "Collaboration between marketers, designers, and developers",
+      "Optimizes web experiences"
+    ],
+    "disadvantages": [
+      "Higher pricing tiers for advanced features",
+      "Steep learning curve for beginners",
+      "Limited functionality in free version",
+      "Fewer plugins and extensions than competitors",
+      "More challenging for non-technical users"
+    ],
+    "externalUrl": "https://www.webflow.com"
+  },
+  {
+    "id": "0aa48306-60c9-41d0-8366-07fa77d3fc41",
+    "name": "D-ID",
+    "description": "AI platform for creating and animating digital avatars and synthetic media.",
+    "category": "video-generation",
+    "price": 2500,
+    "advantages": [
+      "High-quality realistic animations",
+      "Text-to-video capabilities",
+      "Multilingual support",
+      "Developer API access"
+    ],
+    "disadvantages": [
+      "Premium pricing for commercial use",
+      "Limited customization in basic plans",
+      "Some cultural nuances may be missed"
+    ],
+    "externalUrl": "https://www.d-id.com"
+  },
+  {
+    "id": "7dcd98d8-7028-4c5e-bece-9781809efb0f",
+    "name": "Covariant AI",
+    "description": "Robotic AI system that enables industrial robots to see, reason, and handle a wide variety of items in warehouse environments.",
+    "category": "automation",
+    "price": 12000,
+    "advantages": [
+      "Adaptable to new objects without reprogramming",
+      "High accuracy in item handling",
+      "Works with existing warehouse robots",
+      "Continuous learning from new experiences",
+      "24/7 operation capability"
+    ],
+    "disadvantages": [
+      "High initial investment",
+      "Integration complexity with existing systems",
+      "Requires technical expertise for maintenance",
+      "Limited to specific warehouse operations",
+      "Performance depends on environmental conditions"
+    ],
+    "externalUrl": "https://www.covariant.ai"
+  },
+  {
+    "id": "37162e6d-95bb-41eb-b217-84f76cd6b485",
+    "name": "Kaiser Permanente AI Health Hub",
+    "description": "Integrated healthcare system using AI for disease prevention, treatment personalization, and improved patient outcomes.",
+    "category": "Zdravotnictví",
+    "price": 0,
+    "advantages": [
+      "Comprehensive integrated healthcare approach",
+      "Preventive care focus",
+      "Electronic health record integration",
+      "Data-driven treatment plans"
+    ],
+    "disadvantages": [
+      "Limited to Kaiser Permanente members",
+      "Regional availability limitations",
+      "Requires digital literacy"
+    ],
+    "externalUrl": "https://www.kaiserpermanente.org"
+  },
+  {
+    "id": "417a5a03-9471-48eb-9a6b-0685375cf142",
+    "name": "Ucraft",
+    "description": "Ucraft is a website and online store builder that offers no-code solutions for creating professional websites, landing pages, and e-commerce stores with customizable templates and drag-and-drop functionality.",
+    "category": "Website Builder",
+    "price": 10,
+    "advantages": [
+      "Free website option with unlimited pages",
+      "Modern, professionally designed templates",
+      "Built-in logo maker tool",
+      "Multilingual website support",
+      "Reasonable pricing structure"
+    ],
+    "disadvantages": [
+      "Ucraft branding on free plan websites",
+      "Limited e-commerce features compared to dedicated platforms",
+      "Fewer app integrations than major competitors",
+      "Steeper learning curve for beginners",
+      "Some advanced features only available in higher plans",
+      "Limited customization options for checkout process",
+      "Occasional performance issues with larger sites",
+      "Customer support can be slow to respond"
+    ],
+    "externalUrl": "https://www.ucraft.com"
+  },
+  {
+    "id": "1c2bab3d-4532-4601-a8c5-1ea94624a8cf",
+    "name": "Hostinger Website Builder",
+    "description": "Create your own website in minutes with Hostinger Website Builder. Choose from more than 150 responsive templates, or let AI build a website for you.",
+    "category": "Website Builder",
+    "price": 0,
+    "advantages": [
+      "Free domain name",
+      "Build your site fast, with AI",
+      "24/7 live customer support"
+    ],
+    "disadvantages": [
+      "Limited template selection compared to competitors",
+      "Basic design customization options",
+      "Less suitable for complex websites",
+      "Free plan not available",
+      "E-commerce features not as robust as dedicated platforms",
+      "higher renewal rates after initial period",
+      "Limited third-party integrations"
+    ],
+    "externalUrl": "https://www.hostinger.com/website-builder"
+  },
+  {
+    "id": "b486f312-7c6a-488f-ba38-33bbc3e20c0f",
+    "name": "Wix.com",
+    "description": "Everything you need to create your website, your way. From an intuitive website builder to built-in hosting and business solutions—Try Wix for free.",
+    "category": "Website Builder",
+    "price": 0,
+    "advantages": [
+      "Intuitive website builder",
+      "Built-in hosting",
+      "Business solutions",
+      "AI tools"
+    ],
+    "disadvantages": [
+      "Wix ads displayed in free plan",
+      "Difficult to switch templates after site creation",
+      "Performance can be slower than competitors",
+      "Limited control over SEO elements",
+      "Can be more expensive than some alternatives"
+    ],
+    "externalUrl": "https://www.wix.com"
+  },
+  {
+    "id": "cbfcb592-158d-452f-b314-4b8267e2e116",
+    "name": "B12",
+    "description": "B12 is the easiest AI website builder that allows you to instantly generate a personalized website using AI. Launch for free with the tools you need to grow.",
+    "category": "AI Website Builder",
+    "price": 1,
+    "advantages": [
+      "Instant website generation",
+      "Free launch",
+      "AI-powered personalization"
+    ],
+    "disadvantages": [
+      "More expensive than basic website builders",
+      "Limited design customization compared to professional design",
+      "Focused on service businesses more than e-commerce",
+      "May require subscription for advanced features",
+      "Less template variety than some competitors"
+    ],
+    "externalUrl": "https://www.b12.io"
+  },
+  {
+    "id": "62341d5f-bd04-420f-bc43-ff5944265fde",
+    "name": "Zest AI",
+    "description": "Zest AI provides AI-powered credit underwriting software that helps lenders make more accurate decisions, reduce bias, and approve more loans while maintaining risk levels.",
+    "category": "Credit Underwriting",
+    "price": 0,
+    "advantages": [
+      "More accurate credit decisioning than traditional methods",
+      "Reduced bias in lending decisions",
+      "Increased approval rates while maintaining risk levels",
+      "Regulatory compliance and model explainability",
+      "Faster loan decisions and processing",
+      "Ability to use more variables in underwriting",
+      "Customizable models for different lending products",
+      "Tools for fair lending and adverse action reporting",
+      "Reduced manual underwriting costs",
+      "Implementation support and model monitoring"
+    ],
+    "disadvantages": [
+      "Significant upfront investment",
+      "Complex implementation and integration",
+      "Requires quality historical lending data",
+      "May require regulatory approval process"
+    ],
+    "externalUrl": "https://www.zest.ai"
+  },
+  {
+    "id": "2aad9ace-e1dd-4552-b3c6-d71397ec1f54",
+    "name": "ChatGPT Website Builder",
+    "description": "ChatGPT Website Builder is an AI-powered platform that allows users to create custom websites by conversing with an AI assistant, requiring no coding or design skills.",
+    "category": "AI Website Builder",
+    "price": 29,
+    "advantages": [
+      "Build websites through natural language conversation",
+      "No coding or design skills required",
+      "AI-generated content suggestions",
+      "Fast website creation process",
+      "SEO optimization assistance",
+      "Real-time preview of changes",
+      "Template customization through conversation",
+      "Intelligent layout recommendations",
+      "Multilingual website support"
+    ],
+    "disadvantages": [
+      "Limited design customization compared to traditional builders",
+      "Newer platform with fewer templates than established competitors",
+      "May require edits to AI-generated content",
+      "Subscription required for advanced features"
+    ],
+    "externalUrl": "https://www.chatgpt-website-builder.com"
+  },
+  {
+    "id": "1187ce53-0c52-48b2-90bc-0c0900865c3d",
+    "name": "Symbotic",
+    "description": "AI-powered robotic warehouse automation system for high-density storage, retrieval, and case picking in distribution centers.",
+    "category": "automation",
+    "price": 350000,
+    "advantages": [
+      "Maximizes storage density and warehouse utilization",
+      "Increases throughput by up to 4x",
+      "Reduces labor costs by up to 80%",
+      "Improves inventory accuracy",
+      "Scalable modular design"
+    ],
+    "disadvantages": [
+      "High initial implementation cost",
+      "Requires significant facility modifications",
+      "Extended implementation timeline",
+      "Limited flexibility for rapid facility changes",
+      "Best suited for high-volume operations"
+    ],
+    "externalUrl": "https://www.symbotic.com"
+  },
+  {
+    "id": "03e6d9d6-f2f6-4d8d-8cf9-05fa56076a9d",
+    "name": "PathAI",
+    "description": "AI platform for digital pathology that helps pathologists with more precise diagnostics, quantification of biomarkers, and supports clinical studies.",
+    "category": "Zdravotnictví",
+    "price": 0,
+    "advantages": [
+      "Text to translate:\n[\"increasing accuracy and consistency in pathological diagnostics using AI\"",
+      "\"automating routine and time-consuming tasks\"",
+      "\"quantitative analysis of biomarkers with higher accuracy than manual evaluation\"",
+      "\"reducing variability between different pathologists\"",
+      "\"Supporting research and development of medications through more precise patient stratification\"]"
+    ],
+    "disadvantages": [
+      "Text to translate:\n[\"requires digitization of pathological samples (whole slide imaging)\"",
+      "\"initial investment in infrastructure for digitization\"",
+      "\"dependency on the quality of digitized images\"",
+      "\"regulatory limitations in some regions for fully automated diagnostics\"]"
+    ],
+    "externalUrl": "https://www.pathai.com"
+  },
+  {
+    "id": "8a153f9d-290a-482b-9b9d-e5961081937c",
+    "name": "Squarespace",
+    "description": "Squarespace is a professional website builder that allows users to create their own websites using customizable templates, AI tools, and domain names. It offers a free trial to get started.",
+    "category": "Website Builder",
+    "price": 0,
+    "advantages": [
+      "Customizable templates",
+      "AI tools",
+      "Free trial",
+      "Professional design"
+    ],
+    "disadvantages": [
+      "Higher pricing compared to some competitors",
+      "Limited customization without CSS/HTML knowledge",
+      "Fewer third-party integrations",
+      "Steeper learning curve for beginners",
+      "Transaction fees on lower-tier plans"
+    ],
+    "externalUrl": "https://www.squarespace.com"
+  },
+  {
+    "id": "9c1ef456-4c60-4524-894f-07a584bd5acd",
+    "name": "Chef Robotics",
+    "description": "Automated food preparation robotics system using AI for consistent, efficient, and scalable food assembly operations.",
+    "category": "automation",
+    "price": 250000,
+    "advantages": [
+      "Consistent food quality and portion control",
+      "Reduces labor costs and dependency",
+      "Increases production throughput",
+      "Minimizes food waste",
+      "Adaptable to multiple recipes"
+    ],
+    "disadvantages": [
+      "High initial investment",
+      "Space requirements for installation",
+      "Limited menu flexibility compared to human chefs",
+      "Regular maintenance requirements",
+      "Best suited for standardized menu items"
+    ],
+    "externalUrl": "https://www.chefrobotics.ai"
+  },
+  {
+    "id": "6e93edb5-0d47-4722-8915-a35a44c658e5",
+    "name": "Elementor",
+    "description": "Elementor's Free Website Builder makes it easy for anyone to create a website or online store without any coding needed.",
+    "category": "Website Builder",
+    "price": 0,
+    "advantages": [
+      "No coding needed",
+      "Free version available",
+      "Easy to use"
+    ],
+    "disadvantages": [
+      "Advanced features only in paid version",
+      "Can slow down website loading with excessive features",
+      "WordPress dependency",
+      "Requires separate web hosting (not an all-in-one solution)",
+      "Steep learning curve for advanced features"
+    ],
+    "externalUrl": "https://www.elementor.com"
+  },
+  {
+    "id": "b29198e3-728e-4462-8c45-5bdebd21a73e",
+    "name": "K Health",
+    "description": "AI-powered health platform combining symptom diagnosis with virtual doctor consultations.",
+    "category": "Zdravotnictví",
+    "price": 29,
+    "advantages": [
+      "Affordable healthcare access",
+      "24/7 availability",
+      "AI symptom assessment",
+      "Prescription service where available"
+    ],
+    "disadvantages": [
+      "Not suitable for emergencies",
+      "Limited specialist care",
+      "Not a replacement for in-person examinations in complex cases"
+    ],
+    "externalUrl": "https://www.khealth.com"
+  },
+  {
+    "id": "26f8398a-05b3-44ff-8c7a-84b6a5c19f28",
+    "name": "Wealthfront",
+    "description": "Wealthfront is an automated investment service that uses AI to provide personalized, low-cost investment management, financial planning, and banking services.",
+    "category": "Robo-Advisor",
+    "price": 0,
+    "advantages": [
+      "Low management fees (0.25% annually)",
+      "Automated portfolio rebalancing",
+      "Tax-loss harvesting at all account levels",
+      "Diversified portfolio construction",
+      "Automatic reinvestment of dividends",
+      "Financial planning tools",
+      "Cash management account with competitive interest",
+      "Goal-based investment strategies",
+      "Direct indexing for larger accounts",
+      "No trading or transfer fees"
+    ],
+    "disadvantages": [
+      "Limited human advisor interaction",
+      "Minimum $500 investment to start",
+      "No fractional shares for individual stocks",
+      "Less customization than traditional advisors"
+    ],
+    "externalUrl": "https://www.wealthfront.com"
+  },
+  {
+    "id": "692fc806-e664-471f-835b-b671b7ae2165",
+    "name": "Jimdo",
+    "description": "Jimdo is a platform that allows you to build a professional website that reflects your expertise, tells your story, and earns trust—all without the tech hassle. Whether you’re starting fresh or improving your online presence, Jimdo simplifies the process so you can focus on running and growing a successful business.",
+    "category": "Website Builder",
+    "price": 0,
+    "advantages": [
+      "simple",
+      "easier",
+      "faster",
+      "no tech hassle"
+    ],
+    "disadvantages": [
+      "Limited design flexibility compared to competitors",
+      "Fewer templates than other platforms",
+      "Basic e-commerce capabilities",
+      "Limited marketing tools",
+      "Storage limitations on lower plans"
+    ],
+    "externalUrl": "https://www.jimdo.com"
+  },
+  {
+    "id": "471fab15-7b8a-4ce1-b85d-f3fb446a8454",
+    "name": "Academy of Robotics (Kar-go)",
+    "description": "Autonomous delivery vehicle system using AI for last-mile logistics and contactless delivery operations.",
+    "category": "automation",
+    "price": 125000,
+    "advantages": [
+      "Reduces last-mile delivery costs",
+      "Autonomous 24/7 operation capability",
+      "Zero-emission electric vehicle",
+      "Contactless delivery system",
+      "Secure compartmentalized storage"
+    ],
+    "disadvantages": [
+      "Regulatory restrictions in some regions",
+      "Limited to specific geographic areas",
+      "Weather-dependent performance",
+      "Payload and range limitations",
+      "Emerging technology with ongoing refinement"
+    ],
+    "externalUrl": "https://www.academyofrobotics.co.uk"
+  },
+  {
+    "id": "065ac8da-c87b-48ea-a1b0-e81a6a07652d",
+    "name": "Mubert",
+    "description": "AI platform for generating adaptive music and soundscapes.",
+    "category": "music",
+    "price": 800,
+    "advantages": [
+      "Unlimited unique music generation",
+      "Royalty-free licensing",
+      "Mood and genre customization",
+      "API access for developers"
+    ],
+    "disadvantages": [
+      "Limited fine-grained control in basic versions",
+      "Some generated tracks can sound similar",
+      "Advanced customization requires technical knowledge"
+    ],
+    "externalUrl": "https://www.mubert.com"
+  },
+  {
+    "id": "dbab24bf-0b0b-4245-9eba-b1fabb5f8346",
+    "name": "ZipWP",
+    "description": "ZipWP: The AI-Powered Website Builder for WordPress. Create a professional website in minutes, without any coding. Start now!",
+    "category": "AI Website Builder",
+    "price": 0,
+    "advantages": [
+      "Build professional websites in seconds",
+      "Limitless customization options",
+      "No coding required",
+      "AI creates the first draft of your website"
+    ],
+    "disadvantages": [
+      "Requires separate WordPress hosting",
+      "Still dependent on WordPress knowledge for advanced customization",
+      "Less intuitive than dedicated website builders",
+      "Smaller user community than established solutions",
+      "Relatively new product with fewer reviews",
+      "Limited template selection compared to major competitors",
+      "May require additional plugin purchases for specific functionality",
+      "WordPress security and maintenance concerns still apply"
+    ],
+    "externalUrl": "https://www.zipwp.com"
+  },
+  {
+    "id": "440d8918-57e3-4c21-91fc-c4bec1859c1d",
+    "name": "GetResponse",
+    "description": "GetResponse is an all-in-one marketing platform that combines email marketing, automation, landing pages, webinars, and e-commerce tools to help businesses grow their online presence and revenue.",
+    "category": "Email Marketing Platform",
+    "price": 19,
+    "advantages": [
+      "Comprehensive all-in-one marketing solution",
+      "User-friendly interface with drag-and-drop editors",
+      "Advanced automation workflows",
+      "Integrated webinar functionality",
+      "Strong email deliverability rates"
+    ],
+    "disadvantages": [
+      "higher price point than some competitors",
+      "Limited free plan compared to alternatives",
+      "Landing page templates less varied than dedicated builders",
+      "E-commerce features not as robust as specialized platforms",
+      "Learning curve for advanced automation features",
+      "Limited design flexibility in email templates",
+      "CRM functionality is basic compared to dedicated CRMs",
+      "Some advanced features only available in higher tiers"
+    ],
+    "externalUrl": "https://www.getresponse.com"
+  },
+  {
+    "id": "034db9ef-640c-4a61-9b18-3d6e242a9018",
+    "name": "Webnode",
+    "description": "Webnode is a user-friendly website builder that allows anyone to create responsive websites without coding, offering AI-powered website creation, multilingual support, and a variety of templates for personal and business use.",
+    "category": "Website Builder",
+    "price": 3.9,
+    "advantages": [
+      "Very easy to use for beginners",
+      "AI-powered website creation",
+      "Multilingual website support",
+      "Responsive design for all devices",
+      "Affordable starting price point"
+    ],
+    "disadvantages": [
+      "Limited design customization options",
+      "Basic e-commerce functionality compared to dedicated platforms",
+      "Free plan displays Webnode branding",
+      "Limited storage space on lower plans",
+      "Fewer templates than major competitors",
+      "No app marketplace for extensions",
+      "Limited SEO control options",
+      "Basic marketing tools"
+    ],
+    "externalUrl": "https://www.webnode.com"
+  },
+  {
+    "id": "2da3d39f-a442-42a9-b7c7-faf436e22cc3",
+    "name": "Spectra One",
+    "description": "Spectra One is a design system platform that helps teams create, manage, and scale consistent user interfaces across products and platforms through component libraries, documentation, and collaboration tools.",
+    "category": "Design System Platform",
+    "price": 12,
+    "advantages": [
+      "Centralized component management",
+      "Version control for design components",
+      "Cross-platform compatibility",
+      "Developer and designer collaboration features",
+      "Automated documentation generation",
+      "Visual regression testing built-in",
+      "Component analytics and usage metrics",
+      "Design token management",
+      "Accessibility compliance tools",
+      "Integration with popular design tools"
+    ],
+    "disadvantages": [
+      "Monthly subscription cost adds up for small teams",
+      "Initial setup requires investment of time",
+      "Learning curve for team adoption",
+      "Limited integrations with some design tools"
+    ],
+    "externalUrl": "https://www.spectra.one"
+  },
+  {
+    "id": "63f97c42-6002-44bc-88a4-935328297ac9",
+    "name": "Recombee",
+    "description": "Recombee is an AI-powered recommendation engine that helps businesses deliver personalized product, content, and service recommendations to their customers across all digital channels.",
+    "category": "Recommendation Systems",
+    "price": 499,
+    "advantages": [
+      "Ready-to-use AI recommendation engine",
+      "Real-time personalization capabilities",
+      "Quick implementation with SDKs for major platforms",
+      "Automatic algorithm selection and optimization",
+      "Handles cold-start problem effectively",
+      "Self-learning system that improves over time",
+      "Content-based and collaborative filtering",
+      "A/B testing functionality built-in",
+      "Detailed analytics and performance metrics",
+      "GDPR compliant data processing"
+    ],
+    "disadvantages": [
+      "Higher pricing tier for enterprise-level features",
+      "May require technical expertise for advanced customization",
+      "Limited control over recommendation algorithms",
+      "Performance dependent on quality of user interaction data"
+    ],
+    "externalUrl": "https://www.recombee.com"
+  },
+  {
+    "id": "7a15d64f-cccc-4215-892d-09b1725f426e",
+    "name": "10Web",
+    "description": "Unlock powerful tools for hosting, building, optimizing, and securing your site. Elevate your web presence with 10Web.",
+    "category": "Website Builder",
+    "price": 10,
+    "advantages": [
+      "AI website generation",
+      "Free domain",
+      "Discounts available"
+    ],
+    "disadvantages": [
+      "Limited to WordPress platform",
+      "Advanced features only in paid plans",
+      "Less design flexibility than some competitors",
+      "Relatively new compared to established builders",
+      "Learning curve for WordPress beginners"
+    ],
+    "externalUrl": "https://www.10web.io"
+  },
+  {
+    "id": "c77bb64a-573d-4fc0-9287-d1949d94dfd3",
+    "name": "ViSenze",
+    "description": "ViSenze is an AI company that develops visual search and image recognition solutions to simplify product discovery and improve shopping experiences across e-commerce platforms.",
+    "category": "Visual Search",
+    "price": 1200,
+    "advantages": [
+      "Advanced visual recognition technology",
+      "Comprehensive visual commerce solutions",
+      "Multi-platform deployment capabilities",
+      "Automated visual attribute tagging",
+      "Shoppable content generation tools",
+      "Visual recommendations engine",
+      "Camera search functionality",
+      "Integration with major e-commerce platforms",
+      "Visual merchandising capabilities",
+      "Analytics and insights on visual search behavior"
+    ],
+    "disadvantages": [
+      "Enterprise-focused pricing model",
+      "Complex implementation for full feature set",
+      "Requires technical resources for optimization",
+      "Performance dependent on image quality and catalog organization"
+    ],
+    "externalUrl": "https://www.visenze.com"
+  },
+  {
+    "id": "34a6615d-2402-4fdd-8848-8f7e5104865d",
+    "name": "Transmetrics",
+    "description": "Predictive analytics and AI optimization platform for cargo transport planning and logistics network optimization.",
+    "category": "automation",
+    "price": 75000,
+    "advantages": [
+      "Reduces empty vehicle capacity by 25%",
+      "Improves asset utilization by up to 14%",
+      "AI-powered demand forecasting with 95%+ accuracy",
+      "Data cleansing and enrichment capabilities",
+      "Scenario modeling for strategic planning"
+    ],
+    "disadvantages": [
+      "Enterprise-level pricing",
+      "Requires significant historical data",
+      "Complex implementation process",
+      "Best suited for medium to large operators",
+      "Industry-specific focus on logistics"
+    ],
+    "externalUrl": "https://www.transmetrics.ai"
+  },
+  {
+    "id": "96b6a3d8-7010-41a0-8c92-d829aa6f4d71",
+    "name": "Wflow",
+    "description": "Wflow is an AI-powered workflow automation platform that streamlines accounting and finance processes by automating document handling, approval workflows, and data integration between systems.",
+    "category": "Workflow Automation",
+    "price": 25,
+    "advantages": [
+      "Visual workflow designer (no-code)",
+      "Intelligent document processing",
+      "Approval workflow automation",
+      "Seamless system integrations",
+      "Customizable templates for finance processes",
+      "Real-time process monitoring",
+      "Team collaboration features",
+      "Compliance tracking and audit trails",
+      "Mobile access and approvals"
+    ],
+    "disadvantages": [
+      "Complex workflows require detailed setup",
+      "Limited advanced customization without API",
+      "Learning curve for full platform utilization",
+      "Some integrations require professional services"
+    ],
+    "externalUrl": "https://www.wflow.com"
+  },
+  {
+    "id": "a135df2a-d56f-47e6-8a2f-88182bf31578",
+    "name": "Colossyan",
+    "description": "AI platform for tvorbu vyukovych videi s realistickymi avatary.",
+    "category": "video-generation",
+    "price": 2000,
+    "advantages": [
+      "Vysoce realisticke avatary",
+      "Profesionalni vzhled",
+      "Mnoho jazyku",
+      "Firemni prizpusobeni"
+    ],
+    "disadvantages": [
+      "higher price",
+      "Delsi doba renderovani for kvalitni vystupy"
+    ],
+    "externalUrl": "https://www.colossyan.com"
+  },
+  {
+    "id": "93c1f468-6a78-4614-b2d0-2dbbfc9e7572",
+    "name": "Vidau.ai",
+    "description": "AI tool for automatickou tvorbu produktovych a reklamnich videi.",
+    "category": "video-generation",
+    "price": 1200,
+    "advantages": [
+      "Specializace na produktova videa",
+      "Automaticke generovani z textu",
+      "Marketingove sablony"
+    ],
+    "disadvantages": [
+      "limited options uprav",
+      "Zamereni predevsim na e-commerce"
+    ],
+    "externalUrl": "https://www.vidau.ai"
+  },
+  {
+    "id": "d8add475-4c45-40fc-a7ae-dfd9e5791a39",
+    "name": "Nuvocargo",
+    "description": "Digital platform with AI tools for cross-border shipping between US and Mexico, offering freight, customs, and trade compliance automation.",
+    "category": "automation",
+    "price": 5000,
+    "advantages": [
+      "All-in-one platform for cross-border logistics",
+      "Bilingual support team (English/Spanish)",
+      "Real-time shipment tracking and documentation",
+      "Automated customs processing",
+      "Supply chain financing options"
+    ],
+    "disadvantages": [
+      "Geographic focus limited to US-Mexico trade",
+      "Premium pricing compared to traditional brokers",
+      "Digital-first approach may not suit all shippers",
+      "Limited service for specialized cargo",
+      "Newer player in established industry"
+    ],
+    "externalUrl": "https://www.nuvocargo.com"
+  },
+  {
+    "id": "668a33d0-80f1-4b00-8d15-23b834c6daee",
+    "name": "Reface",
+    "description": "Mobilni application pro zabavnou vymenu tvari ve videich using AI.",
+    "category": "video-editing",
+    "price": 300,
+    "advantages": [
+      "Zabavne pouziti",
+      "Mobilni dostupnost",
+      "Rychle results",
+      "Socialni features"
+    ],
+    "disadvantages": [
+      "limited profesionalni vyuziti",
+      "Zakladni features editace"
+    ],
+    "externalUrl": "https://www.reface.app"
+  },
+  {
+    "id": "cebc93cf-eae8-4bc8-a111-9b26eb879f03",
+    "name": "FlexClip",
+    "description": "Online video editor s AI featuresmi pro rychlou tvorbu videi.",
+    "category": "video-editing",
+    "price": 500,
+    "advantages": [
+      "Jednoduchy interface",
+      "Bohata knihovna obsahu",
+      "Rychle zpracovani",
+      "Cenove dostupne"
+    ],
+    "disadvantages": [
+      "Zakladni AI features",
+      "Omezena delka v bezplatne verzi"
+    ],
+    "externalUrl": "https://www.flexclip.com"
+  },
+  {
+    "id": "bc65cd48-72a6-47e1-bb52-9cf96c41da35",
+    "name": "SwapAnything",
+    "description": "AI platform for vymenu objektu a pozadi ve videich.",
+    "category": "video-editing",
+    "price": 1200,
+    "advantages": [
+      "Univerzalni pouziti",
+      "Pokrocile AI algoritmy",
+      "Siroke options uprav"
+    ],
+    "disadvantages": [
+      "Nayearlyjsi na vypocetni vykon",
+      "higher price pro profesionalni pouziti"
+    ],
+    "externalUrl": "https://www.swapanything.io"
+  },
+  {
+    "id": "4cfdee1b-0f5e-4d4f-8c20-4c2d2f646c8d",
+    "name": "InVideo",
+    "description": "Online platform for tvorbu videi s AI asistenci.",
+    "category": "video-editing",
+    "price": 600,
+    "advantages": [
+      "Rozsahla knihovna sablon",
+      "easy pouziti",
+      "Automaticke prizpusobeni",
+      "Rychla tvorba"
+    ],
+    "disadvantages": [
+      "limitations v bezplatne verzi",
+      "dependency na internetovem pripojeni"
+    ],
+    "externalUrl": "https://www.invideo.io"
+  },
+  {
+    "id": "e2568d0b-8c48-45ce-97d8-d086b25f266b",
+    "name": "Zoho Books",
+    "description": "Zoho Books is an intelligent accounting software that uses AI to automate routine accounting tasks, streamline workflows, and provide insights for better financial decision-making.",
+    "category": "AI Accounting Software",
+    "price": 10,
+    "advantages": [
+      "Automated bank reconciliation",
+      "AI-powered expense categorization",
+      "Intelligent invoice processing",
+      "Smart payment reminders",
+      "Automated recurring transactions",
+      "Real-time financial reporting",
+      "Multi-currency support",
+      "Tax compliance automation",
+      "Client portal for collaboration",
+      "Extensive third-party integrations"
+    ],
+    "disadvantages": [
+      "Advanced features require higher plans",
+      "Initial setup takes time for customization",
+      "Limited features in mobile app",
+      "Learning curve for full functionality"
+    ],
+    "externalUrl": "https://www.zohobooks.com"
+  },
+  {
+    "id": "f46dd86d-399d-4dc1-957a-8c0b700f0e38",
+    "name": "Sage Intacct",
+    "description": "Sage Intacct is an advanced cloud financial management platform with AI capabilities that automates complex accounting processes, provides real-time insights, and supports multi-entity operations.",
+    "category": "Cloud Financial Management",
+    "price": 20000,
+    "advantages": [
+      "Intelligent GL automation",
+      "AI-powered transaction matching",
+      "Automated multi-entity consolidation",
+      "Predictive analytics",
+      "Continuous close capabilities",
+      "Dimensional reporting",
+      "Revenue recognition automation",
+      "Customizable workflows",
+      "Industry-specific solutions",
+      "Extensive integration ecosystem"
+    ],
+    "disadvantages": [
+      "Higher price point for small businesses",
+      "Complex implementation process",
+      "Requires accounting expertise",
+      "Substantial training for full utilization"
+    ],
+    "externalUrl": "https://www.sage.com/en-us/products/sage-intacct/"
+  },
+  {
+    "id": "4e3ba9e8-acfb-4c45-916a-8d56a1b34930",
+    "name": "Syte",
+    "description": "Syte is a visual AI platform that enables retailers to deliver personalized shopping experiences through visual search, product discovery, and recommendation technologies.",
+    "category": "Visual AI Search",
+    "price": 999,
+    "advantages": [
+      "Advanced visual search technology",
+      "Camera search integration for mobile apps",
+      "Similar item recommendation engine",
+      "Hyper-personalization based on visual preferences",
+      "Shop-the-look functionality",
+      "Social media visual content monetization",
+      "Deep product tagging with visual attributes",
+      "Cross-selling recommendations",
+      "Integration with major e-commerce platforms",
+      "Detailed analytics on visual search performance"
+    ],
+    "disadvantages": [
+      "Higher price point for smaller retailers",
+      "Best results require high-quality product images",
+      "Complex implementation for full feature utilization",
+      "More focused on fashion and home decor than other categories"
+    ],
+    "externalUrl": "https://www.syte.ai"
+  },
+  {
+    "id": "eab138b6-a37b-4940-930f-c63c169ad1b3",
+    "name": "Browse AI",
+    "description": "Browse AI is a no-code web scraping and automation platform that enables businesses to extract data from websites, monitor changes, and automate workflows without programming knowledge.",
+    "category": "Web Automation",
+    "price": 49,
+    "advantages": [
+      "No-code interface for creating web robots",
+      "Visual selection of data to extract",
+      "Scheduled data extraction and monitoring",
+      "Notifications for website changes",
+      "Export options including API, CSV, and integrations",
+      "Handles login-protected websites",
+      "Processes multiple pages and pagination",
+      "Cloud-based execution with no local setup",
+      "Built-in data cleaning and formatting",
+      "Advanced robots with conditional logic"
+    ],
+    "disadvantages": [
+      "Usage limits based on subscription tier",
+      "May require adjustments when websites change",
+      "Limited options for extremely complex scenarios",
+      "Some websites may block automated access"
+    ],
+    "externalUrl": "https://www.browse.ai"
+  },
+  {
+    "id": "74870810-5f5e-47e5-a26f-f5a8fc0e2a59",
+    "name": "Lily AI",
+    "description": "Lily AI is a product attribute platform that uses deep learning to understand product features and customer preferences, enhancing e-commerce search, recommendations, and demand forecasting with detailed product intelligence.",
+    "category": "Product Intelligence",
+    "price": 4000,
+    "advantages": [
+      "Deep product attribute enrichment",
+      "Customer-centered product taxonomy",
+      "Enhanced search relevance and findability",
+      "Improved product recommendations",
+      "Detailed product insights for merchandising",
+      "Cross-catalog attribute standardization",
+      "Integration with existing e-commerce platforms",
+      "Automated attribute tagging at scale",
+      "Improvement in conversion rates",
+      "Support for multiple product categories"
+    ],
+    "disadvantages": [
+      "Enterprise pricing model",
+      "Complex implementation for full utilization",
+      "Best results require integration across systems",
+      "Initial setup period for AI training"
+    ],
+    "externalUrl": "https://www.lily.ai"
+  },
+  {
+    "id": "97d6b834-df7d-43dd-bf45-fd46d4220133",
+    "name": "Boomtrain (by Zeta Global)",
+    "description": "Boomtrain is an AI-powered personalization platform, now part of Zeta Global, that helps marketers deliver individualized content and product recommendations across email, web, and mobile experiences.",
+    "category": "Marketing Personalization",
+    "price": 0,
+    "advantages": [
+      "Real-time personalization across channels",
+      "Predictive content and product recommendations",
+      "Individual user preference modeling",
+      "Dynamic email content personalization",
+      "Web and mobile personalization capabilities",
+      "Integration with major CMS and e-commerce platforms",
+      "Customer journey optimization",
+      "A/B testing for personalization strategies",
+      "Behavioral targeting capabilities",
+      "Detailed personalization analytics"
+    ],
+    "disadvantages": [
+      "Higher cost entry point for small businesses",
+      "Complex implementation requiring technical resources",
+      "Best results require sufficient user behavioral data",
+      "Learning curve for marketers to leverage full capabilities"
+    ],
+    "externalUrl": "https://www.boomtrain.com"
+  },
+  {
+    "id": "21cb1c6e-5917-44fb-98b3-4f8f48196195",
+    "name": "Conversica",
+    "description": "Conversica is an AI-powered conversational platform that uses intelligent virtual assistants to engage prospects and customers in human-like conversations, helping businesses automate sales and marketing engagement at scale.",
+    "category": "Conversational AI",
+    "price": 3000,
+    "advantages": [
+      "Human-like AI assistants for two-way conversations",
+      "Persistent follow-up without human intervention",
+      "Seamless hand-off to human teams when appropriate",
+      "Integration with CRM and marketing automation systems",
+      "Multi-channel communication (email, SMS, website)",
+      "Personalized engagement at scale",
+      "Lead qualification and prioritization",
+      "Performance analytics and conversation insights",
+      "Multiple language support",
+      "Continuous learning from interactions"
+    ],
+    "disadvantages": [
+      "Higher price point compared to basic chatbots",
+      "Complex initial setup and training period",
+      "Best results require CRM integration and data quality",
+      "Some industries may require significant customization"
+    ],
+    "externalUrl": "https://www.conversica.com"
+  },
+  {
+    "id": "2e5876d4-618d-4348-8aab-b27997e357ff",
+    "name": "Crowdy AI Accounting",
+    "description": "Crowdy AI Accounting is an AI-powered chatbot and automation platform specifically designed for accounting services, helping accounting firms automate client communication, data collection, and routine accounting tasks.",
+    "category": "AI Accounting Assistant",
+    "price": 29,
+    "advantages": [
+      "24/7 automated client communication",
+      "Intelligent document collection and verification",
+      "Automated expense categorization",
+      "Natural language financial inquiries",
+      "Scheduled reporting and reminders",
+      "Multi-language support",
+      "Conversational tax guidance",
+      "Seamless accounting software integration",
+      "Custom workflow automation"
+    ],
+    "disadvantages": [
+      "Complex inquiries require human intervention",
+      "Initial training period for optimal performance",
+      "Advanced features in higher pricing tiers",
+      "Some customization requires technical setup"
+    ],
+    "externalUrl": "https://crowdy.ai/cs/ai-chatbot-for-accounting-services/"
+  },
+  {
+    "id": "84125262-fe89-4ca6-98bf-26b87ae82b28",
+    "name": "FullStory",
+    "description": "digital analyticky tool for sledovani chovani useru a optimalizaci digitalnich zkusenosti.",
+    "category": "analytics",
+    "price": 1500,
+    "advantages": [
+      "Detailni sledovani chovani useru",
+      "advanced analyticke features",
+      "Snadna integration",
+      "Kvalitni vizualizace dat"
+    ],
+    "disadvantages": [
+      "Muze ovlivnit rychlost webu",
+      "limitations v zakladnim planu",
+      "higher price for vetsi provoz"
+    ],
+    "externalUrl": "https://www.fullstory.com"
+  },
+  {
+    "id": "7fdf2782-081d-42e6-aa9b-98899482a984",
+    "name": "Swap",
+    "description": "AI-powered product returns management platform that automates processing, reduces costs, and enables circular commerce.",
+    "category": "automation",
+    "price": 10000,
+    "advantages": [
+      "Reduces returns processing costs by 30-50%",
+      "Increases recovery value by 25%",
+      "Automated disposition decision-making",
+      "Seamless customer returns experience",
+      "Enables resale of returned items"
+    ],
+    "disadvantages": [
+      "Integration complexity with existing systems",
+      "Primarily focused on fashion/apparel",
+      "Premium pricing compared to basic returns",
+      "Best ROI for high-return-rate businesses",
+      "Limited customization for smaller merchants"
+    ],
+    "externalUrl": "https://www.swap.io"
+  },
+  {
+    "id": "6e7f1806-edff-48a5-b951-7c2abd60fef6",
+    "name": "Veryfi",
+    "description": "Veryfi is an AI-powered document processing platform that extracts data from receipts, invoices, and financial documents in seconds to automate accounting, expense management, and data entry.",
+    "category": "Document Intelligence",
+    "price": 49,
+    "advantages": [
+      "Near-instant document processing",
+      "High accuracy data extraction",
+      "No templates or rules required",
+      "Field-level data recognition",
+      "Mobile and web capture options",
+      "Line item extraction",
+      "Data privacy and security focus",
+      "Developer-friendly APIs",
+      "Cross-platform compatibility",
+      "White-label capabilities"
+    ],
+    "disadvantages": [
+      "Enterprise-focused pricing",
+      "API implementation requires technical resources",
+      "Some customization needed for specific industries",
+      "Advanced features in higher plans only"
+    ],
+    "externalUrl": "https://www.veryfi.com"
+  },
+  {
+    "id": "4963aaea-706e-4873-b277-479314e0eb95",
+    "name": "Lyro",
+    "description": "Lyro (formerly Remi AI) is an AI-powered inventory optimization platform that helps businesses automate forecasting, replenishment, and purchasing decisions to reduce costs and prevent stockouts.",
+    "category": "Inventory Optimization",
+    "price": 800,
+    "advantages": [
+      "AI-powered demand forecasting",
+      "Automated purchase order generation",
+      "Dynamic safety stock calculation",
+      "Multi-location inventory optimization",
+      "Supplier lead time tracking and adjustment",
+      "Integration with existing ERP systems",
+      "Seasonality and trend detection",
+      "Exception-based inventory management",
+      "What-if scenario planning",
+      "Real-time dashboards and analytics"
+    ],
+    "disadvantages": [
+      "Higher price point for small businesses",
+      "Requires clean historical data for best results",
+      "Complex implementation with ERP systems",
+      "Learning period for AI to optimize recommendations"
+    ],
+    "externalUrl": "https://www.lyro.ai"
+  },
+  {
+    "id": "400cd554-1223-4e8e-8ddc-05509f2cd847",
+    "name": "Sprout Social",
+    "description": "platform for spravu socialnich siti a analyzu socialnich medii.",
+    "category": "social-media",
+    "price": 1000,
+    "advantages": [
+      "intuitive rozhrani",
+      "advanced planovaci toole",
+      "comprehensive analytika",
+      "Tymova spoluprace"
+    ],
+    "disadvantages": [
+      "higher price for vice useru",
+      "Nektere advanced features jen v drazsich planech",
+      "Omezeny pocet profilu v zakladnim planu"
+    ],
+    "externalUrl": "https://www.sproutsocial.com"
+  },
+  {
+    "id": "1ba08a5e-0982-4248-bd3b-df024efdd7a2",
+    "name": "WeGrow.ai",
+    "description": "WeGrow.ai is an AI-powered growth marketing platform that helps businesses acquire and retain customers through personalized recommendations, predictive analytics, and automated marketing campaigns.",
+    "category": "Growth Marketing",
+    "price": 0,
+    "advantages": [
+      "AI-driven customer acquisition strategies",
+      "Personalized marketing campaign recommendations",
+      "Predictive audience segmentation",
+      "Automated A/B testing",
+      "Multi-channel campaign orchestration",
+      "Customer lifetime value predictions",
+      "Churn risk identification and prevention",
+      "Integration with major marketing platforms",
+      "Real-time performance analytics",
+      "Marketing budget optimization tools"
+    ],
+    "disadvantages": [
+      "Requires integration with existing marketing systems",
+      "Complex initial setup for data synchronization",
+      "Full value realization takes time as AI learns",
+      "Advanced features limited to higher pricing tiers"
+    ],
+    "externalUrl": "https://www.wegrow.ai"
+  },
+  {
+    "id": "16d61ba8-31a5-4e6b-8888-a99906b10709",
+    "name": "Chatfuel",
+    "description": "platform for tvorbu chatbotu for socialni site a messaging platformy.",
+    "category": "chatbots",
+    "price": 600,
+    "advantages": [
+      "Snadna tvorba chatbotu",
+      "integration se socialnimi sitemi",
+      "Analyticke toole",
+      "Personalizace odpovedi"
+    ],
+    "disadvantages": [
+      "limited AI schopnosti",
+      "dependency na platformach",
+      "limitations v zakladnim planu"
+    ],
+    "externalUrl": "https://www.chatfuel.com"
+  },
+  {
+    "id": "0e11dda0-1bdf-478a-acbe-0105d776f659",
+    "name": "Auxia",
+    "description": "Auxia (formerly Forethought) is an AI customer service platform that provides intelligent automation, agent assistance, and self-service solutions to enhance support efficiency and customer experience.",
+    "category": "Customer Service AI",
+    "price": 0,
+    "advantages": [
+      "Automated customer self-service",
+      "AI agent assistance for faster resolution",
+      "Intelligent ticket classification and routing",
+      "Knowledge base automation and enhancement",
+      "Multi-channel support capabilities",
+      "Integration with major service platforms",
+      "Continuous learning from support interactions",
+      "Detailed analytics on support efficiency",
+      "Easy implementation with existing systems",
+      "Language understanding beyond keywords"
+    ],
+    "disadvantages": [
+      "Enterprise pricing model",
+      "Best results require significant training data",
+      "Complex implementation for full integration",
+      "Advanced features limited to higher tiers"
+    ],
+    "externalUrl": "https://www.auxia.ai"
+  },
+  {
+    "id": "ecc7b945-68d9-42cc-819a-c66bf6ff4b58",
+    "name": "TapClicks",
+    "description": "comprehensive marketingova platform for analyzu dat, reporting a automatizaci marketingovych aktivit.",
+    "category": "marketing",
+    "price": 2000,
+    "advantages": [
+      "Sjednocuje data z ruznych marketingovych kanalu",
+      "Pokrocile reportovaci toole",
+      "Automatizace marketingovych procesu",
+      "Prehledne dashboardy"
+    ],
+    "disadvantages": [
+      "higher cenova kategorie",
+      "Slozitejsi pocatecni nastaveni",
+      "Muze byt prilis komplexni pro mensi firmy"
+    ],
+    "externalUrl": "https://www.tapclicks.com"
+  },
+  {
+    "id": "ed0293fe-e30f-4cc3-b23e-98feecd65da3",
+    "name": "Replo",
+    "description": "No-code platform for tvorbu a optimalizaci e-commerce stranek s AI asistenci.",
+    "category": "e-commerce",
+    "price": 800,
+    "advantages": [
+      "easy pouziti bez kodovani",
+      "AI asistence pri designu",
+      "Optimalizace pro konverze",
+      "Rychle nasazeni"
+    ],
+    "disadvantages": [
+      "limited options customizace",
+      "dependency na platforme",
+      "Zakladni analyticke toole"
+    ],
+    "externalUrl": "https://www.replo.app"
+  },
+  {
+    "id": "24a4836f-2d7e-47fa-bb96-e0071545e125",
+    "name": "Surfer SEO",
+    "description": "AI-powered platform for optimalizaci obsahu a analyzu SEO.",
+    "category": "seo",
+    "price": 900,
+    "advantages": [
+      "Data-driven optimalizace obsahu",
+      "Komplexni SEO analysis",
+      "Integrace s WordPress",
+      "Planovani obsahu"
+    ],
+    "disadvantages": [
+      "Mesicni limit analyz",
+      "Obcas nepresne metriky",
+      "requires zakladni znalost SEO"
+    ],
+    "externalUrl": "https://www.surferseo.com"
+  },
+  {
+    "id": "c98b5aea-a20e-480e-bece-571f2e648e04",
+    "name": "Dext",
+    "description": "Dext provides intelligent tools for digital accounting, automating document processing and financial reporting for accountants and small businesses.",
+    "category": "Accounting Digitization",
+    "price": 20,
+    "advantages": [
+      "Automatic processing and data extraction from documents",
+      "Fast digital capture of receipts and invoices",
+      "Integration with popular accounting software",
+      "Mobile app for scanning documents on the go",
+      "Reduced errors in data transcription",
+      "Automatic expense categorization",
+      "Easy search and archiving of documents",
+      "Time savings for accountants and clients",
+      "Efficient invoice processing",
+      "Modern cloud solution"
+    ],
+    "disadvantages": [
+      "Higher price for very small companies",
+      "Some advanced features only in more expensive plans",
+      "May require fine-tuning for recognizing specific documents",
+      "Limited functionality in offline mode"
+    ],
+    "externalUrl": "https://www.dext.com"
+  },
+  {
+    "id": "1b8729b2-98e7-4ac3-a38c-5c93d4551f9b",
+    "name": "Vic.ai",
+    "description": "Vic.ai is an autonomous accounting platform powered by artificial intelligence that automates invoice processing and accounting processes for accounting firms and finance departments.",
+    "category": "AI Accounting",
+    "price": 0,
+    "advantages": [
+      "Fully autonomous invoice processing",
+      "Up to 99% accuracy thanks to advanced AI",
+      "Continuous learning and system improvement",
+      "Significant time savings in document processing",
+      "Automatic detection of duplicates and fraud",
+      "Advanced data analysis and predictive functions",
+      "Integration with ERP and accounting systems",
+      "Scalable solution from small to large companies",
+      "Automatic matching of orders and invoices",
+      "Ongoing cost control"
+    ],
+    "disadvantages": [
+      "Higher initial costs",
+      "More complex implementation in larger organizations",
+      "Requires time to train AI on company-specific documents",
+      "Limited support in some geographic regions"
+    ],
+    "externalUrl": "https://www.vic.ai"
+  },
+  {
+    "id": "1a549dc0-a631-4895-a629-e69ecd900474",
+    "name": "SalesLoft",
+    "description": "comprehensive platform for sales engagement s AI featuresmi.",
+    "category": "sales",
+    "price": 2000,
+    "advantages": [
+      "Automatizace prodejnich procesu",
+      "Personalizovana komunikace",
+      "Integrace s CRM",
+      "Pokrocila analytika"
+    ],
+    "disadvantages": [
+      "higher price",
+      "comprehensive nastaveni",
+      "Potreba training tymu"
+    ],
+    "externalUrl": "https://www.salesloft.com"
+  },
+  {
+    "id": "4ca66ef6-2a65-4f7c-b8fe-9c4bc2b35b1c",
+    "name": "Docyt",
+    "description": "Docyt is an AI platform for financial reporting and accounting that automates data collection and categorization and provides real-time financial insights and analysis.",
+    "category": "Financial Reporting",
+    "price": 29,
+    "advantages": [
+      "Automatic processing and categorization of transactions",
+      "Real-time financial insights",
+      "Detailed reporting at the level of locations, departments, and projects",
+      "Automated reconciliation of bank transactions",
+      "Tracking key financial metrics",
+      "Adaptive AI that adapts to company needs",
+      "Integration with banks and accounting systems",
+      "Simplified planning and budgeting",
+      "Customized reports for different stakeholders",
+      "Secure cloud solution"
+    ],
+    "disadvantages": [
+      "Higher price for small businesses",
+      "Limited support for some international accounting standards",
+      "More complex setup for specific needs of some industries",
+      "Limited functionality in the basic plan"
+    ],
+    "externalUrl": "https://www.docyt.com"
+  },
+  {
+    "id": "475a3c7e-ecc8-4700-9047-e8893d702815",
+    "name": "LedgerGurus",
+    "description": "LedgerGurus provides outsourced accounting services enhanced by technology and artificial intelligence, offering complete accounting solutions for e-commerce and SaaS companies.",
+    "category": "Accounting Services",
+    "price": 750,
+    "advantages": [
+      "Combination of expert accounting team and modern technologies",
+      "Specialization in e-commerce and SaaS companies",
+      "Scalable solution growing with the company",
+      "Expertise in complex accounting issues",
+      "Implementation and management of accounting technologies",
+      "Regular financial reports and analyses",
+      "Effective tax planning",
+      "Integration with a large number of e-commerce platforms",
+      "Automation of routine accounting processes",
+      "Strategic financial advisory"
+    ],
+    "disadvantages": [
+      "Higher costs compared to internal solutions for larger companies",
+      "Need to share sensitive financial data with an external partner",
+      "Less control over daily accounting processes",
+      "May be less flexible for very specific requirements"
+    ],
+    "externalUrl": "https://www.ledgergurus.com"
+  },
+  {
+    "id": "8b19ec10-7d20-47ad-a01f-38ae6b5f782c",
+    "name": "Rossum",
+    "description": "Rossum is an AI platform for document automation that uses advanced machine learning to extract data from invoices, orders, and other business documents.",
+    "category": "Document Processing",
+    "price": 800,
+    "advantages": [
+      "Data extraction accuracy up to 98% without templates",
+      "Adaptive AI that learns from each document",
+      "Document processing in multiple languages and formats",
+      "Automation of the entire process from receipt to processing",
+      "Efficient exception handling and data validation",
+      "Integration with ERP and accounting systems",
+      "Significant acceleration of document processing",
+      "Reduction of errors in manual data entry",
+      "Advanced approval workflows",
+      "Auditable document processing history"
+    ],
+    "disadvantages": [
+      "Higher initial investment",
+      "Requires time to train AI for specific document types",
+      "Limited support for very non-standard document formats",
+      "More complex implementation for extensive systems"
+    ],
+    "externalUrl": "https://www.rossum.ai"
+  },
+  {
+    "id": "0caed780-7348-4cb8-8789-3af897748125",
+    "name": "Pilot",
+    "description": "Pilot combines expert accountants with intelligent technology to provide accounting, tax services, and financial reporting for startups and growing companies.",
+    "category": "Startup Accounting",
+    "price": 599,
+    "advantages": [
+      "Specialization in the needs of startups and fast-growing companies",
+      "Team of experienced accountants supported by technology",
+      "Deep knowledge of accounting for VC-funded companies",
+      "Integration with popular financial tools",
+      "Monthly financial reports and analytics",
+      "Support during investment rounds and due diligence",
+      "Scalable solution growing with the company",
+      "R&D tax credits for technology companies",
+      "Predictable pricing structure",
+      "High accuracy and reliability of services"
+    ],
+    "disadvantages": [
+      "Higher price compared to basic accounting services",
+      "Primarily focused on the US market and accounting standards",
+      "Less suitable for very small or traditional companies",
+      "Limited support for some international operations"
+    ],
+    "externalUrl": "https://www.pilot.com"
+  },
+  {
+    "id": "a4405f0e-2ed4-477c-8a98-925024fd9ce8",
+    "name": "Process Street",
+    "description": "AI-enhanced workflow management platform that automates documented procedures, checklists, and recurring business processes.",
+    "category": "automation",
+    "price": 1188,
+    "advantages": [
+      "No-code workflow builder",
+      "AI-powered workflow recommendations",
+      "Conditional logic and branching",
+      "Rich integrations with business tools",
+      "Detailed analytics and reporting"
+    ],
+    "disadvantages": [
+      "Limited customization for complex workflows",
+      "Basic free tier with restricted features",
+      "Steeper learning curve for advanced functionality",
+      "Limited document management capabilities",
+      "Mobile app with fewer features than web version"
+    ],
+    "externalUrl": "https://www.process.st"
+  },
+  {
+    "id": "0faf3410-db39-4a8b-890b-d4a5f326fd52",
+    "name": "Plate IQ",
+    "description": "Plate IQ is an AI-powered accounts payable automation platform that digitizes invoices, automates approval workflows, and provides spend analytics, primarily for restaurants and hospitality businesses.",
+    "category": "Accounts Payable Automation",
+    "price": 500,
+    "advantages": [
+      "Specialized for restaurant and hospitality industries",
+      "Line-item invoice digitization with 99%+ accuracy",
+      "Automated three-way matching",
+      "price tracking and variance alerts",
+      "Digital vendor payments platform",
+      "Automated approval workflows",
+      "GL coding and accounting system integration",
+      "Spend analytics and reporting",
+      "Cost tracking across multiple locations",
+      "Virtual card rebate program"
+    ],
+    "disadvantages": [
+      "Higher pricing than general-purpose AP solutions",
+      "Most beneficial for businesses with high invoice volume",
+      "Learning curve for complex features",
+      "Implementation requires process changes"
+    ],
+    "externalUrl": "https://www.plateiq.com"
+  },
+  {
+    "id": "bfe81850-b1c5-4f66-ae29-9e2f7dee38de",
+    "name": "Vidnoz",
+    "description": "AI platform for automaticke vytvareni profesionalnich videi s avatary.",
+    "category": "video-generation",
+    "price": 900,
+    "advantages": [
+      "Rychla tvorba videi",
+      "Prirozeny hlas avataru",
+      "Mnoho sablon",
+      "easy pouziti"
+    ],
+    "disadvantages": [
+      "Omezeny vyber avataru v zakladu",
+      "Nektere advanced features jen v for verzi"
+    ],
+    "externalUrl": "https://www.vidnoz.com"
+  },
+  {
+    "id": "2cfcf353-affe-4799-94ea-421517d79c43",
+    "name": "ZenHub",
+    "description": "AI-powered project management platform for software teams that automates workflows, planning, and reporting within GitHub.",
+    "category": "automation",
+    "price": 1200,
+    "advantages": [
+      "Native GitHub integration",
+      "AI sprint planning and automation",
+      "Real-time roadmapping",
+      "Automated task tracking",
+      "Team velocity and burndown analytics"
+    ],
+    "disadvantages": [
+      "Primarily focused on GitHub users",
+      "Learning curve for non-technical users",
+      "Some features require GitHub Enterprise",
+      "Limited customization for Kanban boards",
+      "Premium pricing compared to basic project tools"
+    ],
+    "externalUrl": "https://www.zenhub.com"
+  },
+  {
+    "id": "f6e11703-e649-43d4-a307-613dddb198e2",
+    "name": "Autobooks",
+    "description": "Autobooks is an integrated financial and accounting solution that enables small businesses to accept online payments, track finances, and automate accounting directly through their bank account.",
+    "category": "SMB Financial Software",
+    "price": 10,
+    "advantages": [
+      "Direct integration with bank account",
+      "Accepting online payments without additional software",
+      "Automatic matching of payments with invoices",
+      "Digital invoicing and expense management",
+      "Real-time financial insights",
+      "Easy to use for non-accountants",
+      "Minimal implementation requirements",
+      "Competitive payment processing fees",
+      "Bank-level security",
+      "Elimination of need for multiple financial systems"
+    ],
+    "disadvantages": [
+      "Limited advanced accounting features",
+      "Dependency on specific bank support",
+      "Fewer integrations with external systems",
+      "May be less suitable for larger organizations"
+    ],
+    "externalUrl": "https://www.autobooks.co"
+  },
+  {
+    "id": "4d317e51-dd49-42f7-9f39-e68c5f4ac3e5",
+    "name": "Aprio",
+    "description": "Aprio is an accounting and advisory firm that utilizes AI and automation to provide accounting, tax advisory, and business consulting services for various types of companies.",
+    "category": "Accounting Services",
+    "price": 100,
+    "advantages": [
+      "Combination of human expertise and AI technologies",
+      "Comprehensive accounting and tax services",
+      "Specialization in various industries",
+      "Advanced financial analysis and reporting",
+      "Tax optimization advisory",
+      "Support during transactions and mergers",
+      "Digital transformation of accounting processes",
+      "Specialized teams for specific needs",
+      "Proactive approach to financial planning",
+      "Scalable solution based on company size"
+    ],
+    "disadvantages": [
+      "Higher price compared to purely digital solutions",
+      "Focus primarily on medium-sized and larger companies",
+      "Personal approach may be limited for clients with lower budgets",
+      "More complex implementation than self-service solutions"
+    ],
+    "externalUrl": "https://www.aprio.com"
+  },
+  {
+    "id": "71875066-3d33-4f4d-8225-4ea1ee353dab",
+    "name": "Billy",
+    "description": "Billy is an intuitive accounting software designed for freelancers and small businesses that automates invoicing, expenses, and basic accounting with an AI assistant.",
+    "category": "Accounting Software",
+    "price": 15,
+    "advantages": [
+      "Extremely simple and intuitive interface",
+      "Specialization in freelancer and small business needs",
+      "Automation of recurring invoices and reminders",
+      "Easy expense tracking and categorization",
+      "Smart tax record-keeping and preparation",
+      "Integrated client management system",
+      "Mobile app for accounting on the go",
+      "Multi-currency support for international clients",
+      "Accessible pricing plans",
+      "Minimal accounting knowledge required for use"
+    ],
+    "disadvantages": [
+      "Limited features for more complex accounting",
+      "Fewer advanced reports compared to competitors",
+      "Limited number of third-party integrations",
+      "May be insufficient for rapidly growing companies"
+    ],
+    "externalUrl": "https://www.billyapp.com"
+  },
+  {
+    "id": "bf31321b-430c-4b2d-8b76-5db2a4a4c42e",
+    "name": "Booke AI",
+    "description": "Booke AI is an intelligent accounting assistant that automates accounting processes and provides financial insights for small and medium businesses using artificial intelligence.",
+    "category": "AI Accounting Assistant",
+    "price": 29,
+    "advantages": [
+      "Automation of routine accounting tasks",
+      "Real-time financial insights",
+      "Easy integration with common accounting software",
+      "Personalized financial recommendations",
+      "Reduced need for manual data entry",
+      "Proactive alerts to financial issues",
+      "Intuitive user interface",
+      "Affordable for small businesses",
+      "24/7 access to financial data",
+      "Saves time and reduces errors in accounting"
+    ],
+    "disadvantages": [
+      "Limited advanced features in basic plan",
+      "May require initial integration setup",
+      "Less suitable for very specific accounting requirements",
+      "Limited support for some local accounting standards"
+    ],
+    "externalUrl": "https://booke.ai"
+  },
+  {
+    "id": "80d695d6-e815-4ab0-862a-80c6c82b0b2b",
+    "name": "ZipBooks",
+    "description": "ZipBooks is an intuitive accounting software with integrated artificial intelligence that automates invoicing, accounting, and financial reporting for small businesses and freelancers.",
+    "category": "Accounting Software",
+    "price": 15,
+    "advantages": [
+      "Attractive and user-friendly interface",
+      "Free basic plan for business startup",
+      "Intelligent automatic accounting and categorization",
+      "Professional-looking invoices and quotes",
+      "Integration with time and project tracking",
+      "Automatic reminders for unpaid invoices",
+      "Supports multiple currencies and tax rates",
+      "Advanced financial reports and overviews",
+      "Integrated customer rating system",
+      "Competitive pricing compared to similar solutions"
+    ],
+    "disadvantages": [
+      "Limited features in free plan",
+      "Fewer advanced features compared to large accounting systems",
+      "Limited number of third-party integrations",
+      "Some advanced features only available in higher plans"
+    ],
+    "externalUrl": "https://www.zipbooks.com"
+  },
+  {
+    "id": "5d1fc9c3-2ac5-4cec-8bfe-574edd31086c",
+    "name": "ELAI",
+    "description": "AI platform for tvorbu videi s digitalnimi prezentatory.",
+    "category": "video-generation",
+    "price": 1500,
+    "advantages": [
+      "Profesionalni prezentatori",
+      "Multijazycnost",
+      "Firemni prizpusobeni",
+      "Vysoka kvalita"
+    ],
+    "disadvantages": [
+      "higher price for advanced features",
+      "Omezeny pocet avataru"
+    ],
+    "externalUrl": "https://www.elai.io"
+  },
+  {
+    "id": "565eff33-20b4-4782-81ab-f210ee5cbf08",
+    "name": "RTB House",
+    "description": "platform for personalizovanou retargetingovou reklamu vyuzivajici deep learning.",
+    "category": "advertising",
+    "price": 0,
+    "advantages": [
+      "Pokrocile AI algoritmy",
+      "Personalizovane reklamy",
+      "Vysoka mira konverze",
+      "Globalni dosah"
+    ],
+    "disadvantages": [
+      "higher minimalni rozpocet",
+      "comprehensive nastaveni",
+      "Mene vhodne for male firmy"
+    ],
+    "externalUrl": "https://www.rtbhouse.com"
+  },
+  {
+    "id": "30e6f158-1a8b-4adb-abcc-aed51a84468c",
+    "name": "Ramp",
+    "description": "Ramp is an AI-powered financial automation platform that combines corporate cards, expense management, bill payments, and accounting integrations to help businesses save time and reduce costs.",
+    "category": "Financial Automation",
+    "price": 0,
+    "advantages": [
+      "Free platform with no subscription fees",
+      "AI-powered expense categorization and policy enforcement",
+      "2% cash back on all spend with no category restrictions",
+      "Real-time spend control and card management",
+      "Automated receipt matching and expense reconciliation",
+      "Vendor management and negotiation insights",
+      "Bill pay automation with approval workflows",
+      "price intelligence for cost optimization",
+      "Direct integrations with accounting systems",
+      "Custom reporting and spend analytics"
+    ],
+    "disadvantages": [
+      "Card program requires business creditworthiness",
+      "Some advanced features require higher-tier plans",
+      "Limited international payment capabilities",
+      "Revenue model based on interchange fees"
+    ],
+    "externalUrl": "https://www.ramp.com"
+  },
+  {
+    "id": "e3218aaa-2eb0-4b86-94a6-47e9f2453a99",
+    "name": "Numerai",
+    "description": "Numerai is a hedge fund built on a global network of data scientists who compete to create the best predictive models for the stock market using AI and machine learning.",
+    "category": "AI Hedge Fund",
+    "price": 0,
+    "advantages": [
+      "access to sophisticated financial modeling platform",
+      "Opportunity to earn cryptocurrency rewards",
+      "Learn and collaborate with global data scientists",
+      "No capital investment required to participate",
+      "Anonymized data prevents overfitting",
+      "Blockchain-based incentive system",
+      "Weekly tournaments for continuous improvement",
+      "access to encrypted financial datasets",
+      "Merit-based rewards for accurate predictions",
+      "Open to anyone with data science skills"
+    ],
+    "disadvantages": [
+      "Complex entry barrier for beginners",
+      "Rewards subject to model performance",
+      "Requires significant data science expertise",
+      "Competitive environment with skilled participants"
+    ],
+    "externalUrl": "https://www.numer.ai"
+  },
+  {
+    "id": "b8ddab23-5631-46d1-96b1-022520288542",
+    "name": "Aiva",
+    "description": "AI kompozicni engine pro tvorbu emocionalni hudby.",
+    "category": "music",
+    "price": 1200,
+    "advantages": [
+      "Vysoka kvalita kompozic",
+      "Emocionalni hloubka",
+      "MIDI export",
+      "Vlastni upravy"
+    ],
+    "disadvantages": [
+      "higher price for profesionalni pouziti",
+      "Delsi doba generovani",
+      "limited zanry"
+    ],
+    "externalUrl": "https://www.aiva.ai"
+  },
+  {
+    "id": "286d9c7d-ef1b-4768-b272-1f9b1b4c832d",
+    "name": "Personal Capital",
+    "description": "Personal Capital is a wealth management platform that combines AI-powered financial tools with human financial advisors to help users track, manage, and optimize their investments and financial planning.",
+    "category": "Wealth Management",
+    "price": 0,
+    "advantages": [
+      "Free comprehensive financial dashboard",
+      "Advanced investment analytics and fee analyzer",
+      "Retirement planning calculator and tools",
+      "Cash flow and budgeting features",
+      "Human financial advisors for premium clients",
+      "Holistic view of all financial accounts",
+      "Automatic categorization of transactions",
+      "Portfolio allocation analysis",
+      "Net worth tracking over time",
+      "Regular financial health checkups"
+    ],
+    "disadvantages": [
+      "Wealth management services require $100,000 minimum investment",
+      "Higher fees than some robo-advisors for managed accounts",
+      "Limited budgeting features compared to dedicated tools",
+      "Some users report aggressive sales calls for premium services"
+    ],
+    "externalUrl": "https://www.personalcapital.com"
+  },
+  {
+    "id": "59e69d8b-7c31-449c-a04e-de018d433e0a",
+    "name": "PostNL",
+    "description": "Dutch postal and courier service using AI to optimize parcel delivery and logistics processes.",
+    "category": "Logistics",
+    "price": 10,
+    "advantages": [
+      "Efficient delivery coverage in the Netherlands and Europe",
+      "Advanced shipment tracking technology",
+      "AI for delivery route optimization",
+      "Integrated digital solutions"
+    ],
+    "disadvantages": [
+      "Primarily focused on the Dutch market",
+      "Higher prices for international delivery",
+      "Varying service quality in different regions"
+    ],
+    "externalUrl": "https://www.postnl.nl"
+  },
+  {
+    "id": "b4b7ead3-f058-4217-b369-87e24a2a3972",
+    "name": "Suning",
+    "description": "One of the largest e-commerce platforms in China that uses AI for product recommendations and supply chain optimization.",
+    "category": "E-commerce",
+    "price": 0,
+    "advantages": [
+      "Huge product selection",
+      "Competitive prices",
+      "Intuitive user interface",
+      "AI-based product recommendations"
+    ],
+    "disadvantages": [
+      "Primarily focused on the Chinese market",
+      "Potential issues with international shipping",
+      "Language barrier for non-Chinese users"
+    ],
+    "externalUrl": "https://www.suning.com"
+  },
+  {
+    "id": "2304a68f-5816-4033-96ae-cc94b8b7abfe",
+    "name": "Samsung SDS Logistics AI",
+    "description": "Enterprise AI platform for logistics optimization, warehouse management, and supply chain intelligence with predictive analytics.",
+    "category": "automation",
+    "price": 750000,
+    "advantages": [
+      "End-to-end supply chain visibility",
+      "Predictive demand forecasting",
+      "Automated logistics planning",
+      "Integration with enterprise systems",
+      "Global logistics network support"
+    ],
+    "disadvantages": [
+      "Enterprise-focused with high minimum requirements",
+      "Complex implementation process",
+      "Significant customization required",
+      "Extended deployment timeline",
+      "Best suited for large operations"
+    ],
+    "externalUrl": "https://www.samsung.com/global/business/sds/solution/ai"
+  },
+  {
+    "id": "9b0e174c-32ba-4da0-883b-85503aa3aae4",
+    "name": "Capital One CreditWise",
+    "description": "Capital One CreditWise is an AI-powered credit monitoring and financial health tool that helps users track their credit score, detect fraud, and receive personalized recommendations to improve their credit.",
+    "category": "Credit Monitoring",
+    "price": 0,
+    "advantages": [
+      "Free credit monitoring for everyone, not just Capital One customers",
+      "Weekly VantageScore updates from TransUnion",
+      "Credit score simulator to test financial decisions",
+      "Dark web scanning for compromised information",
+      "Real-time alerts for credit changes",
+      "Personalized recommendations for credit improvement",
+      "Credit factor analysis with educational insights",
+      "SSN tracking and alerts",
+      "Secure mobile app access",
+      "No impact on credit score"
+    ],
+    "disadvantages": [
+      "Only provides VantageScore, not FICO score used by many lenders",
+      "Monitors only TransUnion, not all three credit bureaus",
+      "Some features promote Capital One products",
+      "Limited credit report information compared to paid services"
+    ],
+    "externalUrl": "https://www.capitalone.com"
+  },
+  {
+    "id": "34317734-caf9-4f62-9240-078d591ae2f8",
+    "name": "BlackRock Aladdin",
+    "description": "Aladdin is BlackRock's comprehensive investment management and risk analytics platform that uses AI to help institutional investors manage portfolios, assess risk, and make data-driven investment decisions.",
+    "category": "Investment Management",
+    "price": 25000,
+    "advantages": [
+      "Comprehensive portfolio management across all asset classes",
+      "Advanced risk analytics and scenario modeling",
+      "Unified view of positions, exposures, and risk",
+      "Integration of sustainability metrics and ESG data",
+      "Sophisticated trading and execution capabilities",
+      "Enterprise-wide data consolidation",
+      "Investment decision support with AI-driven insights",
+      "Real-time position and exposure tracking",
+      "Regulatory compliance and reporting tools",
+      "Robust performance attribution analysis"
+    ],
+    "disadvantages": [
+      "Extremely high cost, typically for large institutions only",
+      "Complex implementation requiring significant resources",
+      "Steep learning curve for users",
+      "Potential dependency on a single vendor solution"
+    ],
+    "externalUrl": "https://www.blackrock.com/aladdin"
+  },
+  {
+    "id": "a5bbb211-4f62-4ec5-bdd5-c1c80a2980eb",
+    "name": "Outright (GoDaddy Bookkeeping)",
+    "description": "Outright, now known as GoDaddy Bookkeeping, is a simple accounting solution with AI elements that automates financial management, tax preparation, and reporting for small businesses and e-commerce sellers.",
+    "category": "Accounting Software",
+    "price": 7.99,
+    "advantages": [
+      "Specially designed for e-commerce seller needs",
+      "Automatic integration with online marketplaces and payment gateways",
+      "Simple and intuitive interface for non-accountants",
+      "Automatic categorization of income and expenses",
+      "Ongoing preparation of materials for tax returns",
+      "Affordable price suitable for beginning entrepreneurs",
+      "Mobile app for finance management on the go",
+      "Automatic import of bank transactions",
+      "Clear graphs and reports for performance tracking",
+      "Seamless integration with other GoDaddy services"
+    ],
+    "disadvantages": [
+      "Limited advanced accounting features",
+      "Less suitable for larger companies with complex needs",
+      "Limited customization options compared to competitors",
+      "Less extensive ecosystem of third-party integrations"
+    ],
+    "externalUrl": "https://www.outright.com"
+  },
+  {
+    "id": "058fa178-3e49-4745-9ff9-2d5895560a08",
+    "name": "Rocket Mortgage",
+    "description": "Rocket Mortgage is an AI-powered digital mortgage platform that streamlines the home loan application and approval process, offering personalized recommendations and rapid decisions.",
+    "category": "Mortgage Lending",
+    "price": 0,
+    "advantages": [
+      "Fast, streamlined digital application process",
+      "Automated document verification",
+      "Personalized rate recommendations",
+      "Quick pre-approval process",
+      "Real-time loan status tracking",
+      "Integration with financial accounts for verification",
+      "Mobile app for managing application and payments",
+      "Award-winning customer service",
+      "Wide range of loan options",
+      "Educational resources for homebuyers"
+    ],
+    "disadvantages": [
+      "Limited physical locations for in-person service",
+      "May have higher rates than some local lenders",
+      "Not ideal for borrowers with complex financial situations",
+      "Additional fees may apply for certain services"
+    ],
+    "externalUrl": "https://www.rocketmortgage.com"
+  },
+  {
+    "id": "4a8cb269-5b42-40b5-b43b-be1b9e2c2178",
+    "name": "Aider",
+    "description": "Aider is an AI-powered assistant for small businesses that processes financial and accounting data, provides business insights, and helps with strategic decision-making through a natural language interface.",
+    "category": "Business AI Assistant",
+    "price": 60,
+    "advantages": [
+      "Natural language communication with data",
+      "Automatic analysis of financial data and trends",
+      "Proactive alerts to financial issues",
+      "Integration with accounting systems and POS",
+      "Personalized business insights",
+      "Help with cash flow predictions",
+      "Simple implementation without technical knowledge",
+      "Conversational interface for easy use",
+      "Continuous learning and adaptation to company needs",
+      "Affordable for small businesses"
+    ],
+    "disadvantages": [
+      "Limited advanced features compared to specialized financial tools",
+      "Dependency on input data quality",
+      "Possible limitations with very specific queries",
+      "Some integrations only available in higher pricing plans"
+    ],
+    "externalUrl": "https://www.aider.ai"
+  },
+  {
+    "id": "0ff6b5d0-c4c9-4a34-b76c-3a6f9955d558",
+    "name": "Upstart",
+    "description": "Upstart is an AI lending platform that uses machine learning to evaluate borrowers beyond traditional credit scores, helping lenders expand access to credit while reducing risk.",
+    "category": "AI Lending",
+    "price": 0,
+    "advantages": [
+      "Alternative credit assessment beyond FICO scores",
+      "Higher approval rates with lower default risk",
+      "Fast loan decisions (often instant)",
+      "Expanded access to credit for underserved segments",
+      "No application fees or prepayment penalties",
+      "Automated verification processes",
+      "Continually improving AI models",
+      "Fixed rates and terms for borrowers",
+      "Digital-first application experience",
+      "Partnership model for banks and credit unions"
+    ],
+    "disadvantages": [
+      "Limited transparency into specific approval factors",
+      "Higher interest rates for some borrowers",
+      "Not available in all states/regions",
+      "Requires sharing more personal data than traditional lenders"
+    ],
+    "externalUrl": "https://www.upstart.com"
+  },
+  {
+    "id": "c228e879-afcc-4e09-97ba-8f94f24b4108",
+    "name": "Digitoo",
+    "description": "Digitoo is an AI-powered invoice and receipt processing platform that automates accounting tasks by digitizing documents, extracting data, and integrating with accounting systems.",
+    "category": "Accounting Automation",
+    "price": 29,
+    "advantages": [
+      "Automated invoice and receipt processing",
+      "Seamless integration with accounting software",
+      "Time-saving document digitization",
+      "High accuracy data extraction",
+      "Streamlined approval workflows",
+      "Reduced manual entry errors",
+      "Cost-effective accounting automation",
+      "User-friendly interface",
+      "Secure document storage"
+    ],
+    "disadvantages": [
+      "May require initial setup time",
+      "Limited customization for specific industries",
+      "Depends on document quality for accuracy",
+      "Subscription pricing model"
+    ],
+    "externalUrl": "https://www.digitoo.ai"
+  },
+  {
+    "id": "75cc8dc5-b8c5-44f3-bf45-7656d0586058",
+    "name": "Accounting Prose",
+    "description": "Accounting Prose is a modern accounting firm that combines professional accounting services with technological innovation and automation for small and medium-sized businesses.",
+    "category": "Accounting Services",
+    "price": 34,
+    "advantages": [
+      "Experienced team of accountants with advanced certifications",
+      "Use of modern technologies and automation",
+      "Virtual services available from anywhere",
+      "Specialization in small and medium businesses",
+      "Emphasis on partnership relationship with clients",
+      "Proactive financial advisory",
+      "Personalized approach based on client needs",
+      "Transparent pricing policy",
+      "Secure cloud solution for document sharing",
+      "Ongoing communication and regular consultations"
+    ],
+    "disadvantages": [
+      "Higher price compared to cheaper automated solutions",
+      "Limited physical availability (primarily virtual services)",
+      "Less suitable for very large corporations",
+      "Need to adapt to their technological processes"
+    ],
+    "externalUrl": "https://www.accountingprose.com"
+  },
+  {
+    "id": "5ffaa522-5870-43ef-8854-b880e79d446a",
+    "name": "Raft AI",
+    "description": "AI-driven inventory and supply chain optimization platform that reduces stockouts and excess inventory.",
+    "category": "automation",
+    "price": 15000,
+    "advantages": [
+      "Reduces stockouts by up to 80%",
+      "Decreases excess inventory by up to 30%",
+      "Quick implementation without IT resources",
+      "Machine learning that improves over time",
+      "Real-time inventory visibility"
+    ],
+    "disadvantages": [
+      "Requires quality historical data",
+      "Initial model training period",
+      "Monthly subscription costs",
+      "Primarily focused on retail and e-commerce",
+      "Limited customization for unique business models"
+    ],
+    "externalUrl": "https://www.raft.ai"
+  },
+  {
+    "id": "6f188f1a-ca22-466e-aa7b-ed840ee7f196",
+    "name": "Botkeeper",
+    "description": "Botkeeper provides automated bookkeeping using human-assisted AI technology to deliver accurate accounting services for businesses and accounting firms at scale.",
+    "category": "Automated Bookkeeping",
+    "price": 55,
+    "advantages": [
+      "24/7 automated bookkeeping",
+      "Human-assisted AI for accuracy",
+      "Scalable solution for accounting firms",
+      "White-label capabilities",
+      "Machine learning continuous improvement",
+      "Seamless accounting software integration",
+      "Detailed audit trails",
+      "Customizable reporting dashboards",
+      "Task management and workflows",
+      "Client collaboration portal"
+    ],
+    "disadvantages": [
+      "Higher entry price point",
+      "Implementation requires data migration",
+      "Advanced features limited to higher tiers",
+      "Full benefits realized over time"
+    ],
+    "externalUrl": "https://www.botkeeper.com"
+  },
+  {
+    "id": "7a5fab5f-3def-46c5-a6d7-1803d22f0e3e",
+    "name": "ZenLedger",
+    "description": "ZenLedger is a tax software built for cryptocurrency investors and accountants that uses AI to automate crypto transaction tracking, tax reporting, and portfolio monitoring.",
+    "category": "Crypto Tax Software",
+    "price": 149,
+    "advantages": [
+      "Automatic import from 400+ exchanges",
+      "Cryptocurrency tax form generation",
+      "DeFi and NFT transaction support",
+      "Tax-loss harvesting identification",
+      "Historical price data tracking",
+      "Accounting software integration",
+      "Audit trail documentation",
+      "Year-round portfolio monitoring",
+      "Multiple accounting methods support",
+      "International tax compliance"
+    ],
+    "disadvantages": [
+      "Complex crypto transactions require verification",
+      "Premium features in higher pricing tiers",
+      "Learning curve for advanced features",
+      "Limited customer support in basic plan"
+    ],
+    "externalUrl": "https://www.zenledger.io"
+  },
+  {
+    "id": "b7626905-902f-4bf6-86c8-2a04bae9a131",
+    "name": "Bookipi",
+    "description": "Bookipi is a free invoicing and accounting software designed for small businesses and entrepreneurs to manage finances, create professional invoices, track expenses, and generate financial reports.",
+    "category": "Accounting Software",
+    "price": 19.99,
+    "advantages": [
+      "Free invoicing software with unlimited invoices",
+      "User-friendly mobile and desktop interfaces",
+      "Automatic payment reminders",
+      "Multi-currency support",
+      "Cloud-based with real-time syncing",
+      "Professional invoice templates",
+      "Expense tracking with receipt scanning",
+      "Client database management",
+      "Financial reporting capabilities"
+    ],
+    "disadvantages": [
+      "Limited customer support in free plan",
+      "Advanced accounting features only in paid plans",
+      "Fewer integrations than established accounting platforms",
+      "Limited customization of invoice templates in free version"
+    ],
+    "externalUrl": "https://www.bookipi.com"
+  },
+  {
+    "id": "ae5cd4a7-75db-42bb-88f1-3c6fc2f9433d",
+    "name": "Personetics",
+    "description": "Personetics is an AI-driven financial data analytics platform that helps banks provide personalized financial guidance and automated money management to their customers.",
+    "category": "Financial Data Analytics",
+    "price": 5000,
+    "advantages": [
+      "Personalized financial insights and advice",
+      "Automated money management capabilities",
+      "Self-driving finance features",
+      "White-label solution for financial institutions",
+      "Enhanced customer engagement",
+      "Increased digital adoption",
+      "Transaction categorization and analysis",
+      "Financial goal setting and tracking",
+      "Actionable notifications and alerts",
+      "Cross-selling opportunities based on customer data"
+    ],
+    "disadvantages": [
+      "High implementation costs",
+      "Dependent on quality of bank's transaction data",
+      "Requires integration with core banking systems",
+      "Primarily designed for larger financial institutions"
+    ],
+    "externalUrl": "https://www.personetics.com"
+  },
+  {
+    "id": "ece395fb-18b8-4be5-a4a8-54e8029b8e37",
+    "name": "MindTitan",
+    "description": "MindTitan is a company specializing in custom AI solution development for financial and accounting processes, helping businesses implement artificial intelligence for automation and optimization of financial operations.",
+    "category": "AI Consulting",
+    "price": 10000,
+    "advantages": [
+      "Custom solution development based on client needs",
+      "Expertise in AI application in finance",
+      "Combination of technological and financial knowledge",
+      "Implementation of advanced predictive models",
+      "Automation of complex financial processes",
+      "Cost optimization using ML algorithms",
+      "Identification of hidden financial patterns and anomalies",
+      "Emphasis on quick return on investment (ROI)",
+      "Support with integration into existing systems",
+      "Continuous improvement of implemented solutions"
+    ],
+    "disadvantages": [
+      "High initial investment",
+      "Longer implementation time for complex solutions",
+      "Requires certain technological maturity of the organization",
+      "Need for quality data for effective AI model functioning"
+    ],
+    "externalUrl": "https://www.mindtitan.com"
+  },
+  {
+    "id": "63aea06d-fd11-47cd-a4a1-e9a12dc0858b",
+    "name": "Mobirise",
+    "description": "Mobirise is a free offline website builder software for Windows and Mac that allows users to create small/medium websites, landing pages, and online stores without coding.",
+    "category": "Offline Website Builder",
+    "price": 149,
+    "advantages": [
+      "Completely free core software",
+      "Works offline without internet connection",
+      "No monthly subscription fees",
+      "Drag-and-drop interface",
+      "Bootstrap 5 based responsive sites",
+      "One-time payment for extensions",
+      "No technical skills required",
+      "Fast loading websites",
+      "Modern design templates"
+    ],
+    "disadvantages": [
+      "Premium extensions cost extra",
+      "Limited built-in templates in free version",
+      "Requires separate web hosting solution",
+      "Less suitable for large websites"
+    ],
+    "externalUrl": "https://mobirise.com"
+  },
+  {
+    "id": "2bef31d9-fd86-4217-a78b-3c0366dd8b19",
+    "name": "SITE123",
+    "description": "SITE123 es un constructor de sitios web gratuito que permite crear una pagina web con diseños y estilos prediseñados. No se requieren habilidades de diseño o codificacion. Simplemente ingrese su contenido y 1, 2, 3 - ¡esta en marcha!",
+    "category": "Website Builder",
+    "price": 12.8,
+    "advantages": [
+      "No se requieren habilidades de diseño",
+      "Estilos y diseños prediseñados",
+      "Facil de usar"
+    ],
+    "disadvantages": [
+      "Very limited design customization options",
+      "Lacks advanced features for professional sites",
+      "Free plan has prominent SITE123 branding",
+      "Small storage limits even on paid plans",
+      "Cannot change templates after site creation",
+      "Basic e-commerce functionality",
+      "Limited SEO control compared to competitors",
+      "Fewer integrations with third-party services"
+    ],
+    "externalUrl": "https://www.site123.com"
+  },
+  {
+    "id": "43a0cd70-ba0b-4119-b381-02052c118c4f",
+    "name": "Duda",
+    "description": "Duda is a professional website builder that allows users to build and sell high-converting websites at scale. It offers a free trial to get started.",
+    "category": "Website Builder",
+    "price": 150,
+    "advantages": [
+      "High-converting websites",
+      "Scalable solution",
+      "Professional-grade"
+    ],
+    "disadvantages": [
+      "higher pricing than consumer-focused platforms",
+      "Steeper learning curve for beginners",
+      "Limited free trial period",
+      "Advanced features require higher-tier plans",
+      "E-commerce capabilities less robust than dedicated platforms"
+    ],
+    "externalUrl": "https://www.duda.co"
+  },
+  {
+    "id": "cfdf75e7-2050-42b6-9b83-33dde6b968e8",
+    "name": "Feedzai",
+    "description": "Feedzai is an AI-powered financial risk management platform that helps financial institutions detect and prevent fraud in real-time across multiple channels using advanced machine learning.",
+    "category": "Fraud Prevention",
+    "price": 10000,
+    "advantages": [
+      "Real-time fraud detection across all channels",
+      "Advanced machine learning models for risk assessment",
+      "Behavioral biometrics for enhanced security",
+      "Explainable AI for regulatory compliance",
+      "Customizable risk scoring",
+      "Omnichannel fraud prevention",
+      "Continuous model improvement through federated learning",
+      "Reduction in false positives",
+      "Intuitive case management interface",
+      "Integration with existing banking systems"
+    ],
+    "disadvantages": [
+      "Significant investment required for implementation",
+      "Complex integration with legacy systems",
+      "Requires dedicated team for management",
+      "Enterprise-level pricing not suitable for small businesses"
+    ],
+    "externalUrl": "https://www.feedzai.com"
+  },
+  {
+    "id": "89bdf474-2cd2-4b3c-a55e-861e793280b0",
+    "name": "Jasper",
+    "description": "Jasper is an AI content creation platform that helps marketers, writers, and businesses generate high-quality, SEO-optimized content at scale, with features for blog posts, social media, emails, and more.",
+    "category": "AI Content Creation",
+    "price": 49,
+    "advantages": [
+      "Advanced AI content generation capabilities",
+      "Over 50 templates for different content types",
+      "Built-in plagiarism checker",
+      "SEO optimization features with Surfer SEO integration",
+      "Brand voice customization",
+      "Team collaboration features",
+      "Chrome extension for writing anywhere on the web",
+      "Content history and version control",
+      "Multilingual support for over 25 languages",
+      "Art generation capabilities for visual content"
+    ],
+    "disadvantages": [
+      "Higher pricing compared to basic AI writing tools",
+      "Learning curve for advanced features",
+      "Output quality varies by content type",
+      "May still require human editing and oversight"
+    ],
+    "externalUrl": "https://www.jasper.ai"
+  },
+  {
+    "id": "7877a619-8085-4199-97ea-00af6ee821ba",
+    "name": "Betterment",
+    "description": "Betterment is a robo-advisor that uses AI algorithms to provide automated, personalized investment management and financial planning services at a fraction of traditional costs.",
+    "category": "Robo-Advisor",
+    "price": 0,
+    "advantages": [
+      "Low management fees (0.25% annually for basic plan)",
+      "No minimum balance requirement to start",
+      "Automated portfolio rebalancing",
+      "Tax-loss harvesting and tax coordination",
+      "Access to certified financial planners with premium plan",
+      "Socially responsible investment options",
+      "Goal-based investing approach",
+      "High-yield cash management account",
+      "Retirement planning tools",
+      "Intuitive digital experience"
+    ],
+    "disadvantages": [
+      "Limited investment options compared to self-directed platforms",
+      "higher fees for access to human advisors",
+      "Less customization than traditional financial advisors",
+      "No direct indexing for most account sizes"
+    ],
+    "externalUrl": "https://www.betterment.com"
+  },
+  {
+    "id": "cf792c86-0912-4894-83aa-91238f787733",
+    "name": "Schwab Intelligent Portfolios",
+    "description": "Schwab Intelligent Portfolios is Charles Schwab's automated investment service that uses AI to build, monitor, and rebalance diversified portfolios based on clients' risk profiles.",
+    "category": "Robo-Advisor",
+    "price": 0,
+    "advantages": [
+      "No advisory fees or commissions",
+      "Automatic rebalancing",
+      "Tax-loss harvesting (for accounts over $50,000)",
+      "Diversified portfolios with up to 20 asset classes",
+      "24/7 customer support",
+      "Backed by established financial institution",
+      "Access to human advisors with premium version",
+      "Automated portfolio monitoring",
+      "Regular progress reports",
+      "Integration with other Schwab accounts"
+    ],
+    "disadvantages": [
+      "Higher cash allocation than competitors",
+      "$5,000 minimum investment requirement",
+      "Limited customization options",
+      "Premium version has one-time planning fee"
+    ],
+    "externalUrl": "https://www.schwab.com/intelligent-portfolios"
+  },
+  {
+    "id": "e98e14a8-cb13-4d55-91a4-7e129d54afd7",
+    "name": "Auquan",
+    "description": "Platform using AI to identify and analysis risks in financial data and supply chains.",
+    "category": "Financial Technology",
+    "price": 15000,
+    "advantages": [
+      "Automated identification of potential risks",
+      "Analysis of alternative data sources",
+      "Personalized solutions for investment managers",
+      "Comprehensive coverage of supply chains"
+    ],
+    "disadvantages": [
+      "Requires integration with existing systems",
+      "High price level for small companies",
+      "Specialized focus may limit broader use"
+    ],
+    "externalUrl": "https://www.auquan.com"
+  },
+  {
+    "id": "78fa0ddc-f57c-4bda-bd88-49c1c1b9bba6",
+    "name": "Babylon Health",
+    "description": "AI platform for digital zdravotni diagnostiku, consultations a monitoring zdravotniho stavu",
+    "category": "Zdravotnictví",
+    "price": 9.99,
+    "advantages": [
+      "24/7 access k AI diagnostice a virtualnim konzultacim",
+      "Kombinace umele intelligence s lidskymi lekari",
+      "Personalizovane sledovani zdravotniho stavu a preventivni upozorneni",
+      "Uchovava vsechny zdravotni udaje na jednom miste",
+      "easy sdileni dat s lekari a specialisty"
+    ],
+    "disadvantages": [
+      "Omezena dostupnost v some zemich",
+      "AI diagnostics nemuze fully nahradit osobni vysetreni lekare",
+      "Ruzny rozsah pokryti zdravotnimi pojistovnami",
+      "requires stabilni internetove pripojeni for video consultations"
+    ],
+    "externalUrl": "https://www.babylonhealth.com"
+  },
+  {
+    "id": "f8817f7f-6b94-48c1-955c-e2062b953127",
+    "name": "Appy Pie",
+    "description": "Appy Pie is an all-in-one no-code development platform that allows users to create mobile apps, websites, chatbots, automation workflows, and design assets without coding skills.",
+    "category": "No-Code Development Platform",
+    "price": 16,
+    "advantages": [
+      "All-in-one platform for apps, websites, and automation",
+      "No coding skills required",
+      "PWA (Progressive Web App) support",
+      "AI-powered features",
+      "Affordable compared to custom development"
+    ],
+    "disadvantages": [
+      "Limited customization compared to coded solutions",
+      "Appy Pie branding on free and lower-tier plans",
+      "Performance can be slower than native apps",
+      "Limited design flexibility compared to dedicated platforms",
+      "Advanced features locked behind higher plans",
+      "Less intuitive than specialized website builders",
+      "App publishing can be complicated for beginners",
+      "Customer support response times can be slow"
+    ],
+    "externalUrl": "https://www.appypie.com"
+  },
+  {
+    "id": "f1e5ac18-82da-47bd-b34a-7a15a7b62ee4",
+    "name": "Brizy.io",
+    "description": "Create a stunning website in minutes with our 'no-code' website builder. Choose from a variety of beautiful templates and customize your website to fit your brand with our White Label builder.",
+    "category": "Website Builder",
+    "price": 0,
+    "advantages": [
+      "No coding required",
+      "Variety of templates",
+      "Customizable",
+      "White Label option"
+    ],
+    "disadvantages": [
+      "Limited advanced customization without coding",
+      "Fewer integrations than established competitors",
+      "WordPress plugin may conflict with themes/plugins",
+      "Limited eCommerce capabilities",
+      "Steeper learning curve than some builders"
+    ],
+    "externalUrl": "https://www.brizy.io"
+  },
+  {
+    "id": "c1e0b936-9dfe-493a-9531-0f4acdb217bc",
+    "name": "CashFlow Frog",
+    "description": "CashFlow Frog is a specialized financial tool with AI functions for cash flow prediction and management that helps small and medium businesses improve financial planning and liquidity.",
+    "category": "Cash Flow Management",
+    "price": 29,
+    "advantages": [
+      "Exclusive specialization in cash flow management",
+      "Accurate future cash flow predictions based on historical data",
+      "Automatic synchronization with accounting systems",
+      "Visual overviews and graphs for easy understanding",
+      "\"What-if\" scenario planning for different business situations",
+      "Alerts to potential liquidity issues",
+      "Cash flow tracking by projects and departments",
+      "Simple operation without financial experts",
+      "Helps identify areas for cash flow improvement",
+      "Regular reports sent by email"
+    ],
+    "disadvantages": [
+      "Narrower focus only on cash flow (not comprehensive accounting)",
+      "Prediction accuracy depends on input data quality",
+      "Limited features for very large organizations",
+      "Requires regular data updates for best results"
+    ],
+    "externalUrl": "https://www.cashflowfrog.com"
+  },
+  {
+    "id": "38863e92-b2b5-42e5-b18a-7e67932c427c",
+    "name": "Kensho",
+    "description": "AI platform for financial data analysis that provides automated research and analysis for investment decisions.",
+    "category": "Financial Technology",
+    "price": 25000,
+    "advantages": [
+      "Advanced natural language processing for financial data",
+      "Automated analysis of markets and companies",
+      "Integration of various data sources",
+      "Specifically designed for the financial sector"
+    ],
+    "disadvantages": [
+      "High costs for smaller firms",
+      "Complex implementation",
+      "Limited availability outside large financial institutions"
+    ],
+    "externalUrl": "https://www.kensho.com"
+  },
+  {
+    "id": "262d6c70-93b7-4e6a-9a59-3cd63d01444d",
+    "name": "LogiNext",
+    "description": "Cloud-based transportation automation platform with AI for route optimization, dispatch automation, and last-mile delivery management.",
+    "category": "automation",
+    "price": 35000,
+    "advantages": [
+      "Reduces fuel costs by up to 20%",
+      "Increases delivery capacity by 15-20%",
+      "Automates dispatching and routing decisions",
+      "Real-time tracking and notifications",
+      "Configurable customer delivery experience"
+    ],
+    "disadvantages": [
+      "Complex implementation for large fleets",
+      "Requires driver adoption of mobile app",
+      "Premium pricing compared to basic solutions",
+      "Feature-rich interface has learning curve",
+      "ROI dependent on operation scale"
+    ],
+    "externalUrl": "https://www.loginextsolutions.com"
+  },
+  {
+    "id": "fc344fa8-1a91-45b0-bbbe-4e4bb32f7399",
+    "name": "Make",
+    "description": "Visual automation platform with AI capabilities that connects apps and automates workflows with powerful data transformation and complex scenario creation.",
+    "category": "automation",
+    "price": 540,
+    "advantages": [
+      "Powerful visual scenario builder",
+      "Real-time execution and instant operation",
+      "Advanced data mapping and transformation",
+      "Flexible error handling",
+      "Affordable pricing structure"
+    ],
+    "disadvantages": [
+      "Steeper learning curve than simpler tools",
+      "Complex scenarios require technical understanding",
+      "Limited integrations compared to largest competitors",
+      "Usage based on operations not tasks",
+      "Documentation depth varies by module"
+    ],
+    "externalUrl": "https://www.make.com"
+  },
+  {
+    "id": "a01a1bfa-9ffa-4b07-8041-1aadce4f987e",
+    "name": "Dorik",
+    "description": "Dorik is a modern website builder that allows users to create responsive websites with a drag-and-drop interface, AI-powered features, and professional design elements.",
+    "category": "Website Builder",
+    "price": 29,
+    "advantages": [
+      "User-friendly drag-and-drop interface",
+      "AI-powered website generation",
+      "Responsive design for all devices",
+      "Extensive element library",
+      "Affordable pricing plans"
+    ],
+    "disadvantages": [
+      "Limited template selection compared to established competitors",
+      "Fewer third-party integrations available",
+      "E-commerce functionality not as robust as dedicated platforms",
+      "No offline editing capabilities",
+      "Limited SEO customization options in lower plans",
+      "No free domain with plans",
+      "Steeper learning curve for complex layouts"
+    ],
+    "externalUrl": "https://www.dorik.com"
+  },
+  {
+    "id": "68cb7110-75e7-4450-b1b8-235a59cc357b",
+    "name": "Woebot Health",
+    "description": "AI chatbot for mentalni zdravi, which provides kognitivne-behavioralni terapii, monitoring nalady a emocionalni podporu 24/7",
+    "category": "Zdravotnictví",
+    "price": 0,
+    "advantages": [
+      "Dostupnost 24/7 bez cekani nebo terminu",
+      "Zalozeno na principech kognitivne-behavioralni terapie (CBT)",
+      "Soukromi a anonymita pri solutions citlivych temat",
+      "Zadny usudek nebo zaujatost ze strany AI",
+      "provides databazi technik a cviceni for zvladani emoci"
+    ],
+    "disadvantages": [
+      "Neni nahradou za human terapeuta pri vaznych psychickych problemech",
+      "Limitovane schopnosti reagovat na comprehensive nebo neobvykle situace",
+      "Muze chybet lidsky element empatie a intuice",
+      "Neni vhodne for krizove intervence nebo emergentni stavy"
+    ],
+    "externalUrl": "https://www.woebothealth.com"
+  },
+  {
+    "id": "75b196b1-afe2-432c-b93c-427a3527a1c0",
+    "name": "Pabbly Connect",
+    "description": "Cost-effective workflow automation tool with AI integration capabilities that connects apps and automates tasks with unlimited workflows and users.",
+    "category": "automation",
+    "price": 588,
+    "advantages": [
+      "Unlimited workflows and tasks on all plans",
+      "Single subscription price regardless of user count",
+      "No transaction fees or operation limits",
+      "Private workflows and team sharing",
+      "Competitive pricing compared to alternatives"
+    ],
+    "disadvantages": [
+      "Smaller connector library than market leaders",
+      "Limited enterprise security features",
+      "Fewer advanced conditional options",
+      "Basic UI compared to premium tools",
+      "Smaller community for support"
+    ],
+    "externalUrl": "https://www.pabbly.com/connect"
+  },
+  {
+    "id": "1b32f2d7-94de-4fb2-9d6e-d84b68fa3596",
+    "name": "Bloomreach",
+    "description": "AI platform for personalizaci a optimalizaci digitalnich zazitku v e-commerce, which helps zlepsovat konverze a zakaznickou loajalitu",
+    "category": "E-commerce",
+    "price": 3000,
+    "advantages": [
+      "Personalizace digital zkusenosti v realnem case",
+      "AI-pohanene vyhledavani a merchandising",
+      "Segmentace zakazniku na zaklade chovani a preferenci",
+      "A/B testovani a experimentovani",
+      "Jednotna zakaznicka data napric vsemi kanaly"
+    ],
+    "disadvantages": [
+      "Vysoka price vhodna predevsim for stredni a velke e-commerce",
+      "comprehensive platform vyzadujici initial nastaveni",
+      "requires integraci s existing systems"
+    ],
+    "externalUrl": "https://www.bloomreach.com"
+  },
+  {
+    "id": "905a4bf2-ab70-4031-914c-6ccdaa880ffd",
+    "name": "Siemens Healthineers AI-Rad Companion",
+    "description": "Rodina AI-pohanenych aplikaci for radiologii, which help lekarum analyzovat medicinske obrazy a zefektivnit diagnostically proces",
+    "category": "Zdravotnictví",
+    "price": 0,
+    "advantages": [
+      "automation routine tasks v radiologickem evaluation",
+      "increasing presnosti diagnostics a snizeni rizika prehlednuti pathology",
+      "Zkraceni casu potrebneho k interpretation images",
+      "integration s existing PACS a radiologickymi systems",
+      "Standardizace radiologickeho evaluation napric jednotlivymi pracovisti"
+    ],
+    "disadvantages": [
+      "higher initial investment do technologie",
+      "Nutnost kompatibilniho hardwaru a softwarove infrastructure",
+      "Potreba training personalu for efektivni vyuziti",
+      "AI results vyzaduji vzdy kontrolu a finalni potvrzeni radiologem"
+    ],
+    "externalUrl": "https://www.siemens-healthineers.com"
+  },
+  {
+    "id": "f781d3a2-6dbe-4d45-9f65-d1c127a8c208",
+    "name": "Adobe GenStudio",
+    "description": "comprehensive AI platform for tvorbu, spravu a optimalizaci kreativniho obsahu.",
+    "category": "content-creation",
+    "price": 3000,
+    "advantages": [
+      "Integrace s Adobe produkty",
+      "Pokrocile AI features",
+      "Komplexni sprava obsahu",
+      "Automatizace workflow"
+    ],
+    "disadvantages": [
+      "Vysoka price",
+      "Narocnost na zaskoleni",
+      "Potreba dalsich Adobe produktu"
+    ],
+    "externalUrl": "https://www.adobe.com/experience-cloud/genstudio.html"
+  },
+  {
+    "id": "aee8f38d-d67f-4743-99d4-0d3fa27cbbc3",
+    "name": "Enlitic Curie",
+    "description": "AI platform for radiologii, which automatizuje workflow, standardizuje reportovani a increases diagnostickou presnost using hlubokeho learning",
+    "category": "Zdravotnictví",
+    "price": 0,
+    "advantages": [
+      "Automatizace radiologickeho workflow od prijmu snimku po finalni report",
+      "Standardizace terminologie a formatu radiologickych zprav",
+      "Inteligentni prioritizace studii na zaklade urgentnich nalezu",
+      "Snizeni administrativni zateze radiologu",
+      "Integrace s existujicimi PACS a RIS systemy"
+    ],
+    "disadvantages": [
+      "requires dostatecne technicke zazemi a IT infrastrukturu",
+      "initial investment do implementace a integration",
+      "Potreba adaptace stavajicich workflow processes",
+      "dependency na quality vstupnich dat a DICOM metadat"
+    ],
+    "externalUrl": "https://www.enlitic.com"
+  },
+  {
+    "id": "ec4fc10b-21f3-41f9-bfbd-bd75e84661ee",
+    "name": "Johns Hopkins AI Precision Medicine",
+    "description": "Spickovy system zdravotni pece vyuzivajici artificial intelligence for precizni medicinu, pokrocilou diagnostiku a personalizovanou lecbu",
+    "category": "Zdravotnictví",
+    "price": 0,
+    "advantages": [
+      "integration spickoveho research s clinical praxi",
+      "AI systems for analyzu komplexnich diagnostic dat",
+      "Personalizovane lecebne protokoly zalozene na molekularnich a genetickych profilech",
+      "Prediktivni algorithms for vcasnou detection onemocneni a komplikaci",
+      "Multidisciplinarni access podporovany AI tooli for rozhodovani"
+    ],
+    "disadvantages": [
+      "higher naklady za specializovanou a pokrocilou peci",
+      "Potencialne dlouhe cekaci doby na consultations a procedury",
+      "Geograficke limitations (hlavni centra v USA)",
+      "Nektere advanced AI diagnosticke metody nemusi byt hrazeny pojistenim"
+    ],
+    "externalUrl": "https://www.hopkinsmedicine.org"
+  },
+  {
+    "id": "4fd632a5-76f9-43c5-93f1-7dc72f938e3e",
+    "name": "Lemonaid Health",
+    "description": "Online lekarna a telemedicinska service s AI support, which provides consultations, diagnostiku a doruceni leku na predpis",
+    "category": "Zdravotnictví chyba překladu ",
+    "price": 25,
+    "advantages": [
+      "Rychle consultations s lekari (obvykle do 24 hodin)",
+      "AI pre-screening for urychleni diagnostics",
+      "Doruceni predepsanych leku primo domu",
+      "Nizsi ceny leku diky primemu modelu",
+      "Jednoduchy, transparentni cenovy model bez skrytych poplatku"
+    ],
+    "disadvantages": [
+      "Omezeno na specificke zdravotni stavy a leky",
+      "Neni vhodne for akutni nebo comprehensive zdravotni problemy",
+      "Dostupne pouze v some statech USA",
+      "limited options for kontinualni peci o chronicka onemocneni"
+    ],
+    "externalUrl": "https://www.lemonaidhealth.com"
+  },
+  {
+    "id": "4f87db2d-f25e-45e6-8acf-51031f9390fd",
+    "name": "Synthesia",
+    "description": "AI platform for generating realistic videos with virtual presenters, allowing you to create professional videos without a camera, studio, or actors.",
+    "category": "AI & Video",
+    "price": 22,
+    "advantages": [
+      "Create professional videos without technical knowledge",
+      "Wide library of AI avatars and templates",
+      "Support for more than 120 languages",
+      "Significant reduction in video production costs"
+    ],
+    "disadvantages": [
+      "Limited personalization in basic plans",
+      "Some avatars may look artificial",
+      "Limited control over detailed facial expressions"
+    ],
+    "externalUrl": "https://www.synthesia.io"
+  },
+  {
+    "id": "1de7fcec-a4b6-4cc5-8a27-c0544fc97283",
+    "name": "Cred.ai",
+    "description": "Fintech platform with AI assistant for credit card and finance management, focused on improving credit scores and financial health.",
+    "category": "Financial Technology",
+    "price": 0,
+    "advantages": [
+      "No fees or interest",
+      "Credit optimization technology",
+      "Advanced security features",
+      "AI finance assistant"
+    ],
+    "disadvantages": [
+      "Available only in the USA",
+      "Requires smartphone with modern operating system",
+      "Limited ATM network"
+    ],
+    "externalUrl": "https://www.cred.ai"
+  },
+  {
+    "id": "8b1ad8a1-5afb-40d4-b11d-48c33b606723",
+    "name": "Based Labs",
+    "description": "AI platform for creating authentic marketing videos with generative avatars, focused on naturalness and personalization.",
+    "category": "AI & Video",
+    "price": 49,
+    "advantages": [],
+    "disadvantages": [],
+    "externalUrl": "https://www.basedlabs.com"
+  },
+  {
+    "id": "d13c5205-7f5a-429f-9080-26e0f87e8dad",
+    "name": "Assiduus AI",
+    "description": "AI platform for automating accounting and financial management for e-commerce businesses and online sellers.",
+    "category": "Finance",
+    "price": 149,
+    "advantages": [
+      "Automated reconciliation",
+      "Real-time financial reporting",
+      "Marketplace integration",
+      "Tax compliance automation"
+    ],
+    "disadvantages": [
+      "Limited integrations with some smaller platforms",
+      "Regional tax compliance varies",
+      "higher cost than basic accounting software"
+    ],
+    "externalUrl": "https://www.assiduus.com"
+  },
+  {
+    "id": "ae2da4c1-830a-488c-a4b7-ba124316eebd",
+    "name": "Klaviyo",
+    "description": "AI-powered email marketing platform specialized in personalization and automation for e-commerce.",
+    "category": "E-commerce Marketing",
+    "price": 20,
+    "advantages": [
+      "Advanced segmentation capabilities",
+      "Powerful automation workflows",
+      "Real-time analytics",
+      "E-commerce integrations"
+    ],
+    "disadvantages": [
+      "Higher price point for small businesses",
+      "Complex interface for beginners",
+      "Advanced features require higher tier plans"
+    ],
+    "externalUrl": "https://www.klaviyo.com"
+  },
+  {
+    "id": "5c4fba04-be22-43c1-b9ad-a392495f07de",
+    "name": "Voicemod",
+    "description": "AI software for real-time voice modification.",
+    "category": "audio",
+    "price": 700,
+    "advantages": [
+      "Real-time voice transformation",
+      "Extensive voice effect library",
+      "Gaming platform integration",
+      "Custom voice creation"
+    ],
+    "disadvantages": [
+      "Best features require premium subscription",
+      "Some effects sound artificial",
+      "Occasional latency issues in high-demand settings"
+    ],
+    "externalUrl": "https://www.voicemod.net"
+  },
+  {
+    "id": "a211c18b-d067-4068-89d2-2ba5d0532445",
+    "name": "Artbreeder",
+    "description": "AI platform for creative mixing and generating artistic images.",
+    "category": "image-generation",
+    "price": 500,
+    "advantages": [
+      "Intuitive creative control",
+      "Unique image breeding concept",
+      "Wide variety of output styles",
+      "Community sharing features"
+    ],
+    "disadvantages": [
+      "Limited export resolution in free tier",
+      "Advanced features require subscription",
+      "Some image categories have restrictions"
+    ],
+    "externalUrl": "https://www.artbreeder.com"
+  },
+  {
+    "id": "64a789b9-ea6d-4216-a873-754f32e4744a",
+    "name": "Runway ML",
+    "description": "Creative AI toolkit for video editing and visual effects creation.",
+    "category": "video-editing",
+    "price": 1800,
+    "advantages": [
+      "Advanced AI-powered editing tools",
+      "Professional-grade output quality",
+      "Unique generative capabilities",
+      "Integration with standard workflows"
+    ],
+    "disadvantages": [
+      "Steep learning curve for advanced features",
+      "Higher cost for professional tiers",
+      "Requires significant computing resources"
+    ],
+    "externalUrl": "https://www.runwayml.com"
+  },
+  {
+    "id": "ead6a1e1-f1e8-46c0-9ce0-59b06a36b06c",
+    "name": "ProcessMaker",
+    "description": "Enterprise business process management platform with AI capabilities that automates complex workflows, approvals, and operations across organizations.",
+    "category": "automation",
+    "price": 25000,
+    "advantages": [
+      "Enterprise-grade process capabilities",
+      "Low-code visual process designer",
+      "Robust integration framework",
+      "Comprehensive security and governance",
+      "Industry-specific solutions"
+    ],
+    "disadvantages": [
+      "Enterprise pricing model",
+      "Implementation complexity for large deployments",
+      "Technical expertise recommended",
+      "UI less intuitive than newer tools",
+      "Requires substantial configuration"
+    ],
+    "externalUrl": "https://www.processmaker.com"
+  },
+  {
+    "id": "709c56d9-8bed-46a5-8b07-4fbec9447c45",
+    "name": "Nintex",
+    "description": "Comprehensive process automation platform with AI capabilities that combines workflow, document automation, and process intelligence for enterprise transformation.",
+    "category": "automation",
+    "price": 40000,
+    "advantages": [
+      "End-to-end process platform",
+      "Advanced document automation",
+      "Process mapping and discovery",
+      "No-code/low-code interface",
+      "Robust Microsoft ecosystem integration"
+    ],
+    "disadvantages": [
+      "Enterprise pricing structure",
+      "Complex implementation for full platform",
+      "Steeper learning curve for advanced capabilities",
+      "Best ROI for larger organizations",
+      "Integration depth varies by connector"
+    ],
+    "externalUrl": "https://www.nintex.com"
+  },
+  {
+    "id": "76a552bd-0322-483b-ac05-bbf942387477",
+    "name": "IBM Watson Health",
+    "description": "AI platform for zdravotnictvi offerci pokrocilou analyzu dat, vyzkum a optimalizaci clinical processes",
+    "category": "Zdravotnictví",
+    "price": 0,
+    "advantages": [
+      "Schopnost analyzovat obrovske mnozstvi strukturovanych i nestrukturovanych zdravotnickych dat",
+      "Podpora klinickeho rozhodovani zalozena na dukazech",
+      "Pokrocila analysis obrazovych dat for radiologii a onkologii",
+      "Akcelerace development medications a klinickeho research",
+      "integration s existing zdravotnickymi systems"
+    ],
+    "disadvantages": [
+      "Vysoka price implementace a udrzby for mensi healthcare facilities",
+      "comprehensive system vyzadujici odborne znalosti for fully vyuziti",
+      "dependency na quality vstupnich dat",
+      "Potreba rozsahleho prizpusobeni for specificke needs jednotlivych facilities"
+    ],
+    "externalUrl": "https://www.ibm.com/watson-health"
+  },
+  {
+    "id": "d2b6bf8d-5ae7-46fd-b3ca-8a14b15a61bc",
+    "name": "HealthTap",
+    "description": "platform propojujici AI diagnostiku s virtualnimi konzultacemi lekaru, accessem k lekarske databazi a personalizovanou zdravotni peci",
+    "category": "Zdravotnictví",
+    "price": 15,
+    "advantages": [
+      "Kombinace AI symptom checkeru s accessem k lekarum",
+      "Rozsahla databaze lekarskych odpovedi a rad",
+      "access k primarni peci 24/7 bez dlouheho cekani",
+      "Predepisovani leku a laboratorni testy",
+      "Cenove dostupnejsi than tradicni pece"
+    ],
+    "disadvantages": [
+      "Mesicni predplatne muze byt nakladne for obcasne usere",
+      "Nektere specializovane services vyzaduji dodatecne poplatky",
+      "Omezena dostupnost v some zemich mimo USA",
+      "Ne vsechny zdravotni stavy mohou byt reseny virtualne"
+    ],
+    "externalUrl": "https://www.healthtap.com"
+  },
+  {
+    "id": "b7e54a6d-f4fa-4239-bcd9-60103eadcf99",
+    "name": "Philips IntelliSpace AI Workflow Suite",
+    "description": "comprehensive AI platform for radiologii a kardiologii, which integruje artificial intelligence do clinical workflow a helps zlepsit diagnostickou presnost",
+    "category": "Zdravotnictví",
+    "price": 0,
+    "advantages": [
+      "integration AI toolu primo do radiologickych a kardiologickych workflow",
+      "Kombinace AI aplikaci od Philips i tretich stran v jedne platforme",
+      "Centralizovany prehled a sprava vysledku AI analyz",
+      "Plna interoperabilita s PACS, EMR a dalsimi klinickymi systems",
+      "Moznost prizpusobeni dle specifickych potreb daneho zdravotnickeho facilities"
+    ],
+    "disadvantages": [
+      "higher initial investment do infrastructure a licence",
+      "Nutnost integration s existing systems Philips for plnou funkcionalitu",
+      "comprehensive implementace vyzadujici IT podporu a training personalu",
+      "Nekteri konkurenti mohou nabizet specializovanejsi AI solutions for specificke diagnozy"
+    ],
+    "externalUrl": "https://www.philips.com/healthcare"
+  },
+  {
+    "id": "af8e8461-9e9c-4b56-8d25-ec84c55b872a",
+    "name": "Zapier",
+    "description": "Cloud-based automation platform with AI capabilities that connects apps and automates workflows without coding, enabling seamless data transfer between services.",
+    "category": "automation",
+    "price": 599,
+    "advantages": [
+      "Massive app integration library (5",
+      "000+)",
+      "No-code easy setup",
+      "Flexible multi-step Zaps",
+      "Filters and conditional logic",
+      "Reliable execution and monitoring"
+    ],
+    "disadvantages": [
+      "Limited complex workflow capabilities",
+      "Usage limits on lower plans",
+      "Slight execution delays in basic plans",
+      "Custom coding limited to paid plans",
+      "Complex data transformations challenging"
+    ],
+    "externalUrl": "https://www.zapier.com"
+  },
+  {
+    "id": "8f0e5a4c-bf39-41e4-9f67-dd83d757edfc",
+    "name": "Alpaca",
+    "description": "API platform for trading stocks and cryptocurrencies that allows developers to create automated trading algorithms and applications.",
+    "category": "Financial Technology",
+    "price": 49,
+    "advantages": [
+      "Free API for trading with no transaction fees",
+      "Simple integration for developers",
+      "Supports both paper and real trading",
+      "Historical data and analytical tools"
+    ],
+    "disadvantages": [
+      "Limited availability of some markets",
+      "Limits for API calls in the free plan",
+      "More complex features require a paid plan"
+    ],
+    "externalUrl": "https://www.alpaca.markets"
+  },
+  {
+    "id": "07095f3a-87ed-4244-abd1-80e2532ecdc3",
+    "name": "Microsoft Healthcare AI",
+    "description": "Komplexni sada AI toolu a cloudovych reseni pro zdravotnictvi zamerena na zlepseni zdravotni pece, klinicky vyzkum a zdravotnicke operace",
+    "category": "Zdravotnictví chyba prekladu",
+    "price": 0,
+    "advantages": [
+      "Silna integration s Microsoft Azure cloudovou platformou a dalsimi Microsoft produkty",
+      "comprehensive solutions pokryvajici cele spektrum zdravotnickych potreb",
+      "Silne zamereni na bezpecnost a dodrzovani regulacnich pozadavku (HIPAA, GDPR)",
+      "Skalovatelnost od malych klinik po velke zdravotnicke systems",
+      "Rozsahly ekosystem partneru a vyvojaru"
+    ],
+    "disadvantages": [
+      "requires investment do Microsoft technologii a Azure cloudove platformy",
+      "Potencialne slozita implementace for organizace bez zkusenosti s Microsoft produkty",
+      "Nektere advanced features jsou dostupne pouze ve higherch cenovych urovnich",
+      "Nutnost technicke expertizy for fully vyuziti potencialu platformy"
+    ],
+    "externalUrl": "https://www.microsoft.com/en-us/ai/healthcare"
+  },
+  {
+    "id": "f75947b7-d217-4aa1-b743-60daa8d558c9",
+    "name": "Workato",
+    "description": "Enterprise-grade intelligent automation platform with AI capabilities that integrates applications, processes, and experiences across organizations.",
+    "category": "automation",
+    "price": 65000,
+    "advantages": [
+      "Enterprise-grade security and compliance",
+      "AI-powered recipe building",
+      "Pre-built connectors and templates",
+      "Low-code recipe creation",
+      "Comprehensive monitoring and governance"
+    ],
+    "disadvantages": [
+      "Enterprise pricing model",
+      "Implementation complexity for large deployments",
+      "Technical expertise beneficial for advanced scenarios",
+      "UI learning curve for new users",
+      "Limited self-service for smaller businesses"
+    ],
+    "externalUrl": "https://www.workato.com"
+  },
+  {
+    "id": "293863b8-2689-45fd-b4f3-c5c5187eae92",
+    "name": "Ayasdi",
+    "description": "Machine learning and AI platform for complex data analysis that helps organizations identify hidden patterns and relationships in data.",
+    "category": "AI & Data Analysis",
+    "price": 50000,
+    "advantages": [
+      "Advanced topological data analysis",
+      "Ability to process very complex and voluminous datasets",
+      "Visualization of complex data relationships",
+      "Industry-specific solutions for finance",
+      "healthcare",
+      "and more"
+    ],
+    "disadvantages": [
+      "High price for small and medium businesses",
+      "Steep learning curve for new users",
+      "Requires data specialists for maximum utilization"
+    ],
+    "externalUrl": "https://www.ayasdi.com"
+  },
+  {
+    "id": "719cf92d-a334-436c-b09d-f81baca258b1",
+    "name": "Buoy Health",
+    "description": "AI navigator zdravotni pece, which analyzuje symptomy, doporucuje vhodnou uroven pece a helps optimalizovat naklady na zdravotni peci",
+    "category": "Zdravotnictví",
+    "price": 0,
+    "advantages": [
+      "Sofistikovany AI algoritmus analyzujici symptomy s vysokou presnosti",
+      "Doporucuje nejvhodnejsi uroven pece (samolecba, primarni pece, urgentni pece, pohotovost)",
+      "helps snizovat naklady na zdravotni peci eliminaci zbytecnych navstev",
+      "integration s poskytovateli zdravotni pece a pojistovnami",
+      "Uzivatelsky privetive rozhrani s konverzacnim pristupem"
+    ],
+    "disadvantages": [
+      "Primarne B2B model - plny access casto jen pres zamestnavatele nebo pojistovnu",
+      "Neposkytuje primo lekarske consultations",
+      "Omezena dostupnost for individual uzivatele bez firemniho pristupu",
+      "Primarne zamereno na americky zdravotni system"
+    ],
+    "externalUrl": "https://www.buoyhealth.com"
+  },
+  {
+    "id": "1c77d2bb-3fb1-4b4d-8e28-8c7f4c3e4055",
+    "name": "Cainiao Smart Logistics",
+    "description": "AI-powered logistics network offering intelligent supply chain solutions, automated warehousing, and delivery optimization at massive scale.",
+    "category": "automation",
+    "price": 200000,
+    "advantages": [
+      "Massive logistics network with global reach",
+      "Advanced automation technologies",
+      "Real-time tracking and visibility",
+      "AI-optimized delivery routing",
+      "Integrated with major e-commerce platforms"
+    ],
+    "disadvantages": [
+      "Primary focus on Asian markets",
+      "Complex integration requirements",
+      "Best suited for high-volume operations",
+      "Limited customization for smaller merchants",
+      "Enterprise-oriented pricing"
+    ],
+    "externalUrl": "https://www.cainiao.com"
+  },
+  {
+    "id": "c64ef2bd-17d0-4c04-9f1e-38ab5e0aecae",
+    "name": "Mount Sinai AI Healthcare Platform",
+    "description": "Inovativni zdravotnicky system propojujici AI technologie s clinical peci for more precise diagnostiku, lecbu a vyzkum onemocneni",
+    "category": "Zdravotnictví chyba překladu ",
+    "price": 0,
+    "advantages": [
+      "Vlastni AI platformy for analyzu zdravotnickych obrazu a diagnostiku",
+      "Specializace na vyuziti umele intelligence v genomice a precizni medicine",
+      "integration clinical pece s pokrocilym vyzkumem",
+      "AI algorithms for predikci prubehu nemoci a odezvy na lecbu",
+      "Velka databaze biologickych samples a genetickych dat for ML learning"
+    ],
+    "disadvantages": [
+      "higher naklady some pokrocilych diagnostic a lecebnych postupu",
+      "Geograficke limitations na oblast New York (for osobni navstevy)",
+      "Ne vsechny AI services jsou hrazeny zdravotnim pojistenim",
+      "Potencialne dlouhe cekaci doby na specializovane consultations"
+    ],
+    "externalUrl": "https://www.mountsinai.org"
+  },
+  {
+    "id": "99b78c38-3636-4448-abcd-f926d77e1be7",
+    "name": "Blue Yonder",
+    "description": "AI-powered supply chain management platform that optimizes inventory, logistics, and fulfillment operations.",
+    "category": "automation",
+    "price": 50000,
+    "advantages": [
+      "End-to-end supply chain visibility",
+      "Real-time inventory management",
+      "AI-driven demand forecasting",
+      "Automated resource allocation",
+      "Integration with existing ERP systems"
+    ],
+    "disadvantages": [
+      "High implementation costs",
+      "Complex setup requiring specialized expertise",
+      "Enterprise-focused pricing model",
+      "Significant time investment for full deployment",
+      "Steep learning curve for new users"
+    ],
+    "externalUrl": "https://www.blueyonder.com"
+  },
+  {
+    "id": "6c919d37-96bf-4d7b-9dd7-ed305fb6b05e",
+    "name": "Pipio",
+    "description": "AI tool for automaticke vytvareni kratkych videi for socialni site.",
+    "category": "video-generation",
+    "price": 750,
+    "advantages": [
+      "Optimalizace for socialni site",
+      "Automaticke formatovani",
+      "Rychla produkce",
+      "Moderni sablony"
+    ],
+    "disadvantages": [
+      "Omezena delka videi",
+      "Mene moznosti customizace"
+    ],
+    "externalUrl": "https://www.pipio.io"
+  },
+  {
+    "id": "ca7b8b27-b5bc-40a5-be71-ee3d1edaf7da",
+    "name": "Microsoft Power Pages",
+    "description": "Microsoft Power Pages is a low-code website and portal builder that allows organizations to create secure, modern external-facing business websites with customized user experiences.",
+    "category": "Low-Code Website Builder",
+    "price": 20,
+    "advantages": [
+      "Integration with Microsoft 365 ecosystem",
+      "Enterprise-grade security features",
+      "Low-code page creation and customization",
+      "Built-in templates for common business scenarios",
+      "Seamless data connectivity with Dataverse",
+      "Advanced user authentication and authorization",
+      "Multilingual support out of the box",
+      "Compliance with industry standards and regulations",
+      "Easy integration with Power Automate for workflows",
+      "Scalable enterprise architecture"
+    ],
+    "disadvantages": [
+      "Higher pricing compared to consumer website builders",
+      "Steeper learning curve for non-technical users",
+      "Requires Microsoft ecosystem knowledge for full benefit",
+      "Limited design flexibility compared to professional development"
+    ],
+    "externalUrl": "https://www.microsoft.com/en-us/power-pages"
+  },
+  {
+    "id": "e61e4b05-3bde-45da-a0d9-8e61bffd64f9",
+    "name": "Omneky",
+    "description": "AI platform for personalizovanou tvorbu a optimalizaci vizualnich reklam.",
+    "category": "advertising",
+    "price": 2500,
+    "advantages": [
+      "Automatizovana tvorba vizualu",
+      "Personalizace according to cilove skupiny",
+      "Real-time optimalizace",
+      "Pokrocila analytika"
+    ],
+    "disadvantages": [
+      "higher vstupni naklady",
+      "comprehensive nastaveni",
+      "Potreba qualitych vstupnich dat"
+    ],
+    "externalUrl": "https://www.omneky.com"
+  },
+  {
+    "id": "6526fdbb-840f-4694-a9ef-06d40be74335",
+    "name": "Mayo Clinic AI Healthcare Platform",
+    "description": "Prestigious healthcare institution using artificial intelligence for diagnostics, personalized treatment, and medical research.",
+    "category": "Zdravotnictví chyba překladu ",
+    "price": 0,
+    "advantages": [
+      "World-class medical expertise",
+      "Advanced diagnostic capabilities",
+      "Integration with clinical workflow",
+      "Extensive research validation"
+    ],
+    "disadvantages": [
+      "Primarily available through Mayo Clinic system",
+      "Higher cost specialized care",
+      "Geographic access limitations"
+    ],
+    "externalUrl": "https://www.mayoclinic.org"
+  },
+  {
+    "id": "f3ff4bf9-07f7-48b2-a337-55903f785f13",
+    "name": "Ada Health",
+    "description": "Personalizovany AI assistant for zdravotni diagnostiku a analyzu symptomu s globalni lekarskou databazi",
+    "category": "Zdravotnictví",
+    "price": 0,
+    "advantages": [
+      "Bezplatna zakladni version diagnostickeho AI asistenta",
+      "very presna prvotni analysis symptomu na zaklade obsahle medicinske databaze",
+      "Postupne se uci o vasem zdravi a zlepsuje personalizaci",
+      "simple a intuitive userske rozhrani accessne i for seniory",
+      "supports vice than 10 jazyku for globalni dosah"
+    ],
+    "disadvantages": [
+      "Neprovides primo spojeni s lekari (pouze diagnostiku a doporuceni)",
+      "Nektere advanced features jsou placene",
+      "Neni nahradou za profesionalni lekarskou peci pri vaznych stavech",
+      "limited options sledovani chronickych onemocneni ve srovnani s konkurenci"
+    ],
+    "externalUrl": "https://www.ada.com"
+  },
+  {
+    "id": "b12f78ac-f2ce-4fb3-b9f0-6dcc15ebf300",
+    "name": "LALAL.AI",
+    "description": "AI tool for separating music into individual tracks.",
+    "category": "audio",
+    "price": 1000,
+    "advantages": [
+      "High-quality stem separation",
+      "Multiple stem extraction options",
+      "Fast processing",
+      "Simple user interface"
+    ],
+    "disadvantages": [
+      "Limited free processing minutes",
+      "Complete accuracy not guaranteed for all audio types",
+      "Higher cost for professional needs"
+    ],
+    "externalUrl": "https://www.lalal.ai"
+  },
+  {
+    "id": "9a3862b6-b3cc-4bfa-8d7d-81697f15cfda",
+    "name": "Berkshire Grey",
+    "description": "AI-powered robotic automation solutions for retail, e-commerce, and logistics operations focusing on order fulfillment and processing.",
+    "category": "automation",
+    "price": 500000,
+    "advantages": [
+      "Fully integrated end-to-end automation solutions",
+      "Scalable to grow with business needs",
+      "Reduces labor costs and dependency",
+      "Increases order processing speed and accuracy",
+      "Adapts to changing product mixes"
+    ],
+    "disadvantages": [
+      "Significant upfront capital investment",
+      "Extended implementation timeframe",
+      "Requires facility modifications",
+      "May need operational process changes",
+      "Specialized maintenance requirements"
+    ],
+    "externalUrl": "https://www.berkshiregrey.com"
+  },
+  {
+    "id": "68ac1730-969b-4315-bbf2-448df2f137da",
+    "name": "GE Healthcare Edison AI Platform",
+    "description": "comprehensive AI ekosystem for zdravotnictvi, which integruje artificial intelligence do zobrazovacich metod, workflow a klinickeho rozhodovani",
+    "category": "Zdravotnictví",
+    "price": 0,
+    "advantages": [
+      "Otevreny AI ekosystem s moznosti integration aplikaci tretich stran",
+      "Silna integration s GE zobrazovacimi modalitami a informacnimi systems",
+      "AI toole dostupne 'on-device', 'on-premise' i v cloudu dle needs",
+      "comprehensive access pokryvajici cely klinicky workflow",
+      "Edison Developer Program for development new AI aplikaci"
+    ],
+    "disadvantages": [
+      "Nejhigher pridana hodnota pri usesni GE zdravotnickych facilities",
+      "higher naklady na implementaci a licencovani",
+      "Komplexita systemu requires vyznamne IT zdroje",
+      "Potreba prizpusobeni a integration s existing systems"
+    ],
+    "externalUrl": "https://www.gehealthcare.com"
+  },
+  {
+    "id": "e248539d-8d37-454c-901b-7c72e7a891b5",
+    "name": "Numbrs AI",
+    "description": "Pokrocily financni assistant vyuzivajici artificial intelligence k analysis osobnich financi, predpovidani cash flow a optimalizaci uspor a investic.",
+    "category": "Osobní finance",
+    "price": 10,
+    "advantages": [
+      "comprehensive prehled vsech financnich uctu na jednom miste",
+      "Prediktivni analysis cash flow a vydaju",
+      "Personalizovane tipy for uspory zalozene na vydajovych vzorcich",
+      "Automaticka kategorizace transakci s vysokou presnosti",
+      "advanced zabezpeceni s end-to-end sifrovanim",
+      "Upozorneni na neobvykle vydaje a potencialni poplatky"
+    ],
+    "disadvantages": [
+      "Omezena dostupnost v some regions",
+      "requires access k bankovnim uctum for plnou funkcnost",
+      "Nektere analyticke features jsou k dispozici pouze v placene verzi"
+    ],
+    "externalUrl": "https://www.numbrs.ai"
+  },
+  {
+    "id": "0a1f498c-3374-4277-9c5e-63dd54c7d1a4",
+    "name": "Spendesk",
+    "description": "comprehensive platform for spravu firemnich vydaju, which kombinuje fyzicke a virtualni platebni karty s analyzou vydaju a automatizaci pracovnich postupu using AI.",
+    "category": "Správa výdajů a účetnictví",
+    "price": 100,
+    "advantages": [
+      "Uplna viditelnost firemnich vydaju v realnem case",
+      "Automaticke parovani uctenek s transakcemi",
+      "Virtualni i fyzicke karty s nastavitelnymi limits",
+      "Integrovany schvalovaci workflow for vydaje",
+      "AI detekce anomalii a nesrovnalosti",
+      "Automatizovane ucetni processes",
+      "integration s popularnimi ucetnimi softwary"
+    ],
+    "disadvantages": [
+      "higher price for male podniky",
+      "comprehensive system requires zaskoleni",
+      "Nektere advanced features dostupne jen ve higherch cenovych planech"
+    ],
+    "externalUrl": "https://www.spendesk.com"
+  },
+  {
+    "id": "97c5b4c7-13ef-4556-8f21-62d6d4b7becb",
+    "name": "Foreceipt",
+    "description": "Mobilni application for sledovani vydaju a spravu uctenek, which utilizes AI k automaticmu skenovani, kategorizaci a organizaci financnich dokladu.",
+    "category": "Správa výdajů a účtenek",
+    "price": 8,
+    "advantages": [
+      "Okamzite skenovani a digitization uctenek using mobilu",
+      "Automaticka extrakce key informaci z uctenek",
+      "Organizace uctenek according to kategorii for easy danove priznani",
+      "Cloudove uloziste for vsechny naskenovane dokumenty",
+      "Export dat do ucetnich programu a tabulek",
+      "Vyhledavani between uctenkami according to ruznych kriterii"
+    ],
+    "disadvantages": [
+      "limited features v bezplatne verzi",
+      "Mene pokrocile analyticke toole ve srovnani s komplexnejsimi resenimi",
+      "Obcasne nepresnosti pri automaticm rozpoznavani newhichch uctenek"
+    ],
+    "externalUrl": "https://www.foreceipt.com"
+  },
+  {
+    "id": "f58d6408-edf5-481a-a43f-24579f1bbdfe",
+    "name": "Uber Freight",
+    "description": "AI-powered digital freight marketplace that connects shippers and carriers while automating pricing, matching, and booking.",
+    "category": "automation",
+    "price": 0,
+    "advantages": [
+      "Instant access to thousands of verified carriers",
+      "Real-time dynamic pricing",
+      "Automated load matching and booking",
+      "End-to-end shipment visibility",
+      "Integration with existing TMS systems"
+    ],
+    "disadvantages": [
+      "Commission-based pricing impacts margins",
+      "Limited support for specialized freight",
+      "Service quality dependent on carrier network",
+      "Less direct carrier relationships",
+      "Premium features require subscription"
+    ],
+    "externalUrl": "https://www.uberfreight.com"
+  },
+  {
+    "id": "ae8d25db-79b4-414c-82e6-6360b2800db7",
+    "name": "Vorto AI",
+    "description": "AI-powered supply chain optimization platform for industrial materials and equipment, automating procurement, logistics, and inventory management.",
+    "category": "automation",
+    "price": 30000,
+    "advantages": [
+      "Reduces procurement costs by 12-15%",
+      "Decreases stockouts by up to 90%",
+      "Automates 80% of procurement tasks",
+      "Real-time market intelligence",
+      "Integration with existing ERP systems"
+    ],
+    "disadvantages": [
+      "Primarily focused on industrial materials",
+      "Significant implementation timeline",
+      "Complex integration with legacy systems",
+      "Enterprise-level pricing",
+      "Requires data standardization"
+    ],
+    "externalUrl": "https://www.vorto.ai"
+  },
+  {
+    "id": "0a78a520-c1e7-41e5-af54-92ad05ca51ed",
+    "name": "Sifted",
+    "description": "AI-powered shipping intelligence platform that analyzes parcel data to optimize carrier selection, service levels, and shipping costs.",
+    "category": "automation",
+    "price": 20000,
+    "advantages": [
+      "Reduces shipping costs by 15-25%",
+      "Automated carrier invoice auditing",
+      "Data-driven contract negotiation insights",
+      "Predictive shipping analytics",
+      "No IT integration required"
+    ],
+    "disadvantages": [
+      "Focused primarily on parcel shipping",
+      "Value depends on shipping volume",
+      "Limited control over carrier relationships",
+      "Requires consistent data sharing",
+      "Best for medium to large shippers"
+    ],
+    "externalUrl": "https://www.sifted.com"
+  },
+  {
+    "id": "5aa631dc-fd73-4bbb-b0df-6163623ba0e8",
+    "name": "Throughput",
+    "description": "AI supply chain optimization platform that identifies and resolves bottlenecks in manufacturing and distribution operations.",
+    "category": "automation",
+    "price": 60000,
+    "advantages": [
+      "Increases throughput by 15-30%",
+      "Reduces inventory carrying costs by 20-35%",
+      "AI-powered bottleneck detection",
+      "Rapid implementation (4-6 weeks)",
+      "No equipment or sensor installation required"
+    ],
+    "disadvantages": [
+      "Requires quality data inputs",
+      "Complex modeling for highly variable processes",
+      "Enterprise pricing model",
+      "Best suited for mid to large operations",
+      "Limited industry-specific customization"
+    ],
+    "externalUrl": "https://throughput.world"
+  },
+  {
+    "id": "f58ad317-24f2-47b9-977f-124e558c2d1b",
+    "name": "Reply.io",
+    "description": "Automatizacni platform for sales outreach a email marketing.",
+    "category": "sales",
+    "price": 800,
+    "advantages": [
+      "Pokrocila automatizace",
+      "Personalizace na vysoke urovni",
+      "Integrace s CRM systemy",
+      "A/B testovani"
+    ],
+    "disadvantages": [
+      "limitations dennich limitu",
+      "Muze vyzadovat technicke znalosti",
+      "Slozitejsi nastaveni kampani"
+    ],
+    "externalUrl": "https://www.reply.io"
+  },
+  {
+    "id": "780fa1aa-9d63-4353-a677-28fc4b4c780b",
+    "name": "nTask",
+    "description": "AI-enhanced project and task management platform that automates workflows, resource allocation, and team collaboration.",
+    "category": "automation",
+    "price": 96,
+    "advantages": [
+      "All-in-one project management solution",
+      "Native time tracking functionality",
+      "Risk assessment and issue management",
+      "Meeting management with action items",
+      "Affordable pricing for small teams"
+    ],
+    "disadvantages": [
+      "Limited advanced automation capabilities",
+      "Fewer integrations than enterprise platforms",
+      "Mobile app with reduced functionality",
+      "Basic reporting compared to specialized tools",
+      "Learning curve for all available features"
+    ],
+    "externalUrl": "https://www.ntaskmanager.com"
+  },
+  {
+    "id": "8be08872-8003-4512-9e29-61c53dbd3174",
+    "name": "Pneumatic",
+    "description": "AI-powered workflow automation platform designed for human-in-the-loop processes and approval workflows across teams and systems.",
+    "category": "automation",
+    "price": 1788,
+    "advantages": [
+      "Intuitive visual workflow builder",
+      "AI-enhanced form processing",
+      "Specialized for approval workflows",
+      "End-user friendly interface",
+      "Detailed audit trails and compliance"
+    ],
+    "disadvantages": [
+      "Limited third-party integrations compared to competitors",
+      "Newer platform with smaller community",
+      "Complex pricing structure",
+      "Advanced analytics require higher tier plans",
+      "Limited customization for enterprise-specific needs"
+    ],
+    "externalUrl": "https://www.pneumatic.app"
+  },
+  {
+    "id": "90923237-f3e0-430b-839d-c444a99e8487",
+    "name": "Jitterbit",
+    "description": "AI-powered integration platform that automates data flows and connects applications, APIs, and systems across enterprises.",
+    "category": "automation",
+    "price": 25000,
+    "advantages": [
+      "Codeless integration builder",
+      "Pre-built connectors for 1",
+      "000+ systems",
+      "AI-powered data mapping and transformation",
+      "Real-time and batch processing",
+      "Comprehensive API management"
+    ],
+    "disadvantages": [
+      "Enterprise pricing model",
+      "Technical expertise required for complex scenarios",
+      "Limited free tier functionality",
+      "Implementation complexity for large-scale deployments",
+      "Some advanced features require professional services"
+    ],
+    "externalUrl": "https://www.jitterbit.com"
+  },
+  {
+    "id": "90c07319-0d9b-4227-85dd-ccb381b15a00",
+    "name": "Reclaim.ai",
+    "description": "AI time management assistant that automatically schedules tasks, meetings, and personal time in your calendar based on priorities and preferences.",
+    "category": "automation",
+    "price": 108,
+    "advantages": [
+      "Automatic task scheduling and rescheduling",
+      "Smart meeting scheduling across teams",
+      "Habit building for regular activities",
+      "Work-life balance protection",
+      "Calendar analytics and insights"
+    ],
+    "disadvantages": [
+      "Primary Google Calendar integration (limited Microsoft support)",
+      "Learning curve for optimal configuration",
+      "Some features only available in higher tiers",
+      "May over-schedule without careful setup",
+      "Limited customization for complex scheduling rules"
+    ],
+    "externalUrl": "https://www.reclaim.ai"
+  },
+  {
+    "id": "17cc2ae6-7614-4de7-bba4-b58d6c1e6bb2",
+    "name": "ProcessGPT",
+    "description": "AI platform that analyzes, optimizes and automates business processes by understanding process documentation and executing workflow improvements.",
+    "category": "automation",
+    "price": 10000,
+    "advantages": [
+      "Natural language process understanding",
+      "Automated process discovery and mapping",
+      "Intelligent automation recommendations",
+      "Integration with existing systems",
+      "Continuous process monitoring and adaptation"
+    ],
+    "disadvantages": [
+      "Enterprise-level pricing",
+      "Significant implementation effort",
+      "Requires quality process documentation",
+      "Limited pre-built process templates",
+      "Best results require process maturity"
+    ],
+    "externalUrl": "https://www.processgpt.ai"
+  },
+  {
+    "id": "566287c4-bae6-4dbb-b5a6-f1fd605983a9",
+    "name": "Microsoft Power Automate",
+    "description": "Cloud-based service with AI capabilities that helps create automated workflows between apps and services to synchronize files, get notifications, and collect data.",
+    "category": "automation",
+    "price": 180,
+    "advantages": [
+      "Seamless Microsoft ecosystem integration",
+      "Low-code/no-code interface",
+      "AI Builder for intelligent automation",
+      "Both cloud and desktop automation",
+      "Extensive connector library"
+    ],
+    "disadvantages": [
+      "Full capabilities require premium licensing",
+      "Complex flows have learning curve",
+      "Limited customization for complex scenarios",
+      "UI flows require Windows",
+      "Performance depends on connection reliability"
+    ],
+    "externalUrl": "https://www.powerautomate.microsoft.com"
+  },
+  {
+    "id": "68221b5e-3f09-49ac-8890-646ff365cbd7",
+    "name": "Otio",
+    "description": "AI workflow automation tool that helps teams create, visualize, and execute processes with natural language instructions and no-code building blocks.",
+    "category": "automation",
+    "price": 480,
+    "advantages": [
+      "Natural language process creation",
+      "Visual workflow canvas",
+      "Real-time collaboration",
+      "Process template library",
+      "Integration with business tools"
+    ],
+    "disadvantages": [
+      "Newer platform with growing ecosystem",
+      "Limited advanced customization",
+      "Enterprise features require higher tier plans",
+      "Best with established tech stack",
+      "Learning curve for complex processes"
+    ],
+    "externalUrl": "https://www.otio.ai"
+  },
+  {
+    "id": "1b251f1c-d151-454a-9cda-8c7dbd560ccf",
+    "name": "cflow",
+    "description": "AI-enhanced workflow automation platform that digitizes business processes and approval workflows with form-based automation and process intelligence.",
+    "category": "automation",
+    "price": 540,
+    "advantages": [
+      "User-friendly form builder",
+      "Flexible approval routing",
+      "Mobile workflow access",
+      "Process analytics and insights",
+      "Document handling and e-signatures"
+    ],
+    "disadvantages": [
+      "Limited advanced integrations",
+      "Basic UI compared to newer platforms",
+      "Custom development requires higher tier",
+      "More complex setup for advanced workflows",
+      "Limited AI capabilities in lower tiers"
+    ],
+    "externalUrl": "https://www.cflowapps.com"
+  },
+  {
+    "id": "ea62d9ba-5ef4-4a1a-8f67-217d1430d320",
+    "name": "n8n",
+    "description": "Open-source workflow automation platform with AI capabilities that connects apps, databases, and services with a powerful, flexible node-based approach.",
+    "category": "automation",
+    "price": 240,
+    "advantages": [
+      "Open-source flexibility and transparency",
+      "Self-hosted option for data privacy",
+      "Powerful node-based workflow editor",
+      "Fair-code licensing model",
+      "Full control over data flows"
+    ],
+    "disadvantages": [
+      "Steeper learning curve than some alternatives",
+      "Technical setup for self-hosting",
+      "Community nodes vary in quality",
+      "Enterprise features require paid cloud version",
+      "Limited visual styling options"
+    ],
+    "externalUrl": "https://www.n8n.io"
+  },
+  {
+    "id": "87c44d11-1580-42b4-9b39-05fe34881bdd",
+    "name": "MeisterTask",
+    "description": "AI-supported project and task management platform with automated workflows and smart features for team collaboration and productivity.",
+    "category": "automation",
+    "price": 108,
+    "advantages": [
+      "Intuitive",
+      "visually appealing interface",
+      "Automation rules for recurring tasks",
+      "Native time tracking",
+      "MindMeister mind map integration",
+      "File attachments and comments"
+    ],
+    "disadvantages": [
+      "Limited reporting in lower tiers",
+      "Fewer integrations than competitors",
+      "Basic automation features",
+      "No Gantt or timeline views",
+      "Mobile app with limited functionality"
+    ],
+    "externalUrl": "https://www.meistertask.com"
+  },
+  {
+    "id": "a5f4246c-92db-4287-907d-da1965952c90",
+    "name": "Wrike",
+    "description": "AI-enhanced collaborative work management platform that automates workflows, project tracking, and team coordination across organizations.",
+    "category": "automation",
+    "price": 588,
+    "advantages": [
+      "Comprehensive work management solution",
+      "Flexible workflow customization",
+      "Rich work visualization options",
+      "Enterprise-grade security",
+      "Deep integration ecosystem"
+    ],
+    "disadvantages": [
+      "Steeper learning curve for advanced features",
+      "Higher price point than basic alternatives",
+      "Complex setup for large organizations",
+      "Enterprise features in higher tiers only",
+      "Mobile app less robust than web version"
+    ],
+    "externalUrl": "https://www.wrike.com"
+  },
+  {
+    "id": "0f3be3fa-5099-47f8-9664-c24c6f6bf205",
+    "name": "Trello",
+    "description": "Visual work management tool with AI capabilities that automates workflows using cards, lists, and boards to organize projects and collaboration.",
+    "category": "automation",
+    "price": 120,
+    "advantages": [
+      "Intuitive",
+      "user-friendly interface",
+      "Quick setup and minimal learning curve",
+      "Powerful automation through Butler",
+      "Extensive integration ecosystem",
+      "Flexible for various use cases"
+    ],
+    "disadvantages": [
+      "Limited reporting capabilities",
+      "Basic Gantt/timeline views",
+      "Scaling challenges for large projects",
+      "Limited resource management",
+      "Advanced features require premium plans"
+    ],
+    "externalUrl": "https://www.trello.com"
+  },
+  {
+    "id": "a59ce69d-012e-49f9-b9fd-11e85002a3ff",
+    "name": "Albert.ai",
+    "description": "AI platform for automatizaci a optimalizaci digitalnich marketingovych kampani.",
+    "category": "marketing-automation",
+    "price": 1800,
+    "advantages": [
+      "Autonomni optimalizace kampani",
+      "Cross-channel marketing",
+      "Pokrocila analysis dat",
+      "Automaticke testovani"
+    ],
+    "disadvantages": [
+      "higher initial investment",
+      "Slozitejsi implementace",
+      "Potreba vetsiho rozpoctu"
+    ],
+    "externalUrl": "https://www.albert.ai"
+  },
+  {
+    "id": "ea860d5f-8809-4e6b-a071-c1d2b6e94f60",
+    "name": "This Person Does Not Exist",
+    "description": "AI generator of realistic portraits of non-existent people.",
+    "category": "image-generation",
+    "price": 0,
+    "advantages": [
+      "Infinite unique face generation",
+      "Photo-realistic quality",
+      "Free to use",
+      "Educational tool for AI capabilities"
+    ],
+    "disadvantages": [
+      "Limited control over generated outputs",
+      "No commercial usage rights clarity",
+      "Cannot generate consistent identities across multiple images"
+    ],
+    "externalUrl": "https://www.thispersondoesnotexist.com"
+  },
+  {
+    "id": "e4374dca-c97e-4025-829b-c379a9779536",
+    "name": "Shopify",
+    "description": "Comprehensive e-commerce platform with integrated AI features for personalization, automation, and optimization.",
+    "category": "E-commerce",
+    "price": 29,
+    "advantages": [
+      "User-friendly interface",
+      "Extensive app ecosystem",
+      "Built-in marketing tools",
+      "Mobile-responsive designs"
+    ],
+    "disadvantages": [
+      "Transaction fees outside Shopify Payments",
+      "Premium features require higher-tier plans",
+      "Advanced customization can be complex"
+    ],
+    "externalUrl": "https://www.shopify.com"
+  },
+  {
+    "id": "a1140c4a-3f65-40c8-a1b4-5a43433afa02",
+    "name": "Kissflow",
+    "description": "No-code workflow and process automation platform with AI capabilities that streamlines operations, approvals, and data management for businesses.",
+    "category": "automation",
+    "price": 1200,
+    "advantages": [
+      "User-friendly no-code interface",
+      "Unified platform for processes and projects",
+      "Pre-built app templates",
+      "Case management capabilities",
+      "End-to-end workflow visibility"
+    ],
+    "disadvantages": [
+      "Limited customization for complex scenarios",
+      "Basic reporting in lower tiers",
+      "Integration capabilities less robust than specialists",
+      "Mobile experience limitations",
+      "Learning curve for advanced configurations"
+    ],
+    "externalUrl": "https://www.kissflow.com"
+  },
+  {
+    "id": "b0da424b-58c7-4504-98fa-cc3766c858ae",
+    "name": "Talkspace",
+    "description": "Online therapy platform using AI to connect patients with therapists and provide digital mental health services.",
+    "category": "Zdravotnictví",
+    "price": 69,
+    "advantages": [
+      "Convenient access to licensed therapists",
+      "Flexible communication options",
+      "More affordable than traditional therapy",
+      "Privacy and anonymity"
+    ],
+    "disadvantages": [
+      "Limited insurance coverage",
+      "Not suitable for severe mental health crises",
+      "Less personal than face-to-face therapy"
+    ],
+    "externalUrl": "https://www.talkspace.com"
+  },
+  {
+    "id": "4c397d73-064a-41a2-b61c-c801957c9334",
+    "name": "Airbase",
+    "description": "Airbase is a comprehensive spend management platform that unifies accounts payable, corporate cards, and employee expense reimbursements with approval workflows, accounting automation, and real-time reporting.",
+    "category": "Spend Management",
+    "price": 1000,
+    "advantages": [
+      "All-in-one platform for AP, cards, and reimbursements",
+      "Pre-approved virtual cards with spend controls",
+      "Automated invoice capture and processing",
+      "Customizable multi-level approval workflows",
+      "Real-time visibility into all company spend",
+      "Automated sync with accounting systems",
+      "Corporate card with cash back rewards",
+      "Policy controls built into payment methods",
+      "Vendor management and payment optimization",
+      "Detailed audit trail for compliance"
+    ],
+    "disadvantages": [
+      "Higher pricing suited for mid-market and enterprise",
+      "Complex implementation for full feature utilization",
+      "Feature richness creates learning curve",
+      "Requires process standardization across departments"
+    ],
+    "externalUrl": "https://www.airbase.com"
+  },
+  {
+    "id": "d2ac8787-1e26-4774-bb37-a9aaa34227c1",
+    "name": "Algolia",
+    "description": "AI-pohaneny vyhledavaci a doporucovaci engine for e-commerce weby, which zlepsuje zakaznickou zkusenost a konverze",
+    "category": "E-commerce",
+    "price": 29,
+    "advantages": [
+      "Extremne rychle vyhledavani s okamzitymi results",
+      "Tolerantnost k preklepum a chybam",
+      "Personalizovane results na zaklade chovani usere",
+      "Snadna implementace a integration",
+      "Detailni analysis vyhledavacich dotazu"
+    ],
+    "disadvantages": [
+      "price muze rychle rust s vetsim objemem dat a higherm poctem pozadavku",
+      "Nektere pokrocile features vyzaduji vlastni implementaci",
+      "Komplexni nastaveni muze byt nayearlyjsi pro zacatecniky"
+    ],
+    "externalUrl": "https://www.algolia.com"
+  },
+  {
+    "id": "d12cb292-4574-48e8-a48a-fd12fede9f21",
+    "name": "Albato",
+    "description": "No-code integration platform with AI capabilities that connects applications and automates data flows between business tools and services.",
+    "category": "automation",
+    "price": 360,
+    "advantages": [
+      "User-friendly no-code interface",
+      "Extensive app library with 600+ integrations",
+      "Real-time and batch data processing",
+      "Ready-to-use integration templates",
+      "Pay-per-use pricing option"
+    ],
+    "disadvantages": [
+      "Limited advanced customization",
+      "Newer platform with growing ecosystem",
+      "Complex transformations require formulas",
+      "Enterprise features in higher tiers only",
+      "Documentation less comprehensive than established platforms"
+    ],
+    "externalUrl": "https://www.albato.com"
+  },
+  {
+    "id": "0efbc1b4-9c0f-4754-8016-f160689df809",
+    "name": "Anyword",
+    "description": "AI platform for generovani a optimalizaci marketingoveho obsahu s predikci vykonu.",
+    "category": "content-creation",
+    "price": 1200,
+    "advantages": [
+      "Prediktivni analysis vykonu obsahu",
+      "Personalizace according to cilove skupiny",
+      "Integrace s marketingovymi tooli",
+      "A/B testovani"
+    ],
+    "disadvantages": [
+      "higher price for vetsi tymy",
+      "Muze vyzadovat dodatecnou editaci",
+      "limitations v zakladnim planu"
+    ],
+    "externalUrl": "https://www.anyword.com"
+  },
+  {
+    "id": "cb783814-dfdd-4543-9be3-812aa864e2c0",
+    "name": "Ardent AI Health Assistant",
+    "description": "AI platform for proaktivni zdravotni management, which kombinuje prediktivni analyzu, personalizovane intervence a koordinaci pece",
+    "category": "Zdravotnictví",
+    "price": 0,
+    "advantages": [
+      "Proaktivni identifikace rizikovych patients using prediktivnich modelu",
+      "Personalizovane zdravotni intervence zalozene na individualnich potrebach",
+      "Zlepsena koordinace pece between different poskytovateli zdravotnich sluzeb",
+      "Snizeni nakladu na zdravotni peci through vcasnych intervenci",
+      "comprehensive prehled o zdravotnim stavu pacienta napric different zdravotnimi epizodami"
+    ],
+    "disadvantages": [
+      "requires rozsahlou integraci s different zdroji zdravotnickych dat",
+      "Efektivita depends na quality a uplnosti dostupnych dat",
+      "comprehensive implementace vyzadujici zmeny v organizaci zdravotni pece",
+      "Potencialni vyzvy s akceptaci ze strany zdravotnickeho personalu"
+    ],
+    "externalUrl": "https://www.ardenthealth.com"
+  },
+  {
+    "id": "3266f1c5-dbb4-4d76-8e03-3486bd59e6eb",
+    "name": "Butterfly iQ+",
+    "description": "Prenosny ultrazvukovy system s AI support, which premenuje smartphone na diagnostically tool a demokratizuje access k medicinskemu zobrazovani",
+    "category": "Zdravotnictví",
+    "price": 2399,
+    "advantages": [
+      "Kompaktni celokapesni ultrazvukove zarizeni kompatibilni s beznymi smartphony",
+      "AI asistence pro interpretaci obrazu a navedeni usere",
+      "Jedina sonda pokryvajici cele telo (linearni, konvexni a sektorove zobrazeni)",
+      "Cloudove ukladani a sdileni vysetreni pro konzultace",
+      "Vyrazne nizsi price oproti tradicnim ultrazvukovym systemum"
+    ],
+    "disadvantages": [
+      "Nizsi obrazova kvalita ve srovnani s premiovymi klinickymi ultrazvuky",
+      "Omezena hloubka penetrace u some aplikaci",
+      "requires kompatibilni smartphone nebo tablet",
+      "Nektere advanced features vyzaduji predplatne Butterfly Enterprise"
+    ],
+    "externalUrl": "https://www.butterflynetwork.com"
+  },
+  {
+    "id": "ff6fd039-7c62-4582-99dd-f9edf36b70a2",
+    "name": "Candis",
+    "description": "Automatizovana ucetni platform, which utilizes AI k zpracovani faktur, sprave vydaju a automatizaci ucetnich processes for male a stredni podniky.",
+    "category": "Účetnictví a AP automatizace",
+    "price": 39,
+    "advantages": [
+      "Automaticke rozpoznavani a zpracovani faktur pomoci AI",
+      "Eliminace manual zadavani dat",
+      "Inteligentni workflow for schvalovani faktur",
+      "Automaticke uctovani a kategorizace",
+      "integration s existing ucetnimi systems",
+      "Uspora az 80% casu pri zpracovani faktur"
+    ],
+    "disadvantages": [
+      "Omezena jazykova podpora for rozpoznavani dokumentu",
+      "Nektere comprehensive ucetni operace vyzaduji manual kontrolu",
+      "initial nastaveni a integration muze byt nayearlyjsi"
+    ],
+    "externalUrl": "https://www.candis.io"
+  },
+  {
+    "id": "f29107ed-015d-4a4e-b1cb-28d3b88683cf",
+    "name": "Clerk.io",
+    "description": "Clerk.io is an AI-powered e-commerce personalization platform that provides product recommendations, email marketing, and search functionality to increase conversion rates and average order value.",
+    "category": "E-commerce Personalization",
+    "price": 249,
+    "advantages": [
+      "E-commerce-specific recommendation engine",
+      "Seamless integration with major e-commerce platforms",
+      "Personalized email marketing automation",
+      "AI-powered search functionality",
+      "Easy-to-use interface requiring minimal technical skills",
+      "Visual merchandising capabilities",
+      "Detailed ROI and performance tracking",
+      "Multi-language support",
+      "Audience segmentation tools",
+      "Mobile optimization features"
+    ],
+    "disadvantages": [
+      "Primary focus on e-commerce limits use in other industries",
+      "Advanced features require higher subscription tiers",
+      "Custom integration may require developer resources",
+      "Some features have learning curve for new users"
+    ],
+    "externalUrl": "https://www.clerk.io"
+  },
+  {
+    "id": "ba4eb3bb-71b2-42fa-9098-cea1a8a438d5",
+    "name": "Cleveland Clinic AI Healthcare System",
+    "description": "Prestizni lekarske centrum implementujici AI technologie for zlepseni diagnostics, personalizovane lecby a research zavaznych onemocneni",
+    "category": "Zdravotnictví",
+    "price": 0,
+    "advantages": [
+      "advanced AI algorithms for diagnostiku komplexnich onemocneni",
+      "access k nejnovejsimu research a klinickym studiim",
+      "Multidisciplinarni tymy specialistu podporovane AI tooli",
+      "Personalizovana lecba zalozena na molekularnich a genetickych datech",
+      "AI predikce a prevence komplikaci u vysoce rizikovych patients"
+    ],
+    "disadvantages": [
+      "higher naklady specializovane pece",
+      "Geograficka omezenost hlavnich center na USA",
+      "Potencialne dlouhe cekaci doby for consultations",
+      "Nektere AI services nemusi byt hrazeny pojistovnami"
+    ],
+    "externalUrl": "https://www.clevelandclinic.org"
+  },
+  {
+    "id": "14bdaf28-7246-44fb-874f-163c2d11e129",
+    "name": "Decisions",
+    "description": "Advanced business process automation platform with AI capabilities for creating, visualizing, and managing complex workflows and decision logic.",
+    "category": "automation",
+    "price": 50000,
+    "advantages": [
+      "Powerful rules engine for complex logic",
+      "No-code and low-code development options",
+      "Visual flow designer for processes",
+      "Enterprise-grade security and integration",
+      "Flexible deployment options"
+    ],
+    "disadvantages": [
+      "Enterprise pricing model",
+      "Steep learning curve for advanced features",
+      "Requires technical implementation team",
+      "Complex deployment compared to SaaS tools",
+      "Primarily designed for large organizations"
+    ],
+    "externalUrl": "https://www.decisions.com"
+  },
+  {
+    "id": "d80fac2c-2953-4c05-9d89-f9f01f6be7a6",
+    "name": "DeckMatch",
+    "description": "DeckMatch is an AI-powered platform that helps startups and businesses connect with investors by analyzing pitch decks, matching them with relevant investors, and providing insights to optimize fundraising strategies.",
+    "category": "Fundraising Intelligence",
+    "price": 99,
+    "advantages": [
+      "AI-powered investor matching algorithms",
+      "Personalized investor recommendations",
+      "Pitch deck analysis and optimization",
+      "Access to investor database",
+      "Automated outreach and tracking",
+      "Fundraising analytics and insights",
+      "Investment round planning tools",
+      "Investor engagement tracking",
+      "Follow-up automation features",
+      "Data-driven fundraising approach"
+    ],
+    "disadvantages": [
+      "Limited effectiveness for very early startups",
+      "Premium features require higher-tier plans",
+      "Network strength varies by industry segment",
+      "Quality of matches depends on deck quality"
+    ],
+    "externalUrl": "https://www.deckmatch.com"
+  },
+  {
+    "id": "e819611c-c848-4d3d-8dd5-f299b7383ff4",
+    "name": "DeepBrain AI",
+    "description": "Platform for creating hyper-realistic AI avatars and virtual humans for video content, interactive kiosks, and assistants.",
+    "category": "AI & Video",
+    "price": 30,
+    "advantages": [
+      "Hyper-realistic AI avatars with natural movements",
+      "Ability to create your own digital twin",
+      "Various use cases from videos to interactive kiosks",
+      "Integration via API into existing systems"
+    ],
+    "disadvantages": [
+      "Higher price for advanced features",
+      "Creating your own avatar requires additional costs",
+      "Some features are only available in enterprise plan"
+    ],
+    "externalUrl": "https://www.deepbrain.io"
+  },
+  {
+    "id": "74834f8a-1d62-4bba-b252-c4a462468dd8",
+    "name": "Fyle",
+    "description": "Fyle is an AI-powered expense management platform that automates receipt capture, expense categorization, and compliance checking for businesses of all sizes.",
+    "category": "Expense Management",
+    "price": 8,
+    "advantages": [
+      "Real-time expense capture from credit cards and receipts",
+      "Automated policy compliance checks",
+      "Mobile receipt scanning with data extraction",
+      "Integration with major accounting software",
+      "Corporate card management and reconciliation",
+      "Customizable approval workflows",
+      "Automated mileage tracking",
+      "Analytics and spending insights",
+      "Multi-currency support",
+      "Digital audit trail for all expenses"
+    ],
+    "disadvantages": [
+      "Advanced features require higher-tier plans",
+      "Some integrations may need custom setup",
+      "Mobile app occasionally has sync issues",
+      "Limited customization in basic plans"
+    ],
+    "externalUrl": "https://www.fylehq.com"
+  },
+  {
+    "id": "d8c04de2-58af-4679-8b60-889f9dbda85e",
+    "name": "GXO Logistics",
+    "description": "Contract logistics provider offering AI-powered warehouse management and automation solutions for supply chain optimization.",
+    "category": "automation",
+    "price": 50000,
+    "advantages": [
+      "End-to-end logistics solutions without capital investment",
+      "Access to cutting-edge automation technologies",
+      "Scalable capacity based on business needs",
+      "Global logistics network",
+      "Industry-specific expertise"
+    ],
+    "disadvantages": [
+      "Long-term contractual commitments",
+      "Less direct control over operations",
+      "Potential integration challenges with existing systems",
+      "Variable costs during peak seasons",
+      "Service quality dependent on provider performance"
+    ],
+    "externalUrl": "https://www.gxo.com"
+  },
+  {
+    "id": "5d80dc01-5899-40d7-80a1-40136928c6f5",
+    "name": "Gorgias",
+    "description": "AI-pohanena helpdeskova platform specializovana na zakaznicky servis for e-commerce obchody",
+    "category": "Zákaznický servis",
+    "price": 50,
+    "advantages": [
+      "integration s popularnimi e-commerce platformmi (Shopify, Magento, WooCommerce)",
+      "AI automation for rutinni dotazy zakazniku",
+      "Centralizace komunikace z vice kanalu (email, chat, socialni site)",
+      "access k datum o objednavkach primo v helpdesku",
+      "Sablony odpovedi a makra for rychlejsi reakce"
+    ],
+    "disadvantages": [
+      "higher price for mensi e-shopy s nizsim objemem ticketu",
+      "Nektere advanced features jsou dostupne pouze ve higherch tarifech",
+      "AI assistant muze vyzadovat initial nastaveni a trenink"
+    ],
+    "externalUrl": "https://www.gorgias.com"
+  },
+  {
+    "id": "ecdb62c9-6b06-4df2-b039-69fcb071c368",
+    "name": "Hello Wellness",
+    "description": "AI wellness platform kombinujici personalizovane zdravotni doporuceni, monitoring zivotniho stylu a integraci s nositelnou elektronikou",
+    "category": "Zdravotnictví",
+    "price": 12.99,
+    "advantages": [
+      "Personalizovane wellness plany na zaklade AI analyzy dat",
+      "integration s fitness trackery a zdravotnimi applicationmi",
+      "Holisticky access kombinujici fyzicke a mentalni zdravi",
+      "Gamifikace a socialni features for increasing motivace",
+      "Prediktivni analysis for prevenci zdravotnich problemu"
+    ],
+    "disadvantages": [
+      "Zamereno primarne na prevenci, ne na lecbu existujicich onemocneni",
+      "Kvalita doporuceni depends na presnosti a mnozstvi zadanych dat",
+      "Chybi prime propojeni s lekari for consultations",
+      "Nektere advanced features vyzaduji premiove predplatne"
+    ],
+    "externalUrl": "https://www.hellowellness.com"
+  },
+  {
+    "id": "53cdc676-f63f-4b9a-8399-a8ceaeff008c",
+    "name": "Ginger",
+    "description": "Comprehensive mental health platform with AI coaching, therapy, and psychiatry care on demand.",
+    "category": "Zdravotnictví",
+    "price": 50,
+    "advantages": [
+      "On-demand mental health support",
+      "Tiered care approach",
+      "Text-based coaching availability",
+      "Integration with employee benefits"
+    ],
+    "disadvantages": [
+      "Primarily available through employers",
+      "Limited psychiatry appointment availability",
+      "Not designed for severe mental health conditions"
+    ],
+    "externalUrl": "https://www.ginger.com"
+  },
+  {
+    "id": "73a7e14a-92f9-4a42-a7fa-28fe2c5fb9cf",
+    "name": "Google Health",
+    "description": "AI iniciativa spolecnosti Google zamerena na zdravotnicke technologie, vcetne diagnostic toolu, analyzy medicinskych obrazu a zdravotnickeho research",
+    "category": "Zdravotnictví",
+    "price": 0,
+    "advantages": [
+      "advanced algorithms machine learning for analyzu medicinskych obrazu",
+      "Vysoka presnost v detection a diagnostice ruznych onemocneni",
+      "Masivni vypocetni infrastruktura umoznujici zpracovani velkych objemu dat",
+      "Interdisciplinarni tymy zahrnujici lekare, vyzkumniky a AI experty",
+      "integration s dalsimi Google technologiemi a platformami"
+    ],
+    "disadvantages": [
+      "Nektere tools jsou stale ve vyvojove nebo research fazi",
+      "Potencialni obavy o soukromi a bezpecnost zdravotnich dat",
+      "Primarne B2B zamereni s omezenou dostupnosti for individual uzivatele",
+      "Regionalni regulatory limitations v ruznych zemich"
+    ],
+    "externalUrl": "https://www.google.com/health"
+  },
+  {
+    "id": "bdfe9413-294f-4d16-8116-4999ceb5906e",
+    "name": "HeyGen",
+    "description": "AI platform for creating personalized videos with virtual presenters in various languages without the need for filming.",
+    "category": "AI & Video",
+    "price": 29,
+    "advantages": [
+      "Quick creation of quality videos without technical knowledge",
+      "Translation of videos into many languages with preserved lip synchronization",
+      "Library of pre-made avatars and option to create your own",
+      "Integration with other tools via API"
+    ],
+    "disadvantages": [
+      "Monthly limits on number and length of videos",
+      "Premium features are only available in higher price plans",
+      "Creating your own avatar requires additional costs"
+    ],
+    "externalUrl": "https://www.heygen.com"
+  }
+]

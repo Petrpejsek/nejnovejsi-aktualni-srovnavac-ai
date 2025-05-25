@@ -49,7 +49,7 @@ interface ProductStore {
 // Cache duration in milliseconds (1 minute)
 const CACHE_DURATION = 60 * 1000
 
-// Funkce pro normalizaci tagů
+// Function for tag normalization
 const normalizeTag = (tag: string): string => {
   const normalizedTag = tag.trim()
   
@@ -101,14 +101,14 @@ export const useProductStore = create<ProductStore>((set, get) => ({
     // Kontrola, zda už načítáme
     if (store.loading) return
 
-    // Pokud máme data v cache a nejsou starší než CACHE_DURATION
-    if (
-      store.products.length > 0 &&
-      store.pagination.page === page &&
-      now - store.lastFetch < CACHE_DURATION
-    ) {
-      return
-    }
+    // Přeskočíme cache pro debugging - vždy načteme fresh data
+    // if (
+    //   store.products.length > 0 &&
+    //   store.pagination.page === page &&
+    //   now - store.lastFetch < CACHE_DURATION
+    // ) {
+    //   return
+    // }
 
     try {
       set({ loading: true, error: null })
@@ -116,6 +116,7 @@ export const useProductStore = create<ProductStore>((set, get) => ({
       // Vytvoření URL s parametry
       const url = new URL('/api/products', window.location.origin)
       url.searchParams.set('page', page.toString())
+      url.searchParams.set('pageSize', '500') // Načteme všechny produkty
 
       const response = await fetch(url.toString())
       if (!response.ok) {

@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "next dev",
+    "init-assistant": "tsx scripts/init-assistant.ts",
     "build": "tsc --project tsconfig.json && prisma generate && next build",
     "vercel-build": "tsc --project tsconfig.json && prisma generate && next build",
     "start": "next start",
@@ -15,7 +16,9 @@
     "db:reset": "prisma db push && node --loader ts-node/esm prisma/seed.ts",
     "postinstall": "prisma generate",
     "backup": "node --loader ts-node/esm scripts/backup.ts",
-    "restore": "node --loader ts-node/esm scripts/restore.ts"
+    "restore": "node --loader ts-node/esm scripts/restore.ts",
+    "export-products": "node --loader ts-node/esm scripts/export-products.js",
+    "assistant-setup": "node --loader ts-node/esm scripts/export-products.js"
   },
   "prisma": {
     "seed": "node --loader ts-node/esm prisma/seed.ts"
@@ -32,16 +35,19 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "critters": "^0.0.25",
+    "dotenv": "^16.5.0",
+    "form-data": "^4.0.2",
     "jsdom": "^24.0.0",
     "next": "^14.1.0",
     "next-auth": "^4.24.5",
     "node-fetch": "^3.3.2",
-    "openai": "^4.92.0",
+    "openai": "^4.100.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.50.1",
     "sharp": "^0.33.2",
     "tailwind-merge": "^3.0.1",
+    "typed.js": "^2.1.0",
     "zustand": "^4.5.0"
   },
   "devDependencies": {
@@ -56,6 +62,7 @@
     "prisma": "^6.3.1",
     "tailwindcss": "^3.4.1",
     "ts-node": "^10.9.2",
+    "tsx": "^4.19.4",
     "typescript": "^5.7.3"
   }
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
@@ -49,7 +49,7 @@ interface DisplayProduct extends Product {
   recommendation?: string;
 }
 
-export default function DoporuceniPage() {
+export default function RecommendationsPage() {
   const searchParams = useSearchParams()
   const query = searchParams.get('query')
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set())
@@ -60,13 +60,56 @@ export default function DoporuceniPage() {
   const [recommendations, setRecommendations] = useState<Recommendation[]>([])
   const [loading, setLoading] = useState(true)
   const [recommending, setRecommending] = useState(true)
+  const [hasLoadedRecs, setHasLoadedRecs] = useState(false)
+  const [isLoadingRecs, setIsLoadingRecs] = useState(false)
+  const [currentLoadingMessage, setCurrentLoadingMessage] = useState(0)
 
-  // Načtení produktů
+  const prevQueryRef = useRef<string | null>(null);
+  const isLoadingRef = useRef(false);
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  // Loading messages rotation
+  const loadingMessages = [
+    "Analyzing and ranking tools based on their relevance to you...",
+    "Creating personalized recommendations based on your needs..."
+  ];
+
+  // Loading messages rotation
   useEffect(() => {
+    if (!recommending) {
+      console.log('🔄 Rotation STOPPED - recommending:', recommending);
+      return;
+    }
+
+    console.log('🔄 Rotation STARTED - recommending:', recommending);
+    
+    const interval = setInterval(() => {
+      setCurrentLoadingMessage(prev => {
+        const next = (prev + 1) % 2;
+        console.log('🔄 Loading message rotation:', prev, '->', next, 'message:', loadingMessages[next]);
+        return next;
+      });
+    }, 4000); // 4 seconds for each message
+
+    return () => {
+      console.log('🔄 Rotation ENDED');
+      clearInterval(interval);
+    };
+  }, [recommending]);
+
+  // Načtení produktů - jen pokud nemáme query (pro catalog page)
+  useEffect(() => {
+    // If we have a query, we don't need to load all products!
+    if (query) {
+      setLoading(false);
+      return;
+    }
+
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const response = await fetch('/api/products', {
+        const productsUrl = '/api/products?pageSize=1000';
+        const response = await fetch(productsUrl, {
           cache: 'no-store',
           headers: {
             'Cache-Control': 'no-cache, no-store, must-revalidate',
@@ -75,9 +118,18 @@ export default function DoporuceniPage() {
           }
         })
         if (response.ok) {
-          const data = await response.json()
-          const productArray = data.products || [];
-          const processedData = productArray.map((product: Product) => ({
+          const raw = await response.json();
+          const list: any[] = Array.isArray(raw)
+            ? raw
+            : Array.isArray(raw.products)
+              ? raw.products
+              : [];
+
+          if (!Array.isArray(list) || list.length === 0) {
+            console.warn('API vrátilo neočekávanou strukturu nebo prázdné pole produktů:', raw);
+          }
+
+          const processedData = list.map((product: Product) => ({
             ...product,
             tags: typeof product.tags === 'string' ? JSON.parse(product.tags) : product.tags,
             advantages: typeof product.advantages === 'string' ? JSON.parse(product.advantages) : product.advantages,
@@ -88,16 +140,11 @@ export default function DoporuceniPage() {
             price: typeof product.price === 'string' ? parseFloat(product.price) : product.price
           }))
           setProducts(processedData)
-          
-          // Pokud nemáme dotaz, zobrazíme všechny produkty
-          if (!query) {
-            setRecommending(false);
-          }
         } else {
-          console.error('Chyba při načítání:', response.status, response.statusText)
+          console.error('Error loading:', response.status, response.statusText)
         }
       } catch (error) {
-        console.error('Chyba při načítání produktů:', error)
+        console.error('Error loading products:', error)
       } finally {
         setLoading(false)
       }
@@ -106,41 +153,139 @@ export default function DoporuceniPage() {
     fetchProducts()
   }, [query])
 
-  // Získáme doporučení, pokud máme dotaz
   useEffect(() => {
+    // If we don't have a query
+    if (!query) {
+      if (prevQueryRef.current) {
+        // Reset state when removing query
+        prevQueryRef.current = null;
+        isLoadingRef.current = false;
+        setRecommendations([]);
+        setHasLoadedRecs(false);
+        setRecommending(false);
+        setIsLoadingRecs(false);
+      }
+      return;
+    }
+
+    // If it's the same query as before, do nothing
+    if (query === prevQueryRef.current) {
+      return;
+    }
+
+    // If we're already loading, skip
+    if (isLoadingRef.current) {
+      console.log('🔄 Already loading recommendations, skipping...');
+      return;
+    }
+
+    // Update ref
+    prevQueryRef.current = query;
+    
+          // Reset state for new query
+      setRecommendations([]);
+      setHasLoadedRecs(false);
+      setRecommending(false);
+      setIsLoadingRecs(false);
+      setCurrentLoadingMessage(0);
+    
+    // Start loading recommendations
     const fetchRecommendations = async () => {
-      if (!query) return;
+      if (isLoadingRef.current) return;
+      
+      console.log('🔍 Loading recommendations for:', query);
+      
+      isLoadingRef.current = true;
+      setIsLoadingRecs(true);
+      setRecommending(true);
+      console.log('🔄 SETTING recommending to TRUE');
       
       try {
-        setRecommending(true);
-        
-        const response = await fetch('/api/recommendations', {
+        const response = await fetch('/api/assistant-recommendations', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ query })
         });
-        
+
         if (!response.ok) {
-          throw new Error('Nepodařilo se získat doporučení');
+          console.error('Error calling API:', response.status, response.statusText);
+          return;
+        }
+
+        const data = await response.json();
+        
+        if (!data.recommendations || !Array.isArray(data.recommendations)) {
+          console.error('Invalid response structure:', data);
+          return;
+        }
+
+        console.log(`📦 Loading ${data.recommendations.length} recommended products`);
+        
+        // Load products from database for all recommendations
+        const productIds = data.recommendations.map((rec: any) => rec.id);
+        
+        const productsResponse = await fetch(`/api/products?ids=${productIds.join(',')}`, {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+          }
+        });
+        
+        if (!productsResponse.ok) {
+          console.error('Error loading products:', productsResponse.status);
+          return;
         }
         
-        const data = await response.json();
-        setRecommendations(data.recommendations || []);
-      } catch (error) {
-        console.error('Chyba při získávání doporučení:', error);
-        // Při chybě zobrazíme všechny produkty
-        setRecommendations([]);
+        const productsData = await productsResponse.json();
+        
+        const products = Array.isArray(productsData) ? productsData : productsData.products || [];
+        
+        // Combine recommendations with products from database
+        const recommendationsWithProducts = data.recommendations.map((rec: any) => {
+          const product = products.find((p: Product) => p.id === rec.id);
+          if (!product) {
+            console.warn(`⚠️ Product with ID ${rec.id} not found in database`);
+            return null;
+          }
+          return {
+            ...rec,
+            product: {
+              ...product,
+              matchPercentage: rec.matchPercentage,
+              recommendation: rec.recommendation
+            }
+          };
+        }).filter(Boolean);
+        
+        if (recommendationsWithProducts.length === 0) {
+          console.warn('⚠️ No valid recommendations after combining with products');
+        } else {
+          console.log(`✅ Successfully loaded ${recommendationsWithProducts.length} recommendations`);
+        }
+        
+        setRecommendations(recommendationsWithProducts);
+      } catch (err) {
+        console.error('Error loading recommendations:', err);
       } finally {
+        isLoadingRef.current = false;
         setRecommending(false);
+        console.log('🔄 SETTING recommending to FALSE');
+        setHasLoadedRecs(true);
+        setIsLoadingRecs(false);
       }
     };
     
-    if (query && products.length > 0) {
-      fetchRecommendations();
+    fetchRecommendations();
+  }, [query]);
+
+  // Debug state (only for errors)
+  useEffect(() => {
+    if (query && !recommending && recommendations.length === 0 && hasLoadedRecs) {
+      console.log('⚠️ No recommendations for query:', query);
     }
-  }, [query, products]);
+  }, [recommendations, recommending, hasLoadedRecs, query]);
 
   const toggleItem = (id: string) => {
     const newSelected = new Set(selectedItems)
@@ -152,24 +297,29 @@ export default function DoporuceniPage() {
     setSelectedItems(newSelected)
   }
 
-  // Získáme produkty pro zobrazení - buď všechny, nebo jen doporučené
+  // Get products for display - either all or just recommended
   const getDisplayProducts = (): DisplayProduct[] => {
-    // Pokud máme doporučení, použijeme je
-    if (recommendations.length > 0) {
-      // Vrátíme všechna doporučení, bez omezení na počet, seřazena podle matchPercentage
-      return recommendations.map(rec => ({
+    if (!query) {
+      return products;
+    }
+    
+    if (recommending) {
+      return [];
+    }
+    
+    if (!recommendations || recommendations.length === 0) {
+      return [];
+    }
+    
+    const displayProducts = recommendations.map(rec => {
+      return {
         ...rec.product,
         matchPercentage: rec.matchPercentage,
         recommendation: rec.recommendation
-      })).sort((a, b) => (b.matchPercentage || 0) - (a.matchPercentage || 0));
-    }
-    
-    // Jinak filtrujeme podle tagů
-    return products.filter(product => {
-      if (selectedTags.size === 0) return true
-      const productTags = product.tags || []
-      return Array.from(selectedTags).some(tag => productTags.includes(tag))
+      };
     });
+    
+    return displayProducts;
   }
 
   const displayProducts = getDisplayProducts();
@@ -201,8 +351,8 @@ export default function DoporuceniPage() {
   }
 
   const handleCompare = () => {
-    // TODO: Implementovat logiku pro srovnání
-    console.log('Srovnávám produkty:', Array.from(selectedItems))
+    // TODO: Implement comparison logic
+    console.log('Comparing products:', Array.from(selectedItems))
   }
 
   const handleClearSelection = () => {
@@ -211,14 +361,14 @@ export default function DoporuceniPage() {
 
   const handleVisit = (url?: string) => {
     if (!url) {
-      console.log('Chybí URL!')
+      console.log('Missing URL!')
       return
     }
 
     try {
       window.open(url, '_blank', 'noopener,noreferrer')
     } catch (error) {
-      console.error('Chyba při otevírání URL:', error)
+      console.error('Error opening URL:', error)
     }
   }
 
@@ -239,7 +389,10 @@ export default function DoporuceniPage() {
         </h1>
         <p className="text-gray-600 text-lg max-w-3xl mx-auto mb-4">
           {query 
-            ? `Based on your needs, we found ${displayProducts.length} AI tools that are specifically relevant to your requirements.` 
+            ? (recommending 
+                ? "We're analyzing your needs and finding the most relevant AI tools for you..."
+                : `Based on your needs, we found ${displayProducts.length} AI tools that are specifically relevant to your requirements.`
+              )
             : `Choose from our ${products.length} AI solutions that will help you work more efficiently and grow.`
           }
         </p>
@@ -251,17 +404,17 @@ export default function DoporuceniPage() {
         </p>
       </div>
 
-      {/* Loading state pro doporučení */}
+      {/* Loading state for recommendations */}
       {recommending && (
         <div className="flex justify-center items-center py-8">
           <div className="flex flex-col items-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mb-4"></div>
-            <p className="text-purple-600 font-medium">Generating personalized recommendations...</p>
+            <p className="text-purple-600 font-medium">{loadingMessages[currentLoadingMessage]}</p>
           </div>
         </div>
       )}
 
-      {/* TagFilter - zobrazit jen pokud nemáme doporučení */}
+      {/* TagFilter - show only if we don't have recommendations */}
       {recommendations.length === 0 && !recommending && (
         <div className="mb-8">
           <TagFilter selectedTags={selectedTags} onTagsChange={setSelectedTags} />
@@ -277,7 +430,7 @@ export default function DoporuceniPage() {
           >
             <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
               <div className="w-full md:max-w-[240px] flex flex-col gap-3">
-                {/* Přidáváme zobrazení procentuální shody */}
+                {/* Display percentage match */}
                 {product.matchPercentage !== undefined && (
                   <div className="bg-gradient-to-r from-purple-600 to-pink-500 text-white text-center py-2 px-4 rounded-t-[14px] font-medium">
                     {product.matchPercentage}% Match
@@ -294,7 +447,7 @@ export default function DoporuceniPage() {
                     className="object-cover"
                   />
                 </div>
-                {/* Checkbox pro srovnávání - skrytý */}
+                {/* Checkbox for comparison - hidden */}
                 {COMPARE_FEATURE_ENABLED && (
                   <label className="flex items-center justify-center md:justify-start gap-2">
                     <input
@@ -323,7 +476,7 @@ export default function DoporuceniPage() {
                   <div className="text-right">
                     <div>
                       <p className="text-gradient-primary font-medium">
-                        {product.hasTrial ? '$0' : `$${product.price.toFixed(2)}`}
+                        {product.hasTrial ? '$0' : (typeof product.price === 'number' ? `$${product.price.toFixed(2)}` : 'N/A')}
                       </p>
                       {product.hasTrial && (
                         <span className="text-xs text-purple-600/90 bg-purple-50/80 px-2 py-1 rounded-full">
@@ -338,7 +491,7 @@ export default function DoporuceniPage() {
                   {product.description}
                 </p>
                 
-                {/* Personalizované doporučení */}
+                {/* Personalized recommendation */}
                 {product.recommendation && (
                   <div className="mb-4 p-4 bg-purple-50 rounded-[14px] border border-purple-100">
                     <h4 className="text-purple-800 font-medium mb-1">Personalized Recommendation</h4>
@@ -348,7 +501,7 @@ export default function DoporuceniPage() {
                 
                 <div className="space-y-4">
                   <div className="flex flex-wrap gap-2">
-                    {product.tags?.map((tag) => (
+                    {(typeof product.tags === 'string' ? JSON.parse(product.tags) : product.tags || [])?.map((tag: string) => (
                       <span
                         key={tag}
                         className="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-full"
@@ -402,37 +555,63 @@ export default function DoporuceniPage() {
                 {expandedProductId === product.id && (
                   <div className="mt-6 pt-6 border-t border-gray-100">
                     <div className="grid md:grid-cols-2 gap-6 mb-6">
-                      {product.advantages && product.advantages.length > 0 && (
-                        <div>
-                          <h4 className="text-lg font-medium text-gray-800 mb-3">Advantages</h4>
-                          <ul className="space-y-2">
-                            {product.advantages.map((advantage, index) => (
-                              <li key={index} className="flex items-start gap-2">
-                                <svg className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                                </svg>
-                                <span className="text-gray-600">{advantage}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
+                      {(() => {
+                        try {
+                          const advantages = typeof product.advantages === 'string' 
+                            ? JSON.parse(product.advantages) 
+                            : product.advantages || [];
+                          
+                          if (Array.isArray(advantages) && advantages.length > 0) {
+                            return (
+                              <div>
+                                <h4 className="text-lg font-medium text-gray-800 mb-3">Advantages</h4>
+                                <ul className="space-y-2">
+                                  {advantages.map((advantage, index) => (
+                                    <li key={index} className="flex items-start gap-2">
+                                      <svg className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                                      </svg>
+                                      <span className="text-gray-600">{advantage}</span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            );
+                          }
+                        } catch (error) {
+                          console.warn('Error parsing advantages:', error);
+                        }
+                        return null;
+                      })()}
 
-                      {product.disadvantages && product.disadvantages.length > 0 && (
-                        <div>
-                          <h4 className="text-lg font-medium text-gray-800 mb-3">Disadvantages</h4>
-                          <ul className="space-y-2">
-                            {product.disadvantages.map((disadvantage, index) => (
-                              <li key={index} className="flex items-start gap-2">
-                                <svg className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                                <span className="text-gray-600">{disadvantage}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
+                      {(() => {
+                        try {
+                          const disadvantages = typeof product.disadvantages === 'string' 
+                            ? JSON.parse(product.disadvantages) 
+                            : product.disadvantages || [];
+                          
+                          if (Array.isArray(disadvantages) && disadvantages.length > 0) {
+                            return (
+                              <div>
+                                <h4 className="text-lg font-medium text-gray-800 mb-3">Disadvantages</h4>
+                                <ul className="space-y-2">
+                                  {disadvantages.map((disadvantage, index) => (
+                                    <li key={index} className="flex items-start gap-2">
+                                      <svg className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                                      </svg>
+                                      <span className="text-gray-600">{disadvantage}</span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            );
+                          }
+                        } catch (error) {
+                          console.warn('Error parsing disadvantages:', error);
+                        }
+                        return null;
+                      })()}
                     </div>
 
                     {product.detailInfo && (
@@ -454,30 +633,45 @@ export default function DoporuceniPage() {
                             <p className="text-2xl font-bold text-gradient-primary">$0</p>
                           </div>
                         )}
-                        {product.pricingInfo?.basic && (
-                          <div className="bg-gray-50/80 p-4 rounded-[14px]">
-                            <h5 className="font-medium text-gray-800 mb-2">Basic</h5>
-                            <p className="text-2xl font-bold text-gradient-primary">
-                              ${parseFloat(product.pricingInfo.basic).toFixed(2)}
-                            </p>
-                          </div>
-                        )}
-                        {product.pricingInfo?.pro && (
-                          <div className="bg-purple-50/80 p-4 rounded-[14px] border-2 border-purple-100">
-                            <h5 className="font-medium text-gray-800 mb-2">Pro</h5>
-                            <p className="text-2xl font-bold text-gradient-primary">
-                              ${parseFloat(product.pricingInfo.pro).toFixed(2)}
-                            </p>
-                          </div>
-                        )}
-                        {product.pricingInfo?.enterprise && (
-                          <div className="bg-gray-50/80 p-4 rounded-[14px]">
-                            <h5 className="font-medium text-gray-800 mb-2">Enterprise</h5>
-                            <p className="text-2xl font-bold text-gradient-primary">
-                              {product.pricingInfo.enterprise === 'Custom' ? 'Custom' : `$${parseFloat(product.pricingInfo.enterprise).toFixed(2)}`}
-                            </p>
-                          </div>
-                        )}
+                        {(() => {
+                          try {
+                            const pricingInfo = typeof product.pricingInfo === 'string' 
+                              ? JSON.parse(product.pricingInfo) 
+                              : product.pricingInfo || {};
+                            
+                            return (
+                              <>
+                                {pricingInfo.basic && (
+                                  <div className="bg-gray-50/80 p-4 rounded-[14px]">
+                                    <h5 className="font-medium text-gray-800 mb-2">Basic</h5>
+                                    <p className="text-2xl font-bold text-gradient-primary">
+                                      ${parseFloat(pricingInfo.basic).toFixed(2)}
+                                    </p>
+                                  </div>
+                                )}
+                                {pricingInfo.pro && (
+                                  <div className="bg-purple-50/80 p-4 rounded-[14px] border-2 border-purple-100">
+                                    <h5 className="font-medium text-gray-800 mb-2">Pro</h5>
+                                    <p className="text-2xl font-bold text-gradient-primary">
+                                      ${parseFloat(pricingInfo.pro).toFixed(2)}
+                                    </p>
+                                  </div>
+                                )}
+                                {pricingInfo.enterprise && (
+                                  <div className="bg-gray-50/80 p-4 rounded-[14px]">
+                                    <h5 className="font-medium text-gray-800 mb-2">Enterprise</h5>
+                                    <p className="text-2xl font-bold text-gradient-primary">
+                                      {pricingInfo.enterprise === 'Custom' ? 'Custom' : `$${parseFloat(pricingInfo.enterprise).toFixed(2)}`}
+                                    </p>
+                                  </div>
+                                )}
+                              </>
+                            );
+                          } catch (error) {
+                            console.warn('Error parsing pricing info:', error);
+                            return null;
+                          }
+                        })()}
                       </div>
                     </div>
 

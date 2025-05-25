@@ -4,11 +4,12 @@ import React, { useState } from 'react'
 import { useProductStore } from '../store/productStore'
 
 interface TagFilterProps {
+  tags?: string[];
   selectedTags?: Set<string>;
   onTagsChange?: (tags: Set<string>) => void;
 }
 
-export default function TagFilter({ selectedTags: propSelectedTags, onTagsChange: propOnTagsChange }: TagFilterProps = {}) {
+export default function TagFilter({ tags: propTags, selectedTags: propSelectedTags, onTagsChange: propOnTagsChange }: TagFilterProps = {}) {
   const [showAllTags, setShowAllTags] = useState(false)
   const storeValues = useProductStore()
   
@@ -26,8 +27,8 @@ export default function TagFilter({ selectedTags: propSelectedTags, onTagsChange
     setSelectedTags(newTags)
   }
 
-  // Získáme tagy buď ze store nebo použijeme prázdné pole pokud používáme props
-  const availableTags = storeValues.availableTags || []
+  // Získáme tagy buď z props nebo ze store
+  const availableTags = propTags || storeValues.availableTags || []
 
   const buttonClass = (tag: string) => `
     px-3 
@@ -44,7 +45,7 @@ export default function TagFilter({ selectedTags: propSelectedTags, onTagsChange
   `
 
   return (
-    <div className="space-y-4 mb-8">
+    <div className="space-y-4 mb-4">
       <div className={`flex flex-wrap gap-2 relative ${!showAllTags ? 'max-h-[120px] overflow-hidden' : ''}`}>
         {availableTags.map((tag) => (
           <button

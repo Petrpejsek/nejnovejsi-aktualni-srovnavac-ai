@@ -1,0 +1,1181 @@
+=== SEZNAM VŠECH PRODUKTŮ Z DATABÁZE ===
+Celkem produktů: 196
+
+1. ID: 7a15d64f-cccc-4215-892d-09b1725f426e
+   Název: 10Web
+   Kategorie: Website Builder
+   Popis: Unlock powerful tools for hosting, building, optimizing, and securing your site. Elevate your web pr...
+
+2. ID: 471fab15-7b8a-4ce1-b85d-f3fb446a8454
+   Název: Academy of Robotics (Kar-go)
+   Kategorie: automation
+   Popis: Autonomous delivery vehicle system using AI for last-mile logistics and contactless delivery operati...
+
+3. ID: 75cc8dc5-b8c5-44f3-bf45-7656d0586058
+   Název: Accounting Prose
+   Kategorie: Accounting Services
+   Popis: Accounting Prose is a modern accounting firm that combines professional accounting services with tec...
+
+4. ID: f3ff4bf9-07f7-48b2-a337-55903f785f13
+   Název: Ada Health
+   Kategorie: Zdravotnictví
+   Popis: Personalizovany AI assistant for zdravotni diagnostiku a analyzu symptomu s globalni lekarskou datab...
+
+5. ID: f781d3a2-6dbe-4d45-9f65-d1c127a8c208
+   Název: Adobe GenStudio
+   Kategorie: content-creation
+   Popis: comprehensive AI platform for tvorbu, spravu a optimalizaci kreativniho obsahu....
+
+6. ID: 4a8cb269-5b42-40b5-b43b-be1b9e2c2178
+   Název: Aider
+   Kategorie: Business AI Assistant
+   Popis: Aider is an AI-powered assistant for small businesses that processes financial and accounting data, ...
+
+7. ID: 4c397d73-064a-41a2-b61c-c801957c9334
+   Název: Airbase
+   Kategorie: Spend Management
+   Popis: Airbase is a comprehensive spend management platform that unifies accounts payable, corporate cards,...
+
+8. ID: b8ddab23-5631-46d1-96b1-022520288542
+   Název: Aiva
+   Kategorie: music
+   Popis: AI kompozicni engine pro tvorbu emocionalni hudby....
+
+9. ID: d12cb292-4574-48e8-a48a-fd12fede9f21
+   Název: Albato
+   Kategorie: automation
+   Popis: No-code integration platform with AI capabilities that connects applications and automates data flow...
+
+10. ID: a59ce69d-012e-49f9-b9fd-11e85002a3ff
+   Název: Albert.ai
+   Kategorie: marketing-automation
+   Popis: AI platform for automatizaci a optimalizaci digitalnich marketingovych kampani....
+
+11. ID: d2ac8787-1e26-4774-bb37-a9aaa34227c1
+   Název: Algolia
+   Kategorie: E-commerce
+   Popis: AI-pohaneny vyhledavaci a doporucovaci engine for e-commerce weby, which zlepsuje zakaznickou zkusen...
+
+12. ID: 8f0e5a4c-bf39-41e4-9f67-dd83d757edfc
+   Název: Alpaca
+   Kategorie: Financial Technology
+   Popis: API platform for trading stocks and cryptocurrencies that allows developers to create automated trad...
+
+13. ID: 0efbc1b4-9c0f-4754-8016-f160689df809
+   Název: Anyword
+   Kategorie: content-creation
+   Popis: AI platform for generovani a optimalizaci marketingoveho obsahu s predikci vykonu....
+
+14. ID: f8817f7f-6b94-48c1-955c-e2062b953127
+   Název: Appy Pie
+   Kategorie: No-Code Development Platform
+   Popis: Appy Pie is an all-in-one no-code development platform that allows users to create mobile apps, webs...
+
+15. ID: 4d317e51-dd49-42f7-9f39-e68c5f4ac3e5
+   Název: Aprio
+   Kategorie: Accounting Services
+   Popis: Aprio is an accounting and advisory firm that utilizes AI and automation to provide accounting, tax ...
+
+16. ID: cb783814-dfdd-4543-9be3-812aa864e2c0
+   Název: Ardent AI Health Assistant
+   Kategorie: Zdravotnictví
+   Popis: AI platform for proaktivni zdravotni management, which kombinuje prediktivni analyzu, personalizovan...
+
+17. ID: a211c18b-d067-4068-89d2-2ba5d0532445
+   Název: Artbreeder
+   Kategorie: image-generation
+   Popis: AI platform for creative mixing and generating artistic images....
+
+18. ID: d13c5205-7f5a-429f-9080-26e0f87e8dad
+   Název: Assiduus AI
+   Kategorie: Finance
+   Popis: AI platform for automating accounting and financial management for e-commerce businesses and online ...
+
+19. ID: e98e14a8-cb13-4d55-91a4-7e129d54afd7
+   Název: Auquan
+   Kategorie: Financial Technology
+   Popis: Platform using AI to identify and analysis risks in financial data and supply chains....
+
+20. ID: f6e11703-e649-43d4-a307-613dddb198e2
+   Název: Autobooks
+   Kategorie: SMB Financial Software
+   Popis: Autobooks is an integrated financial and accounting solution that enables small businesses to accept...
+
+21. ID: 0e11dda0-1bdf-478a-acbe-0105d776f659
+   Název: Auxia
+   Kategorie: Customer Service AI
+   Popis: Auxia (formerly Forethought) is an AI customer service platform that provides intelligent automation...
+
+22. ID: 293863b8-2689-45fd-b4f3-c5c5187eae92
+   Název: Ayasdi
+   Kategorie: AI & Data Analysis
+   Popis: Machine learning and AI platform for complex data analysis that helps organizations identify hidden ...
+
+23. ID: cbfcb592-158d-452f-b314-4b8267e2e116
+   Název: B12
+   Kategorie: AI Website Builder
+   Popis: B12 is the easiest AI website builder that allows you to instantly generate a personalized website u...
+
+24. ID: 78fa0ddc-f57c-4bda-bd88-49c1c1b9bba6
+   Název: Babylon Health
+   Kategorie: Zdravotnictví
+   Popis: AI platform for digital zdravotni diagnostiku, consultations a monitoring zdravotniho stavu...
+
+25. ID: 8b1ad8a1-5afb-40d4-b11d-48c33b606723
+   Název: Based Labs
+   Kategorie: AI & Video
+   Popis: AI platform for creating authentic marketing videos with generative avatars, focused on naturalness ...
+
+26. ID: 9a3862b6-b3cc-4bfa-8d7d-81697f15cfda
+   Název: Berkshire Grey
+   Kategorie: automation
+   Popis: AI-powered robotic automation solutions for retail, e-commerce, and logistics operations focusing on...
+
+27. ID: 7877a619-8085-4199-97ea-00af6ee821ba
+   Název: Betterment
+   Kategorie: Robo-Advisor
+   Popis: Betterment is a robo-advisor that uses AI algorithms to provide automated, personalized investment m...
+
+28. ID: 71875066-3d33-4f4d-8225-4ea1ee353dab
+   Název: Billy
+   Kategorie: Accounting Software
+   Popis: Billy is an intuitive accounting software designed for freelancers and small businesses that automat...
+
+29. ID: 34317734-caf9-4f62-9240-078d591ae2f8
+   Název: BlackRock Aladdin
+   Kategorie: Investment Management
+   Popis: Aladdin is BlackRock's comprehensive investment management and risk analytics platform that uses AI ...
+
+30. ID: 1b32f2d7-94de-4fb2-9d6e-d84b68fa3596
+   Název: Bloomreach
+   Kategorie: E-commerce
+   Popis: AI platform for personalizaci a optimalizaci digitalnich zazitku v e-commerce, which helps zlepsovat...
+
+31. ID: 99b78c38-3636-4448-abcd-f926d77e1be7
+   Název: Blue Yonder
+   Kategorie: automation
+   Popis: AI-powered supply chain management platform that optimizes inventory, logistics, and fulfillment ope...
+
+32. ID: bf31321b-430c-4b2d-8b76-5db2a4a4c42e
+   Název: Booke AI
+   Kategorie: AI Accounting Assistant
+   Popis: Booke AI is an intelligent accounting assistant that automates accounting processes and provides fin...
+
+33. ID: b7626905-902f-4bf6-86c8-2a04bae9a131
+   Název: Bookipi
+   Kategorie: Accounting Software
+   Popis: Bookipi is a free invoicing and accounting software designed for small businesses and entrepreneurs ...
+
+34. ID: 97d6b834-df7d-43dd-bf45-fd46d4220133
+   Název: Boomtrain (by Zeta Global)
+   Kategorie: Marketing Personalization
+   Popis: Boomtrain is an AI-powered personalization platform, now part of Zeta Global, that helps marketers d...
+
+35. ID: 6f188f1a-ca22-466e-aa7b-ed840ee7f196
+   Název: Botkeeper
+   Kategorie: Automated Bookkeeping
+   Popis: Botkeeper provides automated bookkeeping using human-assisted AI technology to deliver accurate acco...
+
+36. ID: f1e5ac18-82da-47bd-b34a-7a15a7b62ee4
+   Název: Brizy.io
+   Kategorie: Website Builder
+   Popis: Create a stunning website in minutes with our 'no-code' website builder. Choose from a variety of be...
+
+37. ID: eab138b6-a37b-4940-930f-c63c169ad1b3
+   Název: Browse AI
+   Kategorie: Web Automation
+   Popis: Browse AI is a no-code web scraping and automation platform that enables businesses to extract data ...
+
+38. ID: 719cf92d-a334-436c-b09d-f81baca258b1
+   Název: Buoy Health
+   Kategorie: Zdravotnictví
+   Popis: AI navigator zdravotni pece, which analyzuje symptomy, doporucuje vhodnou uroven pece a helps optima...
+
+39. ID: 3266f1c5-dbb4-4d76-8e03-3486bd59e6eb
+   Název: Butterfly iQ+
+   Kategorie: Zdravotnictví
+   Popis: Prenosny ultrazvukovy system s AI support, which premenuje smartphone na diagnostically tool a demok...
+
+40. ID: 1c77d2bb-3fb1-4b4d-8e28-8c7f4c3e4055
+   Název: Cainiao Smart Logistics
+   Kategorie: automation
+   Popis: AI-powered logistics network offering intelligent supply chain solutions, automated warehousing, and...
+
+41. ID: ff6fd039-7c62-4582-99dd-f9edf36b70a2
+   Název: Candis
+   Kategorie: Účetnictví a AP automatizace
+   Popis: Automatizovana ucetni platform, which utilizes AI k zpracovani faktur, sprave vydaju a automatizaci ...
+
+42. ID: 9b0e174c-32ba-4da0-883b-85503aa3aae4
+   Název: Capital One CreditWise
+   Kategorie: Credit Monitoring
+   Popis: Capital One CreditWise is an AI-powered credit monitoring and financial health tool that helps users...
+
+43. ID: c1e0b936-9dfe-493a-9531-0f4acdb217bc
+   Název: CashFlow Frog
+   Kategorie: Cash Flow Management
+   Popis: CashFlow Frog is a specialized financial tool with AI functions for cash flow prediction and managem...
+
+44. ID: 2aad9ace-e1dd-4552-b3c6-d71397ec1f54
+   Název: ChatGPT Website Builder
+   Kategorie: AI Website Builder
+   Popis: ChatGPT Website Builder is an AI-powered platform that allows users to create custom websites by con...
+
+45. ID: 16d61ba8-31a5-4e6b-8888-a99906b10709
+   Název: Chatfuel
+   Kategorie: chatbots
+   Popis: platform for tvorbu chatbotu for socialni site a messaging platformy....
+
+46. ID: 9c1ef456-4c60-4524-894f-07a584bd5acd
+   Název: Chef Robotics
+   Kategorie: automation
+   Popis: Automated food preparation robotics system using AI for consistent, efficient, and scalable food ass...
+
+47. ID: f29107ed-015d-4a4e-b1cb-28d3b88683cf
+   Název: Clerk.io
+   Kategorie: E-commerce Personalization
+   Popis: Clerk.io is an AI-powered e-commerce personalization platform that provides product recommendations,...
+
+48. ID: ba4eb3bb-71b2-42fa-9098-cea1a8a438d5
+   Název: Cleveland Clinic AI Healthcare System
+   Kategorie: Zdravotnictví
+   Popis: Prestizni lekarske centrum implementujici AI technologie for zlepseni diagnostics, personalizovane l...
+
+49. ID: a135df2a-d56f-47e6-8a2f-88182bf31578
+   Název: Colossyan
+   Kategorie: video-generation
+   Popis: AI platform for tvorbu vyukovych videi s realistickymi avatary....
+
+50. ID: 21cb1c6e-5917-44fb-98b3-4f8f48196195
+   Název: Conversica
+   Kategorie: Conversational AI
+   Popis: Conversica is an AI-powered conversational platform that uses intelligent virtual assistants to enga...
+
+51. ID: 7dcd98d8-7028-4c5e-bece-9781809efb0f
+   Název: Covariant AI
+   Kategorie: automation
+   Popis: Robotic AI system that enables industrial robots to see, reason, and handle a wide variety of items ...
+
+52. ID: 1de7fcec-a4b6-4cc5-8a27-c0544fc97283
+   Název: Cred.ai
+   Kategorie: Financial Technology
+   Popis: Fintech platform with AI assistant for credit card and finance management, focused on improving cred...
+
+53. ID: 2e5876d4-618d-4348-8aab-b27997e357ff
+   Název: Crowdy AI Accounting
+   Kategorie: AI Accounting Assistant
+   Popis: Crowdy AI Accounting is an AI-powered chatbot and automation platform specifically designed for acco...
+
+54. ID: 0aa48306-60c9-41d0-8366-07fa77d3fc41
+   Název: D-ID
+   Kategorie: video-generation
+   Popis: AI platform for creating and animating digital avatars and synthetic media....
+
+55. ID: 14bdaf28-7246-44fb-874f-163c2d11e129
+   Název: Decisions
+   Kategorie: automation
+   Popis: Advanced business process automation platform with AI capabilities for creating, visualizing, and ma...
+
+56. ID: d80fac2c-2953-4c05-9d89-f9f01f6be7a6
+   Název: DeckMatch
+   Kategorie: Fundraising Intelligence
+   Popis: DeckMatch is an AI-powered platform that helps startups and businesses connect with investors by ana...
+
+57. ID: e819611c-c848-4d3d-8dd5-f299b7383ff4
+   Název: DeepBrain AI
+   Kategorie: AI & Video
+   Popis: Platform for creating hyper-realistic AI avatars and virtual humans for video content, interactive k...
+
+58. ID: c98b5aea-a20e-480e-bece-571f2e648e04
+   Název: Dext
+   Kategorie: Accounting Digitization
+   Popis: Dext provides intelligent tools for digital accounting, automating document processing and financial...
+
+59. ID: c228e879-afcc-4e09-97ba-8f94f24b4108
+   Název: Digitoo
+   Kategorie: Accounting Automation
+   Popis: Digitoo is an AI-powered invoice and receipt processing platform that automates accounting tasks by ...
+
+60. ID: 4ca66ef6-2a65-4f7c-b8fe-9c4bc2b35b1c
+   Název: Docyt
+   Kategorie: Financial Reporting
+   Popis: Docyt is an AI platform for financial reporting and accounting that automates data collection and ca...
+
+61. ID: a01a1bfa-9ffa-4b07-8041-1aadce4f987e
+   Název: Dorik
+   Kategorie: Website Builder
+   Popis: Dorik is a modern website builder that allows users to create responsive websites with a drag-and-dr...
+
+62. ID: 43a0cd70-ba0b-4119-b381-02052c118c4f
+   Název: Duda
+   Kategorie: Website Builder
+   Popis: Duda is a professional website builder that allows users to build and sell high-converting websites ...
+
+63. ID: 5d1fc9c3-2ac5-4cec-8bfe-574edd31086c
+   Název: ELAI
+   Kategorie: video-generation
+   Popis: AI platform for tvorbu videi s digitalnimi prezentatory....
+
+64. ID: 6e93edb5-0d47-4722-8915-a35a44c658e5
+   Název: Elementor
+   Kategorie: Website Builder
+   Popis: Elementor's Free Website Builder makes it easy for anyone to create a website or online store withou...
+
+65. ID: aee8f38d-d67f-4743-99d4-0d3fa27cbbc3
+   Název: Enlitic Curie
+   Kategorie: Zdravotnictví
+   Popis: AI platform for radiologii, which automatizuje workflow, standardizuje reportovani a increases diagn...
+
+66. ID: cfdf75e7-2050-42b6-9b83-33dde6b968e8
+   Název: Feedzai
+   Kategorie: Fraud Prevention
+   Popis: Feedzai is an AI-powered financial risk management platform that helps financial institutions detect...
+
+67. ID: cebc93cf-eae8-4bc8-a111-9b26eb879f03
+   Název: FlexClip
+   Kategorie: video-editing
+   Popis: Online video editor s AI featuresmi pro rychlou tvorbu videi....
+
+68. ID: 97c5b4c7-13ef-4556-8f21-62d6d4b7becb
+   Název: Foreceipt
+   Kategorie: Správa výdajů a účtenek
+   Popis: Mobilni application for sledovani vydaju a spravu uctenek, which utilizes AI k automaticmu skenovani...
+
+69. ID: 84125262-fe89-4ca6-98bf-26b87ae82b28
+   Název: FullStory
+   Kategorie: analytics
+   Popis: digital analyticky tool for sledovani chovani useru a optimalizaci digitalnich zkusenosti....
+
+70. ID: 74834f8a-1d62-4bba-b252-c4a462468dd8
+   Název: Fyle
+   Kategorie: Expense Management
+   Popis: Fyle is an AI-powered expense management platform that automates receipt capture, expense categoriza...
+
+71. ID: 68ac1730-969b-4315-bbf2-448df2f137da
+   Název: GE Healthcare Edison AI Platform
+   Kategorie: Zdravotnictví
+   Popis: comprehensive AI ekosystem for zdravotnictvi, which integruje artificial intelligence do zobrazovaci...
+
+72. ID: d8c04de2-58af-4679-8b60-889f9dbda85e
+   Název: GXO Logistics
+   Kategorie: automation
+   Popis: Contract logistics provider offering AI-powered warehouse management and automation solutions for su...
+
+73. ID: 440d8918-57e3-4c21-91fc-c4bec1859c1d
+   Název: GetResponse
+   Kategorie: Email Marketing Platform
+   Popis: GetResponse is an all-in-one marketing platform that combines email marketing, automation, landing p...
+
+74. ID: 53cdc676-f63f-4b9a-8399-a8ceaeff008c
+   Název: Ginger
+   Kategorie: Zdravotnictví
+   Popis: Comprehensive mental health platform with AI coaching, therapy, and psychiatry care on demand....
+
+75. ID: 73a7e14a-92f9-4a42-a7fa-28fe2c5fb9cf
+   Název: Google Health
+   Kategorie: Zdravotnictví
+   Popis: AI iniciativa spolecnosti Google zamerena na zdravotnicke technologie, vcetne diagnostic toolu, anal...
+
+76. ID: 5d80dc01-5899-40d7-80a1-40136928c6f5
+   Název: Gorgias
+   Kategorie: Zákaznický servis
+   Popis: AI-pohanena helpdeskova platform specializovana na zakaznicky servis for e-commerce obchody...
+
+77. ID: d2b6bf8d-5ae7-46fd-b3ca-8a14b15a61bc
+   Název: HealthTap
+   Kategorie: Zdravotnictví
+   Popis: platform propojujici AI diagnostiku s virtualnimi konzultacemi lekaru, accessem k lekarske databazi ...
+
+78. ID: ecdb62c9-6b06-4df2-b039-69fcb071c368
+   Název: Hello Wellness
+   Kategorie: Zdravotnictví
+   Popis: AI wellness platform kombinujici personalizovane zdravotni doporuceni, monitoring zivotniho stylu a ...
+
+79. ID: bdfe9413-294f-4d16-8116-4999ceb5906e
+   Název: HeyGen
+   Kategorie: AI & Video
+   Popis: AI platform for creating personalized videos with virtual presenters in various languages without th...
+
+80. ID: 1c2bab3d-4532-4601-a8c5-1ea94624a8cf
+   Název: Hostinger Website Builder
+   Kategorie: Website Builder
+   Popis: Create your own website in minutes with Hostinger Website Builder. Choose from more than 150 respons...
+
+81. ID: 76a552bd-0322-483b-ac05-bbf942387477
+   Název: IBM Watson Health
+   Kategorie: Zdravotnictví
+   Popis: AI platform for zdravotnictvi offerci pokrocilou analyzu dat, vyzkum a optimalizaci clinical process...
+
+82. ID: 4cfdee1b-0f5e-4d4f-8c20-4c2d2f646c8d
+   Název: InVideo
+   Kategorie: video-editing
+   Popis: Online platform for tvorbu videi s AI asistenci....
+
+83. ID: 89bdf474-2cd2-4b3c-a55e-861e793280b0
+   Název: Jasper
+   Kategorie: AI Content Creation
+   Popis: Jasper is an AI content creation platform that helps marketers, writers, and businesses generate hig...
+
+84. ID: 692fc806-e664-471f-835b-b671b7ae2165
+   Název: Jimdo
+   Kategorie: Website Builder
+   Popis: Jimdo is a platform that allows you to build a professional website that reflects your expertise, te...
+
+85. ID: 90923237-f3e0-430b-839d-c444a99e8487
+   Název: Jitterbit
+   Kategorie: automation
+   Popis: AI-powered integration platform that automates data flows and connects applications, APIs, and syste...
+
+86. ID: ec4fc10b-21f3-41f9-bfbd-bd75e84661ee
+   Název: Johns Hopkins AI Precision Medicine
+   Kategorie: Zdravotnictví
+   Popis: Spickovy system zdravotni pece vyuzivajici artificial intelligence for precizni medicinu, pokrocilou...
+
+87. ID: b29198e3-728e-4462-8c45-5bdebd21a73e
+   Název: K Health
+   Kategorie: Zdravotnictví
+   Popis: AI-powered health platform combining symptom diagnosis with virtual doctor consultations....
+
+88. ID: 37162e6d-95bb-41eb-b217-84f76cd6b485
+   Název: Kaiser Permanente AI Health Hub
+   Kategorie: Zdravotnictví
+   Popis: Integrated healthcare system using AI for disease prevention, treatment personalization, and improve...
+
+89. ID: 38863e92-b2b5-42e5-b18a-7e67932c427c
+   Název: Kensho
+   Kategorie: Financial Technology
+   Popis: AI platform for financial data analysis that provides automated research and analysis for investment...
+
+90. ID: a1140c4a-3f65-40c8-a1b4-5a43433afa02
+   Název: Kissflow
+   Kategorie: automation
+   Popis: No-code workflow and process automation platform with AI capabilities that streamlines operations, a...
+
+91. ID: ae2da4c1-830a-488c-a4b7-ba124316eebd
+   Název: Klaviyo
+   Kategorie: E-commerce Marketing
+   Popis: AI-powered email marketing platform specialized in personalization and automation for e-commerce....
+
+92. ID: b12f78ac-f2ce-4fb3-b9f0-6dcc15ebf300
+   Název: LALAL.AI
+   Kategorie: audio
+   Popis: AI tool for separating music into individual tracks....
+
+93. ID: 475a3c7e-ecc8-4700-9047-e8893d702815
+   Název: LedgerGurus
+   Kategorie: Accounting Services
+   Popis: LedgerGurus provides outsourced accounting services enhanced by technology and artificial intelligen...
+
+94. ID: 4fd632a5-76f9-43c5-93f1-7dc72f938e3e
+   Název: Lemonaid Health
+   Kategorie: Zdravotnictví chyba překladu 
+   Popis: Online lekarna a telemedicinska service s AI support, which provides consultations, diagnostiku a do...
+
+95. ID: 74870810-5f5e-47e5-a26f-f5a8fc0e2a59
+   Název: Lily AI
+   Kategorie: Product Intelligence
+   Popis: Lily AI is a product attribute platform that uses deep learning to understand product features and c...
+
+96. ID: 262d6c70-93b7-4e6a-9a59-3cd63d01444d
+   Název: LogiNext
+   Kategorie: automation
+   Popis: Cloud-based transportation automation platform with AI for route optimization, dispatch automation, ...
+
+97. ID: 4963aaea-706e-4873-b277-479314e0eb95
+   Název: Lyro
+   Kategorie: Inventory Optimization
+   Popis: Lyro (formerly Remi AI) is an AI-powered inventory optimization platform that helps businesses autom...
+
+98. ID: fc344fa8-1a91-45b0-bbbe-4e4bb32f7399
+   Název: Make
+   Kategorie: automation
+   Popis: Visual automation platform with AI capabilities that connects apps and automates workflows with powe...
+
+99. ID: 6526fdbb-840f-4694-a9ef-06d40be74335
+   Název: Mayo Clinic AI Healthcare Platform
+   Kategorie: Zdravotnictví chyba překladu 
+   Popis: Prestigious healthcare institution using artificial intelligence for diagnostics, personalized treat...
+
+100. ID: 87c44d11-1580-42b4-9b39-05fe34881bdd
+   Název: MeisterTask
+   Kategorie: automation
+   Popis: AI-supported project and task management platform with automated workflows and smart features for te...
+
+101. ID: 07095f3a-87ed-4244-abd1-80e2532ecdc3
+   Název: Microsoft Healthcare AI
+   Kategorie: Zdravotnictví chyba prekladu
+   Popis: Komplexni sada AI toolu a cloudovych reseni pro zdravotnictvi zamerena na zlepseni zdravotni pece, k...
+
+102. ID: 566287c4-bae6-4dbb-b5a6-f1fd605983a9
+   Název: Microsoft Power Automate
+   Kategorie: automation
+   Popis: Cloud-based service with AI capabilities that helps create automated workflows between apps and serv...
+
+103. ID: ca7b8b27-b5bc-40a5-be71-ee3d1edaf7da
+   Název: Microsoft Power Pages
+   Kategorie: Low-Code Website Builder
+   Popis: Microsoft Power Pages is a low-code website and portal builder that allows organizations to create s...
+
+104. ID: ece395fb-18b8-4be5-a4a8-54e8029b8e37
+   Název: MindTitan
+   Kategorie: AI Consulting
+   Popis: MindTitan is a company specializing in custom AI solution development for financial and accounting p...
+
+105. ID: 63aea06d-fd11-47cd-a4a1-e9a12dc0858b
+   Název: Mobirise
+   Kategorie: Offline Website Builder
+   Popis: Mobirise is a free offline website builder software for Windows and Mac that allows users to create ...
+
+106. ID: c64ef2bd-17d0-4c04-9f1e-38ab5e0aecae
+   Název: Mount Sinai AI Healthcare Platform
+   Kategorie: Zdravotnictví chyba překladu 
+   Popis: Inovativni zdravotnicky system propojujici AI technologie s clinical peci for more precise diagnosti...
+
+107. ID: 065ac8da-c87b-48ea-a1b0-e81a6a07652d
+   Název: Mubert
+   Kategorie: music
+   Popis: AI platform for generating adaptive music and soundscapes....
+
+108. ID: 709c56d9-8bed-46a5-8b07-4fbec9447c45
+   Název: Nintex
+   Kategorie: automation
+   Popis: Comprehensive process automation platform with AI capabilities that combines workflow, document auto...
+
+109. ID: e248539d-8d37-454c-901b-7c72e7a891b5
+   Název: Numbrs AI
+   Kategorie: Osobní finance
+   Popis: Pokrocily financni assistant vyuzivajici artificial intelligence k analysis osobnich financi, predpo...
+
+110. ID: e3218aaa-2eb0-4b86-94a6-47e9f2453a99
+   Název: Numerai
+   Kategorie: AI Hedge Fund
+   Popis: Numerai is a hedge fund built on a global network of data scientists who compete to create the best ...
+
+111. ID: d8add475-4c45-40fc-a7ae-dfd9e5791a39
+   Název: Nuvocargo
+   Kategorie: automation
+   Popis: Digital platform with AI tools for cross-border shipping between US and Mexico, offering freight, cu...
+
+112. ID: e61e4b05-3bde-45da-a0d9-8e61bffd64f9
+   Název: Omneky
+   Kategorie: advertising
+   Popis: AI platform for personalizovanou tvorbu a optimalizaci vizualnich reklam....
+
+113. ID: 68221b5e-3f09-49ac-8890-646ff365cbd7
+   Název: Otio
+   Kategorie: automation
+   Popis: AI workflow automation tool that helps teams create, visualize, and execute processes with natural l...
+
+114. ID: a5bbb211-4f62-4ec5-bdd5-c1c80a2980eb
+   Název: Outright (GoDaddy Bookkeeping)
+   Kategorie: Accounting Software
+   Popis: Outright, now known as GoDaddy Bookkeeping, is a simple accounting solution with AI elements that au...
+
+115. ID: 75b196b1-afe2-432c-b93c-427a3527a1c0
+   Název: Pabbly Connect
+   Kategorie: automation
+   Popis: Cost-effective workflow automation tool with AI integration capabilities that connects apps and auto...
+
+116. ID: 03e6d9d6-f2f6-4d8d-8cf9-05fa56076a9d
+   Název: PathAI
+   Kategorie: Zdravotnictví
+   Popis: AI platform for digital pathology that helps pathologists with more precise diagnostics, quantificat...
+
+117. ID: 286d9c7d-ef1b-4768-b272-1f9b1b4c832d
+   Název: Personal Capital
+   Kategorie: Wealth Management
+   Popis: Personal Capital is a wealth management platform that combines AI-powered financial tools with human...
+
+118. ID: ae5cd4a7-75db-42bb-88f1-3c6fc2f9433d
+   Název: Personetics
+   Kategorie: Financial Data Analytics
+   Popis: Personetics is an AI-driven financial data analytics platform that helps banks provide personalized ...
+
+119. ID: b7e54a6d-f4fa-4239-bcd9-60103eadcf99
+   Název: Philips IntelliSpace AI Workflow Suite
+   Kategorie: Zdravotnictví
+   Popis: comprehensive AI platform for radiologii a kardiologii, which integruje artificial intelligence do c...
+
+120. ID: 0caed780-7348-4cb8-8789-3af897748125
+   Název: Pilot
+   Kategorie: Startup Accounting
+   Popis: Pilot combines expert accountants with intelligent technology to provide accounting, tax services, a...
+
+121. ID: 6c919d37-96bf-4d7b-9dd7-ed305fb6b05e
+   Název: Pipio
+   Kategorie: video-generation
+   Popis: AI tool for automaticke vytvareni kratkych videi for socialni site....
+
+122. ID: 0faf3410-db39-4a8b-890b-d4a5f326fd52
+   Název: Plate IQ
+   Kategorie: Accounts Payable Automation
+   Popis: Plate IQ is an AI-powered accounts payable automation platform that digitizes invoices, automates ap...
+
+123. ID: 8be08872-8003-4512-9e29-61c53dbd3174
+   Název: Pneumatic
+   Kategorie: automation
+   Popis: AI-powered workflow automation platform designed for human-in-the-loop processes and approval workfl...
+
+124. ID: 59e69d8b-7c31-449c-a04e-de018d433e0a
+   Název: PostNL
+   Kategorie: Logistics
+   Popis: Dutch postal and courier service using AI to optimize parcel delivery and logistics processes....
+
+125. ID: a4405f0e-2ed4-477c-8a98-925024fd9ce8
+   Název: Process Street
+   Kategorie: automation
+   Popis: AI-enhanced workflow management platform that automates documented procedures, checklists, and recur...
+
+126. ID: 17cc2ae6-7614-4de7-bba4-b58d6c1e6bb2
+   Název: ProcessGPT
+   Kategorie: automation
+   Popis: AI platform that analyzes, optimizes and automates business processes by understanding process docum...
+
+127. ID: ead6a1e1-f1e8-46c0-9ce0-59b06a36b06c
+   Název: ProcessMaker
+   Kategorie: automation
+   Popis: Enterprise business process management platform with AI capabilities that automates complex workflow...
+
+128. ID: 565eff33-20b4-4782-81ab-f210ee5cbf08
+   Název: RTB House
+   Kategorie: advertising
+   Popis: platform for personalizovanou retargetingovou reklamu vyuzivajici deep learning....
+
+129. ID: 5ffaa522-5870-43ef-8854-b880e79d446a
+   Název: Raft AI
+   Kategorie: automation
+   Popis: AI-driven inventory and supply chain optimization platform that reduces stockouts and excess invento...
+
+130. ID: 30e6f158-1a8b-4adb-abcc-aed51a84468c
+   Název: Ramp
+   Kategorie: Financial Automation
+   Popis: Ramp is an AI-powered financial automation platform that combines corporate cards, expense managemen...
+
+131. ID: 90c07319-0d9b-4227-85dd-ccb381b15a00
+   Název: Reclaim.ai
+   Kategorie: automation
+   Popis: AI time management assistant that automatically schedules tasks, meetings, and personal time in your...
+
+132. ID: 63f97c42-6002-44bc-88a4-935328297ac9
+   Název: Recombee
+   Kategorie: Recommendation Systems
+   Popis: Recombee is an AI-powered recommendation engine that helps businesses deliver personalized product, ...
+
+133. ID: 668a33d0-80f1-4b00-8d15-23b834c6daee
+   Název: Reface
+   Kategorie: video-editing
+   Popis: Mobilni application pro zabavnou vymenu tvari ve videich using AI....
+
+134. ID: 6fd2fc17-0d9b-466b-a9be-4c3cb96c730c
+   Název: Reflektion
+   Kategorie: E-commerce
+   Popis: AI platform for personalizing e-commerce experiences with individualized product recommendations bas...
+
+135. ID: ed0293fe-e30f-4cc3-b23e-98feecd65da3
+   Název: Replo
+   Kategorie: e-commerce
+   Popis: No-code platform for tvorbu a optimalizaci e-commerce stranek s AI asistenci....
+
+136. ID: f58ad317-24f2-47b9-977f-124e558c2d1b
+   Název: Reply.io
+   Kategorie: sales
+   Popis: Automatizacni platform for sales outreach a email marketing....
+
+137. ID: 058fa178-3e49-4745-9ff9-2d5895560a08
+   Název: Rocket Mortgage
+   Kategorie: Mortgage Lending
+   Popis: Rocket Mortgage is an AI-powered digital mortgage platform that streamlines the home loan applicatio...
+
+138. ID: 8b19ec10-7d20-47ad-a01f-38ae6b5f782c
+   Název: Rossum
+   Kategorie: Document Processing
+   Popis: Rossum is an AI platform for document automation that uses advanced machine learning to extract data...
+
+139. ID: 64a789b9-ea6d-4216-a873-754f32e4744a
+   Název: Runway ML
+   Kategorie: video-editing
+   Popis: Creative AI toolkit for video editing and visual effects creation....
+
+140. ID: 2bef31d9-fd86-4217-a78b-3c0366dd8b19
+   Název: SITE123
+   Kategorie: Website Builder
+   Popis: SITE123 es un constructor de sitios web gratuito que permite crear una pagina web con diseños y esti...
+
+141. ID: f46dd86d-399d-4dc1-957a-8c0b700f0e38
+   Název: Sage Intacct
+   Kategorie: Cloud Financial Management
+   Popis: Sage Intacct is an advanced cloud financial management platform with AI capabilities that automates ...
+
+142. ID: 1a549dc0-a631-4895-a629-e69ecd900474
+   Název: SalesLoft
+   Kategorie: sales
+   Popis: comprehensive platform for sales engagement s AI featuresmi....
+
+143. ID: 2304a68f-5816-4033-96ae-cc94b8b7abfe
+   Název: Samsung SDS Logistics AI
+   Kategorie: automation
+   Popis: Enterprise AI platform for logistics optimization, warehouse management, and supply chain intelligen...
+
+144. ID: cf792c86-0912-4894-83aa-91238f787733
+   Název: Schwab Intelligent Portfolios
+   Kategorie: Robo-Advisor
+   Popis: Schwab Intelligent Portfolios is Charles Schwab's automated investment service that uses AI to build...
+
+145. ID: e4374dca-c97e-4025-829b-c379a9779536
+   Název: Shopify
+   Kategorie: E-commerce
+   Popis: Comprehensive e-commerce platform with integrated AI features for personalization, automation, and o...
+
+146. ID: 905a4bf2-ab70-4031-914c-6ccdaa880ffd
+   Název: Siemens Healthineers AI-Rad Companion
+   Kategorie: Zdravotnictví
+   Popis: Rodina AI-pohanenych aplikaci for radiologii, which help lekarum analyzovat medicinske obrazy a zefe...
+
+147. ID: 0a78a520-c1e7-41e5-af54-92ad05ca51ed
+   Název: Sifted
+   Kategorie: automation
+   Popis: AI-powered shipping intelligence platform that analyzes parcel data to optimize carrier selection, s...
+
+148. ID: ce39c909-c250-4cc9-ba79-b05503a31f2c
+   Název: Soundraw
+   Kategorie: music
+   Popis: AI platform for generating unique royalty-free music....
+
+149. ID: 2da3d39f-a442-42a9-b7c7-faf436e22cc3
+   Název: Spectra One
+   Kategorie: Design System Platform
+   Popis: Spectra One is a design system platform that helps teams create, manage, and scale consistent user i...
+
+150. ID: 0a1f498c-3374-4277-9c5e-63dd54c7d1a4
+   Název: Spendesk
+   Kategorie: Správa výdajů a účetnictví
+   Popis: comprehensive platform for spravu firemnich vydaju, which kombinuje fyzicke a virtualni platebni kar...
+
+151. ID: 400cd554-1223-4e8e-8ddc-05509f2cd847
+   Název: Sprout Social
+   Kategorie: social-media
+   Popis: platform for spravu socialnich siti a analyzu socialnich medii....
+
+152. ID: 8a153f9d-290a-482b-9b9d-e5961081937c
+   Název: Squarespace
+   Kategorie: Website Builder
+   Popis: Squarespace is a professional website builder that allows users to create their own websites using c...
+
+153. ID: b4b7ead3-f058-4217-b369-87e24a2a3972
+   Název: Suning
+   Kategorie: E-commerce
+   Popis: One of the largest e-commerce platforms in China that uses AI for product recommendations and supply...
+
+154. ID: 24a4836f-2d7e-47fa-bb96-e0071545e125
+   Název: Surfer SEO
+   Kategorie: seo
+   Popis: AI-powered platform for optimalizaci obsahu a analyzu SEO....
+
+155. ID: 7fdf2782-081d-42e6-aa9b-98899482a984
+   Název: Swap
+   Kategorie: automation
+   Popis: AI-powered product returns management platform that automates processing, reduces costs, and enables...
+
+156. ID: bc65cd48-72a6-47e1-bb52-9cf96c41da35
+   Název: SwapAnything
+   Kategorie: video-editing
+   Popis: AI platform for vymenu objektu a pozadi ve videich....
+
+157. ID: 1187ce53-0c52-48b2-90bc-0c0900865c3d
+   Název: Symbotic
+   Kategorie: automation
+   Popis: AI-powered robotic warehouse automation system for high-density storage, retrieval, and case picking...
+
+158. ID: 4f87db2d-f25e-45e6-8acf-51031f9390fd
+   Název: Synthesia
+   Kategorie: AI & Video
+   Popis: AI platform for generating realistic videos with virtual presenters, allowing you to create professi...
+
+159. ID: 4e3ba9e8-acfb-4c45-916a-8d56a1b34930
+   Název: Syte
+   Kategorie: Visual AI Search
+   Popis: Syte is a visual AI platform that enables retailers to deliver personalized shopping experiences thr...
+
+160. ID: b0da424b-58c7-4504-98fa-cc3766c858ae
+   Název: Talkspace
+   Kategorie: Zdravotnictví
+   Popis: Online therapy platform using AI to connect patients with therapists and provide digital mental heal...
+
+161. ID: ecc7b945-68d9-42cc-819a-c66bf6ff4b58
+   Název: TapClicks
+   Kategorie: marketing
+   Popis: comprehensive marketingova platform for analyzu dat, reporting a automatizaci marketingovych aktivit...
+
+162. ID: 19c9b50c-7b75-4bab-9287-0df002d9eb95
+   Název: Teikametrics
+   Kategorie: E-commerce Marketing
+   Popis: AI platform for optimizing advertising on Amazon and other marketplace platforms using machine learn...
+
+163. ID: ea860d5f-8809-4e6b-a071-c1d2b6e94f60
+   Název: This Person Does Not Exist
+   Kategorie: image-generation
+   Popis: AI generator of realistic portraits of non-existent people....
+
+164. ID: 5aa631dc-fd73-4bbb-b0df-6163623ba0e8
+   Název: Throughput
+   Kategorie: automation
+   Popis: AI supply chain optimization platform that identifies and resolves bottlenecks in manufacturing and ...
+
+165. ID: 34a6615d-2402-4fdd-8848-8f7e5104865d
+   Název: Transmetrics
+   Kategorie: automation
+   Popis: Predictive analytics and AI optimization platform for cargo transport planning and logistics network...
+
+166. ID: 0f3be3fa-5099-47f8-9664-c24c6f6bf205
+   Název: Trello
+   Kategorie: automation
+   Popis: Visual work management tool with AI capabilities that automates workflows using cards, lists, and bo...
+
+167. ID: a8196ba8-6c89-4259-aca0-fbab388b201c
+   Název: Typeface.ai
+   Kategorie: content-creation
+   Popis: AI platform for generating and personalizing branded content....
+
+168. ID: f58d6408-edf5-481a-a43f-24579f1bbdfe
+   Název: Uber Freight
+   Kategorie: automation
+   Popis: AI-powered digital freight marketplace that connects shippers and carriers while automating pricing,...
+
+169. ID: 417a5a03-9471-48eb-9a6b-0685375cf142
+   Název: Ucraft
+   Kategorie: Website Builder
+   Popis: Ucraft is a website and online store builder that offers no-code solutions for creating professional...
+
+170. ID: 0ff6b5d0-c4c9-4a34-b76c-3a6f9955d558
+   Název: Upstart
+   Kategorie: AI Lending
+   Popis: Upstart is an AI lending platform that uses machine learning to evaluate borrowers beyond traditiona...
+
+171. ID: 6e7f1806-edff-48a5-b951-7c2abd60fef6
+   Název: Veryfi
+   Kategorie: Document Intelligence
+   Popis: Veryfi is an AI-powered document processing platform that extracts data from receipts, invoices, and...
+
+172. ID: c77bb64a-573d-4fc0-9287-d1949d94dfd3
+   Název: ViSenze
+   Kategorie: Visual Search
+   Popis: ViSenze is an AI company that develops visual search and image recognition solutions to simplify pro...
+
+173. ID: 1b8729b2-98e7-4ac3-a38c-5c93d4551f9b
+   Název: Vic.ai
+   Kategorie: AI Accounting
+   Popis: Vic.ai is an autonomous accounting platform powered by artificial intelligence that automates invoic...
+
+174. ID: 93c1f468-6a78-4614-b2d0-2dbbfc9e7572
+   Název: Vidau.ai
+   Kategorie: video-generation
+   Popis: AI tool for automatickou tvorbu produktovych a reklamnich videi....
+
+175. ID: bfe81850-b1c5-4f66-ae29-9e2f7dee38de
+   Název: Vidnoz
+   Kategorie: video-generation
+   Popis: AI platform for automaticke vytvareni profesionalnich videi s avatary....
+
+176. ID: 5c4fba04-be22-43c1-b9ad-a392495f07de
+   Název: Voicemod
+   Kategorie: audio
+   Popis: AI software for real-time voice modification....
+
+177. ID: ae8d25db-79b4-414c-82e6-6360b2800db7
+   Název: Vorto AI
+   Kategorie: automation
+   Popis: AI-powered supply chain optimization platform for industrial materials and equipment, automating pro...
+
+178. ID: 1ba08a5e-0982-4248-bd3b-df024efdd7a2
+   Název: WeGrow.ai
+   Kategorie: Growth Marketing
+   Popis: WeGrow.ai is an AI-powered growth marketing platform that helps businesses acquire and retain custom...
+
+179. ID: 26f8398a-05b3-44ff-8c7a-84b6a5c19f28
+   Název: Wealthfront
+   Kategorie: Robo-Advisor
+   Popis: Wealthfront is an automated investment service that uses AI to provide personalized, low-cost invest...
+
+180. ID: 97c659e2-21e6-4c12-aeba-620a7788b108
+   Název: Webflow
+   Kategorie: Website Builder
+   Popis: Webflow is the first-ever website experience platform that allows marketers, designers, and develope...
+
+181. ID: 034db9ef-640c-4a61-9b18-3d6e242a9018
+   Název: Webnode
+   Kategorie: Website Builder
+   Popis: Webnode is a user-friendly website builder that allows anyone to create responsive websites without ...
+
+182. ID: 96b6a3d8-7010-41a0-8c92-d829aa6f4d71
+   Název: Wflow
+   Kategorie: Workflow Automation
+   Popis: Wflow is an AI-powered workflow automation platform that streamlines accounting and finance processe...
+
+183. ID: b486f312-7c6a-488f-ba38-33bbc3e20c0f
+   Název: Wix.com
+   Kategorie: Website Builder
+   Popis: Everything you need to create your website, your way. From an intuitive website builder to built-in ...
+
+184. ID: 68cb7110-75e7-4450-b1b8-235a59cc357b
+   Název: Woebot Health
+   Kategorie: Zdravotnictví
+   Popis: AI chatbot for mentalni zdravi, which provides kognitivne-behavioralni terapii, monitoring nalady a ...
+
+185. ID: f75947b7-d217-4aa1-b743-60daa8d558c9
+   Název: Workato
+   Kategorie: automation
+   Popis: Enterprise-grade intelligent automation platform with AI capabilities that integrates applications, ...
+
+186. ID: a5f4246c-92db-4287-907d-da1965952c90
+   Název: Wrike
+   Kategorie: automation
+   Popis: AI-enhanced collaborative work management platform that automates workflows, project tracking, and t...
+
+187. ID: af8e8461-9e9c-4b56-8d25-ec84c55b872a
+   Název: Zapier
+   Kategorie: automation
+   Popis: Cloud-based automation platform with AI capabilities that connects apps and automates workflows with...
+
+188. ID: 2cfcf353-affe-4799-94ea-421517d79c43
+   Název: ZenHub
+   Kategorie: automation
+   Popis: AI-powered project management platform for software teams that automates workflows, planning, and re...
+
+189. ID: 7a5fab5f-3def-46c5-a6d7-1803d22f0e3e
+   Název: ZenLedger
+   Kategorie: Crypto Tax Software
+   Popis: ZenLedger is a tax software built for cryptocurrency investors and accountants that uses AI to autom...
+
+190. ID: 62341d5f-bd04-420f-bc43-ff5944265fde
+   Název: Zest AI
+   Kategorie: Credit Underwriting
+   Popis: Zest AI provides AI-powered credit underwriting software that helps lenders make more accurate decis...
+
+191. ID: 80d695d6-e815-4ab0-862a-80c6c82b0b2b
+   Název: ZipBooks
+   Kategorie: Accounting Software
+   Popis: ZipBooks is an intuitive accounting software with integrated artificial intelligence that automates ...
+
+192. ID: dbab24bf-0b0b-4245-9eba-b1fabb5f8346
+   Název: ZipWP
+   Kategorie: AI Website Builder
+   Popis: ZipWP: The AI-Powered Website Builder for WordPress. Create a professional website in minutes, witho...
+
+193. ID: e2568d0b-8c48-45ce-97d8-d086b25f266b
+   Název: Zoho Books
+   Kategorie: AI Accounting Software
+   Popis: Zoho Books is an intelligent accounting software that uses AI to automate routine accounting tasks, ...
+
+194. ID: 1b251f1c-d151-454a-9cda-8c7dbd560ccf
+   Název: cflow
+   Kategorie: automation
+   Popis: AI-enhanced workflow automation platform that digitizes business processes and approval workflows wi...
+
+195. ID: ea62d9ba-5ef4-4a1a-8f67-217d1430d320
+   Název: n8n
+   Kategorie: automation
+   Popis: Open-source workflow automation platform with AI capabilities that connects apps, databases, and ser...
+
+196. ID: 780fa1aa-9d63-4353-a677-28fc4b4c780b
+   Název: nTask
+   Kategorie: automation
+   Popis: AI-enhanced project and task management platform that automates workflows, resource allocation, and ...
+
+
+=== POUZE ID A NÁZVY PRO ASISTENTA ===
+- ID: 7a15d64f-cccc-4215-892d-09b1725f426e, Název: 10Web, Kategorie: Website Builder
+- ID: 471fab15-7b8a-4ce1-b85d-f3fb446a8454, Název: Academy of Robotics (Kar-go), Kategorie: automation
+- ID: 75cc8dc5-b8c5-44f3-bf45-7656d0586058, Název: Accounting Prose, Kategorie: Accounting Services
+- ID: f3ff4bf9-07f7-48b2-a337-55903f785f13, Název: Ada Health, Kategorie: Zdravotnictví
+- ID: f781d3a2-6dbe-4d45-9f65-d1c127a8c208, Název: Adobe GenStudio, Kategorie: content-creation
+- ID: 4a8cb269-5b42-40b5-b43b-be1b9e2c2178, Název: Aider, Kategorie: Business AI Assistant
+- ID: 4c397d73-064a-41a2-b61c-c801957c9334, Název: Airbase, Kategorie: Spend Management
+- ID: b8ddab23-5631-46d1-96b1-022520288542, Název: Aiva, Kategorie: music
+- ID: d12cb292-4574-48e8-a48a-fd12fede9f21, Název: Albato, Kategorie: automation
+- ID: a59ce69d-012e-49f9-b9fd-11e85002a3ff, Název: Albert.ai, Kategorie: marketing-automation
+- ID: d2ac8787-1e26-4774-bb37-a9aaa34227c1, Název: Algolia, Kategorie: E-commerce
+- ID: 8f0e5a4c-bf39-41e4-9f67-dd83d757edfc, Název: Alpaca, Kategorie: Financial Technology
+- ID: 0efbc1b4-9c0f-4754-8016-f160689df809, Název: Anyword, Kategorie: content-creation
+- ID: f8817f7f-6b94-48c1-955c-e2062b953127, Název: Appy Pie, Kategorie: No-Code Development Platform
+- ID: 4d317e51-dd49-42f7-9f39-e68c5f4ac3e5, Název: Aprio, Kategorie: Accounting Services
+- ID: cb783814-dfdd-4543-9be3-812aa864e2c0, Název: Ardent AI Health Assistant, Kategorie: Zdravotnictví
+- ID: a211c18b-d067-4068-89d2-2ba5d0532445, Název: Artbreeder, Kategorie: image-generation
+- ID: d13c5205-7f5a-429f-9080-26e0f87e8dad, Název: Assiduus AI, Kategorie: Finance
+- ID: e98e14a8-cb13-4d55-91a4-7e129d54afd7, Název: Auquan, Kategorie: Financial Technology
+- ID: f6e11703-e649-43d4-a307-613dddb198e2, Název: Autobooks, Kategorie: SMB Financial Software
+- ID: 0e11dda0-1bdf-478a-acbe-0105d776f659, Název: Auxia, Kategorie: Customer Service AI
+- ID: 293863b8-2689-45fd-b4f3-c5c5187eae92, Název: Ayasdi, Kategorie: AI & Data Analysis
+- ID: cbfcb592-158d-452f-b314-4b8267e2e116, Název: B12, Kategorie: AI Website Builder
+- ID: 78fa0ddc-f57c-4bda-bd88-49c1c1b9bba6, Název: Babylon Health, Kategorie: Zdravotnictví
+- ID: 8b1ad8a1-5afb-40d4-b11d-48c33b606723, Název: Based Labs, Kategorie: AI & Video
+- ID: 9a3862b6-b3cc-4bfa-8d7d-81697f15cfda, Název: Berkshire Grey, Kategorie: automation
+- ID: 7877a619-8085-4199-97ea-00af6ee821ba, Název: Betterment, Kategorie: Robo-Advisor
+- ID: 71875066-3d33-4f4d-8225-4ea1ee353dab, Název: Billy, Kategorie: Accounting Software
+- ID: 34317734-caf9-4f62-9240-078d591ae2f8, Název: BlackRock Aladdin, Kategorie: Investment Management
+- ID: 1b32f2d7-94de-4fb2-9d6e-d84b68fa3596, Název: Bloomreach, Kategorie: E-commerce
+- ID: 99b78c38-3636-4448-abcd-f926d77e1be7, Název: Blue Yonder, Kategorie: automation
+- ID: bf31321b-430c-4b2d-8b76-5db2a4a4c42e, Název: Booke AI, Kategorie: AI Accounting Assistant
+- ID: b7626905-902f-4bf6-86c8-2a04bae9a131, Název: Bookipi, Kategorie: Accounting Software
+- ID: 97d6b834-df7d-43dd-bf45-fd46d4220133, Název: Boomtrain (by Zeta Global), Kategorie: Marketing Personalization
+- ID: 6f188f1a-ca22-466e-aa7b-ed840ee7f196, Název: Botkeeper, Kategorie: Automated Bookkeeping
+- ID: f1e5ac18-82da-47bd-b34a-7a15a7b62ee4, Název: Brizy.io, Kategorie: Website Builder
+- ID: eab138b6-a37b-4940-930f-c63c169ad1b3, Název: Browse AI, Kategorie: Web Automation
+- ID: 719cf92d-a334-436c-b09d-f81baca258b1, Název: Buoy Health, Kategorie: Zdravotnictví
+- ID: 3266f1c5-dbb4-4d76-8e03-3486bd59e6eb, Název: Butterfly iQ+, Kategorie: Zdravotnictví
+- ID: 1c77d2bb-3fb1-4b4d-8e28-8c7f4c3e4055, Název: Cainiao Smart Logistics, Kategorie: automation
+- ID: ff6fd039-7c62-4582-99dd-f9edf36b70a2, Název: Candis, Kategorie: Účetnictví a AP automatizace
+- ID: 9b0e174c-32ba-4da0-883b-85503aa3aae4, Název: Capital One CreditWise, Kategorie: Credit Monitoring
+- ID: c1e0b936-9dfe-493a-9531-0f4acdb217bc, Název: CashFlow Frog, Kategorie: Cash Flow Management
+- ID: 2aad9ace-e1dd-4552-b3c6-d71397ec1f54, Název: ChatGPT Website Builder, Kategorie: AI Website Builder
+- ID: 16d61ba8-31a5-4e6b-8888-a99906b10709, Název: Chatfuel, Kategorie: chatbots
+- ID: 9c1ef456-4c60-4524-894f-07a584bd5acd, Název: Chef Robotics, Kategorie: automation
+- ID: f29107ed-015d-4a4e-b1cb-28d3b88683cf, Název: Clerk.io, Kategorie: E-commerce Personalization
+- ID: ba4eb3bb-71b2-42fa-9098-cea1a8a438d5, Název: Cleveland Clinic AI Healthcare System, Kategorie: Zdravotnictví
+- ID: a135df2a-d56f-47e6-8a2f-88182bf31578, Název: Colossyan, Kategorie: video-generation
+- ID: 21cb1c6e-5917-44fb-98b3-4f8f48196195, Název: Conversica, Kategorie: Conversational AI
+- ID: 7dcd98d8-7028-4c5e-bece-9781809efb0f, Název: Covariant AI, Kategorie: automation
+- ID: 1de7fcec-a4b6-4cc5-8a27-c0544fc97283, Název: Cred.ai, Kategorie: Financial Technology
+- ID: 2e5876d4-618d-4348-8aab-b27997e357ff, Název: Crowdy AI Accounting, Kategorie: AI Accounting Assistant
+- ID: 0aa48306-60c9-41d0-8366-07fa77d3fc41, Název: D-ID, Kategorie: video-generation
+- ID: 14bdaf28-7246-44fb-874f-163c2d11e129, Název: Decisions, Kategorie: automation
+- ID: d80fac2c-2953-4c05-9d89-f9f01f6be7a6, Název: DeckMatch, Kategorie: Fundraising Intelligence
+- ID: e819611c-c848-4d3d-8dd5-f299b7383ff4, Název: DeepBrain AI, Kategorie: AI & Video
+- ID: c98b5aea-a20e-480e-bece-571f2e648e04, Název: Dext, Kategorie: Accounting Digitization
+- ID: c228e879-afcc-4e09-97ba-8f94f24b4108, Název: Digitoo, Kategorie: Accounting Automation
+- ID: 4ca66ef6-2a65-4f7c-b8fe-9c4bc2b35b1c, Název: Docyt, Kategorie: Financial Reporting
+- ID: a01a1bfa-9ffa-4b07-8041-1aadce4f987e, Název: Dorik, Kategorie: Website Builder
+- ID: 43a0cd70-ba0b-4119-b381-02052c118c4f, Název: Duda, Kategorie: Website Builder
+- ID: 5d1fc9c3-2ac5-4cec-8bfe-574edd31086c, Název: ELAI, Kategorie: video-generation
+- ID: 6e93edb5-0d47-4722-8915-a35a44c658e5, Název: Elementor, Kategorie: Website Builder
+- ID: aee8f38d-d67f-4743-99d4-0d3fa27cbbc3, Název: Enlitic Curie, Kategorie: Zdravotnictví
+- ID: cfdf75e7-2050-42b6-9b83-33dde6b968e8, Název: Feedzai, Kategorie: Fraud Prevention
+- ID: cebc93cf-eae8-4bc8-a111-9b26eb879f03, Název: FlexClip, Kategorie: video-editing
+- ID: 97c5b4c7-13ef-4556-8f21-62d6d4b7becb, Název: Foreceipt, Kategorie: Správa výdajů a účtenek
+- ID: 84125262-fe89-4ca6-98bf-26b87ae82b28, Název: FullStory, Kategorie: analytics
+- ID: 74834f8a-1d62-4bba-b252-c4a462468dd8, Název: Fyle, Kategorie: Expense Management
+- ID: 68ac1730-969b-4315-bbf2-448df2f137da, Název: GE Healthcare Edison AI Platform, Kategorie: Zdravotnictví
+- ID: d8c04de2-58af-4679-8b60-889f9dbda85e, Název: GXO Logistics, Kategorie: automation
+- ID: 440d8918-57e3-4c21-91fc-c4bec1859c1d, Název: GetResponse, Kategorie: Email Marketing Platform
+- ID: 53cdc676-f63f-4b9a-8399-a8ceaeff008c, Název: Ginger, Kategorie: Zdravotnictví
+- ID: 73a7e14a-92f9-4a42-a7fa-28fe2c5fb9cf, Název: Google Health, Kategorie: Zdravotnictví
+- ID: 5d80dc01-5899-40d7-80a1-40136928c6f5, Název: Gorgias, Kategorie: Zákaznický servis
+- ID: d2b6bf8d-5ae7-46fd-b3ca-8a14b15a61bc, Název: HealthTap, Kategorie: Zdravotnictví
+- ID: ecdb62c9-6b06-4df2-b039-69fcb071c368, Název: Hello Wellness, Kategorie: Zdravotnictví
+- ID: bdfe9413-294f-4d16-8116-4999ceb5906e, Název: HeyGen, Kategorie: AI & Video
+- ID: 1c2bab3d-4532-4601-a8c5-1ea94624a8cf, Název: Hostinger Website Builder, Kategorie: Website Builder
+- ID: 76a552bd-0322-483b-ac05-bbf942387477, Název: IBM Watson Health, Kategorie: Zdravotnictví
+- ID: 4cfdee1b-0f5e-4d4f-8c20-4c2d2f646c8d, Název: InVideo, Kategorie: video-editing
+- ID: 89bdf474-2cd2-4b3c-a55e-861e793280b0, Název: Jasper, Kategorie: AI Content Creation
+- ID: 692fc806-e664-471f-835b-b671b7ae2165, Název: Jimdo, Kategorie: Website Builder
+- ID: 90923237-f3e0-430b-839d-c444a99e8487, Název: Jitterbit, Kategorie: automation
+- ID: ec4fc10b-21f3-41f9-bfbd-bd75e84661ee, Název: Johns Hopkins AI Precision Medicine, Kategorie: Zdravotnictví
+- ID: b29198e3-728e-4462-8c45-5bdebd21a73e, Název: K Health, Kategorie: Zdravotnictví
+- ID: 37162e6d-95bb-41eb-b217-84f76cd6b485, Název: Kaiser Permanente AI Health Hub, Kategorie: Zdravotnictví
+- ID: 38863e92-b2b5-42e5-b18a-7e67932c427c, Název: Kensho, Kategorie: Financial Technology
+- ID: a1140c4a-3f65-40c8-a1b4-5a43433afa02, Název: Kissflow, Kategorie: automation
+- ID: ae2da4c1-830a-488c-a4b7-ba124316eebd, Název: Klaviyo, Kategorie: E-commerce Marketing
+- ID: b12f78ac-f2ce-4fb3-b9f0-6dcc15ebf300, Název: LALAL.AI, Kategorie: audio
+- ID: 475a3c7e-ecc8-4700-9047-e8893d702815, Název: LedgerGurus, Kategorie: Accounting Services
+- ID: 4fd632a5-76f9-43c5-93f1-7dc72f938e3e, Název: Lemonaid Health, Kategorie: Zdravotnictví chyba překladu 
+- ID: 74870810-5f5e-47e5-a26f-f5a8fc0e2a59, Název: Lily AI, Kategorie: Product Intelligence
+- ID: 262d6c70-93b7-4e6a-9a59-3cd63d01444d, Název: LogiNext, Kategorie: automation
+- ID: 4963aaea-706e-4873-b277-479314e0eb95, Název: Lyro, Kategorie: Inventory Optimization
+- ID: fc344fa8-1a91-45b0-bbbe-4e4bb32f7399, Název: Make, Kategorie: automation
+- ID: 6526fdbb-840f-4694-a9ef-06d40be74335, Název: Mayo Clinic AI Healthcare Platform, Kategorie: Zdravotnictví chyba překladu 
+- ID: 87c44d11-1580-42b4-9b39-05fe34881bdd, Název: MeisterTask, Kategorie: automation
+- ID: 07095f3a-87ed-4244-abd1-80e2532ecdc3, Název: Microsoft Healthcare AI, Kategorie: Zdravotnictví chyba prekladu
+- ID: 566287c4-bae6-4dbb-b5a6-f1fd605983a9, Název: Microsoft Power Automate, Kategorie: automation
+- ID: ca7b8b27-b5bc-40a5-be71-ee3d1edaf7da, Název: Microsoft Power Pages, Kategorie: Low-Code Website Builder
+- ID: ece395fb-18b8-4be5-a4a8-54e8029b8e37, Název: MindTitan, Kategorie: AI Consulting
+- ID: 63aea06d-fd11-47cd-a4a1-e9a12dc0858b, Název: Mobirise, Kategorie: Offline Website Builder
+- ID: c64ef2bd-17d0-4c04-9f1e-38ab5e0aecae, Název: Mount Sinai AI Healthcare Platform, Kategorie: Zdravotnictví chyba překladu 
+- ID: 065ac8da-c87b-48ea-a1b0-e81a6a07652d, Název: Mubert, Kategorie: music
+- ID: 709c56d9-8bed-46a5-8b07-4fbec9447c45, Název: Nintex, Kategorie: automation
+- ID: e248539d-8d37-454c-901b-7c72e7a891b5, Název: Numbrs AI, Kategorie: Osobní finance
+- ID: e3218aaa-2eb0-4b86-94a6-47e9f2453a99, Název: Numerai, Kategorie: AI Hedge Fund
+- ID: d8add475-4c45-40fc-a7ae-dfd9e5791a39, Název: Nuvocargo, Kategorie: automation
+- ID: e61e4b05-3bde-45da-a0d9-8e61bffd64f9, Název: Omneky, Kategorie: advertising
+- ID: 68221b5e-3f09-49ac-8890-646ff365cbd7, Název: Otio, Kategorie: automation
+- ID: a5bbb211-4f62-4ec5-bdd5-c1c80a2980eb, Název: Outright (GoDaddy Bookkeeping), Kategorie: Accounting Software
+- ID: 75b196b1-afe2-432c-b93c-427a3527a1c0, Název: Pabbly Connect, Kategorie: automation
+- ID: 03e6d9d6-f2f6-4d8d-8cf9-05fa56076a9d, Název: PathAI, Kategorie: Zdravotnictví
+- ID: 286d9c7d-ef1b-4768-b272-1f9b1b4c832d, Název: Personal Capital, Kategorie: Wealth Management
+- ID: ae5cd4a7-75db-42bb-88f1-3c6fc2f9433d, Název: Personetics, Kategorie: Financial Data Analytics
+- ID: b7e54a6d-f4fa-4239-bcd9-60103eadcf99, Název: Philips IntelliSpace AI Workflow Suite, Kategorie: Zdravotnictví
+- ID: 0caed780-7348-4cb8-8789-3af897748125, Název: Pilot, Kategorie: Startup Accounting
+- ID: 6c919d37-96bf-4d7b-9dd7-ed305fb6b05e, Název: Pipio, Kategorie: video-generation
+- ID: 0faf3410-db39-4a8b-890b-d4a5f326fd52, Název: Plate IQ, Kategorie: Accounts Payable Automation
+- ID: 8be08872-8003-4512-9e29-61c53dbd3174, Název: Pneumatic, Kategorie: automation
+- ID: 59e69d8b-7c31-449c-a04e-de018d433e0a, Název: PostNL, Kategorie: Logistics
+- ID: a4405f0e-2ed4-477c-8a98-925024fd9ce8, Název: Process Street, Kategorie: automation
+- ID: 17cc2ae6-7614-4de7-bba4-b58d6c1e6bb2, Název: ProcessGPT, Kategorie: automation
+- ID: ead6a1e1-f1e8-46c0-9ce0-59b06a36b06c, Název: ProcessMaker, Kategorie: automation
+- ID: 565eff33-20b4-4782-81ab-f210ee5cbf08, Název: RTB House, Kategorie: advertising
+- ID: 5ffaa522-5870-43ef-8854-b880e79d446a, Název: Raft AI, Kategorie: automation
+- ID: 30e6f158-1a8b-4adb-abcc-aed51a84468c, Název: Ramp, Kategorie: Financial Automation
+- ID: 90c07319-0d9b-4227-85dd-ccb381b15a00, Název: Reclaim.ai, Kategorie: automation
+- ID: 63f97c42-6002-44bc-88a4-935328297ac9, Název: Recombee, Kategorie: Recommendation Systems
+- ID: 668a33d0-80f1-4b00-8d15-23b834c6daee, Název: Reface, Kategorie: video-editing
+- ID: 6fd2fc17-0d9b-466b-a9be-4c3cb96c730c, Název: Reflektion, Kategorie: E-commerce
+- ID: ed0293fe-e30f-4cc3-b23e-98feecd65da3, Název: Replo, Kategorie: e-commerce
+- ID: f58ad317-24f2-47b9-977f-124e558c2d1b, Název: Reply.io, Kategorie: sales
+- ID: 058fa178-3e49-4745-9ff9-2d5895560a08, Název: Rocket Mortgage, Kategorie: Mortgage Lending
+- ID: 8b19ec10-7d20-47ad-a01f-38ae6b5f782c, Název: Rossum, Kategorie: Document Processing
+- ID: 64a789b9-ea6d-4216-a873-754f32e4744a, Název: Runway ML, Kategorie: video-editing
+- ID: 2bef31d9-fd86-4217-a78b-3c0366dd8b19, Název: SITE123, Kategorie: Website Builder
+- ID: f46dd86d-399d-4dc1-957a-8c0b700f0e38, Název: Sage Intacct, Kategorie: Cloud Financial Management
+- ID: 1a549dc0-a631-4895-a629-e69ecd900474, Název: SalesLoft, Kategorie: sales
+- ID: 2304a68f-5816-4033-96ae-cc94b8b7abfe, Název: Samsung SDS Logistics AI, Kategorie: automation
+- ID: cf792c86-0912-4894-83aa-91238f787733, Název: Schwab Intelligent Portfolios, Kategorie: Robo-Advisor
+- ID: e4374dca-c97e-4025-829b-c379a9779536, Název: Shopify, Kategorie: E-commerce
+- ID: 905a4bf2-ab70-4031-914c-6ccdaa880ffd, Název: Siemens Healthineers AI-Rad Companion, Kategorie: Zdravotnictví
+- ID: 0a78a520-c1e7-41e5-af54-92ad05ca51ed, Název: Sifted, Kategorie: automation
+- ID: ce39c909-c250-4cc9-ba79-b05503a31f2c, Název: Soundraw, Kategorie: music
+- ID: 2da3d39f-a442-42a9-b7c7-faf436e22cc3, Název: Spectra One, Kategorie: Design System Platform
+- ID: 0a1f498c-3374-4277-9c5e-63dd54c7d1a4, Název: Spendesk, Kategorie: Správa výdajů a účetnictví
+- ID: 400cd554-1223-4e8e-8ddc-05509f2cd847, Název: Sprout Social, Kategorie: social-media
+- ID: 8a153f9d-290a-482b-9b9d-e5961081937c, Název: Squarespace, Kategorie: Website Builder
+- ID: b4b7ead3-f058-4217-b369-87e24a2a3972, Název: Suning, Kategorie: E-commerce
+- ID: 24a4836f-2d7e-47fa-bb96-e0071545e125, Název: Surfer SEO, Kategorie: seo
+- ID: 7fdf2782-081d-42e6-aa9b-98899482a984, Název: Swap, Kategorie: automation
+- ID: bc65cd48-72a6-47e1-bb52-9cf96c41da35, Název: SwapAnything, Kategorie: video-editing
+- ID: 1187ce53-0c52-48b2-90bc-0c0900865c3d, Název: Symbotic, Kategorie: automation
+- ID: 4f87db2d-f25e-45e6-8acf-51031f9390fd, Název: Synthesia, Kategorie: AI & Video
+- ID: 4e3ba9e8-acfb-4c45-916a-8d56a1b34930, Název: Syte, Kategorie: Visual AI Search
+- ID: b0da424b-58c7-4504-98fa-cc3766c858ae, Název: Talkspace, Kategorie: Zdravotnictví
+- ID: ecc7b945-68d9-42cc-819a-c66bf6ff4b58, Název: TapClicks, Kategorie: marketing
+- ID: 19c9b50c-7b75-4bab-9287-0df002d9eb95, Název: Teikametrics, Kategorie: E-commerce Marketing
+- ID: ea860d5f-8809-4e6b-a071-c1d2b6e94f60, Název: This Person Does Not Exist, Kategorie: image-generation
+- ID: 5aa631dc-fd73-4bbb-b0df-6163623ba0e8, Název: Throughput, Kategorie: automation
+- ID: 34a6615d-2402-4fdd-8848-8f7e5104865d, Název: Transmetrics, Kategorie: automation
+- ID: 0f3be3fa-5099-47f8-9664-c24c6f6bf205, Název: Trello, Kategorie: automation
+- ID: a8196ba8-6c89-4259-aca0-fbab388b201c, Název: Typeface.ai, Kategorie: content-creation
+- ID: f58d6408-edf5-481a-a43f-24579f1bbdfe, Název: Uber Freight, Kategorie: automation
+- ID: 417a5a03-9471-48eb-9a6b-0685375cf142, Název: Ucraft, Kategorie: Website Builder
+- ID: 0ff6b5d0-c4c9-4a34-b76c-3a6f9955d558, Název: Upstart, Kategorie: AI Lending
+- ID: 6e7f1806-edff-48a5-b951-7c2abd60fef6, Název: Veryfi, Kategorie: Document Intelligence
+- ID: c77bb64a-573d-4fc0-9287-d1949d94dfd3, Název: ViSenze, Kategorie: Visual Search
+- ID: 1b8729b2-98e7-4ac3-a38c-5c93d4551f9b, Název: Vic.ai, Kategorie: AI Accounting
+- ID: 93c1f468-6a78-4614-b2d0-2dbbfc9e7572, Název: Vidau.ai, Kategorie: video-generation
+- ID: bfe81850-b1c5-4f66-ae29-9e2f7dee38de, Název: Vidnoz, Kategorie: video-generation
+- ID: 5c4fba04-be22-43c1-b9ad-a392495f07de, Název: Voicemod, Kategorie: audio
+- ID: ae8d25db-79b4-414c-82e6-6360b2800db7, Název: Vorto AI, Kategorie: automation
+- ID: 1ba08a5e-0982-4248-bd3b-df024efdd7a2, Název: WeGrow.ai, Kategorie: Growth Marketing
+- ID: 26f8398a-05b3-44ff-8c7a-84b6a5c19f28, Název: Wealthfront, Kategorie: Robo-Advisor
+- ID: 97c659e2-21e6-4c12-aeba-620a7788b108, Název: Webflow, Kategorie: Website Builder
+- ID: 034db9ef-640c-4a61-9b18-3d6e242a9018, Název: Webnode, Kategorie: Website Builder
+- ID: 96b6a3d8-7010-41a0-8c92-d829aa6f4d71, Název: Wflow, Kategorie: Workflow Automation
+- ID: b486f312-7c6a-488f-ba38-33bbc3e20c0f, Název: Wix.com, Kategorie: Website Builder
+- ID: 68cb7110-75e7-4450-b1b8-235a59cc357b, Název: Woebot Health, Kategorie: Zdravotnictví
+- ID: f75947b7-d217-4aa1-b743-60daa8d558c9, Název: Workato, Kategorie: automation
+- ID: a5f4246c-92db-4287-907d-da1965952c90, Název: Wrike, Kategorie: automation
+- ID: af8e8461-9e9c-4b56-8d25-ec84c55b872a, Název: Zapier, Kategorie: automation
+- ID: 2cfcf353-affe-4799-94ea-421517d79c43, Název: ZenHub, Kategorie: automation
+- ID: 7a5fab5f-3def-46c5-a6d7-1803d22f0e3e, Název: ZenLedger, Kategorie: Crypto Tax Software
+- ID: 62341d5f-bd04-420f-bc43-ff5944265fde, Název: Zest AI, Kategorie: Credit Underwriting
+- ID: 80d695d6-e815-4ab0-862a-80c6c82b0b2b, Název: ZipBooks, Kategorie: Accounting Software
+- ID: dbab24bf-0b0b-4245-9eba-b1fabb5f8346, Název: ZipWP, Kategorie: AI Website Builder
+- ID: e2568d0b-8c48-45ce-97d8-d086b25f266b, Název: Zoho Books, Kategorie: AI Accounting Software
+- ID: 1b251f1c-d151-454a-9cda-8c7dbd560ccf, Název: cflow, Kategorie: automation
+- ID: ea62d9ba-5ef4-4a1a-8f67-217d1430d320, Název: n8n, Kategorie: automation
+- ID: 780fa1aa-9d63-4353-a677-28fc4b4c780b, Název: nTask, Kategorie: automation

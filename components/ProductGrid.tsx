@@ -2,12 +2,6 @@
 
 import React, { useState, useEffect } from 'react'
 import ProductCard from './ProductCard'
-import CompareBar from './CompareBar'
-import { useCompareStore } from '../store/compareStore'
-import { useProductStore } from '../store/productStore'
-
-// Konstanta pro zapnutí/vypnutí funkcí srovnávání
-const COMPARE_FEATURE_ENABLED = false;
 
 interface Product {
   id: string
@@ -17,80 +11,129 @@ interface Product {
   category: string
   imageUrl?: string
   tags?: string[]
-  advantages?: string[]
-  disadvantages?: string[]
-  reviews?: Array<{
-    author: string
-    rating: number
-    text: string
-  }>
-  detailInfo?: string
-  pricingInfo?: {
-    basic?: string
-    pro?: string
-    enterprise?: string
-  }
   externalUrl?: string
-  videoUrls?: string[]
   hasTrial?: boolean
-}
-
-interface Pagination {
-  page: number
-  pageSize: number
-  totalProducts: number
-  totalPages: number
 }
 
 interface ProductGridProps {
   selectedTags?: Set<string>;
 }
 
-export default function ProductGrid({ selectedTags: propSelectedTags }: ProductGridProps = {}) {
-  const [currentPage, setCurrentPage] = useState(1)
+export default function ProductGrid({ selectedTags }: ProductGridProps = {}) {
+  const [products, setProducts] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
   const [loadingMore, setLoadingMore] = useState(false)
-  const { selectedProducts, clearProducts } = useCompareStore()
-  const storeValues = useProductStore()
-  
-  // Použijeme buď prop selectedTags nebo hodnotu ze store
-  const selectedTags = propSelectedTags !== undefined ? propSelectedTags : storeValues.selectedTags
-  const { products, pagination, loading, error, fetchProducts } = storeValues
+  const [error, setError] = useState<string | null>(null)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [hasMore, setHasMore] = useState(true)
+  const PAGE_SIZE = 12
 
+  // JEDNODUCHÉ načtení produktů - žádný store, žádná složitost
   useEffect(() => {
-    fetchProducts(1)
-  }, [fetchProducts])
-
-  const handleLoadMore = async () => {
-    if (currentPage < pagination.totalPages && !loadingMore) {
-      setLoadingMore(true)
+    const loadProducts = async () => {
       try {
-        await fetchProducts(currentPage + 1)
-        setCurrentPage(prev => prev + 1)
-      } catch (error) {
-        console.error('Chyba při načítání dalších produktů:', error)
+        setLoading(true)
+        setError(null)
+        
+
+        
+        const response = await fetch(`/api/products?page=1&pageSize=${PAGE_SIZE}`)
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
+        
+        const data = await response.json()
+        
+        if (data.products && Array.isArray(data.products)) {
+          // Jednoduchá konverze - bez složitého parsování JSON
+          const simpleProducts = data.products.map((product: any) => ({
+            id: product.id,
+            name: product.name,
+            description: product.description || '',
+            price: product.price || 0,
+            category: product.category || '',
+            imageUrl: product.imageUrl,
+            tags: Array.isArray(product.tags) ? product.tags : [],
+            externalUrl: product.externalUrl,
+            hasTrial: Boolean(product.hasTrial)
+          }))
+          
+          setProducts(simpleProducts)
+          setCurrentPage(1)
+          setHasMore(data.pagination.totalPages > 1)
+        } else {
+          console.error('ProductGrid: Neplatná struktura dat:', data)
+          setError('Neplatná struktura dat')
+        }
+      } catch (err) {
+        console.error('ProductGrid: Chyba při načítání:', err)
+        setError(err instanceof Error ? err.message : 'Neznámá chyba')
       } finally {
-        setLoadingMore(false)
+        setLoading(false)
       }
+    }
+
+    loadProducts()
+  }, []) // Načte jen jednou při mount
+
+  // Funkce pro načtení dalších produktů
+  const loadMoreProducts = async () => {
+    if (!hasMore || loadingMore) return
+
+    try {
+      setLoadingMore(true)
+      setError(null)
+      
+      const nextPage = currentPage + 1
+      
+      const response = await fetch(`/api/products?page=${nextPage}&pageSize=${PAGE_SIZE}`)
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      
+      const data = await response.json()
+      
+      if (data.products && Array.isArray(data.products)) {
+        const newProducts = data.products.map((product: any) => ({
+          id: product.id,
+          name: product.name,
+          description: product.description || '',
+          price: product.price || 0,
+          category: product.category || '',
+          imageUrl: product.imageUrl,
+          tags: Array.isArray(product.tags) ? product.tags : [],
+          externalUrl: product.externalUrl,
+          hasTrial: Boolean(product.hasTrial)
+        }))
+        
+        setProducts(prev => [...prev, ...newProducts])
+        setCurrentPage(nextPage)
+        setHasMore(nextPage < data.pagination.totalPages)
+      }
+    } catch (err) {
+      console.error('ProductGrid: Error loading more products:', err)
+      setError(err instanceof Error ? err.message : 'Unknown error')
+    } finally {
+      setLoadingMore(false)
     }
   }
 
-  const handleCompare = () => {
-    // Logika pro srovnání je nyní v CompareBar komponentě
-  }
+  // Filtrování podle tagů
+  const filteredProducts = selectedTags && selectedTags.size > 0 
+    ? products.filter(product => 
+        product.tags?.some(tag => selectedTags.has(tag))
+      )
+    : products
 
-  // Filtrování produktů podle vybraných tagů
-  const filteredProducts = products.filter(product => {
-    if (selectedTags.size === 0) return true
-    const productTags = product.tags || []
-    return Array.from(selectedTags).some(tag => productTags.includes(tag))
-  })
 
-  const hasMorePages = currentPage < pagination.totalPages
 
-  if (loading && products.length === 0) {
+  if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[200px]">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+        <span className="ml-3">Loading products...</span>
       </div>
     )
   }
@@ -98,12 +141,12 @@ export default function ProductGrid({ selectedTags: propSelectedTags }: ProductG
   if (error) {
     return (
       <div className="text-center py-8">
-        <div className="text-red-500 mb-4">{error}</div>
+        <div className="text-red-500 mb-4">Error: {error}</div>
         <button 
-          onClick={() => fetchProducts(1)}
+          onClick={() => window.location.reload()}
           className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
         >
-          Zkusit znovu
+          Try Again
         </button>
       </div>
     )
@@ -117,7 +160,7 @@ export default function ProductGrid({ selectedTags: propSelectedTags }: ProductG
             key={product.id}
             id={product.id}
             name={product.name}
-            description={product.description || ''}
+            description={product.description}
             price={product.price}
             imageUrl={product.imageUrl}
             tags={product.tags}
@@ -126,37 +169,39 @@ export default function ProductGrid({ selectedTags: propSelectedTags }: ProductG
           />
         ))}
       </div>
-      
-      {loadingMore && (
-        <div className="flex justify-center mt-6">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
-        </div>
-      )}
-      
-      {hasMorePages && !loadingMore && (
-        <div className="text-center mt-6">
-          <button 
-            onClick={handleLoadMore}
-            className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-purple-600/90 hover:text-purple-700/90 hover:bg-purple-50 rounded-md transition-colors"
-          >
-            Načíst další
-          </button>
-        </div>
-      )}
 
       {filteredProducts.length === 0 && !loading && (
         <div className="text-center py-8 text-gray-500">
-          Žádné produkty neodpovídají vybraným filtrům.
+          {selectedTags && selectedTags.size > 0 
+            ? 'No products match the selected filters.'
+            : 'No products to display.'
+          }
         </div>
       )}
 
-      {/* CompareBar - skrytý */}
-      {COMPARE_FEATURE_ENABLED && (
-        <CompareBar 
-          selectedCount={selectedProducts.length}
-          onCompare={handleCompare}
-          onClear={clearProducts}
-        />
+      {/* Load more button */}
+      {hasMore && !loading && (
+        <div className="flex justify-center mt-8">
+          <button
+            onClick={loadMoreProducts}
+            disabled={loadingMore}
+            className={`px-6 py-3 bg-gradient-primary text-white rounded-lg font-medium transition-all ${
+              loadingMore ? 'opacity-50 cursor-not-allowed' : 'hover:shadow-lg hover:scale-105'
+            }`}
+          >
+            {loadingMore ? (
+              <span className="flex items-center gap-2">
+                <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Loading...
+              </span>
+            ) : (
+              `Load More (${products.length} of 196 products)`
+            )}
+          </button>
+        </div>
       )}
     </div>
   )

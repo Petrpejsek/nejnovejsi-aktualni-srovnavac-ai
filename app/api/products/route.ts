@@ -21,6 +21,30 @@ interface Product {
   updatedAt: Date
 }
 
+// Funkce pro bezpečné parsování JSON
+function safeJsonParse(jsonString: string | null, fallback: any = null): any {
+  if (!jsonString) return fallback;
+  
+  try {
+    return JSON.parse(jsonString);
+  } catch (error) {
+    console.warn('Failed to parse JSON:', jsonString, error);
+    return fallback;
+  }
+}
+
+// Funkce pro čištění produktu
+function cleanProduct(product: any): any {
+  return {
+    ...product,
+    tags: safeJsonParse(product.tags, []),
+    advantages: safeJsonParse(product.advantages, []),
+    disadvantages: safeJsonParse(product.disadvantages, []),
+    pricingInfo: safeJsonParse(product.pricingInfo, {}),
+    videoUrls: safeJsonParse(product.videoUrls, [])
+  };
+}
+
 // Konfigurujeme API jako dynamické, aby se mohlo používat request.url
 export const dynamic = 'auto'
 
@@ -28,33 +52,85 @@ export const dynamic = 'auto'
 export async function GET(request: NextRequest) {
     try {
       const { searchParams } = new URL(request.url)
-      const page = parseInt(searchParams.get('page') || '1', 10)
-      const pageSize = parseInt(searchParams.get('pageSize') || '10', 10)
-    
-      console.log('API: Processing request for products with params:', { page, pageSize })
+      
+      // Kontrola, zda se jedná o dotaz na konkrétní ID
+      const idsParam = searchParams.get('ids');
+      
+      if (idsParam) {
+        // Načtení produktů podle konkrétních ID
+        const ids = idsParam.split(',').map(id => id.trim()).filter(id => id.length > 0);
+        console.log('API: Loading products by IDs:', ids);
+        
+        if (ids.length === 0) {
+          return NextResponse.json([], { status: 200 });
+        }
+        
+        const rawProducts = await prisma.product.findMany({
+          where: {
+            id: {
+              in: ids
+            }
+          },
+          orderBy: { name: 'asc' }
+        });
+        
+        // Vyčistíme produkty před odesláním
+        const products = rawProducts.map(cleanProduct);
+        
+        console.log(`API: Successfully loaded ${products.length} products by IDs`);
+        return NextResponse.json(products, { status: 200 });
+      }
+      
+      // Spolehlivé parsování parametrů pro paginaci a filtrování
+      const pageParam = searchParams.get('page');
+      const pageSizeParam = searchParams.get('pageSize');
+      const categoryParam = searchParams.get('category');
+      
+      const page = pageParam ? parseInt(pageParam, 10) : 1;
+      const pageSize = pageSizeParam ? parseInt(pageSizeParam, 10) : 50; // Nový default – zobrazíme až 50 produktů, pokud klient nespecifikuje jinak
+      
+      console.log('API: Processing request for products with params:', { 
+        page, 
+        pageSize,
+        pageParam,
+        pageSizeParam,
+        category: categoryParam,
+        url: request.url 
+      });
       
       // Parameter validation
-      const validPage = page > 0 ? page : 1
-      const validPageSize = pageSize > 0 && pageSize <= 500 ? pageSize : 10
+      const validPage = page > 0 ? page : 1;
+      const validPageSize = Math.min(Math.max(pageSize, 1), 1000); // min 1, max 1000
       
       // Calculate offset for pagination
-      const skip = (validPage - 1) * validPageSize
+      const skip = (validPage - 1) * validPageSize;
       
-      // Get total count of products
-      const totalProducts = await prisma.product.count()
+      // Prepare where clause for filtering
+      const whereClause: any = {};
+      if (categoryParam) {
+        whereClause.category = categoryParam;
+      }
       
-      // Get paginated products - JEDNODUCHÁ VERZE BEZ SLOŽITÉHO ZPRACOVÁNÍ
-      const products = await prisma.product.findMany({
+      // Get total count of products (with filter)
+      const totalProducts = await prisma.product.count({
+        where: whereClause
+      });
+      
+      // Get paginated products (with filter)
+      const rawProducts = await prisma.product.findMany({
+          where: whereClause,
           orderBy: { name: 'asc' },
           skip,
           take: validPageSize,
-        })
+        });
       
-      const totalPages = Math.ceil(totalProducts / validPageSize)
+      // Vyčistíme produkty před odesláním
+      const products = rawProducts.map(cleanProduct);
       
-      console.log(`API: Loaded ${products.length} products (page ${validPage}, total ${totalProducts})`)
+      const totalPages = Math.ceil(totalProducts / validPageSize);
       
-      // ŽÁDNÉ ZPRACOVÁNÍ, žádné parsování - prostě vrátíme data z databáze tak jak jsou
+      console.log(`API: Successfully loaded ${products.length} products (page ${validPage}, pageSize ${validPageSize}, total ${totalProducts})`);
+      
       const response = {
         products,
         pagination: {
@@ -63,18 +139,18 @@ export async function GET(request: NextRequest) {
           totalProducts,
           totalPages
         }
-      }
+      };
 
-      return NextResponse.json(response, { status: 200 })
+      return NextResponse.json(response, { status: 200 });
     } catch (error) {
-      console.error('Error loading products:', error)
+      console.error('Error loading products:', error);
         return NextResponse.json(
         { 
           error: 'Failed to load products', 
           details: error instanceof Error ? error.message : 'Unknown error'
         },
         { status: 500 }
-        )
+        );
   }
 }
 

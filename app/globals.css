@@ -4,13 +4,47 @@
 
 :root {
   --foreground-rgb: 0, 0, 0;
-  --background-rgb: 255, 255, 255;
+  --background-start-rgb: 255, 255, 255;
+  --background-end-rgb: 255, 255, 255;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+  }
 }
 
 body {
   color: rgb(var(--foreground-rgb));
-  background: rgb(var(--background-rgb));
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))
+    )
+    rgb(var(--background-start-rgb));
 }
+
+/* Gradient text utility */
+.text-gradient-primary {
+  background: linear-gradient(135deg, #7c3aed 0%, #ec4899 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Gradient background utility */
+.bg-gradient-primary {
+  background: linear-gradient(135deg, #7c3aed 0%, #ec4899 100%);
+}
+
+/* Hover gradient effect */
+.hover-gradient-primary:hover {
+  background: linear-gradient(135deg, #6d28d9 0%, #db2777 100%);
+}
+
+
 
 @layer utilities {
   .bg-gradient-primary {
