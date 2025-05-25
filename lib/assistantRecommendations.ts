@@ -46,12 +46,12 @@ export async function generateAssistantRecommendations(query: string) {
     // Wait for response
     let runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);
     const startTime = Date.now();
-    const MAX_WAIT = 6000; // 6 seconds - Vercel timeout limit
+    const MAX_WAIT = 50000; // 50 seconds - leave 10 seconds buffer for Vercel 60s limit
     
     while ((runStatus.status === 'queued' || runStatus.status === 'in_progress') && (Date.now() - startTime) < MAX_WAIT) {
       const elapsed = Date.now() - startTime;
       console.log(`AssistantRecommendations: ⏳ Status: ${runStatus.status}, waited: ${elapsed}ms/${MAX_WAIT}ms`);
-      await new Promise(resolve => setTimeout(resolve, 500)); // Check every 500ms
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Check every 1 second
       runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);
     }
     
@@ -64,6 +64,16 @@ export async function generateAssistantRecommendations(query: string) {
       // If status is 'failed', try to get error details
       if (runStatus.status === 'failed') {
         console.error('❌ Run failed details:', runStatus.last_error);
+      }
+      
+      // If still in progress, try to cancel the run to free resources
+      if (runStatus.status === 'in_progress' || runStatus.status === 'queued') {
+        try {
+          await openai.beta.threads.runs.cancel(thread.id, run.id);
+          console.log('🚫 Cancelled long-running assistant request');
+        } catch (cancelError) {
+          console.error('❌ Failed to cancel run:', cancelError);
+        }
       }
       
       return [];
