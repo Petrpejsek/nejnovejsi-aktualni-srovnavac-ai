@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '../../../lib/prisma';
 
-// Konfigurace dynamického API endpointu
+// Dynamic API endpoint configuration
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
 export const revalidate = 0

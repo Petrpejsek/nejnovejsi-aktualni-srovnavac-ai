@@ -1,18 +1,18 @@
 import { OpenAI } from 'openai';
 import prisma from './prisma';
 
-// Ověříme, že API klíč je načtený
-console.log('OpenAI API klíč je načtený (Assistant):', process.env.OPENAI_API_KEY ? 'Ano (klíč končí na: ' + process.env.OPENAI_API_KEY.slice(-4) + ')' : 'Ne');
+// Verify that API key is loaded
+console.log('OpenAI API key loaded (Assistant):', process.env.OPENAI_API_KEY ? 'Yes (key ends with: ' + process.env.OPENAI_API_KEY.slice(-4) + ')' : 'No');
 
-// Vytváříme OpenAI klienta
+// Create OpenAI client
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-// ⭐ ID vašeho asistenta - nastavíme napevno
+// ⭐ Your assistant ID - set permanently
 const ASSISTANT_ID = 'asst_unwHSr7Dqc1odJLkbdtAzRbo';
 
-// Rozhraní pro doporučení
+// Interface for recommendations
 interface Recommendation {
   id: string;
   matchPercentage: number;
@@ -22,6 +22,12 @@ interface Recommendation {
 export async function generateAssistantRecommendations(query: string) {
   try {
     console.log('🚀 AssistantRecommendations: START', { query });
+    
+    // Check if OpenAI API key is available
+    if (!process.env.OPENAI_API_KEY) {
+      console.error('❌ OpenAI API key not found');
+      return [];
+    }
 
     // Vytvoříme nový thread
     const thread = await openai.beta.threads.create();
@@ -37,25 +43,25 @@ export async function generateAssistantRecommendations(query: string) {
       assistant_id: ASSISTANT_ID
     });
 
-    // Počkáme na odpověď
+    // Wait for response
     let runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);
     const startTime = Date.now();
-    const MAX_WAIT = 45000; // 45 s - zvýšíme timeout
+    const MAX_WAIT = 6000; // 6 seconds - Vercel timeout limit
     
     while ((runStatus.status === 'queued' || runStatus.status === 'in_progress') && (Date.now() - startTime) < MAX_WAIT) {
       const elapsed = Date.now() - startTime;
       console.log(`AssistantRecommendations: ⏳ Status: ${runStatus.status}, waited: ${elapsed}ms/${MAX_WAIT}ms`);
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Zvýšíme interval na 1s
+      await new Promise(resolve => setTimeout(resolve, 500)); // Check every 500ms
       runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);
     }
     
     const aiTime = Date.now() - startTime;
-    console.log(`AssistantRecommendations: 🎯 AI dokončeno! Čas: ${aiTime}ms (${(aiTime/1000).toFixed(1)}s), status: ${runStatus.status}`);
+    console.log(`AssistantRecommendations: 🎯 AI completed! Time: ${aiTime}ms (${(aiTime/1000).toFixed(1)}s), status: ${runStatus.status}`);
     
     if (runStatus.status !== 'completed') {
-      console.error(`AssistantRecommendations: ❌ Selhání po ${aiTime}ms, status: ${runStatus.status}`);
+      console.error(`AssistantRecommendations: ❌ Timeout after ${aiTime}ms, status: ${runStatus.status}`);
       
-      // Pokud je status 'failed', zkusíme získat error detaily
+      // If status is 'failed', try to get error details
       if (runStatus.status === 'failed') {
         console.error('❌ Run failed details:', runStatus.last_error);
       }
@@ -63,29 +69,29 @@ export async function generateAssistantRecommendations(query: string) {
       return [];
     }
 
-    // Získáme odpověď
+    // Get response
     const messages = await openai.beta.threads.messages.list(thread.id);
     const lastMessage = messages.data.find(m => m.role === 'assistant') || messages.data[0];
     
-    // Najdeme blok typu text
+    // Find text block
     const textBlock = lastMessage.content.find(block => block.type === 'text');
     const response = textBlock ? textBlock.text.value : '';
     
-    console.log('🔍 ODPOVĚĎ OD AI ASISTENTA:');
+    console.log('🔍 AI ASSISTANT RESPONSE:');
     console.log('Raw response:', response);
     console.log('Response length:', response.length);
 
-    // Zkusíme parsovat JSON
+    // Try to parse JSON
     try {
       let jsonText = response;
       
-      // Pokud obsahuje markdown bloky ```json
+      // If contains markdown blocks ```json
       const jsonMatch = response.match(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/);
       if (jsonMatch) {
         jsonText = jsonMatch[1];
       }
       
-      // Pokud začíná/končí nějakým textem, najdeme jen JSON část
+      // If starts/ends with some text, find only JSON part
       const pureJsonMatch = response.match(/(\{[\s\S]*\})/);
       if (pureJsonMatch && !jsonMatch) {
         jsonText = pureJsonMatch[1];
@@ -94,7 +100,7 @@ export async function generateAssistantRecommendations(query: string) {
       const data = JSON.parse(jsonText);
       let recommendations: Recommendation[] = data.recommendations || [];
 
-      // Validace ID proti databázi
+      // Validate IDs against database
       
       const existingProducts = await prisma.product.findMany({
         where: {
@@ -108,27 +114,27 @@ export async function generateAssistantRecommendations(query: string) {
         }
       });
 
-      // Vytvoříme Set existujících ID pro rychlé vyhledávání
+      // Create Set of existing IDs for fast lookup
       const existingIds = new Set(existingProducts.map(p => p.id));
 
-      // Filtrujeme pouze doporučení s existujícími ID
+      // Filter only recommendations with existing IDs
       const validRecs = recommendations.filter(rec => {
         const exists = existingIds.has(rec.id);
         if (!exists) {
-          console.log('⚠️ ID neexistuje v databázi:', rec.id);
+          console.log('⚠️ ID does not exist in database:', rec.id);
         }
         return exists;
       });
 
-      console.log(`✅ Validní doporučení: ${validRecs.length}/${recommendations.length}`);
+      console.log(`✅ Valid recommendations: ${validRecs.length}/${recommendations.length}`);
       
       return validRecs;
     } catch (e) {
-      console.error('Chyba při parsování odpovědi:', e);
+      console.error('Error parsing response:', e);
       return [];
     }
   } catch (e) {
-    console.error('AssistantRecommendations: Chyba při komunikaci s OpenAI:', e);
+    console.error('AssistantRecommendations: Error communicating with OpenAI:', e);
     return [];
   }
 } 

@@ -1,13 +1,13 @@
 'use client'
 
-import React, { useState, useEffect, useRef, Suspense } from 'react'
+import React, { useState, useEffect, useRef, useCallback, Suspense } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import TagFilter from '../../components/TagFilter'
 import CompareBar from '../../components/CompareBar'
 
-// Konstanty pro zapnutí/vypnutí funkcí 
+// Constants for enabling/disabling features 
 const COMPARE_FEATURE_ENABLED = false;
 const SAVE_FEATURE_ENABLED = false;
 
@@ -97,7 +97,7 @@ function RecommendationsPageContent() {
     };
   }, [recommending]);
 
-  // Načtení produktů - jen pokud nemáme query (pro catalog page)
+  // Load products - only if we don't have query (for catalog page)
   useEffect(() => {
     // If we have a query, we don't need to load all products!
     if (query) {

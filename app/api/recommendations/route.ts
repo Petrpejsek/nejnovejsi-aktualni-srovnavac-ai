@@ -2,7 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '../../../lib/prisma';
 import { generateRecommendations } from '../../../lib/openai';
 
-// Definice typů pro doporučení
+// Configure API as dynamic for Vercel
+export const dynamic = 'force-dynamic'
+export const fetchCache = 'force-no-store'
+export const revalidate = 0
+
+// Type definitions for recommendations
 interface Recommendation {
   id: string;
   matchPercentage: number;
@@ -154,10 +159,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log(`API /recommendations: Generuji doporučení pro dotaz: "${sanitizedQuery}" s ${processedProducts.length} produkty`);
+    console.log(`API /recommendations: Generating recommendations for query: "${sanitizedQuery}" with ${processedProducts.length} products`);
 
-    // Generujeme doporučení pomocí OpenAI
-    console.log('API /recommendations: Volám OpenAI...');
+          // Generate recommendations using OpenAI
+          console.log('API /recommendations: Calling OpenAI...');
     let recommendations;
     try {
       recommendations = await generateRecommendations(sanitizedQuery, processedProducts);

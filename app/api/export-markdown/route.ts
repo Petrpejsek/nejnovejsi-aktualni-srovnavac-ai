@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '../../../lib/prisma';
 
-// Konfigurace dynamického API endpointu
+// Dynamic API endpoint configuration
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
 export const revalidate = 0
@@ -18,18 +18,18 @@ export async function GET() {
 
     console.log(`✅ Markdown Export: Loaded ${products.length} products`);
 
-    // Funkce pro čištění textu pro Markdown
+    // Function for cleaning text for Markdown
     const cleanText = (text: string | null): string => {
       if (!text) return '';
       return text.replace(/\|/g, '\\|').replace(/\n/g, ' ').replace(/\r/g, ' ');
     };
 
-    // Markdown hlavička
+    // Markdown header
     let markdownContent = '# AI Tools Database\n\n';
     markdownContent += '| Name | Description | Price | Category | Has Trial | External URL |\n';
     markdownContent += '|------|-------------|-------|----------|-----------|-------------|\n';
 
-    // Markdown řádky
+    // Markdown rows
     products.forEach(product => {
       markdownContent += `| ${cleanText(product.name)} | ${cleanText(product.description)} | $${product.price || 0} | ${cleanText(product.category)} | ${product.hasTrial ? 'Yes' : 'No'} | ${cleanText(product.externalUrl)} |\n`;
     });

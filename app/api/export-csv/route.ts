@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '../../../lib/prisma';
 
-// Konfigurace dynamického API endpointu
+// Dynamic API endpoint configuration
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
 export const revalidate = 0
@@ -18,20 +18,20 @@ export async function GET() {
 
     console.log(`✅ CSV Export: Loaded ${products.length} products`);
 
-    // Funkce pro čištění textu pro CSV
+    // Function for cleaning text for CSV
     const cleanText = (text: string | null): string => {
       if (!text) return '';
       return text.replace(/"/g, '""').replace(/\n/g, ' ').replace(/\r/g, ' ');
     };
 
-    // CSV hlavička
+    // CSV header
     const csvHeader = [
       'ID', 'Name', 'Description', 'Price', 'Category', 'Image URL',
       'Tags', 'Advantages', 'Disadvantages', 'Reviews', 'Pricing Info', 'Video URLs',
       'External URL', 'Has Trial', 'Detail Info'
     ].join(',');
 
-    // CSV řádky
+    // CSV rows
     const csvRows = products.map(product => [
       `"${product.id}"`,
       `"${cleanText(product.name)}"`,

@@ -195,24 +195,24 @@ function ProductListContent() {
       {pagination.totalPages > 1 && (
         <div className="flex justify-center mt-8">
           <nav className="flex items-center space-x-2">
-            {/* Tlačítko Předchozí */}
+            {/* Previous Button */}
             {pagination.page > 1 && (
               <Link
                 href={getPageLink(pagination.page - 1)}
                 className="px-3 py-2 rounded bg-gray-100 hover:bg-gray-200"
               >
-                &laquo; Předchozí
+                &laquo; Previous
               </Link>
             )}
             
-            {/* Čísla stránek */}
+            {/* Page Numbers */}
             {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
-              // Zobrazení max 5 stránek
+              // Show max 5 pages
               const pagesToShow = 5;
               let startPage = Math.max(1, pagination.page - Math.floor(pagesToShow / 2));
               let endPage = Math.min(pagination.totalPages, startPage + pagesToShow - 1);
               
-              // Pokud jsme na konci, upravíme začátek
+              // If we're at the end, adjust the start
               if (endPage - startPage + 1 < pagesToShow) {
                 startPage = Math.max(1, endPage - pagesToShow + 1);
               }
@@ -237,20 +237,20 @@ function ProductListContent() {
               return null;
             })}
             
-            {/* Tlačítko Další */}
+            {/* Next Button */}
             {pagination.page < pagination.totalPages && (
               <Link
                 href={getPageLink(pagination.page + 1)}
                 className="px-3 py-2 rounded bg-gray-100 hover:bg-gray-200"
               >
-                Další &raquo;
+                Next &raquo;
               </Link>
             )}
           </nav>
         </div>
       )}
       
-      {/* Indikátor načítání pro další stránky */}
+      {/* Loading indicator for additional pages */}
       {loading && page > 1 && (
         <div className="flex justify-center mt-4">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
@@ -259,7 +259,7 @@ function ProductListContent() {
       
       {filteredProducts.length === 0 && !loading && (
         <div className="text-center py-8">
-          Nebyly nalezeny žádné produkty odpovídající zadaným filtrům.
+          No products found matching the specified filters.
         </div>
       )}
     </div>
@@ -279,14 +279,14 @@ const ProductCard = ({ product }: { product: AIProduct }) => {
       <h3 className="text-xl font-semibold mb-2">{product.name}</h3>
       <p className="text-gray-600 mb-4">{product.description}</p>
       <div className="flex justify-between items-center mb-4">
-        <span className="text-lg font-bold">{product.price} €/měsíc</span>
+        <span className="text-lg font-bold">{product.price} €/month</span>
         <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
           {product.category}
         </span>
       </div>
       <div className="space-y-4">
         <div>
-          <h4 className="font-semibold mb-2">Výhody:</h4>
+          <h4 className="font-semibold mb-2">Advantages:</h4>
           <ul className="list-disc list-inside text-green-600">
             {product.advantages.map((advantage, index) => (
               <li key={index}>{advantage}</li>
@@ -294,7 +294,7 @@ const ProductCard = ({ product }: { product: AIProduct }) => {
           </ul>
         </div>
         <div>
-          <h4 className="font-semibold mb-2">Nevýhody:</h4>
+          <h4 className="font-semibold mb-2">Disadvantages:</h4>
           <ul className="list-disc list-inside text-red-600">
             {product.disadvantages.map((disadvantage, index) => (
               <li key={index}>{disadvantage}</li>
@@ -311,7 +311,7 @@ const ProductCard = ({ product }: { product: AIProduct }) => {
             Try it
           </Link>
           {product.hasTrial && (
-            <span className="text-green-500 font-semibold text-sm">Dostupná trial verze</span>
+            <span className="text-green-500 font-semibold text-sm">Trial version available</span>
           )}
         </div>
       </div>

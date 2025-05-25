@@ -1,24 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateAssistantRecommendations } from '../../../lib/assistantRecommendations';
 
+// Configure API as dynamic for Vercel
+export const dynamic = 'force-dynamic'
+export const fetchCache = 'force-no-store'
+export const revalidate = 0
+
 export async function POST(request: NextRequest) {
   try {
     const { query } = await request.json();
     
     if (!query || typeof query !== 'string') {
-      return NextResponse.json({ error: 'Chybí dotaz.' }, { status: 400 });
+      return NextResponse.json({ error: 'Query is missing.' }, { status: 400 });
     }
     
-    console.log('🔍 Generuji doporučení pro:', query);
+    console.log('🔍 Generating recommendations for:', query);
     const recommendations = await generateAssistantRecommendations(query);
-    console.log(`✅ Vygenerováno ${recommendations.length} doporučení`);
+    console.log(`✅ Generated ${recommendations.length} recommendations`);
     
     return NextResponse.json({ recommendations });
   } catch (error) {
-    console.error('❌ Chyba při generování doporučení:', error);
+    console.error('❌ Error generating recommendations:', error);
     return NextResponse.json({
-      error: 'Chyba při generování doporučení',
-      details: error instanceof Error ? error.message : 'Neznámá chyba'
+      error: 'Error generating recommendations',
+      details: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   }
 } 

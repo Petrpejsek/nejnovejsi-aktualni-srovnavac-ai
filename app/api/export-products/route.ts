@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '../../../lib/prisma';
 
-// Konfigurace dynamického API endpointu
+// Dynamic API endpoint configuration
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
 export const revalidate = 0
@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
   try {
     console.log('🔄 Export: Loading all products from database...');
     
-    // Načti všechny produkty bez stránkování
+    // Load all products without pagination
     const products = await prisma.product.findMany({
       orderBy: {
         name: 'asc'
@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
 
     console.log(`✅ Export: Loaded ${products.length} products`);
 
-    // Připrav data pro export
+    // Prepare data for export
     const exportData = {
       metadata: {
         exportDate: new Date().toISOString(),
@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
       }))
     };
 
-    // Nastav hlavičky pro stažení souboru
+    // Set headers for file download
     const headers = new Headers({
       'Content-Type': 'application/json',
       'Content-Disposition': 'attachment; filename="ai-tools-complete-database.json"',

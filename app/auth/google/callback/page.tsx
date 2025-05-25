@@ -8,20 +8,20 @@ function GoogleCallbackContent() {
   const searchParams = useSearchParams()
 
   useEffect(() => {
-    // Získat token nebo chybu z URL parametrů
+    // Get token or error from URL parameters
     const token = searchParams.get('token')
     const error = searchParams.get('error')
 
     if (token) {
-      // Uložit token a přesměrovat na hlavní stránku
+      // Save token and redirect to main page
       localStorage.setItem('token', token)
       router.push('/')
     } else if (error) {
-      // Přesměrovat zpět na přihlášení s chybovou zprávou
+      // Redirect back to login with error message
       router.push(`/login?error=${encodeURIComponent(error)}`)
     } else {
-      // Neočekávaný stav, přesměrovat na přihlášení
-      router.push('/login?error=Něco se pokazilo')
+      // Unexpected state, redirect to login
+      router.push('/login?error=Something went wrong')
     }
   }, [router, searchParams])
 

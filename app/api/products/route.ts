@@ -21,19 +21,29 @@ interface Product {
   updatedAt: Date
 }
 
-// Funkce pro bezpečné parsování JSON
-function safeJsonParse(jsonString: string | null, fallback: any = null): any {
+// Function for safe JSON parsing
+function safeJsonParse(jsonString: string | null | any, fallback: any = null): any {
   if (!jsonString) return fallback;
   
-  try {
-    return JSON.parse(jsonString);
-  } catch (error) {
-    console.warn('Failed to parse JSON:', jsonString, error);
-    return fallback;
+  // If it's already an object/array, return it as is
+  if (typeof jsonString === 'object') {
+    return jsonString;
   }
+  
+  // If it's a string, try to parse it
+  if (typeof jsonString === 'string') {
+    try {
+      return JSON.parse(jsonString);
+    } catch (error) {
+      console.warn('Failed to parse JSON:', jsonString, error);
+      return fallback;
+    }
+  }
+  
+  return fallback;
 }
 
-// Funkce pro čištění produktu
+// Function for cleaning product data
 function cleanProduct(product: any): any {
   return {
     ...product,
@@ -45,7 +55,7 @@ function cleanProduct(product: any): any {
   };
 }
 
-// Konfigurujeme API jako dynamické, aby se mohlo používat request.url
+// Configure API as dynamic so it can use request.url
 export const dynamic = 'auto'
 
 // GET /api/products - Get all products with pagination and filters
@@ -53,11 +63,11 @@ export async function GET(request: NextRequest) {
     try {
       const { searchParams } = new URL(request.url)
       
-      // Kontrola, zda se jedná o dotaz na konkrétní ID
+      // Check if this is a query for specific IDs
       const idsParam = searchParams.get('ids');
       
       if (idsParam) {
-        // Načtení produktů podle konkrétních ID
+        // Load products by specific IDs
         const ids = idsParam.split(',').map(id => id.trim()).filter(id => id.length > 0);
         console.log('API: Loading products by IDs:', ids);
         
@@ -74,20 +84,20 @@ export async function GET(request: NextRequest) {
           orderBy: { name: 'asc' }
         });
         
-        // Vyčistíme produkty před odesláním
+        // Clean products before sending
         const products = rawProducts.map(cleanProduct);
         
         console.log(`API: Successfully loaded ${products.length} products by IDs`);
         return NextResponse.json(products, { status: 200 });
       }
       
-      // Spolehlivé parsování parametrů pro paginaci a filtrování
+      // Reliable parameter parsing for pagination and filtering
       const pageParam = searchParams.get('page');
       const pageSizeParam = searchParams.get('pageSize');
       const categoryParam = searchParams.get('category');
       
       const page = pageParam ? parseInt(pageParam, 10) : 1;
-      const pageSize = pageSizeParam ? parseInt(pageSizeParam, 10) : 50; // Nový default – zobrazíme až 50 produktů, pokud klient nespecifikuje jinak
+      const pageSize = pageSizeParam ? parseInt(pageSizeParam, 10) : 50; // New default - show up to 50 products if client doesn't specify otherwise
       
       console.log('API: Processing request for products with params:', { 
         page, 
@@ -124,7 +134,7 @@ export async function GET(request: NextRequest) {
           take: validPageSize,
         });
       
-      // Vyčistíme produkty před odesláním
+      // Clean products before sending
       const products = rawProducts.map(cleanProduct);
       
       const totalPages = Math.ceil(totalProducts / validPageSize);
@@ -168,7 +178,7 @@ export async function POST(request: Request) {
       )
     }
 
-    // Process data before saving - JEDNODUCHÁ VERZE
+    // Process data before saving - SIMPLE VERSION
     const processedData = {
       name: data.name,
       description: data.description || '',
@@ -189,7 +199,7 @@ export async function POST(request: Request) {
       data: processedData
     })
 
-    // Žádné zpracování dat - vrátíme tak jak jsou
+    // No data processing - return as is
     return NextResponse.json(product)
   } catch (error) {
     console.error('Error creating product:', error)
