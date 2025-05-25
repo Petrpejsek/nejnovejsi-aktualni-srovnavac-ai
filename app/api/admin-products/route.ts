@@ -55,12 +55,12 @@ export async function GET(request: NextRequest) {
           price: typeof product.price === 'number' ? product.price : 0,
           category: product.category || '',
           imageUrl: product.imageUrl || '',
-          tags: parseSafely(product.tags, []),
-          advantages: parseSafely(product.advantages, []),
-          disadvantages: parseSafely(product.disadvantages, []),
+          tags: parseSafely(product.tags as string | null, []),
+          advantages: parseSafely(product.advantages as string | null, []),
+          disadvantages: parseSafely(product.disadvantages as string | null, []),
           detailInfo: product.detailInfo || '',
-          pricingInfo: parsePricingInfo(product.pricingInfo),
-          videoUrls: parseSafely(product.videoUrls, []),
+          pricingInfo: parsePricingInfo(product.pricingInfo as string | null),
+          videoUrls: parseSafely(product.videoUrls as string | null, []),
           externalUrl: product.externalUrl || '',
           hasTrial: Boolean(product.hasTrial)
         }

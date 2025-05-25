@@ -1,7 +1,5 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import prisma from '../../../lib/prisma';
 
 export async function GET() {
   try {
@@ -15,38 +13,39 @@ export async function GET() {
 
     console.log(`✅ CSV Export: Načteno ${products.length} produktů`);
 
+    // Funkce pro čištění textu pro CSV
+    const cleanText = (text: string | null): string => {
+      if (!text) return '';
+      return text.replace(/"/g, '""').replace(/\n/g, ' ').replace(/\r/g, ' ');
+    };
+
     // CSV hlavička
-    const csvHeader = 'ID;Název;Popis;Kategorie;Cena;Obrázek;Tagy;Výhody;Nevýhody;Recenze;Cenové info;Video URL;Detail;Externí URL;Má trial;Vytvořeno;Aktualizováno\n';
-    
+    const csvHeader = [
+      'ID', 'Name', 'Description', 'Price', 'Category', 'Image URL',
+      'Tags', 'Advantages', 'Disadvantages', 'Reviews', 'Pricing Info', 'Video URLs',
+      'External URL', 'Has Trial', 'Detail Info'
+    ].join(',');
+
     // CSV řádky
-    const csvRows = products.map(product => {
-      const cleanText = (text: string | null) => {
-        if (!text) return '';
-        return text.replace(/"/g, '""').replace(/\n/g, ' ').replace(/\r/g, ' ');
-      };
+    const csvRows = products.map(product => [
+      `"${product.id}"`,
+      `"${cleanText(product.name)}"`,
+      `"${cleanText(product.description)}"`,
+      `"${product.price || 0}"`,
+      `"${cleanText(product.category)}"`,
+      `"${cleanText(product.imageUrl)}"`,
+      `"${cleanText(product.tags as string | null)}"`,
+      `"${cleanText(product.advantages as string | null)}"`,
+      `"${cleanText(product.disadvantages as string | null)}"`,
+      `"${cleanText(product.reviews as string | null)}"`,
+      `"${cleanText(product.pricingInfo as string | null)}"`,
+      `"${cleanText(product.videoUrls as string | null)}"`,
+      `"${cleanText(product.externalUrl)}"`,
+      `"${product.hasTrial ? 'Yes' : 'No'}"`,
+      `"${cleanText(product.detailInfo)}"`
+    ].join(','));
 
-      return [
-        product.id,
-        `"${cleanText(product.name)}"`,
-        `"${cleanText(product.description)}"`,
-        `"${cleanText(product.category)}"`,
-        product.price || 0,
-        `"${cleanText(product.imageUrl)}"`,
-        `"${cleanText(product.tags)}"`,
-        `"${cleanText(product.advantages)}"`,
-        `"${cleanText(product.disadvantages)}"`,
-        `"${cleanText(product.reviews)}"`,
-        `"${cleanText(product.pricingInfo)}"`,
-        `"${cleanText(product.videoUrls)}"`,
-        `"${cleanText(product.detailInfo)}"`,
-        `"${cleanText(product.externalUrl)}"`,
-        product.hasTrial ? 'Ano' : 'Ne',
-        product.createdAt.toISOString().split('T')[0],
-        product.updatedAt.toISOString().split('T')[0]
-      ].join(';');
-    }).join('\n');
-
-    const csvContent = csvHeader + csvRows;
+    const csvContent = [csvHeader, ...csvRows].join('\n');
 
     const headers = new Headers({
       'Content-Type': 'text/csv; charset=utf-8',

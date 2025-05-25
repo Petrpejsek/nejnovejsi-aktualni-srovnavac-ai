@@ -95,11 +95,11 @@ export async function POST(request: Request) {
           message: 'Produkt s touto URL již existuje v databázi',
           product: {
             ...existingProduct,
-            tags: JSON.parse(existingProduct.tags || '[]'),
-            advantages: JSON.parse(existingProduct.advantages || '[]'),
-            disadvantages: JSON.parse(existingProduct.disadvantages || '[]'),
-            pricingInfo: JSON.parse(existingProduct.pricingInfo || '{}'),
-            videoUrls: JSON.parse(existingProduct.videoUrls || '[]')
+            tags: JSON.parse((existingProduct.tags as string) || '[]'),
+            advantages: JSON.parse((existingProduct.advantages as string) || '[]'),
+            disadvantages: JSON.parse((existingProduct.disadvantages as string) || '[]'),
+            pricingInfo: JSON.parse((existingProduct.pricingInfo as string) || '{}'),
+            videoUrls: JSON.parse((existingProduct.videoUrls as string) || '[]')
           } 
         },
         { status: 200 }
@@ -243,11 +243,11 @@ ${relevantContent}`
     // Zpracování dat pro odpověď
     const responseProduct = {
       ...product,
-      tags: JSON.parse(product.tags || '[]'),
-      advantages: JSON.parse(product.advantages || '[]'),
-      disadvantages: JSON.parse(product.disadvantages || '[]'),
-      pricingInfo: JSON.parse(product.pricingInfo || '{}'),
-      videoUrls: JSON.parse(product.videoUrls || '[]')
+      tags: JSON.parse((product.tags as string) || '[]'),
+      advantages: JSON.parse((product.advantages as string) || '[]'),
+      disadvantages: JSON.parse((product.disadvantages as string) || '[]'),
+      pricingInfo: JSON.parse((product.pricingInfo as string) || '{}'),
+      videoUrls: JSON.parse((product.videoUrls as string) || '[]')
     };
 
     console.log(`Produkt úspěšně uložen: ${responseProduct.name}`);
