@@ -1,31 +1,39 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 
 interface PopularCategoriesProps {
+  tags?: string[];
   onCategorySelect: (category: string) => void;
 }
 
-export default function PopularCategories({ onCategorySelect }: PopularCategoriesProps) {
+export default function PopularCategories({ tags, onCategorySelect }: PopularCategoriesProps) {
   const [showAllCategories, setShowAllCategories] = useState(false)
+  const [fetchedTags, setFetchedTags] = useState<string[]>([])
 
-  // Statický seznam populárních kategorií
-  const popularCategories = [
-    'automation',
-    'Healthcare',
-    'Website Builder',
-    'video-generation',
-    'E-commerce',
-    'video-editing',
-    'Accounting Software',
-    'AI & Video',
-    'Financial Technology',
-    'AI Website Builder',
-    'Robo-Advisor',
-    'Accounting Services',
-    'music',
-    'content-creation'
-  ]
+  // On mount fetch all tags if not provided via props
+  useEffect(() => {
+    if (tags && tags.length > 0) return
+
+    const loadTags = async () => {
+      try {
+        const res = await fetch('/api/products?tagsOnly=true', {
+          cache: 'no-store'
+        })
+        if (!res.ok) throw new Error('Failed to load tags')
+        const data = await res.json()
+        if (Array.isArray(data.tags)) {
+          setFetchedTags(data.tags)
+        }
+      } catch (err) {
+        console.warn('PopularCategories: error loading tags', err)
+      }
+    }
+
+    loadTags()
+  }, [tags])
+
+  const popularCategories = tags && tags.length > 0 ? tags : fetchedTags
 
   const buttonClass = `
     px-3 
