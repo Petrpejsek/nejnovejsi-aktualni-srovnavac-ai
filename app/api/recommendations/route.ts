@@ -25,7 +25,7 @@ function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
 
 export async function POST(request: NextRequest) {
   const startTime = Date.now();
-  console.log('=== API /recommendations: Start ===');
+  console.log('=== API /recommendations: Start (NEW VERSION 2024-12-23) ===');
   
   try {
     // Parse request with timeout
