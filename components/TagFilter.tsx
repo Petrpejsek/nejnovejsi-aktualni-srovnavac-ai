@@ -27,43 +27,23 @@ export default function TagFilter({ tags: propTags, selectedTags: propSelectedTa
     setSelectedTags(newTags)
   }
 
-  // Pokud máme propTags, použijeme je, jinak načteme optimalizovaně
-  const [availableTags, setAvailableTags] = React.useState<string[]>(propTags || [])
-
-  // Načteme tagy optimalizovaně, pokud nemáme propTags
-  React.useEffect(() => {
-    if (propTags) {
-      setAvailableTags(propTags)
-      return
-    }
-
-    const fetchTags = async () => {
-      try {
-        console.log('🏷️ TagFilter: Načítám tagy (optimized)...')
-        const response = await fetch('/api/products?tagsOnly=true', {
-          cache: 'no-store',
-          headers: {
-            'Cache-Control': 'no-cache, no-store, must-revalidate',
-            'Pragma': 'no-cache',
-            'Expires': '0'
-          }
-        })
-        
-        if (response.ok) {
-          const data = await response.json()
-          const tags = data.tags || []
-          console.log('✅ TagFilter: Načteno tagů:', tags.length)
-          setAvailableTags(tags)
-        } else {
-          console.warn('⚠️ TagFilter: Chyba při načítání tagů')
-        }
-      } catch (error) {
-        console.error('❌ TagFilter: Chyba při načítání tagů:', error)
-      }
-    }
-
-    fetchTags()
-  }, [propTags])
+  // PEVNÉ KATEGORIE - jako původně, žádné načítání z API!
+  const availableTags = propTags || [
+    'automation',
+    'Healthcare', 
+    'Website Builder',
+    'video-generation',
+    'E-commerce',
+    'video-editing',
+    'Accounting Software',
+    'AI & Video',
+    'Financial Technology',
+    'AI Website Builder',
+    'Robo-Advisor',
+    'Accounting Services',
+    'music',
+    'content creation'
+  ]
 
   const buttonClass = (tag: string) => `
     px-3 
