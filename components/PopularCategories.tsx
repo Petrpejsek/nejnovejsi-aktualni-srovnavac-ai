@@ -17,7 +17,7 @@ export default function PopularCategories({ tags, onCategorySelect }: PopularCat
 
     const loadTags = async () => {
       try {
-        const res = await fetch('/api/products?tagsOnly=true', {
+        const res = await fetch('/api/products?categoriesOnly=true', {
           cache: 'no-store'
         })
         if (!res.ok) throw new Error('Failed to load tags')

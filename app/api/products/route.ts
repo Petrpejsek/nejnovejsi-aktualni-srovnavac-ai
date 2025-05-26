@@ -63,6 +63,17 @@ export async function GET(request: NextRequest) {
     try {
       const { searchParams } = new URL(request.url)
       
+      // Return only unique categories if requested
+      const categoriesOnlyParam = searchParams.get('categoriesOnly');
+
+      if (categoriesOnlyParam === 'true') {
+        const rawCats = await prisma.product.findMany({ select: { category: true } });
+        const allCats = new Set<string>();
+        rawCats.forEach(p => { if (p.category && p.category.trim()) allCats.add(p.category.trim()); });
+        const uniqueCats = Array.from(allCats).sort();
+        return NextResponse.json({ categories: uniqueCats }, { status: 200 });
+      }
+      
       // Check if this is a request for tags only (optimized)
       const tagsOnlyParam = searchParams.get('tagsOnly');
       
