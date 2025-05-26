@@ -28,33 +28,9 @@ export async function generateRecommendations(userQuery: string, products: any[]
     const filteredProducts = products.filter(product => product.id !== '8b1ad8a1-5afb-40d4-b11d-48c33b606723');
     console.log(`generateRecommendations: Filtrováno ${products.length - filteredProducts.length} problematických produktů`);
 
-    // === Nově: Předfiltrujeme a omezíme množství produktů, aby se prompt nevešel do limitu tokenů ===
-    const normalizedQuery = userQuery.toLowerCase();
-
-    // Funkce pro hrubé posouzení relevance (název, kategorie, popis, tagy)
-    function isRoughlyRelevant(p: any) {
-      const haystack = (
-        (p.name || '') + ' ' +
-        (p.category || '') + ' ' +
-        (p.description || '') + ' ' +
-        (Array.isArray(p.tags) ? p.tags.join(' ') : '')
-      ).toLowerCase();
-      return normalizedQuery.split(/\s+/).some((word) => haystack.includes(word));
-    }
-
-    // Předběžně vyfiltrujeme produkty podle relevance
-    let prelimProducts = filteredProducts.filter(isRoughlyRelevant);
-    console.log(`generateRecommendations: Po předfiltru zůstává ${prelimProducts.length} produktů`);
-
-    // Pokud je jich příliš málo, fallback na celý seznam
-    if (prelimProducts.length < 5) {
-      prelimProducts = filteredProducts;
-    }
-
-    // Omezíme na maximálně 40 produktů (token safe)
-    const MAX_PRODUCTS = 40;
-    const limitedProducts = prelimProducts.slice(0, MAX_PRODUCTS);
-    console.log(`generateRecommendations: Posílám ${limitedProducts.length} produktů z max ${filteredProducts.length}`);
+    // Použijeme všech 196 produktů (bez omezování)
+    const limitedProducts = filteredProducts;
+    console.log(`generateRecommendations: Posílám všech ${limitedProducts.length} produktů do promptu`);
 
     // Zjednodušíme produkty pro API
     const simplifiedProducts = limitedProducts.map(product => ({

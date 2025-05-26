@@ -96,41 +96,7 @@ export async function POST(request: NextRequest) {
       }, { status: 500 });
     }
 
-    // === Pokud OpenAI nevrátí nic, použijeme jednoduchý fallback podle shody klíčových slov ===
-    if (recommendations.length === 0) {
-      console.warn('API /recommendations: OpenAI nevrátilo žádná doporučení – používám Fallback');
-
-      const queryWords = trimmedQuery.toLowerCase().split(/\s+/);
-
-      const scored = products.map((p:any)=>{
-        const hay = (
-          (p.name||'')+' '+(p.category||'')+' '+(p.description||'')+' '+(Array.isArray(p.tags)?p.tags.join(' '):'')
-        ).toLowerCase();
-        const hits = queryWords.reduce((acc, w)=> hay.includes(w)?acc+1:acc,0);
-        return {p,score:hits};
-      }).filter(o=>o.score>0).sort((a,b)=>b.score-a.score).slice(0,6);
-
-      recommendations = scored.map(o=>({
-        id:o.p.id,
-        matchPercentage: 85+Math.min(10,o.score*3),
-        recommendation:`${o.p.name} seems to match your need "${trimmedQuery}" because it is related to ${o.p.category || 'the topic'}.`,
-      }));
-      console.log(`API /recommendations: Fallback vrátil ${recommendations.length} doporučení`);
-    }
-
-    // === Pokud první pokus nic nenašel, zkusíme ještě jednou s prvních 80 produktů bez předfiltru (větší kontext) ===
-    if (recommendations.length === 0 && products.length > 40) {
-      console.log('API /recommendations: První pokus nic nenašel – zkouším znovu s 80 produkty');
-      try {
-        recommendations = await withTimeout(
-          generateRecommendations(trimmedQuery, products.slice(0,80)),
-          30000
-        );
-        console.log(`API /recommendations: Druhý pokus vrátil ${recommendations.length} doporučení`);
-      } catch(err2) {
-        console.error('API /recommendations: Druhý pokus selhal:', err2);
-      }
-    }
+    // Žádné fallbacky ani druhé pokusy – spoléháme na OpenAI a 196 produktů
 
     // Enrich recommendations with full product data
     console.log('API /recommendations: Obohacuji doporučení o kompletní data produktů');
