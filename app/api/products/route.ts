@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import prisma from '../../../lib/prisma'
+import prisma from '@/lib/prisma'
 import { NextRequest } from 'next/server'
 
 interface Product {
@@ -62,6 +62,40 @@ export const dynamic = 'auto'
 export async function GET(request: NextRequest) {
     try {
       const { searchParams } = new URL(request.url)
+      
+      // Check if this is a request for tags only (optimized)
+      const tagsOnlyParam = searchParams.get('tagsOnly');
+      
+      if (tagsOnlyParam === 'true') {
+        console.log('API: Loading tags only (optimized)...');
+        
+        // Load only tags field for all products - much faster
+        const rawProducts = await prisma.product.findMany({
+          select: {
+            tags: true
+          }
+        });
+        
+        // Extract all unique tags
+        const allTags = new Set<string>();
+        
+        rawProducts.forEach(product => {
+          const tags = safeJsonParse(product.tags, []);
+          if (Array.isArray(tags)) {
+            tags.forEach((tag: string) => {
+              if (tag && typeof tag === 'string' && tag.trim()) {
+                allTags.add(tag.trim());
+              }
+            });
+          }
+        });
+        
+        const uniqueTags = Array.from(allTags).sort();
+        
+        console.log(`API: Successfully extracted ${uniqueTags.length} unique tags from ${rawProducts.length} products`);
+        
+        return NextResponse.json({ tags: uniqueTags }, { status: 200 });
+      }
       
       // Check if this is a query for specific IDs
       const idsParam = searchParams.get('ids');

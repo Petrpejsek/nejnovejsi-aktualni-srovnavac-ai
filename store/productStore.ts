@@ -101,32 +101,68 @@ export const useProductStore = create<ProductStore>((set, get) => ({
     // Kontrola, zda už načítáme
     if (store.loading) return
 
-    // Přeskočíme cache pro debugging - vždy načteme fresh data
-    // if (
-    //   store.products.length > 0 &&
-    //   store.pagination.page === page &&
-    //   now - store.lastFetch < CACHE_DURATION
-    // ) {
-    //   return
-    // }
+    console.log('🔄 ProductStore: Načítám produkty a tagy...')
 
     try {
       set({ loading: true, error: null })
 
-      // Vytvoření URL s parametry
-      const url = new URL('/api/products', window.location.origin)
-      url.searchParams.set('page', page.toString())
-      url.searchParams.set('pageSize', '500') // Načteme všechny produkty
+      // OPTIMIZED: Load tags separately using fast endpoint
+      const tagsUrl = new URL('/api/products', window.location.origin)
+      tagsUrl.searchParams.set('tagsOnly', 'true')
+      tagsUrl.searchParams.set('_t', now.toString()) // Cache busting
 
-      const response = await fetch(url.toString())
-      if (!response.ok) {
-        throw new Error('Nepodařilo se načíst produkty')
+      console.log('🏷️ ProductStore: Načítám tagy (optimized):', tagsUrl.toString())
+
+      const tagsResponse = await fetch(tagsUrl.toString(), {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
+      })
+
+      let availableTags: string[] = []
+      
+      if (tagsResponse.ok) {
+        const tagsData = await tagsResponse.json()
+        availableTags = tagsData.tags || []
+        console.log('✅ ProductStore: Načteny tagy:', availableTags.length)
+      } else {
+        console.warn('⚠️ ProductStore: Chyba při načítání tagů')
       }
 
-      const data = await response.json()
+      // Load products for display (smaller page size)
+      const productsUrl = new URL('/api/products', window.location.origin)
+      productsUrl.searchParams.set('page', page.toString())
+      productsUrl.searchParams.set('pageSize', '50') // Smaller page size for better performance
+      productsUrl.searchParams.set('_t', now.toString())
 
-      // Zpracování produktů a tagů
-      const processedProducts = data.products.map((product: Product) => {
+      console.log('📦 ProductStore: Načítám produkty:', productsUrl.toString())
+
+      const productsResponse = await fetch(productsUrl.toString(), {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache', 
+          'Expires': '0'
+        }
+      })
+      
+      if (!productsResponse.ok) {
+        const errorText = await productsResponse.text()
+        console.error('❌ ProductStore: API chyba:', productsResponse.status, errorText)
+        throw new Error(`API chyba: ${productsResponse.status} - ${errorText}`)
+      }
+
+      const productsData = await productsResponse.json()
+      console.log('✅ ProductStore: Data z API:', {
+        produkty: productsData.products?.length || 0,
+        pagination: productsData.pagination
+      })
+
+      // Process products
+      const processedProducts = productsData.products.map((product: Product) => {
         const processedProduct = {
           ...product,
           tags: typeof product.tags === 'string' ? JSON.parse(product.tags) : product.tags || [],
@@ -142,20 +178,15 @@ export const useProductStore = create<ProductStore>((set, get) => ({
         return processedProduct
       })
 
-      // Extract and normalize all unique tags
-      const allTags = new Set<string>()
-      processedProducts.forEach((product: Product) => {
-        product.tags?.forEach((tag: string) => allTags.add(tag))
-      })
-
       set({
         products: page === 1 ? processedProducts : [...store.products, ...processedProducts],
-        pagination: data.pagination,
-        availableTags: Array.from(allTags).sort(),
+        pagination: productsData.pagination,
+        availableTags: availableTags,
         loading: false,
         lastFetch: now
       })
     } catch (error) {
+      console.error('❌ ProductStore: Chyba při načítání:', error)
       set({
         error: error instanceof Error ? error.message : 'Nastala chyba při načítání produktů',
         loading: false

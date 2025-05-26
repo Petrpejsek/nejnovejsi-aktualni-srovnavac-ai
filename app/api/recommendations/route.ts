@@ -1,13 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateRecommendations } from '@/lib/openai';
-import { PrismaClient } from '@prisma/client';
+import prisma from '@/lib/prisma';
 
 // Configure API as dynamic for Vercel
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
 export const revalidate = 0
-
-const prisma = new PrismaClient();
 
 // Timeout function
 function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
@@ -163,7 +161,5 @@ export async function POST(request: NextRequest) {
       processingTime: `${duration.toFixed(2)}s`,
       timestamp: new Date().toISOString()
     }, { status: 500 });
-  } finally {
-    await prisma.$disconnect();
   }
 } 

@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import TagFilter from '../../components/TagFilter'
 import CompareBar from '../../components/CompareBar'
+import { useProductStore } from '../../store/productStore'
 
 // Constants for enabling/disabling features 
 const COMPARE_FEATURE_ENABLED = false;
@@ -59,7 +60,7 @@ function RecommendationsPageContent() {
   const [products, setProducts] = useState<Product[]>([])
   const [recommendations, setRecommendations] = useState<Recommendation[]>([])
   const [loading, setLoading] = useState(true)
-  const [recommending, setRecommending] = useState(true)
+  const [recommending, setRecommending] = useState(false)
   const [hasLoadedRecs, setHasLoadedRecs] = useState(false)
   const [isLoadingRecs, setIsLoadingRecs] = useState(false)
   const [currentLoadingMessage, setCurrentLoadingMessage] = useState(0)
@@ -67,6 +68,18 @@ function RecommendationsPageContent() {
   const prevQueryRef = useRef<string | null>(null);
   const isLoadingRef = useRef(false);
   const abortControllerRef = useRef<AbortController | null>(null);
+  
+  // Initialize ProductStore for TagFilter tags
+  const { fetchProducts: initializeProductStore } = useProductStore()
+
+  // Initialize ProductStore tags for TagFilter component
+  useEffect(() => {
+    // Only initialize if we don't have a query (when TagFilter will be shown)
+    if (!query) {
+      console.log('🏷️ Initializing ProductStore for TagFilter...')
+      initializeProductStore(1)
+    }
+  }, [query, initializeProductStore])
 
   // Loading messages rotation
   const loadingMessages = [
@@ -201,7 +214,7 @@ function RecommendationsPageContent() {
       console.log('🔄 SETTING recommending to TRUE');
       
       try {
-        const response = await fetch('/api/assistant-recommendations', {
+        const response = await fetch('/api/recommendations', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ query })

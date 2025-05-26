@@ -15,7 +15,12 @@ const globalForPrisma = global as unknown as {
 const prisma = globalForPrisma.prisma ?? 
   new PrismaClient({
     log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
-  })
+    datasources: {
+      db: {
+        url: process.env.DATABASE_URL
+      }
+    }
+  } as any)
 
 if (process.env.NODE_ENV === 'production') {
   console.log('Prisma initialized in production mode')
