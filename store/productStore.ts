@@ -106,31 +106,9 @@ export const useProductStore = create<ProductStore>((set, get) => ({
     try {
       set({ loading: true, error: null })
 
-      // OPTIMIZED: Load tags separately using fast endpoint
-      const tagsUrl = new URL('/api/products', window.location.origin)
-      tagsUrl.searchParams.set('tagsOnly', 'true')
-      tagsUrl.searchParams.set('_t', now.toString()) // Cache busting
-
-      console.log('🏷️ ProductStore: Načítám tagy (optimized):', tagsUrl.toString())
-
-      const tagsResponse = await fetch(tagsUrl.toString(), {
-        cache: 'no-store',
-        headers: {
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0'
-        }
-      })
-
-      let availableTags: string[] = []
-      
-      if (tagsResponse.ok) {
-        const tagsData = await tagsResponse.json()
-        availableTags = tagsData.tags || []
-        console.log('✅ ProductStore: Načteny tagy:', availableTags.length)
-      } else {
-        console.warn('⚠️ ProductStore: Chyba při načítání tagů')
-      }
+      // TAGS LOADING COMPLETELY DISABLED - using static tags only
+      console.log('🚫 ProductStore: Načítání tagů z API je VYPNUTO')
+      let availableTags: string[] = [] // Empty array - no API calls
 
       // Load products for display (smaller page size)
       const productsUrl = new URL('/api/products', window.location.origin)
