@@ -417,7 +417,7 @@ function RecommendationsPageContent() {
       )}
 
       {/* TagFilter - show only if we don't have recommendations */}
-      {recommendations.length === 0 && !recommending && (
+      {(!query || query.length===0) && recommendations.length === 0 && !recommending && (
         <div className="mb-8">
           <TagFilter selectedTags={selectedTags} onTagsChange={setSelectedTags} />
         </div>
