@@ -22,8 +22,8 @@ export default function PopularCategories({ tags, onCategorySelect }: PopularCat
         })
         if (!res.ok) throw new Error('Failed to load tags')
         const data = await res.json()
-        if (Array.isArray(data.tags)) {
-          setFetchedTags(data.tags)
+        if (Array.isArray(data.categories)) {
+          setFetchedTags(data.categories)
         }
       } catch (err) {
         console.warn('PopularCategories: error loading tags', err)
