@@ -118,6 +118,20 @@ export async function POST(request: NextRequest) {
       console.log(`API /recommendations: Fallback vrátil ${recommendations.length} doporučení`);
     }
 
+    // === Pokud první pokus nic nenašel, zkusíme ještě jednou s prvních 80 produktů bez předfiltru (větší kontext) ===
+    if (recommendations.length === 0 && products.length > 40) {
+      console.log('API /recommendations: První pokus nic nenašel – zkouším znovu s 80 produkty');
+      try {
+        recommendations = await withTimeout(
+          generateRecommendations(trimmedQuery, products.slice(0,80)),
+          30000
+        );
+        console.log(`API /recommendations: Druhý pokus vrátil ${recommendations.length} doporučení`);
+      } catch(err2) {
+        console.error('API /recommendations: Druhý pokus selhal:', err2);
+      }
+    }
+
     // Enrich recommendations with full product data
     console.log('API /recommendations: Obohacuji doporučení o kompletní data produktů');
     const enrichedRecommendations = await Promise.all(
