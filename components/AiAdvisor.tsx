@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Typed from 'typed.js'
+import PopularCategories from './PopularCategories'
 
 export default function AiAdvisor() {
   const [query, setQuery] = useState('')
@@ -206,7 +207,14 @@ export default function AiAdvisor() {
           </div>
         )}
 
-        {/* Quick suggestions disabled - removed PopularCategories */}
+        {/* Quick suggestions */}
+        {!loading && (
+          <PopularCategories
+            onCategorySelect={(category) => {
+              router.push(`/category/${encodeURIComponent(category)}`)
+            }}
+          />
+        )}
       </form>
     </div>
   )
