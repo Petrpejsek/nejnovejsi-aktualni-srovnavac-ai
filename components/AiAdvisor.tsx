@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Typed from 'typed.js'
-import PopularCategories from './PopularCategories'
 
 export default function AiAdvisor() {
   const [query, setQuery] = useState('')
@@ -112,8 +111,6 @@ export default function AiAdvisor() {
     }
   }
 
-
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
@@ -209,15 +206,7 @@ export default function AiAdvisor() {
           </div>
         )}
 
-        {/* Quick suggestions - tags with Show More functionality */}
-        {!loading && (
-          <PopularCategories 
-            onCategorySelect={(category) => {
-              // Redirect to category page instead of AI search
-              router.push(`/category/${encodeURIComponent(category)}`)
-            }}
-          />
-        )}
+        {/* Quick suggestions disabled - removed PopularCategories */}
       </form>
     </div>
   )
