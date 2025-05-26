@@ -6,7 +6,6 @@ import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import TagFilter from '../../components/TagFilter'
 import CompareBar from '../../components/CompareBar'
-import { useProductStore } from '../../store/productStore'
 
 // Constants for enabling/disabling features 
 const COMPARE_FEATURE_ENABLED = false;
@@ -69,17 +68,7 @@ function RecommendationsPageContent() {
   const isLoadingRef = useRef(false);
   const abortControllerRef = useRef<AbortController | null>(null);
   
-  // Initialize ProductStore for TagFilter tags
-  const { fetchProducts: initializeProductStore } = useProductStore()
-
-  // Initialize ProductStore tags for TagFilter component
-  useEffect(() => {
-    // Only initialize if we don't have a query (when TagFilter will be shown)
-    if (!query) {
-      console.log('🏷️ Initializing ProductStore for TagFilter...')
-      initializeProductStore(1)
-    }
-  }, [query, initializeProductStore])
+  // TagFilter now loads its own tags optimally, no need for ProductStore initialization
 
   // Loading messages rotation
   const loadingMessages = [
