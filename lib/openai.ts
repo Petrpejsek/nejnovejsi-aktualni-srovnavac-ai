@@ -81,7 +81,7 @@ export async function generateRecommendations(userQuery: string, products: any[]
     - Doporučuj VÝHRADNĚ nástroje, které mají PŘÍMOU souvislost s dotazem (např. "email marketing" = nástroje pro email marketing)
     - NIKDY nedoporučuj nástroje, které nesouvisí s dotazem, i když jsou populární
     - Je LEPŠÍ vrátit MÉNĚ relevantních nástrojů nebo ŽÁDNÝ, než doporučit nástroj, který neodpovídá dotazu
-    - Každý doporučený nástroj MUSÍ být z kategorie, která PŘESNĚ odpovídá dotazu uživatele
+    - Každý doporučený nástroj MUSÍ být JASNĚ relevantní dotazu (může vycházet z kategorie, tagů nebo popisu)
 
     Pro každý relevantní nástroj urči procentuální shodu (mezi 82-99%) a vytvoř personalizované doporučení ve 2-3 větách, vysvětlující, proč by tento nástroj mohl být vhodný.
 
