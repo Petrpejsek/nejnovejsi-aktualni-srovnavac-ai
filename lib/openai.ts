@@ -36,10 +36,7 @@ export async function generateRecommendations(userQuery: string, products: any[]
     const simplifiedProducts = limitedProducts.map(product => ({
       id: product.id,
       name: product.name,
-      description: product.description,
-      category: product.category,
-      tags: Array.isArray(product.tags) ? product.tags : [],
-      advantages: Array.isArray(product.advantages) ? product.advantages : []
+      category: product.category
     }));
 
     // Vytvoříme seznam reálných ID pro validaci
@@ -68,7 +65,7 @@ export async function generateRecommendations(userQuery: string, products: any[]
     - Vždy vysvětli, PROČ je nástroj vhodný pro konkrétní požadavek uživatele
 
     SEZNAM DOSTUPNÝCH NÁSTROJŮ S JEJICH SKUTEČNÝMI ID:
-    ${simplifiedProducts.map(p => `ID: ${p.id} | Název: ${p.name} | Kategorie: ${p.category} | Popis: ${p.description?.substring(0, 100)}...`).join('\n')}
+    ${simplifiedProducts.map(p => `ID: ${p.id} | Název: ${p.name} | Kategorie: ${p.category || 'N/A'}`).join('\n')}
 
     Formát odpovědi (POUZE JSON):
     {
