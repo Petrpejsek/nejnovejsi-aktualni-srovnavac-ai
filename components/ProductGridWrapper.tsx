@@ -9,7 +9,26 @@ export default function ProductGridWrapper() {
 
   return (
     <>
-      <TagFilter selectedTags={selectedTags} onTagsChange={setSelectedTags} />
+      <TagFilter 
+        tags={[
+          'automation',
+          'Healthcare', 
+          'Website Builder',
+          'video-generation',
+          'E-commerce',
+          'video-editing',
+          'Accounting Software',
+          'AI & Video',
+          'Financial Technology',
+          'AI Website Builder',
+          'Robo-Advisor',
+          'Accounting Services',
+          'music',
+          'content creation'
+        ]}
+        selectedTags={selectedTags} 
+        onTagsChange={setSelectedTags} 
+      />
       <ProductGrid selectedTags={selectedTags} />
     </>
   )
