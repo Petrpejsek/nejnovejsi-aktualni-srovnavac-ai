@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useState } from 'react'
-import { useProductStore } from '../store/productStore'
 
 interface TagFilterProps {
   tags?: string[];
@@ -11,11 +10,11 @@ interface TagFilterProps {
 
 export default function TagFilter({ tags: propTags, selectedTags: propSelectedTags, onTagsChange: propOnTagsChange }: TagFilterProps = {}) {
   const [showAllTags, setShowAllTags] = useState(false)
-  const storeValues = useProductStore()
+  const [localSelectedTags, setLocalSelectedTags] = useState<Set<string>>(new Set())
   
-  // Použijeme buď props nebo hodnoty ze store
-  const selectedTags = propSelectedTags !== undefined ? propSelectedTags : storeValues.selectedTags
-  const setSelectedTags = propOnTagsChange || storeValues.setSelectedTags
+  // Použijeme pouze props nebo lokální state - ŽÁDNÝ STORE!
+  const selectedTags = propSelectedTags !== undefined ? propSelectedTags : localSelectedTags
+  const setSelectedTags = propOnTagsChange || setLocalSelectedTags
 
   const toggleTag = (tag: string) => {
     const newTags = new Set(selectedTags)
