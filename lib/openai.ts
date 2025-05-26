@@ -54,46 +54,39 @@ export async function generateRecommendations(userQuery: string, products: any[]
     Analyzuj tento požadavek a porovnej jej s následujícími AI nástroji. Identifikuj POUZE nástroje, které PŘÍMO souvisejí s dotazem uživatele.
 
     KRITICKY DŮLEŽITÁ PRAVIDLA RELEVANCE:
-    - Doporučuj VÝHRADNĚ nástroje, které mají PŘÍMOU souvislost s dotazem (např. "mailing and ads" = nástroje pro email marketing a reklamy)
+    - Doporučuj VÝHRADNĚ nástroje, které mají PŘÍMOU souvislost s dotazem (např. "email marketing" = nástroje pro email marketing)
     - NIKDY nedoporučuj nástroje, které nesouvisí s dotazem, i když jsou populární
     - Je LEPŠÍ vrátit MÉNĚ relevantních nástrojů nebo ŽÁDNÝ, než doporučit nástroj, který neodpovídá dotazu
     - Každý doporučený nástroj MUSÍ být z kategorie, která PŘESNĚ odpovídá dotazu uživatele
 
     Pro každý relevantní nástroj urči procentuální shodu (mezi 82-99%) a vytvoř personalizované doporučení ve 2-3 větách, vysvětlující, proč by tento nástroj mohl být vhodný.
 
-    KRITICKY DŮLEŽITÉ PRAVIDLA:
-    - Pracuj POUZE s nástroji ze seznamu níže. NIKDY nevymýšlej vlastní nástroje s ID jako "tool-1", "tool-2" apod.
-    - ID produktu MUSÍ být přesně to, které je uvedené v seznamu - např. "${simplifiedProducts[0]?.id || 'example-id'}"
-    - VŠECHNA doporučení MUSÍ být v ANGLIČTINĚ.
-    - Doporučení by měla být personalizovaná na základě dotazu uživatele.
-    - Doporučení by měla být objektivní a založená na funkcích nástroje.
-    - Vždy vysvětli, PROČ je nástroj vhodný pro konkrétní požadavek uživatele.
-    - Vrať seznam doporučení seřazený podle procentuální shody (od nejvyšší po nejnižší).
-    - Vrať přesně ve formátu JSON, jak je uvedeno níže.
-    - Pracuj VÝHRADNĚ s těmito nástroji a jejich ID:
+    KRITICKY DŮLEŽITÉ PRAVIDLA PRO ID:
+    - Pracuj POUZE s nástroji ze seznamu níže
+    - ID produktu MUSÍ být přesně to, které je uvedené v seznamu - NIKDY nevymýšlej vlastní ID
+    - VŠECHNA doporučení MUSÍ být v ANGLIČTINĚ
+    - Vždy vysvětli, PROČ je nástroj vhodný pro konkrétní požadavek uživatele
 
-    ${simplifiedProducts.map(p => `${p.name} (${p.category})`).join('\n')}
+    SEZNAM DOSTUPNÝCH NÁSTROJŮ S JEJICH SKUTEČNÝMI ID:
+    ${simplifiedProducts.map(p => `ID: ${p.id} | Název: ${p.name} | Kategorie: ${p.category} | Popis: ${p.description?.substring(0, 100)}...`).join('\n')}
 
-    Formát doporučení:
+    Formát odpovědi (POUZE JSON):
     {
       "recommendations": [
         {
-          "id": "a8196ba8-6c89-4259-aca0-fbab388b201c",
-          "matchPercentage": 97,
-          "recommendation": "Personalized recommendation in the same language as the input query."
-        },
-        {
-          "id": "b7d45e2c-f138-42e1-9a91-2d78af8ed323",
-          "matchPercentage": 94,
-          "recommendation": "Another personalized recommendation."
+          "id": "POUŽIJ PŘESNĚ ID ZE SEZNAMU VÝŠE",
+          "matchPercentage": 95,
+          "recommendation": "Personalized recommendation in English explaining why this tool fits the user's needs."
         }
       ]
     }
 
-    PAMATUJ: Je LEPŠÍ nedoporučit ŽÁDNÝ nástroj, než doporučit něco, co není relevantní pro dotaz "${userQuery}".
+    PAMATUJ: Můžeš doporučit POUZE nástroje s ID, která jsou ve výše uvedeném seznamu. NIKDY nevymýšlej ID!
     `;
 
     console.log('generateRecommendations: Volám OpenAI API...');
+    console.log('Počet produktů v promptu:', simplifiedProducts.length);
+    console.log('Ukázka produktů v promptu:', simplifiedProducts.slice(0, 3).map(p => `${p.name} (${p.id})`));
     
     try {
       // Voláme OpenAI API
