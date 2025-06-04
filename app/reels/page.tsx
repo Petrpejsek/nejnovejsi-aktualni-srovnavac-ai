@@ -268,7 +268,7 @@ export default function ReelsPage() {
 
       {/* Reels Grid */}
       <div className="container mx-auto px-4 py-8">
-        <div className="flex flex-wrap gap-1">
+        <div className="flex flex-wrap gap-4 md:gap-6">
           {filteredReels.map((reel) => (
             <div
               key={reel.id}
