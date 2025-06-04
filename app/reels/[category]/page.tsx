@@ -2,11 +2,12 @@
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { PlayIcon, PauseIcon, FunnelIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline'
-import { HeartIcon, ShareIcon, BookmarkIcon, FireIcon } from '@heroicons/react/24/outline'
+import { useParams } from 'next/navigation'
+import { PlayIcon, PauseIcon, ArrowLeftIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline'
+import { HeartIcon, ShareIcon, FireIcon } from '@heroicons/react/24/outline'
 import { HeartIcon as HeartFilledIcon } from '@heroicons/react/24/solid'
 
-// Extended mockdata pro reels s kategoriemi
+// Reuse same data as main page
 const allReels = [
   {
     id: 1,
@@ -122,15 +123,23 @@ const allReels = [
   }
 ]
 
-const categories = [
-  { name: 'All', count: allReels.length },
-  { name: 'Content Creation', count: allReels.filter(r => r.category === 'Content Creation').length },
-  { name: 'Design', count: allReels.filter(r => r.category === 'Design').length },
-  { name: 'Business', count: allReels.filter(r => r.category === 'Business').length },
-  { name: 'Marketing', count: allReels.filter(r => r.category === 'Marketing').length },
-  { name: 'Automation', count: allReels.filter(r => r.category === 'Automation').length },
-  { name: 'Analytics', count: allReels.filter(r => r.category === 'Analytics').length }
-]
+const categoryDescriptions: Record<string, string> = {
+  'content-creation': 'Master AI tools for writing, content generation, and creative production',
+  'design': 'Explore AI-powered design tools for art, graphics, and visual content',
+  'business': 'Discover how AI can transform your business operations and growth strategies',
+  'marketing': 'Learn cutting-edge AI marketing tools and techniques for better results',
+  'automation': 'Streamline your workflow with powerful AI automation solutions',
+  'analytics': 'Harness AI for data analysis, insights, and predictive modeling'
+}
+
+const categoryNames: Record<string, string> = {
+  'content-creation': 'Content Creation',
+  'design': 'Design & Art',
+  'business': 'Business',
+  'marketing': 'Marketing',
+  'automation': 'Automation',
+  'analytics': 'Analytics'
+}
 
 interface Reel {
   id: number
@@ -147,22 +156,29 @@ interface Reel {
   trending: boolean
 }
 
-export default function ReelsPage() {
-  const [reels, setReels] = useState<Reel[]>(allReels)
-  const [filteredReels, setFilteredReels] = useState<Reel[]>(allReels)
-  const [selectedCategory, setSelectedCategory] = useState('All')
+export default function CategoryReelsPage() {
+  const params = useParams()
+  const categorySlug = params.category as string
+  const categoryName = categoryNames[categorySlug] || 'Unknown Category'
+  const categoryDescription = categoryDescriptions[categorySlug] || ''
+
+  const [reels, setReels] = useState<Reel[]>([])
+  const [filteredReels, setFilteredReels] = useState<Reel[]>([])
   const [searchQuery, setSearchQuery] = useState('')
   const [playingId, setPlayingId] = useState<number | null>(null)
   const [showTrendingOnly, setShowTrendingOnly] = useState(false)
 
-  // Filter reels based on category, search and trending
+  // Filter reels for this category
+  useEffect(() => {
+    const categoryReels = allReels.filter(reel => 
+      reel.category.toLowerCase().replace(/ & | /g, '-') === categorySlug
+    )
+    setReels(categoryReels)
+  }, [categorySlug])
+
+  // Apply search and trending filters
   useEffect(() => {
     let filtered = reels
-
-    // Category filter
-    if (selectedCategory !== 'All') {
-      filtered = filtered.filter(reel => reel.category === selectedCategory)
-    }
 
     // Search filter
     if (searchQuery) {
@@ -179,7 +195,7 @@ export default function ReelsPage() {
     }
 
     setFilteredReels(filtered)
-  }, [selectedCategory, searchQuery, showTrendingOnly, reels])
+  }, [searchQuery, showTrendingOnly, reels])
 
   const handleLike = (id: number) => {
     setReels(reels.map(reel => 
@@ -205,48 +221,45 @@ export default function ReelsPage() {
       {/* Header */}
       <div className="bg-white border-b border-gray-200">
         <div className="container mx-auto px-4 py-8">
+          {/* Breadcrumb */}
+          <div className="mb-6">
+            <Link 
+              href="/reels"
+              className="inline-flex items-center text-purple-600 hover:text-purple-700 font-medium"
+            >
+              <ArrowLeftIcon className="w-4 h-4 mr-2" />
+              Back to All Reels
+            </Link>
+          </div>
+
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              AI Reels <span className="text-gradient-primary">Discovery</span>
+              {categoryName} <span className="text-gradient-primary">Reels</span>
             </h1>
-            <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-              Learn AI tools through engaging short videos. Discover, learn, and master AI in bite-sized content.
+            <p className="text-gray-600 text-lg max-w-2xl mx-auto mb-6">
+              {categoryDescription}
             </p>
+            <div className="text-sm text-gray-500">
+              {filteredReels.length} reels in this category
+            </div>
           </div>
 
           {/* Search and Filters */}
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-2xl mx-auto">
             {/* Search Bar */}
             <div className="relative mb-6">
               <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
               <input
                 type="text"
-                placeholder="Search reels, tools, or topics..."
+                placeholder={`Search ${categoryName.toLowerCase()} reels...`}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
               />
             </div>
 
-            {/* Category Filters */}
-            <div className="flex flex-wrap gap-2 mb-4">
-              {categories.map((category) => (
-                <button
-                  key={category.name}
-                  onClick={() => setSelectedCategory(category.name)}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
-                    selectedCategory === category.name
-                      ? 'bg-purple-600 text-white'
-                      : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'
-                  }`}
-                >
-                  {category.name} ({category.count})
-                </button>
-              ))}
-            </div>
-
             {/* Trending Toggle */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center justify-center gap-4">
               <button
                 onClick={() => setShowTrendingOnly(!showTrendingOnly)}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
@@ -258,9 +271,6 @@ export default function ReelsPage() {
                 <FireIcon className="w-4 h-4" />
                 Trending Only
               </button>
-              <span className="text-sm text-gray-500">
-                {filteredReels.length} reels found
-              </span>
             </div>
           </div>
         </div>
@@ -360,7 +370,7 @@ export default function ReelsPage() {
 
               {/* Tags - below card */}
               <div className="flex flex-wrap gap-1 mt-2">
-                {reel.tags.slice(0, 2).map((tag, index) => (
+                {reel.tags.slice(0, 3).map((tag, index) => (
                   <span
                     key={index}
                     className="px-2 py-1 bg-gray-200 text-gray-700 text-xs rounded-full"
@@ -377,41 +387,61 @@ export default function ReelsPage() {
         {filteredReels.length === 0 && (
           <div className="text-center py-16">
             <div className="text-gray-400 mb-4">
-              <FunnelIcon className="w-16 h-16 mx-auto" />
+              <PlayIcon className="w-16 h-16 mx-auto" />
             </div>
             <h3 className="text-xl font-semibold text-gray-900 mb-2">No reels found</h3>
             <p className="text-gray-600 mb-4">
-              Try adjusting your search or filters to find more content.
+              {searchQuery || showTrendingOnly 
+                ? "Try adjusting your search or filters to find more content."
+                : `No reels available in the ${categoryName} category yet.`
+              }
             </p>
-            <button
-              onClick={() => {
-                setSearchQuery('')
-                setSelectedCategory('All')
-                setShowTrendingOnly(false)
-              }}
-              className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
-            >
-              Clear Filters
-            </button>
+            <div className="flex gap-4 justify-center">
+              {(searchQuery || showTrendingOnly) && (
+                <button
+                  onClick={() => {
+                    setSearchQuery('')
+                    setShowTrendingOnly(false)
+                  }}
+                  className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                >
+                  Clear Filters
+                </button>
+              )}
+              <Link
+                href="/reels"
+                className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+              >
+                Browse All Categories
+              </Link>
+            </div>
           </div>
         )}
       </div>
 
-      {/* CTA Section */}
-      <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white py-16">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-4">Create Your Own AI Reels</h2>
-          <p className="text-lg mb-8 max-w-2xl mx-auto">
-            Share your AI knowledge with the community. Create engaging reels and help others discover amazing AI tools.
-          </p>
-          <Link 
-            href="/create-reel"
-            className="inline-flex items-center px-8 py-3 bg-white text-purple-600 font-semibold rounded-full hover:bg-gray-100 transition-all duration-200 hover:scale-105"
-          >
-            Start Creating
-          </Link>
+      {/* Related Categories */}
+      {filteredReels.length > 0 && (
+        <div className="bg-white border-t border-gray-200 py-12">
+          <div className="container mx-auto px-4">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
+              Explore Other Categories
+            </h2>
+            <div className="flex flex-wrap justify-center gap-3">
+              {Object.entries(categoryNames)
+                .filter(([slug]) => slug !== categorySlug)
+                .map(([slug, name]) => (
+                <Link
+                  key={slug}
+                  href={`/reels/${slug}`}
+                  className="px-4 py-2 bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition-colors font-medium"
+                >
+                  {name}
+                </Link>
+              ))}
+            </div>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 } 
