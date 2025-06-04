@@ -1,0 +1,566 @@
+{
+  "name": "AI Product Scraper & Database Importer",
+  "version": 1,
+  "nodes": [
+    {
+      "parameters": {
+        "content": "# 🚀 AI PRODUCT SCRAPER WORKFLOW\n\nTento workflow automaticky:\n1. Vygeneruje seznam AI firem pomocí AI\n2. Scrapuje jejich weby\n3. Extrahuje informace o AI produktech/službách\n4. Kontroluje duplikace\n5. Ukládá do PostgreSQL databáze\n\n## Spuštění:\n- Manuálně pro test\n- Automaticky každý týden\n- Dávkově po 10-20 webech\n\n## Výstup:\n2500-3000 nových AI produktů v databázi",
+        "height": 300,
+        "width": 600
+      },
+      "id": "notes-1",
+      "name": "📝 Workflow Documentation",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [240, 140],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 2,
+              "triggerAtMinute": 0,
+              "weekday": 1
+            }
+          ]
+        }
+      },
+      "id": "trigger-1",
+      "name": "⏰ Weekly Trigger",
+      "type": "n8n-nodes-base.cron",
+      "position": [460, 340],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {},
+      "id": "manual-trigger",
+      "name": "🔄 Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [460, 440],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o-mini",
+        "messages": {
+          "messageValues": [
+            {
+              "role": "system",
+              "content": "You are an expert AI assistant that finds AI-powered business websites with AI products and services. Generate a comprehensive list of companies that offer ARTIFICIAL INTELLIGENCE products, tools, or services across various AI categories including:\n\n- AI Content Creation (text, video, audio, images)\n- AI Marketing & E-commerce (personalization, recommendations, automation)\n- AI Healthcare & Medical (diagnostics, analysis, patient care)\n- AI Financial Technology (fraud detection, automated accounting, investment)\n- AI Automation & Workflow (process automation, chatbots, task management)\n- AI Analytics & Business Intelligence (data analysis, insights, predictions)\n- AI Developer Tools & Platforms (machine learning APIs, AI infrastructure)\n- AI Communication & Collaboration (translation, voice AI, meeting assistants)\n- AI Productivity Tools (writing assistants, code generation, scheduling)\n- AI Security & Fraud Detection (cybersecurity, identity verification)\n- AI Visual & Search Technology (image recognition, visual search, computer vision)\n- AI Voice & Audio Processing (speech recognition, audio editing, synthesis)\n- AI Document Processing (OCR, document intelligence, automation)\n- AI Customer Service (chatbots, virtual assistants, support automation)\n- AI Design & Creative Tools (graphic design, UI/UX, creative automation)\n\nFor each AI company, provide:\n1. Company name\n2. Website URL (homepage)\n3. AI category/focus\n4. Expected product page URL patterns\n\nGenerate exactly 50 AI companies per request. Focus on legitimate, active businesses with clear AI product offerings. Include both established AI companies and emerging startups."
+            },
+            {
+              "role": "user", 
+              "content": "Generate a list of 50 companies with their websites that offer AI-powered products, tools, or services. Include a mix of well-known AI companies and lesser-known AI startups across different AI categories. Return the data in this exact JSON format:\n\n[\n  {\n    \"name\": \"Company Name\",\n    \"website\": \"https://example.com\",\n    \"category\": \"AI Content Creation\",\n    \"productPagePattern\": \"/products OR /solutions OR /services OR /ai OR /platform\"\n  }\n]"
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0.7,
+          "maxTokens": 4000
+        }
+      },
+      "id": "ai-company-generator",
+      "name": "🤖 AI Company Website Generator",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [680, 390],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "companiesData",
+              "value": "={{ $json.choices[0].message.content }}"
+            }
+          ]
+        }
+      },
+      "id": "extract-companies",
+      "name": "📋 Extract Companies List", 
+      "type": "n8n-nodes-base.set",
+      "position": [900, 390],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse JSON from AI response and create individual items\nconst companiesJson = $input.first().json.companiesData;\n\ntry {\n  // Clean the JSON string (remove markdown code blocks if present)\n  let cleanJson = companiesJson.replace(/```json\\s*|```/g, '').trim();\n  \n  // Parse the JSON\n  const companies = JSON.parse(cleanJson);\n  \n  // Validate and return array of company objects\n  if (Array.isArray(companies)) {\n    return companies.map((company, index) => {\n      return {\n        json: {\n          companyIndex: index + 1,\n          name: company.name || 'Unknown Company',\n          website: company.website || '',\n          category: company.category || 'Other',\n          productPagePattern: company.productPagePattern || '/products',\n          status: 'pending',\n          timestamp: new Date().toISOString()\n        }\n      };\n    });\n  } else {\n    throw new Error('Invalid companies data format');\n  }\n} catch (error) {\n  console.error('Error parsing companies JSON:', error);\n  return [{\n    json: {\n      error: `Failed to parse companies: ${error.message}`,\n      originalData: companiesJson\n    }\n  }];\n}"
+      },
+      "id": "parse-companies",
+      "name": "🔄 Parse Companies JSON",
+      "type": "n8n-nodes-base.code",
+      "position": [1120, 390],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.website }}",
+        "options": {
+          "timeout": 30000,
+          "followRedirect": true,
+          "allowInsecureConnect": false
+        }
+      },
+      "id": "fetch-website",
+      "name": "🌐 Fetch Company Website",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [1340, 390],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o-mini",
+        "messages": {
+          "messageValues": [
+            {
+              "role": "system",
+              "content": "You are an expert web scraper and AI product data extractor. Analyze the provided website HTML and extract detailed information about AI-powered products, tools, or services.\n\nFor each AI product or service found, extract:\n- Product name\n- Description (comprehensive, keep in original language - usually English)\n- AI category\n- Pricing information \n- Key features/advantages\n- Disadvantages (if apparent)\n- Trial availability\n- Target URL for more info\n- Company logo/product image URL\n\nIMPORTANT RULES:\n1. Focus ONLY on AI-powered products/services/tools, not blog posts or news\n2. Extract 1-3 primary AI products maximum per website\n3. Keep descriptions in ENGLISH - DO NOT translate to other languages\n4. Be comprehensive but accurate about AI capabilities\n5. If no clear AI products found, return empty array\n6. Look for keywords: AI, ML, Machine Learning, Artificial Intelligence, Neural Networks, Deep Learning, NLP, Computer Vision, etc.\n\nReturn data in this exact JSON format:\n[\n  {\n    \"name\": \"Product Name\",\n    \"description\": \"Detailed description of the AI product/service in English\",\n    \"category\": \"AI Category Name\", \n    \"price\": 0,\n    \"advantages\": [\"advantage 1\", \"advantage 2\"],\n    \"disadvantages\": [\"disadvantage 1\"],\n    \"hasTrial\": true,\n    \"externalUrl\": \"https://product-url.com\",\n    \"imageUrl\": \"https://logo-url.com\",\n    \"tags\": [\"AI\", \"machine learning\", \"tag3\"],\n    \"detailInfo\": \"Additional detailed information about AI capabilities\",\n    \"pricingInfo\": {\n      \"type\": \"subscription\",\n      \"plans\": [\"free\", \"pro\", \"enterprise\"]\n    }\n  }\n]"
+            },
+            {
+              "role": "user",
+              "content": "Company: {{ $json.name }}\\nWebsite: {{ $json.website }}\\nAI Category: {{ $json.category }}\\n\\nAnalyze this AI company website HTML and extract AI product information. Keep all text in English (do not translate):\\n\\n{{ $json.data.substring(0, 8000) }}"
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0.3,
+          "maxTokens": 3000
+        }
+      },
+      "id": "ai-product-extractor", 
+      "name": "🧠 AI Product Information Extractor",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [1560, 390],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse extracted products and prepare for database\nconst aiResponse = $input.first().json.choices[0].message.content;\nconst originalCompany = $input.first().json;\n\ntry {\n  // Clean and parse JSON response\n  let cleanJson = aiResponse.replace(/```json\\s*|```/g, '').trim();\n  const products = JSON.parse(cleanJson);\n  \n  if (!Array.isArray(products) || products.length === 0) {\n    return [{\n      json: {\n        skipped: true,\n        reason: 'No products found',\n        company: originalCompany.name,\n        website: originalCompany.website\n      }\n    }];\n  }\n  \n  // Process each product\n  return products.map((product, index) => {\n    return {\n      json: {\n        // Core product data for database\n        name: product.name || 'Unknown Product',\n        description: product.description || '',\n        price: typeof product.price === 'number' ? product.price : 0,\n        category: product.category || originalCompany.category,\n        imageUrl: product.imageUrl || '',\n        externalUrl: product.externalUrl || originalCompany.website,\n        hasTrial: Boolean(product.hasTrial),\n        detailInfo: product.detailInfo || '',\n        \n        // JSON fields - properly formatted\n        tags: JSON.stringify(product.tags || []),\n        advantages: JSON.stringify(product.advantages || []),\n        disadvantages: JSON.stringify(product.disadvantages || []),\n        pricingInfo: JSON.stringify(product.pricingInfo || {}),\n        videoUrls: JSON.stringify([]),\n        \n        // Metadata\n        sourceCompany: originalCompany.name,\n        sourceWebsite: originalCompany.website,\n        extractedAt: new Date().toISOString(),\n        productIndex: index + 1\n      }\n    };\n  });\n  \n} catch (error) {\n  console.error('Error processing products:', error);\n  return [{\n    json: {\n      error: `Failed to process products: ${error.message}`,\n      company: originalCompany.name,\n      website: originalCompany.website,\n      aiResponse: aiResponse.substring(0, 500)\n    }\n  }];\n}"
+      },
+      "id": "process-products",
+      "name": "⚙️ Process Extracted Products",
+      "type": "n8n-nodes-base.code", 
+      "position": [1780, 390],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.skipped }}",
+              "operation": "notExists"
+            },
+            {
+              "value1": "={{ $json.error }}",
+              "operation": "notExists"
+            }
+          ]
+        }
+      },
+      "id": "filter-valid-products",
+      "name": "✅ Filter Valid Products",
+      "type": "n8n-nodes-base.if",
+      "position": [2000, 390],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "http://localhost:3000/api/products",
+        "qs": {
+          "page": "1",
+          "pageSize": "1000"
+        },
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "check-existing-products",
+      "name": "🔍 Check Existing Products",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [2220, 300],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "jsCode": "// Check for duplicate products in database\nconst newProduct = $input.first().json;\nconst existingProductsResponse = $input.last().json;\n\n// Get existing products array\nconst existingProducts = existingProductsResponse.products || [];\n\n// Check for duplicates by name (case insensitive)\nconst productExists = existingProducts.some(existing => \n  existing.name.toLowerCase().trim() === newProduct.name.toLowerCase().trim()\n);\n\nif (productExists) {\n  return [{\n    json: {\n      isDuplicate: true,\n      productName: newProduct.name,\n      reason: 'Product with same name already exists',\n      skipped: true\n    }\n  }];\n} else {\n  return [{\n    json: {\n      ...newProduct,\n      isDuplicate: false,\n      readyForInsert: true\n    }\n  }];\n}"
+      },
+      "id": "check-duplicates",
+      "name": "🚫 Check for Duplicates",
+      "type": "n8n-nodes-base.code",
+      "position": [2440, 390],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.isDuplicate }}",
+              "value2": false
+            }
+          ]
+        }
+      },
+      "id": "filter-non-duplicates",
+      "name": "✨ Filter Non-Duplicates",
+      "type": "n8n-nodes-base.if",
+      "position": [2660, 390],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:3000/api/products",
+        "body": {
+          "name": "={{ $json.name }}",
+          "description": "={{ $json.description }}",
+          "price": "={{ $json.price }}",
+          "category": "={{ $json.category }}",
+          "imageUrl": "={{ $json.imageUrl }}",
+          "externalUrl": "={{ $json.externalUrl }}",
+          "hasTrial": "={{ $json.hasTrial }}",
+          "detailInfo": "={{ $json.detailInfo }}",
+          "tags": "={{ $json.tags }}",
+          "advantages": "={{ $json.advantages }}",
+          "disadvantages": "={{ $json.disadvantages }}",
+          "pricingInfo": "={{ $json.pricingInfo }}",
+          "videoUrls": "={{ $json.videoUrls }}"
+        },
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "insert-product",
+      "name": "💾 Insert Product to Database",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [2880, 300],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "result",
+              "value": "success"
+            },
+            {
+              "name": "productName",
+              "value": "={{ $json.name }}"
+            },
+            {
+              "name": "productId",
+              "value": "={{ $json.id }}"
+            },
+            {
+              "name": "insertedAt",
+              "value": "={{ $json.createdAt }}"
+            }
+          ]
+        }
+      },
+      "id": "success-response",
+      "name": "✅ Success Response",
+      "type": "n8n-nodes-base.set",
+      "position": [3100, 300],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "result",
+              "value": "skipped"
+            },
+            {
+              "name": "reason",
+              "value": "={{ $json.reason || 'Duplicate product' }}"
+            },
+            {
+              "name": "productName",
+              "value": "={{ $json.productName || $json.name }}"
+            }
+          ]
+        }
+      },
+      "id": "skipped-response",
+      "name": "⏭️ Skipped Response",
+      "type": "n8n-nodes-base.set",
+      "position": [2880, 480],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "result",
+              "value": "error"
+            },
+            {
+              "name": "reason",
+              "value": "={{ $json.reason || 'No valid products found' }}"
+            },
+            {
+              "name": "company",
+              "value": "={{ $json.company }}"
+            },
+            {
+              "name": "website",
+              "value": "={{ $json.website }}"
+            }
+          ]
+        }
+      },
+      "id": "error-response",
+      "name": "❌ Error Response",
+      "type": "n8n-nodes-base.set",
+      "position": [2220, 480],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "operation": "aggregateItems",
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "result"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "aggregate-results",
+      "name": "📊 Aggregate Final Results",
+      "type": "n8n-nodes-base.itemLists",
+      "position": [3320, 390],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "jsCode": "// Generate final workflow summary\nconst items = $input.all();\n\nlet successCount = 0;\nlet skippedCount = 0;\nlet errorCount = 0;\n\nconst successProducts = [];\nconst skippedProducts = [];\nconst errorDetails = [];\n\nitems.forEach(item => {\n  const result = item.json.result;\n  \n  if (result === 'success') {\n    successCount++;\n    successProducts.push({\n      name: item.json.productName,\n      id: item.json.productId\n    });\n  } else if (result === 'skipped') {\n    skippedCount++;\n    skippedProducts.push({\n      name: item.json.productName,\n      reason: item.json.reason\n    });\n  } else {\n    errorCount++;\n    errorDetails.push({\n      company: item.json.company,\n      website: item.json.website,\n      reason: item.json.reason\n    });\n  }\n});\n\nconst summary = {\n  totalProcessed: items.length,\n  successfulInserts: successCount,\n  skippedDuplicates: skippedCount,\n  errors: errorCount,\n  timestamp: new Date().toISOString(),\n  successProducts,\n  skippedProducts,\n  errorDetails\n};\n\nconsole.log('WORKFLOW SUMMARY:', JSON.stringify(summary, null, 2));\n\nreturn [{ json: summary }];"
+      },
+      "id": "final-summary",
+      "name": "📈 Generate Final Summary",
+      "type": "n8n-nodes-base.code",
+      "position": [3540, 390],
+      "typeVersion": 1
+    }
+  ],
+  "connections": {
+    "trigger-1": {
+      "main": [
+        [
+          {
+            "node": "ai-company-generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "manual-trigger": {
+      "main": [
+        [
+          {
+            "node": "ai-company-generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ai-company-generator": {
+      "main": [
+        [
+          {
+            "node": "extract-companies",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "extract-companies": {
+      "main": [
+        [
+          {
+            "node": "parse-companies",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "parse-companies": {
+      "main": [
+        [
+          {
+            "node": "fetch-website",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "fetch-website": {
+      "main": [
+        [
+          {
+            "node": "ai-product-extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ai-product-extractor": {
+      "main": [
+        [
+          {
+            "node": "process-products",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "process-products": {
+      "main": [
+        [
+          {
+            "node": "filter-valid-products",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "filter-valid-products": {
+      "main": [
+        [
+          {
+            "node": "check-existing-products",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "check-duplicates",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "error-response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "check-existing-products": {
+      "main": [
+        [
+          {
+            "node": "check-duplicates",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "check-duplicates": {
+      "main": [
+        [
+          {
+            "node": "filter-non-duplicates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "filter-non-duplicates": {
+      "main": [
+        [
+          {
+            "node": "insert-product",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "skipped-response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "insert-product": {
+      "main": [
+        [
+          {
+            "node": "success-response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "success-response": {
+      "main": [
+        [
+          {
+            "node": "aggregate-results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "skipped-response": {
+      "main": [
+        [
+          {
+            "node": "aggregate-results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "error-response": {
+      "main": [
+        [
+          {
+            "node": "aggregate-results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "aggregate-results": {
+      "main": [
+        [
+          {
+            "node": "final-summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+} 

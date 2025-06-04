@@ -11,17 +11,22 @@ export default function AiAdvisor() {
   const [error, setError] = useState('')
   const [loadingMessageIndex, setLoadingMessageIndex] = useState(0)
   const [userStartedTyping, setUserStartedTyping] = useState(false)
+  const [totalProducts, setTotalProducts] = useState(0) // Start from 0 for animation
+  const [isRealData, setIsRealData] = useState(false) // Track if we have real data
   const router = useRouter()
   const typedRef = useRef<HTMLInputElement>(null)
   const typedInstance = useRef<Typed | null>(null)
+  
+  // Single animation state
+  const [targetValue, setTargetValue] = useState(200) // Target for animation
+  const animationStarted = useRef(false)
+  const currentAnimationId = useRef<number | null>(null)
 
   // Loading messages rotation
   const loadingMessages = [
-    'Searching AI tools...',
     'Analyzing your needs...',
     'Finding perfect matches...',
-    'Comparing solutions...',
-    'Almost ready...'
+    'Preparing recommendations...'
   ]
 
   // Typing animation messages
@@ -30,6 +35,112 @@ export default function AiAdvisor() {
     'Looking for a tool to generate blog posts automatically...',
     'Which AI can help me boost my sales with smarter emails?'
   ]
+
+  // Single unified animation that can update target mid-flight
+  useEffect(() => {
+    if (animationStarted.current && totalProducts >= targetValue) return // Don't restart if already finished
+    
+    animationStarted.current = true
+    let currentNum = totalProducts // Start from current value, not 0
+    
+    // Adaptive timing based on target value
+    const getAnimationSpeed = (target: number) => {
+      if (target <= 300) return 150 // Much slower for small numbers (current state)
+      if (target <= 1000) return 100 // Medium speed
+      if (target <= 2500) return 60 // Faster for bigger numbers
+      return 40 // Very fast for large numbers (future)
+    }
+    
+    const frameDelay = getAnimationSpeed(targetValue)
+    let lastFrameTime = 0
+    
+    const animate = (currentTime: number) => {
+      // Throttle animation speed based on target value
+      if (currentTime - lastFrameTime < frameDelay) {
+        currentAnimationId.current = requestAnimationFrame(animate)
+        return
+      }
+      
+      lastFrameTime = currentTime
+      
+      // Dynamic increment based on distance to target
+      const remaining = targetValue - currentNum
+      
+      if (remaining <= 0) {
+        setTotalProducts(targetValue)
+        setIsRealData(true)
+        currentAnimationId.current = null
+        return
+      }
+      
+      // Adaptive increment size
+      const getIncrement = (remaining: number, target: number) => {
+        if (target <= 300) {
+          // Much smaller, more gentle increments for current size
+          return Math.max(1, Math.floor(remaining / 25) + Math.floor(Math.random() * 2) + 1)
+        } else if (target <= 1000) {
+          // Medium increments
+          return Math.max(1, Math.floor(remaining / 15) + Math.floor(Math.random() * 4) + 2)
+        } else {
+          // Larger increments for big numbers
+          return Math.max(1, Math.floor(remaining / 10) + Math.floor(Math.random() * 8) + 4)
+        }
+      }
+      
+      const increment = getIncrement(remaining, targetValue)
+      currentNum += increment
+      
+      if (currentNum >= targetValue) {
+        setTotalProducts(targetValue)
+        setIsRealData(true)
+        currentAnimationId.current = null
+      } else {
+        setTotalProducts(currentNum)
+        currentAnimationId.current = requestAnimationFrame(animate)
+      }
+    }
+    
+    // Start animation
+    if (currentAnimationId.current) {
+      cancelAnimationFrame(currentAnimationId.current)
+    }
+    currentAnimationId.current = requestAnimationFrame(animate)
+    
+    return () => {
+      if (currentAnimationId.current) {
+        cancelAnimationFrame(currentAnimationId.current)
+      }
+    }
+  }, [targetValue, totalProducts])
+
+  // Fetch real data and update target during animation
+  useEffect(() => {
+    const fetchProductCount = async () => {
+      try {
+        const response = await fetch('/api/products?page=1&pageSize=1')
+        if (response.ok) {
+          const data = await response.json()
+          if (data.pagination && data.pagination.totalProducts) {
+            const realCount = data.pagination.totalProducts
+            // Simply update the target - the running animation will adjust
+            setTargetValue(realCount)
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch product count:', error)
+        // Keep the estimated target if fetch fails
+      }
+    }
+    
+    // Adaptive delay based on expected data size
+    const getApiDelay = () => {
+      if (targetValue <= 300) return 1200 // Longer delay for smaller databases
+      if (targetValue <= 1000) return 1000 // Medium delay
+      return 800 // Shorter delay for larger databases
+    }
+    
+    setTimeout(fetchProductCount, getApiDelay())
+  }, [])
 
   // Initialize typing animation
   useEffect(() => {
@@ -65,19 +176,16 @@ export default function AiAdvisor() {
     }
   }, [userStartedTyping, loading, typingMessages])
 
-  // Rotate messages every 4 seconds during loading
+  // Rotate messages every 2 seconds during loading
   useEffect(() => {
     if (!loading) return
 
     const interval = setInterval(() => {
       setLoadingMessageIndex((prev) => (prev + 1) % loadingMessages.length)
-    }, 4000)
+    }, 2000)
 
     return () => clearInterval(interval)
   }, [loading, loadingMessages.length])
-
-  // Fixed number of products - simple
-  const totalProducts = 196
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
@@ -117,36 +225,18 @@ export default function AiAdvisor() {
     
     if (!query.trim()) return
     
-    try {
-      // Reset error state
-      setError('')
-      setLoadingMessageIndex(0) // Reset to first message
-      setLoading(true)
-      
-      console.log('Sending query to API:', query)
-      
-      // Use new endpoint for recommendations with Assistants API
-      const response = await fetch('/api/assistant-recommendations', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ query })
-      })
-      
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to get recommendations')
-      }
-      
-      // After successful processing, redirect to recommendations page
+    // Reset error state
+    setError('')
+    setLoadingMessageIndex(0) // Reset to first message
+    setLoading(true) // Start beautiful loading animation
+    
+    console.log('Starting loading animation and redirecting to recommendations with query:', query)
+    
+    // Čekáme ~6 s (≈ 75 % očekávané doby), zobrazujeme loading na homepage
+    setTimeout(() => {
+      // Directly redirect to recommendations page - let it handle the API call
       router.push(`/recommendations?query=${encodeURIComponent(query)}`)
-    } catch (error) {
-      console.error('Error getting recommendations:', error)
-      setError(error instanceof Error ? error.message : 'Unknown error getting recommendations')
-    } finally {
-      setLoading(false)
-    }
+    }, 6000)
   }
 
   return (

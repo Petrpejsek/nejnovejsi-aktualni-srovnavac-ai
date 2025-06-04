@@ -11,19 +11,19 @@ export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormPr
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    // TODO: Implementovat přihlášení
+    // TODO: Implement login
     console.log('Login:', { email, password })
     onSuccess?.()
   }
 
   const handleGoogleLogin = () => {
-    // TODO: Implementovat Google přihlášení
+    // TODO: Implement Google login
     console.log('Google login')
   }
 
   return (
     <div className="space-y-6">
-      {/* Google přihlášení */}
+      {/* Google login */}
       <button
         type="button"
         onClick={handleGoogleLogin}
@@ -47,24 +47,24 @@ export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormPr
             fill="#EA4335"
           />
         </svg>
-        Pokračovat s Google
+        Continue with Google
       </button>
 
-      {/* Oddělovač */}
+      {/* Divider */}
       <div className="relative">
         <div className="absolute inset-0 flex items-center">
           <div className="w-full border-t border-gray-200"></div>
         </div>
         <div className="relative flex justify-center text-sm">
-          <span className="bg-white px-4 text-gray-500">nebo</span>
+          <span className="bg-white px-4 text-gray-500">or</span>
         </div>
       </div>
 
-      {/* Klasické přihlášení */}
+      {/* Email login */}
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-            E-mail
+            Email
           </label>
           <input
             type="email"
@@ -78,7 +78,7 @@ export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormPr
 
         <div>
           <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-            Heslo
+            Password
           </label>
           <input
             type="password"
@@ -93,10 +93,10 @@ export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormPr
         <div className="flex items-center justify-between">
           <button
             type="button"
-            onClick={() => {}} // TODO: Implementovat obnovení hesla
+            onClick={() => {}} // TODO: Implement password reset
             className="text-sm text-gradient-primary hover:opacity-80 transition-opacity"
           >
-            Zapomenuté heslo?
+            Forgot password?
           </button>
         </div>
 
@@ -104,7 +104,7 @@ export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormPr
           type="submit"
           className="w-full px-4 py-2 text-sm font-medium rounded-[14px] bg-gradient-primary text-white hover-gradient-primary transition-all"
         >
-          Přihlásit se
+          Log In
         </button>
 
         <div className="text-center">
@@ -113,7 +113,7 @@ export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormPr
             onClick={onSwitchToRegister}
             className="text-sm text-gray-600 hover:text-gray-800 transition-colors"
           >
-            Nemáte účet? <span className="text-gradient-primary">Zaregistrujte se</span>
+            Don't have an account? <span className="text-gradient-primary">Sign Up</span>
           </button>
         </div>
       </form>

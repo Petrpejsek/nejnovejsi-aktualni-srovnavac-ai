@@ -1,5 +1,20 @@
 import React, { useState, useRef, useEffect } from 'react'
 import Image from 'next/image'
+import { 
+  StarIcon,
+  ShieldCheckIcon,
+  CheckBadgeIcon
+} from '@heroicons/react/24/outline'
+import { StarIcon as StarFilledIcon } from '@heroicons/react/24/solid'
+
+interface Review {
+  id: number
+  userName: string
+  rating: number
+  comment: string
+  date: string
+  verified: boolean
+}
 
 interface ProductCardProps {
   id: string
@@ -18,11 +33,46 @@ declare global {
   }
 }
 
+// Sample reviews data for different products
+const getProductReviews = (productId: string): { rating: number; reviewsCount: number; reviews: Review[] } => {
+  const reviewsData: Record<string, { rating: number; reviewsCount: number; reviews: Review[] }> = {
+    // Default high-quality reviews for any product
+    default: {
+      rating: 4.6,
+      reviewsCount: 127,
+      reviews: []
+    },
+    // High-rated products
+    '10web': {
+      rating: 4.8,
+      reviewsCount: 892,
+      reviews: []
+    },
+    'academy-of-robotics': {
+      rating: 4.9,
+      reviewsCount: 234,
+      reviews: []
+    },
+    'accounting-prose': {
+      rating: 4.7,
+      reviewsCount: 456,
+      reviews: []
+    }
+  }
+
+  // Try to find specific product reviews, fallback to default
+  const productKey = productId.toLowerCase().replace(/\s+/g, '-')
+  return reviewsData[productKey] || reviewsData.default
+}
+
 export default function ProductCard({ id, name, description, price, imageUrl, tags, externalUrl, hasTrial }: ProductCardProps) {
   const [visibleTags, setVisibleTags] = useState<string[]>(tags || [])
   const [hiddenTagsCount, setHiddenTagsCount] = useState(0)
   const tagsContainerRef = useRef<HTMLDivElement>(null)
   const measurementDivRef = useRef<HTMLDivElement>(null)
+
+  // Get reviews for this product
+  const productReviews = getProductReviews(name)
 
   useEffect(() => {
     if (!tags || !tagsContainerRef.current || !measurementDivRef.current) return
@@ -97,18 +147,79 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
     }
   }
 
+  // Malé hvězdičky pro decentní rating
+  const renderSmallStars = (rating: number) => {
+    const stars = []
+    const fullStars = Math.floor(rating)
+    const hasHalfStar = rating % 1 !== 0
+    const emptyStars = 5 - Math.ceil(rating)
+
+    // Plné hvězdičky
+    for (let i = 0; i < fullStars; i++) {
+      stars.push(
+        <StarFilledIcon key={`full-${i}`} className="w-3 h-3 text-yellow-400" />
+      )
+    }
+
+    // Půl hvězdička
+    if (hasHalfStar) {
+      stars.push(
+        <div key="half" className="w-3 h-3 relative">
+          <StarIcon className="w-3 h-3 text-gray-300 absolute" />
+          <div className="overflow-hidden w-1/2">
+            <StarFilledIcon className="w-3 h-3 text-yellow-400" />
+          </div>
+        </div>
+      )
+    }
+
+    // Prázdné hvězdičky
+    for (let i = 0; i < emptyStars; i++) {
+      stars.push(
+        <StarIcon key={`empty-${i}`} className="w-3 h-3 text-gray-300" />
+      )
+    }
+
+    return stars
+  }
+
+  // Decentní rating badge
+  const renderDecentRating = (rating: number, reviewsCount: number) => {
+    const isTopRated = rating >= 4.8
+
+    return (
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-1">
+          <div className="flex items-center gap-0.5">
+            {renderSmallStars(rating)}
+          </div>
+          <span className="text-xs font-medium text-gray-700">{rating}</span>
+          <span className="text-xs text-gray-500">({reviewsCount})</span>
+        </div>
+        {isTopRated && (
+          <div className="flex items-center gap-1">
+            <CheckBadgeIcon className="w-3 h-3 text-yellow-500" />
+            <span className="text-xs font-medium text-yellow-600">Top Choice</span>
+          </div>
+        )}
+      </div>
+    )
+  }
+
   return (
     <a 
       href={externalUrl}
       target="_blank"
       rel="noopener noreferrer"
-      className="block bg-gradient-to-b from-white to-gray-50 rounded-lg shadow-lg hover:shadow-2xl border border-gray-200 transition-all duration-300 hover:scale-[1.02] hover:border-purple-300 cursor-pointer h-full flex flex-col relative overflow-hidden"
+      className="block bg-gradient-to-b from-white to-gray-50 rounded-lg shadow-lg hover:shadow-2xl border border-gray-200 transition-all duration-300 hover:scale-[1.02] hover:border-purple-300 cursor-pointer h-full min-h-[400px] flex flex-col relative overflow-hidden"
       onClick={(e) => {
         handleVisit(e)
         handleClick(id)
       }}
     >
       <div className="absolute inset-0 bg-gradient-to-br from-purple-50/30 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
+      
+      {/* Image section - původní aspect ratio */}
       <div className="relative w-full aspect-[1.91/1]">
         <Image
           src={imageUrl || 'https://placehold.co/800x450/f3f4f6/94a3b8?text=No+Image'}
@@ -122,11 +233,20 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
           </div>
         )}
       </div>
+      
+      {/* Content section - původní layout */}
       <div className="p-4 flex flex-col flex-grow">
         <div className="flex-grow">
+          {/* Decentní rating nad názvem */}
+          {renderDecentRating(productReviews.rating, productReviews.reviewsCount)}
+          
+          {/* Název produktu */}
           <h2 className="text-lg font-semibold text-gray-800 mb-2">{name}</h2>
+          
+          {/* Popis - původní */}
           <p className="text-gray-600 text-sm mb-4 line-clamp-2">{description}</p>
           
+          {/* Tagy - původní implementace */}
           {tags && tags.length > 0 && (
             <>
               {/* Skrytý div pro měření šířky tagů */}
@@ -165,6 +285,7 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
           )}
         </div>
         
+        {/* Cena a tlačítko - původní */}
         <div className="flex justify-between items-center mt-auto pt-4 border-t border-gray-100">
           {hasTrial ? (
             <div className="text-lg font-bold text-purple-600">$0</div>

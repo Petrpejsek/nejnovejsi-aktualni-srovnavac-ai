@@ -1,79 +1,99 @@
-# Doporučovací systém AI nástrojů
+# Doporučovací systém s vektorovou databází
 
-Tento systém doporučuje uživatelům vhodné AI nástroje z databáze na základě jejich dotazu. Systém používá OpenAI API a umí personalizovat doporučení pro konkrétní potřeby uživatele.
+Tento doporučovací systém využívá embeddingy a vektorovou podobnost pro efektivní vyhledávání a doporučování produktů.
 
-## Fungování systému
+## Architektura
 
-1. **Export produktů**: Data o produktech se exportují z databáze do JSON souboru.
-2. **Nahrání na OpenAI**: JSON soubor se nahraje do OpenAI jako zdroj znalostí.
-3. **Vytvoření asistenta**: Vytvoří se asistent s nástrojem `file_search` pro přístup k datům.
-4. **Generování doporučení**: Na základě dotazu uživatele asistent vyhledá a doporučí vhodné produkty.
-5. **Zpracování odpovědi**: Systém zpracuje JSON odpověď a získá z ní doporučení.
+Systém je postaven na následujících komponentách:
 
-## Řešené problémy
+1. **Vektorová databáze** - Používáme PostgreSQL s JSON datovým typem pro ukládání embeddingů (může být nahrazeno specializovanou vektorovou databází)
+2. **OpenAI API** - Používáme model `text-embedding-3-small` pro vytváření embeddingů a `gpt-4o-mini` pro generování doporučení
+3. **Next.js API endpoints** - Endpointy pro generování doporučení a správu embeddingů
 
-1. **Vymyšlené produkty**: Asistent někdy doporučoval neexistující produkty s ID jako "tool-1", "tool-2". To je nyní vyřešeno:
-   - Jasnějšími instrukcemi pro asistenta
-   - Dodatečnou validací vracených ID proti seznamu platných ID
-   - Příklady skutečných ID v instrukcích
+## Workflow
 
-2. **Markdown formátování**: Asistent vracel JSON v Markdown bloku. To je nyní vyřešeno:
-   - Nastavením `response_format: { type: "json_object" }` při volání API
-   - Instrukcemi k vracení pouze čistého JSON
-   - Robustním zpracováním odpovědi, které zvládne i případný Markdown
+1. **Příprava dat**
+   - Pro každý produkt v databázi vytvoříme embedding reprezentaci textu pomocí OpenAI API
+   - Embeddingy ukládáme do databáze v tabulce `product_embeddings`
 
-3. **Problematické JSON**: Některé produkty měly nevalidní JSON struktury. To je nyní vyřešeno:
-   - Skriptem pro opravu problematických produktů
-   - Bezpečným parsováním a převáděním polí v databázi
-   - Speciálním zpracováním známého problematického produktu
+2. **Vyhledávání**
+   - Uživatel zadá dotaz (např. "Potřebuji software pro marketingovou automatizaci")
+   - Vytvoříme embedding z dotazu uživatele
+   - Vyhledáme nejpodobnější produkty pomocí kosinové podobnosti s embeddingem dotazu
+   - Nejpodobnější produkty posíláme do OpenAI API pro doporučení
 
-4. **Problém se zastaralým typem nástroje**: Používání zastaralého nástroje `retrieval` bylo nahrazeno novým `file_search`.
+3. **Generování doporučení**
+   - OpenAI model dostane kontext nejpodobnějších produktů a dotaz uživatele
+   - Model vybere nejrelevantnější produkty a vytvoří personalizovaná doporučení
+   - Výsledky vracíme uživateli
 
-## Složky a soubory
+## API Endpointy
 
-- `/lib/exportProducts.ts` - Export produktů z databáze do JSON souboru
-- `/lib/uploadToOpenAI.ts` - Nahrání souborů do OpenAI a vytvoření asistenta
-- `/lib/openai.ts` - Hlavní funkce pro generování doporučení
-- `/scripts/fix-products.js` - Skript pro opravu problematických produktů
-- `/test-assistant.js` - Testování doporučení pomocí asistenta
-- `/refresh-recommendations.js` - Komplexní skript pro aktualizaci celého systému
+### 1. `/api/recommendations`
 
-## Jak použít
+Hlavní endpoint pro generování doporučení.
 
-### Aktualizace doporučovacího systému
-
-```bash
-node refresh-recommendations.js
+```
+POST /api/recommendations
+{
+  "query": "string" // Dotaz uživatele
+}
 ```
 
-Tento příkaz provede kompletní aktualizaci systému:
-1. Opraví problematické produkty v databázi
-2. Exportuje produkty do JSON souboru
-3. Vytvoří/aktualizuje asistenta s nahraným souborem
-4. Otestuje funkčnost doporučení
+### 2. `/api/generate-embeddings`
 
-### Jen otestování doporučení
+Admin endpoint pro generování a ukládání embeddingů pro všechny produkty.
 
-```bash
-node test-assistant.js
+```
+GET /api/generate-embeddings?key=ADMIN_API_KEY&limit=50&skip=0
 ```
 
-### Oprava problematických produktů
+## Použití
+
+### Generování embeddingů
+
+Před používáním doporučovacího systému je potřeba vygenerovat embeddingy pro všechny produkty. To můžete udělat pomocí následujícího příkazu:
 
 ```bash
-node scripts/fix-products.js
+# Generovat embeddingy po 50 produktech
+curl "http://localhost:3000/api/generate-embeddings?key=YOUR_ADMIN_KEY&limit=50&skip=0"
+curl "http://localhost:3000/api/generate-embeddings?key=YOUR_ADMIN_KEY&limit=50&skip=50"
+# ...atd.
 ```
 
-## Doporučení pro další vývoj
+### Získání doporučení
 
-1. **Cachování doporučení**: Implementovat cachování doporučení pro často kladené dotazy
-2. **Hodnocení relevance**: Umožnit uživatelům hodnotit relevanci doporučení pro zlepšení systému
-3. **Vlastní embeddingy**: Místo použití OpenAI file_search vytvořit vlastní embeddingy pro rychlejší a levnější přístup
-4. **A/B testování**: Implementovat A/B testování různých variant instrukcí a promptů
+```javascript
+// Příklad volání API pro získání doporučení
+const response = await fetch('/api/recommendations', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ query: 'Potřebuji software pro marketingovou automatizaci' })
+});
 
-## Důležité poznámky
+const data = await response.json();
+console.log(data.recommendations);
+```
 
-- Asistent vrací doporučení v angličtině i při dotazu v češtině (podle specifikace)
-- Procentuální shody jsou vždy v rozmezí 82-99% (nikdy 100%) pro realistické výsledky
-- Systém zvládá zpracovat i odpovědi, které neodpovídají očekávanému formátu (robustní parsování)
-- V případě problémů zkontrolujte logy, které obsahují detailní informace o každém kroku 
+## Výhody tohoto přístupu
+
+1. **Rychlost** - Vektorové vyhledávání je mnohem rychlejší než textové vyhledávání
+2. **Relevance** - Embeddingy zachycují sémantický význam textu, což umožňuje najít relevantní produkty i když neobsahují přesně stejná slova
+3. **Škálovatelnost** - Přístup funguje efektivně i s velkým množstvím produktů
+4. **Efektivita nákladů** - Generování embeddingů je jednorázový náklad, poté už nemusíme posílat všechny produkty do OpenAI API
+
+## Další vylepšení
+
+1. **Přechod na specializovanou vektorovou databázi** - Pro produkční nasazení doporučujeme použít specializovanou vektorovou databázi jako Pinecone, Weaviate nebo Qdrant
+2. **Přidání metadat k embeddingům** - Pro ještě lepší filtrování a doporučování
+3. **Fine-tuning OpenAI modelu** - Pro ještě přesnější doporučení
+
+## Nastavení prostředí
+
+Pro správné fungování systému je potřeba nastavit následující proměnné prostředí:
+
+```
+OPENAI_API_KEY=sk-xxx
+DATABASE_URL=postgresql://user:password@localhost:5432/mydb
+ADMIN_API_KEY=your-secret-key
+``` 

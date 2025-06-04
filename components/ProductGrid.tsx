@@ -26,17 +26,14 @@ export default function ProductGrid({ selectedTags }: ProductGridProps = {}) {
   const [error, setError] = useState<string | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [hasMore, setHasMore] = useState(true)
+  const [totalProducts, setTotalProducts] = useState(0)
   const PAGE_SIZE = 12
 
-  // JEDNODUCHÉ načtení produktů - žádný store, žádná složitost
   useEffect(() => {
+    let isMounted = true
+    
     const loadProducts = async () => {
       try {
-        setLoading(true)
-        setError(null)
-        
-
-        
         const response = await fetch(`/api/products?page=1&pageSize=${PAGE_SIZE}`)
         
         if (!response.ok) {
@@ -45,8 +42,7 @@ export default function ProductGrid({ selectedTags }: ProductGridProps = {}) {
         
         const data = await response.json()
         
-        if (data.products && Array.isArray(data.products)) {
-          // Jednoduchá konverze - bez složitého parsování JSON
+        if (isMounted && data.products && Array.isArray(data.products)) {
           const simpleProducts = data.products.map((product: any) => ({
             id: product.id,
             name: product.name,
@@ -62,22 +58,27 @@ export default function ProductGrid({ selectedTags }: ProductGridProps = {}) {
           setProducts(simpleProducts)
           setCurrentPage(1)
           setHasMore(data.pagination.totalPages > 1)
-        } else {
-          console.error('ProductGrid: Neplatná struktura dat:', data)
-          setError('Neplatná struktura dat')
+          setTotalProducts(data.pagination.totalProducts || 0)
+          setError(null)
         }
       } catch (err) {
-        console.error('ProductGrid: Chyba při načítání:', err)
-        setError(err instanceof Error ? err.message : 'Neznámá chyba')
+        if (isMounted) {
+          setError(err instanceof Error ? err.message : 'Failed to load products')
+        }
       } finally {
-        setLoading(false)
+        if (isMounted) {
+          setLoading(false)
+        }
       }
     }
 
     loadProducts()
-  }, []) // Načte jen jednou při mount
+    
+    return () => {
+      isMounted = false
+    }
+  }, [])
 
-  // Funkce pro načtení dalších produktů
   const loadMoreProducts = async () => {
     if (!hasMore || loadingMore) return
 
@@ -86,7 +87,6 @@ export default function ProductGrid({ selectedTags }: ProductGridProps = {}) {
       setError(null)
       
       const nextPage = currentPage + 1
-      
       const response = await fetch(`/api/products?page=${nextPage}&pageSize=${PAGE_SIZE}`)
       
       if (!response.ok) {
@@ -113,8 +113,7 @@ export default function ProductGrid({ selectedTags }: ProductGridProps = {}) {
         setHasMore(nextPage < data.pagination.totalPages)
       }
     } catch (err) {
-      console.error('ProductGrid: Error loading more products:', err)
-      setError(err instanceof Error ? err.message : 'Unknown error')
+      setError(err instanceof Error ? err.message : 'Failed to load more products')
     } finally {
       setLoadingMore(false)
     }
@@ -126,8 +125,6 @@ export default function ProductGrid({ selectedTags }: ProductGridProps = {}) {
         product.tags?.some(tag => selectedTags.has(tag))
       )
     : products
-
-
 
   if (loading) {
     return (
@@ -154,7 +151,8 @@ export default function ProductGrid({ selectedTags }: ProductGridProps = {}) {
 
   return (
     <div className="space-y-4 md:space-y-6 pb-20">
-      <div className="grid gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+      {/* Použití CSS Grid s align-items-stretch pro rovnoměrné výšky */}
+      <div className="grid gap-4 md:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 items-stretch">
         {filteredProducts.map((product) => (
           <ProductCard
             key={product.id}
@@ -185,7 +183,7 @@ export default function ProductGrid({ selectedTags }: ProductGridProps = {}) {
           <button
             onClick={loadMoreProducts}
             disabled={loadingMore}
-            className={`px-6 py-3 bg-gradient-primary text-white rounded-lg font-medium transition-all ${
+            className={`px-6 py-3 bg-gradient-primary text-white rounded-full font-medium transition-all ${
               loadingMore ? 'opacity-50 cursor-not-allowed' : 'hover:shadow-lg hover:scale-105'
             }`}
           >
@@ -198,7 +196,7 @@ export default function ProductGrid({ selectedTags }: ProductGridProps = {}) {
                 Loading...
               </span>
             ) : (
-              `Load More (${products.length} of 196 products)`
+              `Load More (${products.length} of ${totalProducts} products)`
             )}
           </button>
         </div>

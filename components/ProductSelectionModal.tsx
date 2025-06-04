@@ -120,7 +120,7 @@ export default function ProductSelectionModal({
             </div>
           ) : filteredProducts.length === 0 ? (
             <div className="text-center text-gray-500 py-8">
-              Žádné produkty nebyly nalezeny
+              No products found
             </div>
           ) : (
             filteredProducts.map((product) => (

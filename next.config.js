@@ -52,6 +52,7 @@ const nextConfig = {
     }
     return config
   },
+  reactStrictMode: false,
   experimental: {
     largePageDataBytes: 512 * 1000,
   },

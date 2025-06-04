@@ -100,6 +100,16 @@ export default function Navbar() {
             >
               Compare
             </Link>
+            <Link
+              href="/ai-tools-test"
+              className={`px-3 py-2 rounded-md text-sm font-medium ${
+                pathname === '/ai-tools-test'
+                  ? 'text-purple-600'
+                  : 'text-gray-700 hover:text-purple-600'
+              }`}
+            >
+              AI Tools Search
+            </Link>
           </div>
 
           {/* Compare button - desktop */}
@@ -160,6 +170,17 @@ export default function Navbar() {
                 onClick={() => setIsMenuOpen(false)}
               >
                 Compare
+              </Link>
+              <Link
+                href="/ai-tools-test"
+                className={`block px-3 py-2 rounded-md text-base font-medium ${
+                  pathname === '/ai-tools-test'
+                    ? 'text-purple-600 bg-purple-50'
+                    : 'text-gray-700 hover:text-purple-600 hover:bg-purple-50'
+                }`}
+                onClick={() => setIsMenuOpen(false)}
+              >
+                AI Tools Search
               </Link>
             </div>
           </div>

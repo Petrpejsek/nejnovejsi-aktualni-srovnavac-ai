@@ -12,7 +12,7 @@ export default function TagFilter({ tags: propTags, selectedTags: propSelectedTa
   const [showAllTags, setShowAllTags] = useState(false)
   const [localSelectedTags, setLocalSelectedTags] = useState<Set<string>>(new Set())
   
-  // Použijeme pouze props nebo lokální state - ŽÁDNÝ STORE!
+  // Use only props or local state - NO STORE!
   const selectedTags = propSelectedTags !== undefined ? propSelectedTags : localSelectedTags
   const setSelectedTags = propOnTagsChange || setLocalSelectedTags
 
@@ -26,7 +26,7 @@ export default function TagFilter({ tags: propTags, selectedTags: propSelectedTa
     setSelectedTags(newTags)
   }
 
-  // PEVNÉ KATEGORIE - jako původně, žádné načítání z API!
+  // FIXED CATEGORIES - as originally, no API loading!
   const availableTags = propTags || [
     'automation',
     'Healthcare', 

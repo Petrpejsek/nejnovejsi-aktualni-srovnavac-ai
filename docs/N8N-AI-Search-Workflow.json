@@ -1,0 +1,227 @@
+{
+  "name": "AI Tools Search & Recommendation",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ai-search",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "4f0a3b1c-7e52-4d91-b123-1a2b3c4d5e6f",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "webhookId": "ai-search-webhook"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Analýza dotazu a extrakce klíčových slov\nconst query = $input.first().json.query;\nconst sessionId = $input.first().json.sessionId;\n\n// AI předřazení - rychlá kategorizace\nconst categories = extractCategories(query);\nconst intent = analyzeIntent(query);\nconst urgency = assessUrgency(query);\n\nfunction extractCategories(q) {\n  const cats = [];\n  const lowercaseQ = q.toLowerCase();\n  \n  if (lowercaseQ.includes('video') || lowercaseQ.includes('youtube')) cats.push('video-generation');\n  if (lowercaseQ.includes('email') || lowercaseQ.includes('marketing')) cats.push('email-marketing');\n  if (lowercaseQ.includes('website') || lowercaseQ.includes('web') || lowercaseQ.includes('stránky')) cats.push('website-builder');\n  if (lowercaseQ.includes('automatizace') || lowercaseQ.includes('automation')) cats.push('automation');\n  if (lowercaseQ.includes('účetnictví') || lowercaseQ.includes('accounting')) cats.push('accounting');\n  if (lowercaseQ.includes('chat') || lowercaseQ.includes('support')) cats.push('customer-service');\n  if (lowercaseQ.includes('seo')) cats.push('seo');\n  if (lowercaseQ.includes('design') || lowercaseQ.includes('grafika')) cats.push('design');\n  \n  return cats;\n}\n\nfunction analyzeIntent(q) {\n  const lowercaseQ = q.toLowerCase();\n  if (lowercaseQ.includes('automatizace') || lowercaseQ.includes('workflow')) return 'automation';\n  if (lowercaseQ.includes('tvorba') || lowercaseQ.includes('vytvoření')) return 'creation';\n  if (lowercaseQ.includes('analýza') || lowercaseQ.includes('analytics')) return 'analytics';\n  if (lowercaseQ.includes('správa') || lowercaseQ.includes('management')) return 'management';\n  return 'general';\n}\n\nfunction assessUrgency(q) {\n  const lowercaseQ = q.toLowerCase();\n  if (lowercaseQ.includes('rychle') || lowercaseQ.includes('okamžitě') || lowercaseQ.includes('urgent')) return 'high';\n  return 'normal';\n}\n\nreturn [{\n  sessionId,\n  originalQuery: query,\n  categories,\n  intent,\n  urgency,\n  timestamp: Date.now(),\n  processedAt: new Date().toISOString()\n}];"
+      },
+      "id": "2a1b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d",
+      "name": "Parse Query",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $env.FRONTEND_CALLBACK_URL }}/api/products?format=minimal",
+        "options": {
+          "timeout": 10000
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      },
+      "id": "3b2c4d5e-6f7a-8b9c-0d1e-2f3a4b5c6d7e",
+      "name": "Load Products",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "resource": "chat",
+        "model": "gpt-3.5-turbo",
+        "messages": {
+          "messageValues": [
+            {
+              "role": "system",
+              "content": "Jsi expert na AI nástroje a poradce pro výběr správných technologií. Analyzuj uživatelský dotaz a z poskytnutého seznamu nástrojů vyber 5-8 nejrelevantnějších.\n\nPro každý vybraný nástroj vytvoř:\n1. Match score (85-98%) - jak dobře nástroj odpovídá požadavkům\n2. Personalizované doporučení (2-3 věty v češtině)\n3. Hlavní výhody pro konkrétní use case\n4. Cenovou kategorii\n\nVrať odpověď jako JSON s klíčem 'recommendations'."
+            },
+            {
+              "role": "user",
+              "content": "Uživatel hledá: {{ $('Parse Query').first().json.originalQuery }}\n\nDetekované kategorie: {{ $('Parse Query').first().json.categories }}\nIntent: {{ $('Parse Query').first().json.intent }}\nUrgency: {{ $('Parse Query').first().json.urgency }}\n\nDostupné nástroje:\n{{ JSON.stringify($('Load Products').first().json, null, 2) }}\n\nFormát odpovědi:\n{\n  \"recommendations\": [\n    {\n      \"id\": \"product-id\",\n      \"matchPercentage\": 95,\n      \"recommendation\": \"Personalizované doporučení v češtině...\",\n      \"product\": {\n        \"id\": \"product-id\",\n        \"title\": \"Název nástroje\",\n        \"description\": \"Popis\",\n        \"category\": \"kategorie\",\n        \"price\": \"cena\",\n        \"website\": \"url\"\n      },\n      \"mainBenefits\": [\"výhoda1\", \"výhoda2\"],\n      \"priceCategory\": \"free|low|medium|high\"\n    }\n  ]\n}"
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0.3,
+          "maxTokens": 1500,
+          "responseFormat": "json_object"
+        }
+      },
+      "id": "4c3d5e6f-7a8b-9c0d-1e2f-3a4b5c6d7e8f",
+      "name": "OpenAI Analysis",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1.3,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Personalizace výsledků podle uživatelského profilu\nconst aiResponse = $input.first().json;\nconst sessionData = $('Parse Query').first().json;\n\n// Parsování OpenAI odpovědi\nlet recommendations;\ntry {\n  if (typeof aiResponse.choices !== 'undefined') {\n    // OpenAI node response\n    const content = aiResponse.choices[0].message.content;\n    recommendations = JSON.parse(content).recommendations;\n  } else {\n    // Fallback - direct JSON\n    recommendations = aiResponse.recommendations || [];\n  }\n} catch (error) {\n  console.error('Error parsing AI response:', error);\n  recommendations = [];\n}\n\n// Přidání personalizace\nconst personalizedRecs = recommendations.map(rec => {\n  return {\n    ...rec,\n    personalizedReason: generatePersonalReason(rec, sessionData),\n    urgencyBonus: sessionData.urgency === 'high' ? 5 : 0,\n    contextualTips: getContextualTips(rec, sessionData.intent)\n  };\n});\n\nfunction generatePersonalReason(rec, session) {\n  const reasons = [];\n  \n  if (session.intent === 'automation') {\n    reasons.push('Ušetří vám hodiny práce týdně automatizací');\n  }\n  if (session.intent === 'creation') {\n    reasons.push('Rychle vytvoříte profesionální výsledky');\n  }\n  if (session.urgency === 'high') {\n    reasons.push('Můžete začít používat okamžitě');\n  }\n  if (rec.priceCategory === 'free') {\n    reasons.push('Začnete zdarma bez rizika');\n  }\n  \n  return reasons.join(', ');\n}\n\nfunction getContextualTips(rec, intent) {\n  const tips = [];\n  \n  if (intent === 'creation') {\n    tips.push('💡 Tip: Začněte s bezplatnou verzí a postupně přecházejte na placenou');\n  }\n  if (intent === 'automation') {\n    tips.push('⚡ Tip: Nastavte workflow postupně, začněte s jednoduchými úkoly');\n  }\n  if (rec.priceCategory === 'free') {\n    tips.push('🆓 Tip: Využijte plně bezplatné funkce před upgradem');\n  }\n  \n  return tips;\n}\n\nreturn [{\n  sessionId: sessionData.sessionId,\n  query: sessionData.originalQuery,\n  recommendations: personalizedRecs,\n  totalFound: personalizedRecs.length,\n  processingTime: Date.now() - sessionData.timestamp,\n  metadata: {\n    categories: sessionData.categories,\n    intent: sessionData.intent,\n    urgency: sessionData.urgency\n  }\n}];"
+      },
+      "id": "5d4e6f7a-8b9c-0d1e-2f3a-4b5c6d7e8f9a",
+      "name": "Personalization Engine",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [1120, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.FRONTEND_CALLBACK_URL }}/api/search-results",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "sessionId",
+              "value": "={{ $('Personalization Engine').first().json.sessionId }}"
+            },
+            {
+              "name": "query",
+              "value": "={{ $('Personalization Engine').first().json.query }}"
+            },
+            {
+              "name": "recommendations",
+              "value": "={{ $('Personalization Engine').first().json.recommendations }}"
+            },
+            {
+              "name": "totalFound",
+              "value": "={{ $('Personalization Engine').first().json.totalFound }}"
+            },
+            {
+              "name": "processingTime",
+              "value": "={{ $('Personalization Engine').first().json.processingTime }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 5000
+        }
+      },
+      "id": "6e5f7a8b-9c0d-1e2f-3a4b-5c6d7e8f9a0b",
+      "name": "Send to Frontend",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1340, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "id": "7f6a8b9c-0d1e-2f3a-4b5c-6d7e8f9a0b1c",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1560, 300]
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Parse Query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Query": {
+      "main": [
+        [
+          {
+            "node": "Load Products",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Products": {
+      "main": [
+        [
+          {
+            "node": "OpenAI Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Analysis": {
+      "main": [
+        [
+          {
+            "node": "Personalization Engine",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Personalization Engine": {
+      "main": [
+        [
+          {
+            "node": "Send to Frontend",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send to Frontend": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z",
+      "id": "ai-search",
+      "name": "AI Search"
+    }
+  ],
+  "triggerCount": 0,
+  "updatedAt": "2024-01-01T00:00:00.000Z",
+  "versionId": "1"
+} 

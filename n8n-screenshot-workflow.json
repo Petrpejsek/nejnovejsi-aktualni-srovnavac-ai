@@ -1,0 +1,315 @@
+{
+  "name": "AI Product Screenshot Tester",
+  "version": 1,
+  "nodes": [
+    {
+      "parameters": {
+        "content": "# 📸 AI PRODUCT SCREENSHOT TESTER\n\nTestovací workflow pro screenshots:\n1. Vezme existující produkty z databáze\n2. Navštíví jejich homepage\n3. Odmítne/přijme cookies\n4. Udělá screenshot\n5. Uloží screenshot k produktu\n\n## Test s 5 produkty nejdříve\n## Pak rozšíříme na všechny",
+        "height": 300,
+        "width": 600
+      },
+      "id": "notes-1",
+      "name": "📝 Screenshot Test Documentation",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [240, 140],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {},
+      "id": "manual-trigger",
+      "name": "🔄 Manual Test Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [460, 340],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "http://localhost:3000/api/products",
+        "qs": {
+          "page": "1",
+          "pageSize": "5"
+        }
+      },
+      "id": "get-test-products",
+      "name": "🎯 Get 5 Test Products",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [680, 340],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extrahuj produkty pro screenshot test\nconst response = $input.first().json;\nconst products = response.products || [];\n\n// Vezmi prvních 5 produktů s externím URL\nconst testProducts = products\n  .filter(product => product.externalUrl && product.externalUrl.startsWith('http'))\n  .slice(0, 5)\n  .map(product => ({\n    json: {\n      id: product.id,\n      name: product.name,\n      externalUrl: product.externalUrl,\n      category: product.category,\n      currentImageUrl: product.imageUrl || ''\n    }\n  }));\n\nconsole.log(`Vybrané produkty pro screenshot test:`, testProducts.map(p => p.json.name));\n\nif (testProducts.length === 0) {\n  throw new Error('Nenalezeny žádné produkty s platným externalUrl');\n}\n\nreturn testProducts;"
+      },
+      "id": "prepare-test-products",
+      "name": "📋 Prepare Test Products",
+      "type": "n8n-nodes-base.code",
+      "position": [900, 340],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "url": "{{ $json.externalUrl }}",
+        "waitForSelector": "body",
+        "options": {
+          "skipImages": false,
+          "skipStylesheets": false,
+          "timeout": 30000,
+          "viewportWidth": 1280,
+          "viewportHeight": 720,
+          "waitTime": 3000
+        }
+      },
+      "id": "browser-page",
+      "name": "🌐 Open Browser Page",
+      "type": "n8n-nodes-base.html",
+      "position": [1120, 340],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "jsCode": "// Pokus o kliknutí na cookies banner\nconst page = $input.first().json.page;\n\ntry {\n  // Nejčastější selektory pro cookies bannery\n  const cookiesSelectors = [\n    'button[data-testid=\"accept-all\"]',\n    'button[id*=\"accept\"]',\n    'button[class*=\"accept\"]',\n    'button[class*=\"consent\"]',\n    'button:contains(\"Accept\")',\n    'button:contains(\"Accept all\")',\n    'button:contains(\"I agree\")',\n    'button:contains(\"OK\")',\n    'button:contains(\"Agree\")',\n    '[data-cy=\"accept-all\"]',\n    '[data-testid=\"cookie-banner-accept\"]',\n    '.cookie-accept',\n    '.consent-accept',\n    '#cookie-accept',\n    '#accept-cookies',\n    '.cookies-accept-all',\n    '[aria-label*=\"accept\"]',\n    '[title*=\"accept\"]'\n  ];\n  \n  let cookiesHandled = false;\n  \n  // Zkus každý selector\n  for (const selector of cookiesSelectors) {\n    try {\n      const element = await page.$(selector);\n      if (element) {\n        await element.click();\n        console.log(`Cookies banner kliknuto pomocí selektoru: ${selector}`);\n        cookiesHandled = true;\n        await page.waitForTimeout(2000); // Počkej na zmizení banneru\n        break;\n      }\n    } catch (e) {\n      // Pokračuj na další selector\n    }\n  }\n  \n  if (!cookiesHandled) {\n    console.log('Cookies banner nenalezen nebo už byl odmítnut');\n  }\n  \n  return [{\n    json: {\n      url: $json.externalUrl,\n      name: $json.name,\n      id: $json.id,\n      cookiesHandled,\n      page: page\n    }\n  }];\n  \n} catch (error) {\n  console.error('Chyba při zpracování cookies:', error);\n  return [{\n    json: {\n      url: $json.externalUrl,\n      name: $json.name,\n      id: $json.id,\n      cookiesHandled: false,\n      error: error.message,\n      page: page\n    }\n  }];\n}"
+      },
+      "id": "handle-cookies",
+      "name": "🍪 Handle Cookies Banner",
+      "type": "n8n-nodes-base.code",
+      "position": [1340, 340],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "options": {
+          "fullPage": true,
+          "quality": 90,
+          "type": "jpeg"
+        }
+      },
+      "id": "take-screenshot",
+      "name": "📸 Take Screenshot",
+      "type": "n8n-nodes-base.html",
+      "position": [1560, 340],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "jsCode": "// Zpracuj screenshot a připrav pro upload\nconst screenshotData = $input.first().binary.data;\nconst productData = $input.first().json;\n\nif (!screenshotData) {\n  throw new Error('Screenshot se nepodařilo vytvořit');\n}\n\n// Generuj filename\nconst filename = `${productData.name.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase()}_homepage.jpg`;\n\nreturn [{\n  json: {\n    id: productData.id,\n    name: productData.name,\n    url: productData.url,\n    screenshotFilename: filename,\n    screenshotSize: screenshotData.length,\n    cookiesHandled: productData.cookiesHandled\n  },\n  binary: {\n    screenshot: screenshotData\n  }\n}];"
+      },
+      "id": "process-screenshot",
+      "name": "⚙️ Process Screenshot",
+      "type": "n8n-nodes-base.code",
+      "position": [1780, 340],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "operation": "upload",
+        "path": "/screenshots/{{ $json.screenshotFilename }}",
+        "binaryData": true,
+        "binaryProperty": "screenshot",
+        "options": {
+          "makeDirectory": true
+        }
+      },
+      "id": "save-screenshot-file",
+      "name": "💾 Save Screenshot File",
+      "type": "n8n-nodes-base.files",
+      "position": [2000, 340],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "http://localhost:3000/api/products/{{ $json.id }}",
+        "body": {
+          "screenshotUrl": "/screenshots/{{ $json.screenshotFilename }}"
+        }
+      },
+      "id": "update-product-screenshot",
+      "name": "🔄 Update Product with Screenshot URL",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [2220, 340],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "result",
+              "value": "success"
+            },
+            {
+              "name": "productName",
+              "value": "={{ $json.name }}"
+            },
+            {
+              "name": "screenshotUrl",
+              "value": "/screenshots/{{ $json.screenshotFilename }}"
+            },
+            {
+              "name": "cookiesHandled",
+              "value": "={{ $json.cookiesHandled }}"
+            }
+          ]
+        }
+      },
+      "id": "success-result",
+      "name": "✅ Success Result",
+      "type": "n8n-nodes-base.set",
+      "position": [2440, 340],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "operation": "aggregateItems",
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "result"
+            }
+          ]
+        }
+      },
+      "id": "aggregate-results",
+      "name": "📊 Aggregate Results",
+      "type": "n8n-nodes-base.itemLists",
+      "position": [2660, 340],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "jsCode": "// Vygeneruj finální report\nconst items = $input.all();\n\nlet successCount = 0;\nlet failureCount = 0;\nconst results = [];\n\nitems.forEach(item => {\n  if (item.json.result === 'success') {\n    successCount++;\n    results.push({\n      name: item.json.productName,\n      screenshot: item.json.screenshotUrl,\n      cookiesHandled: item.json.cookiesHandled\n    });\n  } else {\n    failureCount++;\n  }\n});\n\nconst report = {\n  totalTested: items.length,\n  successful: successCount,\n  failed: failureCount,\n  timestamp: new Date().toISOString(),\n  results\n};\n\nconsole.log('SCREENSHOT TEST REPORT:', JSON.stringify(report, null, 2));\n\nreturn [{ json: report }];"
+      },
+      "id": "final-report",
+      "name": "📈 Final Report",
+      "type": "n8n-nodes-base.code",
+      "position": [2880, 340],
+      "typeVersion": 1
+    }
+  ],
+  "connections": {
+    "manual-trigger": {
+      "main": [
+        [
+          {
+            "node": "get-test-products",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get-test-products": {
+      "main": [
+        [
+          {
+            "node": "prepare-test-products",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "prepare-test-products": {
+      "main": [
+        [
+          {
+            "node": "browser-page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "browser-page": {
+      "main": [
+        [
+          {
+            "node": "handle-cookies",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "handle-cookies": {
+      "main": [
+        [
+          {
+            "node": "take-screenshot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "take-screenshot": {
+      "main": [
+        [
+          {
+            "node": "process-screenshot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "process-screenshot": {
+      "main": [
+        [
+          {
+            "node": "save-screenshot-file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "save-screenshot-file": {
+      "main": [
+        [
+          {
+            "node": "update-product-screenshot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "update-product-screenshot": {
+      "main": [
+        [
+          {
+            "node": "success-result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "success-result": {
+      "main": [
+        [
+          {
+            "node": "aggregate-results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "aggregate-results": {
+      "main": [
+        [
+          {
+            "node": "final-report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+} 

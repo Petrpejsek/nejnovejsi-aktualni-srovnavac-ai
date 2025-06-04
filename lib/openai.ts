@@ -1,164 +1,231 @@
 import { OpenAI } from 'openai';
 
-// Ověříme, že API klíč je načtený
-console.log('OpenAI API klíč je načtený:', process.env.OPENAI_API_KEY ? 'Ano (klíč končí na: ' + process.env.OPENAI_API_KEY.slice(-4) + ')' : 'Ne');
-
-// Vytváříme OpenAI klienta
+// Inicializace OpenAI API klienta
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-interface Recommendation {
-  id: string;
-  matchPercentage: number;
-  recommendation: string;
+// Statická cache pro produkty a odpovědi
+const productsCache: any[] = [];
+const responseCache = new Map<string, { recommendations: any[], timestamp: number }>();
+const CACHE_DURATION = 60 * 60 * 1000; // 1 hodina
+
+// Kontrola API klíče
+console.log('OpenAI API klíč je načtený:', process.env.OPENAI_API_KEY ? `Ano (klíč končí na: ${process.env.OPENAI_API_KEY.slice(-4)})` : 'Ne');
+
+/**
+ * Funkce pro nastavení produktů do globální cache
+ */
+export function setProducts(products: any[]) {
+  // Vyčistíme cache
+  productsCache.length = 0;
+  // A přidáme všechny produkty
+  productsCache.push(...products);
+  console.log(`Nastaveno ${productsCache.length} produktů do globální cache`);
 }
 
 /**
- * Funkce pro generování doporučení produktů na základě dotazu
+ * Rychlé filtrování produktů pro dotaz
  */
-export async function generateRecommendations(userQuery: string, products: any[]): Promise<Recommendation[]> {
-  try {
-    console.log('generateRecommendations: Začátek generování', { 
-      productCount: products.length, 
-      query: userQuery 
-    });
-
-    // Připravíme data o produktech pro OpenAI - odstraníme problematické produkty
-    const filteredProducts = products.filter(product => product.id !== '8b1ad8a1-5afb-40d4-b11d-48c33b606723');
-    console.log(`generateRecommendations: Filtrováno ${products.length - filteredProducts.length} problematických produktů`);
-
-    // Použijeme všech 196 produktů (bez omezování)
-    const limitedProducts = filteredProducts;
-    console.log(`generateRecommendations: Posílám všech ${limitedProducts.length} produktů do promptu`);
-
-    // Zjednodušíme produkty pro API
-    const simplifiedProducts = limitedProducts.map(product => ({
-      id: product.id,
-      name: product.name,
-      category: product.category
-    }));
-
-    // Vytvoříme seznam reálných ID pro validaci
-    const validProductIds = new Set(simplifiedProducts.map(p => p.id));
-    console.log(`generateRecommendations: Vytvořeno ${validProductIds.size} validních ID pro ověření`);
-    console.log('Seznam validních ID:', Array.from(validProductIds));
-
-    const prompt = `
-    Uživatel hledá AI nástroj na základě následujícího požadavku:
-    "${userQuery}"
-
-    Analyzuj tento požadavek a porovnej jej s následujícími AI nástroji. Identifikuj POUZE nástroje, které PŘÍMO souvisejí s dotazem uživatele.
-
-    KRITICKY DŮLEŽITÁ PRAVIDLA RELEVANCE:
-    - Doporučuj VÝHRADNĚ nástroje, které mají PŘÍMOU souvislost s dotazem (např. "email marketing" = nástroje pro email marketing)
-    - NIKDY nedoporučuj nástroje, které nesouvisí s dotazem, i když jsou populární
-    - Je LEPŠÍ vrátit MÉNĚ relevantních nástrojů nebo ŽÁDNÝ, než doporučit nástroj, který neodpovídá dotazu
-    - Každý doporučený nástroj MUSÍ být JASNĚ relevantní dotazu (může vycházet z kategorie, tagů nebo popisu)
-
-    Pro každý relevantní nástroj urči procentuální shodu (mezi 82-99%) a vytvoř personalizované doporučení ve 2-3 větách, vysvětlující, proč by tento nástroj mohl být vhodný.
-
-    KRITICKY DŮLEŽITÉ PRAVIDLA PRO ID:
-    - Pracuj POUZE s nástroji ze seznamu níže
-    - ID produktu MUSÍ být přesně to, které je uvedené v seznamu - NIKDY nevymýšlej vlastní ID
-    - VŠECHNA doporučení MUSÍ být v ANGLIČTINĚ
-    - Vždy vysvětli, PROČ je nástroj vhodný pro konkrétní požadavek uživatele
-
-    SEZNAM DOSTUPNÝCH NÁSTROJŮ S JEJICH SKUTEČNÝMI ID:
-    ${simplifiedProducts.map(p => `ID: ${p.id} | Název: ${p.name} | Kategorie: ${p.category || 'N/A'}`).join('\n')}
-
-    Formát odpovědi (POUZE JSON):
-    {
-      "recommendations": [
-        {
-          "id": "POUŽIJ PŘESNĚ ID ZE SEZNAMU VÝŠE",
-          "matchPercentage": 95,
-          "recommendation": "Personalized recommendation in English explaining why this tool fits the user's needs."
+function filterProducts(query: string, limit = 20): any[] {
+  const keywords = query.toLowerCase().split(/\s+/).filter(k => k.length > 2);
+  
+  if (keywords.length === 0) return productsCache.slice(0, limit);
+  
+  // Skóre produktů podle výskytu klíčových slov
+  const scoredProducts = productsCache.map(product => {
+    const productText = [
+      product.name || '',
+      product.description || '',
+      product.category || '',
+      (Array.isArray(product.tags) ? product.tags : []).join(' ')
+    ].join(' ').toLowerCase();
+    
+    let score = 0;
+    for (const keyword of keywords) {
+      if (productText.includes(keyword)) {
+        score += 1;
+        
+        // Vyšší skóre za přímé shody v názvu
+        if ((product.name || '').toLowerCase().includes(keyword)) {
+          score += 2;
         }
-      ]
+      }
     }
+    
+    return { product, score };
+  });
+  
+  // Seřadíme podle skóre a vezmeme jen určitý počet
+  return scoredProducts
+    .sort((a, b) => b.score - a.score)
+    .slice(0, limit)
+    .map(item => item.product);
+}
 
-    PAMATUJ: Můžeš doporučit POUZE nástroje s ID, která jsou ve výše uvedeném seznamu. NIKDY nevymýšlej ID!
-    `;
-
-    console.log('generateRecommendations: Volám OpenAI API...');
-    console.log('Počet produktů v promptu:', simplifiedProducts.length);
-    console.log('Ukázka produktů v promptu:', simplifiedProducts.slice(0, 3).map(p => `${p.name} (${p.id})`));
+/**
+ * Funkce pro generování doporučení
+ */
+export async function generateRecommendations(userQuery: string) {
+  try {
+    const startTime = Date.now();
+    console.log('Začínám generovat doporučení pro dotaz:', userQuery);
+    
+    // 1. Zkusíme najít v cache
+    const cacheKey = userQuery.toLowerCase().trim();
+    const now = Date.now();
+    
+    const cached = responseCache.get(cacheKey);
+    if (cached && (now - cached.timestamp) < CACHE_DURATION) {
+      console.log('Použití cached doporučení');
+      console.log(`Celkový čas: ${Date.now() - startTime}ms`);
+      return { recommendations: cached.recommendations };
+    }
+    
+    // 2. Vyfiltrujeme relevantní produkty
+    const filteredProducts = filterProducts(userQuery);
+    console.log(`Nalezeno ${filteredProducts.length} relevantních produktů`);
+    
+    if (filteredProducts.length === 0) {
+      console.log('Žádné relevantní produkty nenalezeny');
+      return { recommendations: [] };
+    }
+    
+    // 3. Připravíme produkty pro prompt
+    const productsForPrompt = filteredProducts.map(p => ({
+      id: p.id,
+      name: p.name || '',
+      description: p.description ? p.description.substring(0, 150) : '',
+      tags: Array.isArray(p.tags) ? p.tags.join(', ') : ''
+    }));
+    
+    // 4. Volání OpenAI API
+    console.log(`Volám OpenAI API (gpt-4o-mini)...`);
+    const apiStart = Date.now();
     
     try {
-      // Voláme OpenAI API
       const response = await openai.chat.completions.create({
-        model: "gpt-4-turbo", 
+        model: 'gpt-4o-mini',
         messages: [
-          { role: "system", content: "Jsi odborník na AI nástroje, který pomáhá zákazníkům najít nejvhodnější AI nástroje pro jejich potřeby. Tvým cílem je přesvědčit zákazníka o užitečnosti doporučených nástrojů. Všechna tvá doporučení musí být pouze v angličtině. MUSÍŠ odpovídat POUZE ve formátu JSON, který je specifikován v požadavku." },
-          { role: "user", content: prompt }
-        ],
-        response_format: { type: "json_object" }, // Vracet jako JSON
-        temperature: 0.5, // Nižší teplota pro konzistentnější výsledky
-        max_tokens: 2000, 
-      });
+          { 
+            role: 'system', 
+            content: `You are ToolFinder, an AI assistant that recommends the most relevant AI tools for a specific user query.
 
-      console.log('generateRecommendations: Odpověď z OpenAI přijata');
+You will receive:
+- a user query describing a problem or use case
+- a list of available tools (each with id, name, description, tags)
+
+Your task:
+1. Select up to 8 max 10 most relevant tools from the list that best match the user's intent.
+2. For each selected tool:
+  - Return the \`id\` exactly as provided
+  - Return a \`matchPercentage\` as an integer between 80 and 99 based on how relevant the tool is for the query
+  - Write a personalized, helpful, and friendly \`recommendation\` (2–3 sentences) explaining why this tool is suitable
+
+Important:
+- Base your recommendation only on the provided tool data
+- The response must be valid JSON and follow **this exact structure**:
+
+{
+  "recommendations": [
+    {
+      "id": "tool_id",
+      "matchPercentage": 93,
+      "recommendation": "Why this tool fits the user's request..."
+    }
+    ...
+  ]
+}` 
+          },
+          { 
+            role: 'user', 
+            content: `Query: ${userQuery}\n\nAvailable tools: ${JSON.stringify(productsForPrompt)}` 
+          }
+        ],
+        temperature: 0.7,
+        response_format: { type: 'json_object' }
+      });
       
-      // Zpracujeme odpověď
-      const content = response.choices[0]?.message?.content || '';
-      console.log('OpenAI odpověď zkrácená:', content.substring(0, 300) + '... (zkráceno)');
+      console.log(`OpenAI API odpověď za ${Date.now() - apiStart}ms`);
+      
+      // 5. Zpracování odpovědi
+      const content = response.choices[0]?.message?.content || '{}';
+      let result;
       
       try {
-        // Robustní parsování JSON
-        let jsonContent = content;
+        // Parsování JSON
+        result = JSON.parse(content);
         
-        // Pokusíme se najít JSON v případě, že by obsahoval Markdown nebo jiný text
-        const jsonMatch = content.match(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/) || content.match(/(\{[\s\S]*\})/);
-        if (jsonMatch) {
-          jsonContent = jsonMatch[1];
+        // Kontrola formátu
+        if (!result.recommendations && result.topProducts) {
+          console.log('Použití topProducts místo recommendations');
+          result.recommendations = result.topProducts;
         }
         
-        const data = JSON.parse(jsonContent);
-        console.log(`generateRecommendations: Nalezeno ${data.recommendations?.length || 0} doporučení`);
+        if (!result.recommendations || !Array.isArray(result.recommendations)) {
+          console.log('Chybějící nebo neplatné pole recommendations v odpovědi:', result);
+          return { recommendations: [] };
+        }
         
-        // Ověříme, že všechna doporučení odkazují na produkty v naší databázi
-        const processedRecommendations = data.recommendations?.filter((rec: Recommendation) => {
-          const validProduct = validProductIds.has(rec.id);
-          if (!validProduct) {
-            console.log(`generateRecommendations: Ignoruji doporučení s neexistujícím ID: ${rec.id}`);
-            console.log('Toto ID není v seznamu validních ID:', Array.from(validProductIds));
+        // Validace a příprava doporučení
+        const validRecommendations = [];
+        
+        for (const rec of result.recommendations) {
+          if (!rec || !rec.id) continue;
+          
+          // Nalezení odpovídajícího produktu
+          const product = filteredProducts.find(p => p.id === rec.id);
+          if (!product) {
+            console.log(`Nenalezen produkt s ID: ${rec.id}`);
+            continue;
           }
-          return validProduct;
-        }) || [];
+          
+          validRecommendations.push({
+            id: rec.id,
+            matchPercentage: Math.min(99, Math.max(80, parseInt(String(rec.matchPercentage)) || 90)),
+            recommendation: rec.recommendation || '',
+            product
+          });
+        }
         
-        console.log(`generateRecommendations: Po filtraci zůstalo ${processedRecommendations.length} validních doporučení`);
+        // Uložení do cache
+        responseCache.set(cacheKey, {
+          recommendations: validRecommendations,
+          timestamp: now
+        });
         
-        // Zajistíme, že procenta jsou v požadovaném rozsahu 82-99%
-        const finalRecommendations = processedRecommendations.map((rec: Recommendation) => ({
-          ...rec,
-          matchPercentage: Math.min(99, Math.max(82, rec.matchPercentage))
-        }));
+        console.log(`Zpracováno ${validRecommendations.length} platných doporučení`);
+        console.log(`Celkový čas: ${Date.now() - startTime}ms`);
         
-        console.log(`generateRecommendations: Vracím ${finalRecommendations.length} validních doporučení`);
-        return finalRecommendations;
+        return { recommendations: validRecommendations };
       } catch (parseError) {
-        console.error('Chyba při parsování odpovědi z OpenAI:', parseError);
-        console.error('Kompletní odpověď z OpenAI:', content);
-        return [];
+        console.error('Chyba při zpracování odpovědi z OpenAI:', parseError);
+        console.log('Obsah odpovědi:', content);
+        return { recommendations: [] }; // Vracíme prázdný výsledek místo vyhození chyby
       }
     } catch (apiError) {
       console.error('Chyba při volání OpenAI API:', apiError);
-      console.error('Detaily chyby:', typeof apiError === 'object' ? JSON.stringify(apiError, null, 2) : apiError);
-      if (apiError instanceof Error) {
-        console.error('Error name:', apiError.name);
-        console.error('Error message:', apiError.message);
-        console.error('Error stack:', apiError.stack);
-      }
-      return [];
+      return { recommendations: [] }; // Vracíme prázdný výsledek místo vyhození chyby
     }
   } catch (error) {
     console.error('Chyba při generování doporučení:', error);
-    if (error instanceof Error) {
-      console.error('Error name:', error.name);
-      console.error('Error message:', error.message);
-      console.error('Error stack:', error.stack);
-    }
-    return [];
+    return { recommendations: [] }; // Vracíme prázdný výsledek místo vyhození chyby
+  }
+}
+
+/**
+ * Funkce pro vytvoření embeddingu z textu
+ */
+export async function createEmbedding(text: string): Promise<number[]> {
+  try {
+    const response = await openai.embeddings.create({
+      model: "text-embedding-ada-002",
+      input: text
+    });
+    
+    return response.data[0].embedding;
+  } catch (error) {
+    console.error('Chyba při vytváření embeddingu:', error);
+    throw new Error('Nepodařilo se vytvořit embedding');
   }
 } 

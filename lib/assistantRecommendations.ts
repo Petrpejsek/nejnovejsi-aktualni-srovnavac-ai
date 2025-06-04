@@ -2,149 +2,121 @@ import { OpenAI } from 'openai';
 import prisma from './prisma';
 
 // Verify that API key is loaded
-console.log('OpenAI API key loaded (Assistant):', process.env.OPENAI_API_KEY ? 'Yes (key ends with: ' + process.env.OPENAI_API_KEY.slice(-4) + ')' : 'No');
+console.log('OpenAI API key loaded (Chat):', process.env.OPENAI_API_KEY ? 'Yes (key ends with: ' + process.env.OPENAI_API_KEY.slice(-4) + ')' : 'No');
 
 // Create OpenAI client
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-// ⭐ Your assistant ID - set permanently
-const ASSISTANT_ID = 'asst_unwHSr7Dqc1odJLkbdtAzRbo';
-
-// Interface for recommendations
-interface Recommendation {
-  id: string;
-  matchPercentage: number;
-  recommendation: string;
-}
+// Zkrácený system prompt pro rychlost
+const TOOLFINDER_PROMPT = `Najdi 1-3 nejvhodnější AI nástroje pro uživatelský dotaz. Vrať POUZE JSON:
+{
+  "recommendations": [
+    {
+      "id": "ID_nástroje",
+      "match_percentage": 85,
+      "reason": "Proč je vhodný"
+    }
+  ]
+}`;
 
 export async function generateAssistantRecommendations(query: string) {
   try {
-    console.log('🚀 AssistantRecommendations: START', { query });
-    
-    // Check if OpenAI API key is available
-    if (!process.env.OPENAI_API_KEY) {
-      console.error('❌ OpenAI API key not found');
-      return [];
-    }
-
-    // Vytvoříme nový thread
-    const thread = await openai.beta.threads.create();
-
-    // Přidáme zprávu do threadu
-    await openai.beta.threads.messages.create(thread.id, {
-      role: 'user',
-      content: query
-    });
-
-    // Spustíme asistenta
-    const run = await openai.beta.threads.runs.create(thread.id, {
-      assistant_id: ASSISTANT_ID
-    });
-
-    // Wait for response
-    let runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);
+    console.log('🔍 Generating recommendations for:', query);
     const startTime = Date.now();
-    const MAX_WAIT = 50000; // 50 seconds - leave 10 seconds buffer for Vercel 60s limit
-    
-    while ((runStatus.status === 'queued' || runStatus.status === 'in_progress') && (Date.now() - startTime) < MAX_WAIT) {
-      const elapsed = Date.now() - startTime;
-      console.log(`AssistantRecommendations: ⏳ Status: ${runStatus.status}, waited: ${elapsed}ms/${MAX_WAIT}ms`);
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Check every 1 second
-      runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);
-    }
-    
-    const aiTime = Date.now() - startTime;
-    console.log(`AssistantRecommendations: 🎯 AI completed! Time: ${aiTime}ms (${(aiTime/1000).toFixed(1)}s), status: ${runStatus.status}`);
-    
-    if (runStatus.status !== 'completed') {
-      console.error(`AssistantRecommendations: ❌ Timeout after ${aiTime}ms, status: ${runStatus.status}`);
-      
-      // If status is 'failed', try to get error details
-      if (runStatus.status === 'failed') {
-        console.error('❌ Run failed details:', runStatus.last_error);
-      }
-      
-      // If still in progress, try to cancel the run to free resources
-      if (runStatus.status === 'in_progress' || runStatus.status === 'queued') {
-        try {
-          await openai.beta.threads.runs.cancel(thread.id, run.id);
-          console.log('🚫 Cancelled long-running assistant request');
-        } catch (cancelError) {
-          console.error('❌ Failed to cancel run:', cancelError);
-        }
-      }
-      
-      return [];
-    }
 
-    // Get response
-    const messages = await openai.beta.threads.messages.list(thread.id);
-    const lastMessage = messages.data.find(m => m.role === 'assistant') || messages.data[0];
-    
-    // Find text block
-    const textBlock = lastMessage.content.find(block => block.type === 'text');
-    const response = textBlock ? textBlock.text.value : '';
-    
-    console.log('🔍 AI ASSISTANT RESPONSE:');
-    console.log('Raw response:', response);
-    console.log('Response length:', response.length);
-
-    // Try to parse JSON
-    try {
-      let jsonText = response;
-      
-      // If contains markdown blocks ```json
-      const jsonMatch = response.match(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/);
-      if (jsonMatch) {
-        jsonText = jsonMatch[1];
+    // 1. Načti všechny produkty z databáze
+    const products = await prisma.product.findMany({
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        tags: true,
+        category: true,
+        price: true
       }
-      
-      // If starts/ends with some text, find only JSON part
-      const pureJsonMatch = response.match(/(\{[\s\S]*\})/);
-      if (pureJsonMatch && !jsonMatch) {
-        jsonText = pureJsonMatch[1];
-      }
-      
-      const data = JSON.parse(jsonText);
-      let recommendations: Recommendation[] = data.recommendations || [];
+    });
 
-      // Validate IDs against database
+    console.log(`📦 Loaded ${products.length} products for AI`);
+
+    // 2. Vytvoř kompaktní databázi pro AI (zkrácené popisy)
+    const productDatabase = products.map(p => {
+      // Zkrať popis na max 100 znaků
+      const shortDescription = p.description && p.description.length > 100 
+        ? p.description.substring(0, 100) + '...' 
+        : p.description;
       
-      const existingProducts = await prisma.product.findMany({
-        where: {
-          id: {
-            in: recommendations.map(r => r.id)
-          }
+      return `${p.id}|${p.name}|${shortDescription}|${p.category}|${p.tags}|${p.price}`;
+    }).join('\n');
+
+    // 3. Zavolej Chat Completions API
+    console.log('🤖 Calling OpenAI Chat Completions API...');
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        {
+          role: "system",
+          content: TOOLFINDER_PROMPT
         },
-        select: {
-          id: true,
-          name: true
+        {
+          role: "user",
+          content: `Databáze (ID|Název|Popis|Kategorie|Tags|Cena):\n${productDatabase}\n\nDotaz: ${query}`
         }
-      });
+      ],
+      temperature: 0.1,
+      max_tokens: 300
+    });
 
-      // Create Set of existing IDs for fast lookup
-      const existingIds = new Set(existingProducts.map(p => p.id));
+    const responseText = completion.choices[0]?.message?.content;
+    console.log('📝 AI Response:', responseText);
 
-      // Filter only recommendations with existing IDs
-      const validRecs = recommendations.filter(rec => {
-        const exists = existingIds.has(rec.id);
-        if (!exists) {
-          console.log('⚠️ ID does not exist in database:', rec.id);
-        }
-        return exists;
-      });
-
-      console.log(`✅ Valid recommendations: ${validRecs.length}/${recommendations.length}`);
-      
-      return validRecs;
-    } catch (e) {
-      console.error('Error parsing response:', e);
-      return [];
+    if (!responseText) {
+      throw new Error('No response from OpenAI');
     }
-  } catch (e) {
-    console.error('AssistantRecommendations: Error communicating with OpenAI:', e);
-    return [];
+
+    // 4. Parsuj JSON odpověď
+    let aiResponse;
+    try {
+      aiResponse = JSON.parse(responseText);
+    } catch (parseError) {
+      console.error('❌ JSON parse error:', parseError);
+      // Fallback - zkus najít JSON v textu
+      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        aiResponse = JSON.parse(jsonMatch[0]);
+      } else {
+        throw new Error('Invalid JSON response from AI');
+      }
+    }
+
+    // 5. Validuj a připrav finální doporučení
+    const validRecommendations = [];
+    const productMap = new Map(products.map(p => [p.id, p]));
+
+    for (const rec of aiResponse.recommendations || []) {
+      const product = productMap.get(rec.id);
+      if (product) {
+        validRecommendations.push({
+          id: product.id,
+          name: product.name,
+          description: product.description,
+          category: product.category,
+          tags: product.tags,
+          price: product.price,
+          match_percentage: rec.match_percentage || 75,
+          reason: rec.reason || 'Doporučeno AI asistentem'
+        });
+      }
+    }
+
+    const processingTime = Date.now() - startTime;
+    console.log(`✅ Generated ${validRecommendations.length} recommendations in ${processingTime}ms`);
+
+    return validRecommendations;
+
+  } catch (error) {
+    console.error('❌ Error generating recommendations:', error);
+    throw error;
   }
 } 

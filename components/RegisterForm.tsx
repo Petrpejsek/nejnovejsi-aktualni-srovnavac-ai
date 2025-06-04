@@ -13,22 +13,22 @@ export default function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFor
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (password !== confirmPassword) {
-      alert('Hesla se neshodují')
+      alert('Passwords do not match')
       return
     }
-    // TODO: Implementovat registraci
+    // TODO: Implement registration
     console.log('Register:', { email, password })
     onSuccess?.()
   }
 
   const handleGoogleRegister = () => {
-    // TODO: Implementovat Google registraci
+    // TODO: Implement Google registration
     console.log('Google register')
   }
 
   return (
     <div className="space-y-6">
-      {/* Google registrace */}
+      {/* Google registration */}
       <button
         type="button"
         onClick={handleGoogleRegister}
@@ -52,24 +52,24 @@ export default function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFor
             fill="#EA4335"
           />
         </svg>
-        Pokračovat s Google
+        Continue with Google
       </button>
 
-      {/* Oddělovač */}
+      {/* Divider */}
       <div className="relative">
         <div className="absolute inset-0 flex items-center">
           <div className="w-full border-t border-gray-200"></div>
         </div>
         <div className="relative flex justify-center text-sm">
-          <span className="bg-white px-4 text-gray-500">nebo</span>
+          <span className="bg-white px-4 text-gray-500">or</span>
         </div>
       </div>
 
-      {/* Klasická registrace */}
+      {/* Email registration */}
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-            E-mail
+            Email
           </label>
           <input
             type="email"
@@ -83,7 +83,7 @@ export default function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFor
 
         <div>
           <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-            Heslo
+            Password
           </label>
           <input
             type="password"
@@ -97,7 +97,7 @@ export default function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFor
 
         <div>
           <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
-            Potvrzení hesla
+            Confirm Password
           </label>
           <input
             type="password"
@@ -113,7 +113,7 @@ export default function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFor
           type="submit"
           className="w-full px-4 py-2 text-sm font-medium rounded-[14px] bg-gradient-primary text-white hover-gradient-primary transition-all"
         >
-          Vytvořit účet
+          Create Account
         </button>
 
         <div className="text-center">
@@ -122,7 +122,7 @@ export default function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFor
             onClick={onSwitchToLogin}
             className="text-sm text-gray-600 hover:text-gray-800 transition-colors"
           >
-            Již máte účet? <span className="text-gradient-primary">Přihlaste se</span>
+            Already have an account? <span className="text-gradient-primary">Log In</span>
           </button>
         </div>
       </form>

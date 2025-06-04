@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
     console.log('Produkty:', products.map(p => `${p.name} (${p.category})`).join(', '));
 
     // Vygenerujeme doporučení
-    const recommendations = await generateRecommendations(query, products);
+    const recommendations = await generateRecommendations(query);
     
     const duration = (Date.now() - startTime) / 1000;
     console.log(`Test dokončen za ${duration}s`);

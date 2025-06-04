@@ -103,10 +103,12 @@ function RecommendationsPageContent() {
   useEffect(() => {
     // If we have a query, we don't need to load all products!
     if (query) {
+      console.log('🎯 Máme query, přeskakuji načítání všech produktů');
       setLoading(false);
       return;
     }
 
+    console.log('🎯 Nemáme query, načítám všechny produkty pro katalog');
     const fetchProducts = async () => {
       try {
         setLoading(true);
@@ -142,6 +144,7 @@ function RecommendationsPageContent() {
             price: typeof product.price === 'string' ? parseFloat(product.price) : product.price
           }))
           setProducts(processedData)
+          console.log(`🎯 Načteno ${processedData.length} produktů pro katalog`);
         } else {
           console.error('Error loading:', response.status, response.statusText)
         }
@@ -221,50 +224,21 @@ function RecommendationsPageContent() {
           return;
         }
 
-        console.log(`📦 Loading ${data.recommendations.length} recommended products`);
+        console.log(`📦 Received ${data.recommendations.length} recommended products with complete data`);
         
-        // Load products from database for all recommendations
-        const productIds = data.recommendations.map((rec: any) => rec.id);
-        
-        const productsResponse = await fetch(`/api/products?ids=${productIds.join(',')}`, {
-          cache: 'no-store',
-          headers: {
-            'Cache-Control': 'no-cache, no-store, must-revalidate',
-            'Pragma': 'no-cache',
-            'Expires': '0'
+        // API už vrací kompletní produkty, nemusíme je načítat znovu!
+        const recommendationsWithProducts = data.recommendations.filter((rec: any) => {
+          if (!rec.product) {
+            console.warn(`⚠️ Recommendation ${rec.id} missing product data`);
+            return false;
           }
+          return true;
         });
         
-        if (!productsResponse.ok) {
-          console.error('Error loading products:', productsResponse.status);
-          return;
-        }
-        
-        const productsData = await productsResponse.json();
-        
-        const products = Array.isArray(productsData) ? productsData : productsData.products || [];
-        
-        // Combine recommendations with products from database
-        const recommendationsWithProducts = data.recommendations.map((rec: any) => {
-          const product = products.find((p: Product) => p.id === rec.id);
-          if (!product) {
-            console.warn(`⚠️ Product with ID ${rec.id} not found in database`);
-            return null;
-          }
-          return {
-            ...rec,
-            product: {
-              ...product,
-              matchPercentage: rec.matchPercentage,
-              recommendation: rec.recommendation
-            }
-          };
-        }).filter(Boolean);
-        
         if (recommendationsWithProducts.length === 0) {
-          console.warn('⚠️ No valid recommendations after combining with products');
+          console.warn('⚠️ No valid recommendations received from API');
         } else {
-          console.log(`✅ Successfully loaded ${recommendationsWithProducts.length} recommendations`);
+          console.log(`✅ Successfully received ${recommendationsWithProducts.length} complete recommendations`);
         }
         
         setRecommendations(recommendationsWithProducts);
