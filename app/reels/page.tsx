@@ -275,7 +275,9 @@ export default function ReelsPage() {
               className="relative group cursor-pointer"
             >
               {/* Reel Card */}
-              <div className="relative h-72 w-40 rounded-2xl overflow-hidden bg-gray-900 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] mx-auto">
+              <div className="relative h-72 w-40 rounded-2xl overflow-hidden bg-gray-900 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] mx-auto"
+                   style={{ height: '288px', width: '160px' }}
+              >
                 {/* Thumbnail */}
                 <img
                   src={reel.thumbnail}

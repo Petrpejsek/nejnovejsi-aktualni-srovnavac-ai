@@ -119,13 +119,12 @@ export default function ReelsCarousel() {
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollRef.current) {
-      const containerWidth = scrollRef.current.clientWidth
-      const newIndex = direction === 'left' 
-        ? Math.max(0, currentIndex - 1)
-        : Math.min(reels.length - 1, currentIndex + 1)
+      const reelWidth = 216 + 24 // 216px width + 24px gap
+      const scrollAmount = reelWidth * 2 // Scroll 2 reels at a time
+      const newScrollLeft = scrollRef.current.scrollLeft + (direction === 'left' ? -scrollAmount : scrollAmount)
       
       scrollRef.current.scrollTo({
-        left: newIndex * containerWidth,
+        left: newScrollLeft,
         behavior: 'smooth'
       })
       
@@ -176,38 +175,38 @@ export default function ReelsCarousel() {
         </div>
 
         {/* Carousel Container */}
-        <div className="relative max-w-sm mx-auto">
-          {/* Left Arrow */}
+        <div className="relative">
+          {/* Left Arrow - Hidden on mobile */}
           <button
             onClick={() => scroll('left')}
             disabled={!canScrollLeft}
-            className={`absolute left-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center transition-all duration-200 ${
+            className={`absolute left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center transition-all duration-200 hidden md:flex ${
               canScrollLeft 
                 ? 'hover:bg-black/70 cursor-pointer opacity-100' 
                 : 'opacity-30 cursor-not-allowed'
             }`}
           >
-            <ChevronLeftIcon className="w-5 h-5 text-white" />
+            <ChevronLeftIcon className="w-6 h-6 text-white" />
           </button>
 
-          {/* Right Arrow */}
+          {/* Right Arrow - Hidden on mobile */}
           <button
             onClick={() => scroll('right')}
             disabled={!canScrollRight}
-            className={`absolute right-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center transition-all duration-200 ${
+            className={`absolute right-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center transition-all duration-200 hidden md:flex ${
               canScrollRight 
                 ? 'hover:bg-black/70 cursor-pointer opacity-100' 
                 : 'opacity-30 cursor-not-allowed'
             }`}
           >
-            <ChevronRightIcon className="w-5 h-5 text-white" />
+            <ChevronRightIcon className="w-6 h-6 text-white" />
           </button>
 
-          {/* Reels Container - Každý reel jako samostatný slide */}
+          {/* Reels Container - Multiple reels visible on desktop */}
           <div
             ref={scrollRef}
             onScroll={checkScrollButtons}
-            className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide"
+            className="flex gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-hide px-4 md:px-16"
             style={{ 
               scrollbarWidth: 'none', 
               msOverflowStyle: 'none',
@@ -217,11 +216,12 @@ export default function ReelsCarousel() {
             {reels.map((reel, index) => (
               <div
                 key={reel.id}
-                className="w-full flex-shrink-0 snap-center snap-always"
-                style={{ minWidth: '100%' }}
+                className="flex-shrink-0 snap-center snap-always"
               >
-                {/* Single Reel Container */}
-                <div className="relative h-96 w-54 rounded-3xl overflow-hidden bg-gray-900 shadow-2xl mx-auto">
+                {/* Single Reel Container - Fixed dimensions */}
+                <div className="relative h-96 w-54 rounded-3xl overflow-hidden bg-gray-900 shadow-2xl"
+                     style={{ height: '384px', width: '216px' }}
+                >
                   {/* Thumbnail/Video */}
                   <img
                     src={reel.thumbnail}
