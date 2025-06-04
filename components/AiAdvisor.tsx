@@ -248,7 +248,7 @@ export default function AiAdvisor() {
         <p className="text-gray-600 text-lg max-w-2xl mx-auto">
           Choose from our{' '}
           <span className="inline-flex items-center bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text text-transparent font-semibold animate-pulse">
-            <span className="inline-block w-12 text-center font-mono">
+            <span className="inline-block w-12 text-center font-semibold tabular-nums">
               {totalProducts}
             </span> AI solutions
           </span>
