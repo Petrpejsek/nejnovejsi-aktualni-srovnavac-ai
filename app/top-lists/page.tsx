@@ -203,7 +203,7 @@ export default function TopListsPage() {
             </div>
 
             {/* Stats */}
-            <div className="flex justify-center gap-8 mb-8">
+            <div className="flex flex-col sm:flex-row justify-center gap-4 sm:gap-8 mb-8">
               <div className="text-center">
                 <div className="text-2xl font-bold text-purple-600">{topListCategories.length}</div>
                 <div className="text-sm text-gray-600">Categories</div>
@@ -275,7 +275,7 @@ function CategoryCard({ category }: { category: TopListCategory }) {
       href={`/top-lists/${category.id}`}
       className="group block"
     >
-      <div className={`${category.gradient} rounded-xl p-6 border border-gray-200 hover:shadow-lg transition-all duration-300 h-64 relative`}>
+      <div className={`${category.gradient} rounded-xl p-6 border border-gray-200 hover:shadow-lg transition-all duration-300 h-56 sm:h-64 relative`}>
         
         {/* Badge */}
         {category.badge && (
