@@ -94,6 +94,7 @@ export default function ReelsCarousel() {
   const [canScrollRight, setCanScrollRight] = useState(true)
   const [reels, setReels] = useState<Reel[]>(mockReels)
   const [playingId, setPlayingId] = useState<number | null>(null)
+  const [currentIndex, setCurrentIndex] = useState(0)
 
   // Kontrola možnosti scrollování
   const checkScrollButtons = () => {
@@ -101,6 +102,11 @@ export default function ReelsCarousel() {
       const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current
       setCanScrollLeft(scrollLeft > 0)
       setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10)
+      
+      // Vypočítej aktuální index
+      const reelWidth = clientWidth
+      const newIndex = Math.round(scrollLeft / reelWidth)
+      setCurrentIndex(newIndex)
     }
   }
 
@@ -113,16 +119,27 @@ export default function ReelsCarousel() {
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollRef.current) {
-      const isMobile = window.innerWidth < 768
-      const scrollAmount = isMobile ? 240 : 280 // Adjust for responsive card width
-      const newScrollLeft = scrollRef.current.scrollLeft + (direction === 'left' ? -scrollAmount : scrollAmount)
+      const containerWidth = scrollRef.current.clientWidth
+      const newIndex = direction === 'left' 
+        ? Math.max(0, currentIndex - 1)
+        : Math.min(reels.length - 1, currentIndex + 1)
       
       scrollRef.current.scrollTo({
-        left: newScrollLeft,
+        left: newIndex * containerWidth,
         behavior: 'smooth'
       })
       
       setTimeout(checkScrollButtons, 300)
+    }
+  }
+
+  const scrollToIndex = (index: number) => {
+    if (scrollRef.current) {
+      const containerWidth = scrollRef.current.clientWidth
+      scrollRef.current.scrollTo({
+        left: index * containerWidth,
+        behavior: 'smooth'
+      })
     }
   }
 
@@ -159,52 +176,52 @@ export default function ReelsCarousel() {
         </div>
 
         {/* Carousel Container */}
-        <div className="relative">
+        <div className="relative max-w-sm mx-auto">
           {/* Left Arrow */}
           <button
             onClick={() => scroll('left')}
             disabled={!canScrollLeft}
-            className={`absolute left-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-white shadow-lg border border-gray-200 flex items-center justify-center transition-all duration-200 hidden md:flex ${
+            className={`absolute left-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center transition-all duration-200 ${
               canScrollLeft 
-                ? 'hover:bg-gray-50 hover:shadow-xl cursor-pointer opacity-100' 
-                : 'opacity-50 cursor-not-allowed'
+                ? 'hover:bg-black/70 cursor-pointer opacity-100' 
+                : 'opacity-30 cursor-not-allowed'
             }`}
           >
-            <ChevronLeftIcon className="w-6 h-6 text-gray-700" />
+            <ChevronLeftIcon className="w-5 h-5 text-white" />
           </button>
 
           {/* Right Arrow */}
           <button
             onClick={() => scroll('right')}
             disabled={!canScrollRight}
-            className={`absolute right-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-white shadow-lg border border-gray-200 flex items-center justify-center transition-all duration-200 hidden md:flex ${
+            className={`absolute right-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center transition-all duration-200 ${
               canScrollRight 
-                ? 'hover:bg-gray-50 hover:shadow-xl cursor-pointer opacity-100' 
-                : 'opacity-50 cursor-not-allowed'
+                ? 'hover:bg-black/70 cursor-pointer opacity-100' 
+                : 'opacity-30 cursor-not-allowed'
             }`}
           >
-            <ChevronRightIcon className="w-6 h-6 text-gray-700" />
+            <ChevronRightIcon className="w-5 h-5 text-white" />
           </button>
 
-          {/* Reels Container */}
+          {/* Reels Container - Každý reel jako samostatný slide */}
           <div
             ref={scrollRef}
             onScroll={checkScrollButtons}
-            className="flex gap-4 overflow-x-auto scrollbar-hide px-2 md:px-16 snap-x snap-mandatory"
+            className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide"
             style={{ 
               scrollbarWidth: 'none', 
               msOverflowStyle: 'none',
-              WebkitOverflowScrolling: 'touch',
-              scrollBehavior: 'smooth'
+              WebkitOverflowScrolling: 'touch'
             }}
           >
-            {reels.map((reel) => (
+            {reels.map((reel, index) => (
               <div
                 key={reel.id}
-                className="flex-shrink-0 w-56 md:w-64 snap-center snap-always group cursor-pointer"
+                className="w-full flex-shrink-0 snap-center snap-always"
+                style={{ minWidth: '100%' }}
               >
-                {/* Video Container */}
-                <div className="relative aspect-[9/16] rounded-3xl overflow-hidden bg-gray-900 shadow-xl transition-all duration-300 hover:shadow-2xl hover:scale-[1.02]">
+                {/* Single Reel Container */}
+                <div className="relative aspect-[9/16] rounded-3xl overflow-hidden bg-gray-900 shadow-2xl mx-auto max-w-sm">
                   {/* Thumbnail/Video */}
                   <img
                     src={reel.thumbnail}
@@ -218,9 +235,9 @@ export default function ReelsCarousel() {
                   {/* Play Button */}
                   <button
                     onClick={() => handlePlay(reel.id)}
-                    className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                    className="absolute inset-0 flex items-center justify-center group"
                   >
-                    <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                    <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                       {playingId === reel.id ? (
                         <PauseIcon className="w-8 h-8 text-white" />
                       ) : (
@@ -235,25 +252,25 @@ export default function ReelsCarousel() {
                   </div>
 
                   {/* Content Overlay */}
-                  <div className="absolute bottom-0 left-0 right-0 p-4">
+                  <div className="absolute bottom-0 left-0 right-0 p-6">
                     {/* Author */}
                     <div className="text-white/80 text-sm font-medium mb-2">
                       @{reel.author}
                     </div>
                     
                     {/* Title */}
-                    <h3 className="text-white font-semibold text-base mb-1 line-clamp-2">
+                    <h3 className="text-white font-semibold text-lg mb-2 line-clamp-2">
                       {reel.title}
                     </h3>
                     
                     {/* Description */}
-                    <p className="text-white/90 text-sm line-clamp-2 mb-3">
+                    <p className="text-white/90 text-sm line-clamp-2 mb-4">
                       {reel.description}
                     </p>
                   </div>
 
                   {/* Side Actions */}
-                  <div className="absolute right-3 bottom-20 flex flex-col gap-3">
+                  <div className="absolute right-4 bottom-24 flex flex-col gap-4">
                     {/* Like Button */}
                     <button
                       onClick={(e) => {
@@ -263,9 +280,9 @@ export default function ReelsCarousel() {
                       className="flex flex-col items-center gap-1 group/like"
                     >
                       {reel.isLiked ? (
-                        <HeartFilledIcon className="w-7 h-7 text-red-500 group-hover/like:scale-110 transition-transform" />
+                        <HeartFilledIcon className="w-8 h-8 text-red-500 group-hover/like:scale-110 transition-transform" />
                       ) : (
-                        <HeartIcon className="w-7 h-7 text-white group-hover/like:text-red-500 group-hover/like:scale-110 transition-all" />
+                        <HeartIcon className="w-8 h-8 text-white group-hover/like:text-red-500 group-hover/like:scale-110 transition-all" />
                       )}
                       <span className="text-white text-xs font-medium">
                         {formatLikes(reel.likes)}
@@ -274,16 +291,31 @@ export default function ReelsCarousel() {
 
                     {/* Share Button */}
                     <button className="flex flex-col items-center gap-1 group/share">
-                      <ShareIcon className="w-7 h-7 text-white group-hover/share:text-blue-400 group-hover/share:scale-110 transition-all" />
+                      <ShareIcon className="w-8 h-8 text-white group-hover/share:text-blue-400 group-hover/share:scale-110 transition-all" />
                     </button>
 
                     {/* Bookmark Button */}
                     <button className="flex flex-col items-center gap-1 group/bookmark">
-                      <BookmarkIcon className="w-7 h-7 text-white group-hover/bookmark:text-yellow-400 group-hover/bookmark:scale-110 transition-all" />
+                      <BookmarkIcon className="w-8 h-8 text-white group-hover/bookmark:text-yellow-400 group-hover/bookmark:scale-110 transition-all" />
                     </button>
                   </div>
                 </div>
               </div>
+            ))}
+          </div>
+
+          {/* Progress Indicators */}
+          <div className="flex justify-center mt-4 gap-2">
+            {reels.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => scrollToIndex(index)}
+                className={`w-2 h-2 rounded-full transition-all duration-200 ${
+                  index === currentIndex 
+                    ? 'bg-purple-600 w-6' 
+                    : 'bg-gray-300 hover:bg-gray-400'
+                }`}
+              />
             ))}
           </div>
         </div>
