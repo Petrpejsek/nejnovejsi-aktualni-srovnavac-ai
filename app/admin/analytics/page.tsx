@@ -5,7 +5,6 @@ import {
   ChartBarIcon,
   EyeIcon,
   CursorArrowRaysIcon,
-  ChartBarIcon as TrendingUpIcon,
   CalendarIcon,
   ClockIcon,
   UserGroupIcon,
@@ -194,7 +193,7 @@ export default function AnalyticsAdmin() {
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <TrendingUpIcon className="h-8 w-8 text-orange-500" />
+              <span className="text-2xl">📈</span>
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-500">Průměr. kliky/den</p>
