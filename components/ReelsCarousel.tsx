@@ -113,7 +113,8 @@ export default function ReelsCarousel() {
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollRef.current) {
-      const scrollAmount = 280 // Width of one reel + gap
+      const isMobile = window.innerWidth < 768
+      const scrollAmount = isMobile ? 240 : 280 // Adjust for responsive card width
       const newScrollLeft = scrollRef.current.scrollLeft + (direction === 'left' ? -scrollAmount : scrollAmount)
       
       scrollRef.current.scrollTo({
@@ -189,16 +190,21 @@ export default function ReelsCarousel() {
           <div
             ref={scrollRef}
             onScroll={checkScrollButtons}
-            className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth px-2 md:px-16"
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            className="flex gap-4 overflow-x-auto scrollbar-hide px-2 md:px-16 snap-x snap-mandatory"
+            style={{ 
+              scrollbarWidth: 'none', 
+              msOverflowStyle: 'none',
+              WebkitOverflowScrolling: 'touch',
+              scrollBehavior: 'smooth'
+            }}
           >
             {reels.map((reel) => (
               <div
                 key={reel.id}
-                className="flex-shrink-0 w-56 md:w-64 group cursor-pointer"
+                className="flex-shrink-0 w-56 md:w-64 snap-center snap-always group cursor-pointer"
               >
                 {/* Video Container */}
-                <div className="relative aspect-[9/16] rounded-3xl overflow-hidden bg-gray-900 shadow-xl group-hover:shadow-2xl transition-all duration-300 group-hover:scale-105">
+                <div className="relative aspect-[9/16] rounded-3xl overflow-hidden bg-gray-900 shadow-xl transition-all duration-300 hover:shadow-2xl hover:scale-[1.02]">
                   {/* Thumbnail/Video */}
                   <img
                     src={reel.thumbnail}
