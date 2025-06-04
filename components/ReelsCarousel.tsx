@@ -221,7 +221,7 @@ export default function ReelsCarousel() {
                 style={{ minWidth: '100%' }}
               >
                 {/* Single Reel Container */}
-                <div className="relative aspect-[9/20] md:aspect-[9/16] rounded-3xl overflow-hidden bg-gray-900 shadow-2xl mx-auto max-w-sm">
+                <div className="relative aspect-[9/10] md:aspect-[9/8] rounded-3xl overflow-hidden bg-gray-900 shadow-2xl mx-auto max-w-sm">
                   {/* Thumbnail/Video */}
                   <img
                     src={reel.thumbnail}
