@@ -163,7 +163,7 @@ export default function ReelsCarousel() {
           <button
             onClick={() => scroll('left')}
             disabled={!canScrollLeft}
-            className={`absolute left-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-white shadow-lg border border-gray-200 flex items-center justify-center transition-all duration-200 ${
+            className={`absolute left-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-white shadow-lg border border-gray-200 flex items-center justify-center transition-all duration-200 hidden md:flex ${
               canScrollLeft 
                 ? 'hover:bg-gray-50 hover:shadow-xl cursor-pointer opacity-100' 
                 : 'opacity-50 cursor-not-allowed'
@@ -176,7 +176,7 @@ export default function ReelsCarousel() {
           <button
             onClick={() => scroll('right')}
             disabled={!canScrollRight}
-            className={`absolute right-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-white shadow-lg border border-gray-200 flex items-center justify-center transition-all duration-200 ${
+            className={`absolute right-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-white shadow-lg border border-gray-200 flex items-center justify-center transition-all duration-200 hidden md:flex ${
               canScrollRight 
                 ? 'hover:bg-gray-50 hover:shadow-xl cursor-pointer opacity-100' 
                 : 'opacity-50 cursor-not-allowed'
@@ -189,13 +189,13 @@ export default function ReelsCarousel() {
           <div
             ref={scrollRef}
             onScroll={checkScrollButtons}
-            className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth px-16"
+            className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth px-2 md:px-16"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             {reels.map((reel) => (
               <div
                 key={reel.id}
-                className="flex-shrink-0 w-64 group cursor-pointer"
+                className="flex-shrink-0 w-56 md:w-64 group cursor-pointer"
               >
                 {/* Video Container */}
                 <div className="relative aspect-[9/16] rounded-3xl overflow-hidden bg-gray-900 shadow-xl group-hover:shadow-2xl transition-all duration-300 group-hover:scale-105">
@@ -280,6 +280,13 @@ export default function ReelsCarousel() {
               </div>
             ))}
           </div>
+        </div>
+
+        {/* Mobile tip */}
+        <div className="mt-6 text-center md:hidden">
+          <p className="text-sm text-gray-500">
+            💡 Tip: Swipe left and right to browse reels
+          </p>
         </div>
 
         {/* View All Button */}
