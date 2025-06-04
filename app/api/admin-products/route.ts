@@ -7,129 +7,118 @@ export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
 export const revalidate = 0
 
-// API endpoint pro admin stránku s kompletními produkty
+// API endpoint pro admin stránku s optimalizovanými dotazy
 export async function GET(request: NextRequest) {
     try {
       const { searchParams } = new URL(request.url)
-      // Omezíme počet vracených produktů na 30, abychom se vešli do limitu Vercelu
-      const limit = parseInt(searchParams.get('limit') || '30', 10)
+      const limit = Math.min(parseInt(searchParams.get('limit') || '30', 10), 50) // Max 50 produktů najednou
       const page = parseInt(searchParams.get('page') || '1', 10) 
       const skip = (page - 1) * limit
       
-      // Nejprve zjistíme celkový počet produktů
-      const totalCount = await prisma.product.count()
-      
-      // Základní query pro kompletní produkty s limitem
-      const products = await prisma.product.findMany({
-        orderBy: {
-          name: 'asc'
-        },
-        take: limit,
-        skip: skip,
-        // Vybereme jen potřebná pole
-        select: {
-          id: true,
-          name: true,
-          description: true,
-          price: true,
-          category: true,
-          imageUrl: true,
-          tags: true,
-          advantages: true,
-          disadvantages: true,
-          detailInfo: true,
-          pricingInfo: true,
-          videoUrls: true,
-          externalUrl: true,
-          hasTrial: true
-        }
-      })
-      
-      // Zpracování dat pro front-end
-      const processedProducts = products.map(product => {
-        // Vytvoříme bezpečnou strukturu produktu
-        return {
-          id: product.id,
-          name: product.name || '',
-          description: product.description || '',
-          price: typeof product.price === 'number' ? product.price : 0,
-          category: product.category || '',
-          imageUrl: product.imageUrl || '',
-          tags: parseSafely(product.tags as string | null, []),
-          advantages: parseSafely(product.advantages as string | null, []),
-          disadvantages: parseSafely(product.disadvantages as string | null, []),
-          detailInfo: product.detailInfo || '',
-          pricingInfo: parsePricingInfo(product.pricingInfo as string | null),
-          videoUrls: parseSafely(product.videoUrls as string | null, []),
-          externalUrl: product.externalUrl || '',
-          hasTrial: Boolean(product.hasTrial)
-        }
-      })
-      
-      // Vypočítáme informace o stránkování
-      const totalPages = Math.ceil(totalCount / limit)
-      
-      // Vrátíme zpracovaná data s paginací
-      return new NextResponse(
-        JSON.stringify({ 
-          products: processedProducts,
-          count: processedProducts.length,
-          pagination: {
-            page,
-            limit,
-            totalCount,
-            totalPages,
-            hasMore: page < totalPages
+      // Paralelní dotazy pro rychlejší odpověď
+      const [products, totalCount] = await Promise.all([
+        // Optimalizovaný dotaz jen s potřebnými poli
+        prisma.product.findMany({
+          orderBy: [
+            { imageUrl: { sort: 'desc', nulls: 'last' } }, // Produkty s obrázkem první
+            { name: 'asc' }
+          ],
+          take: limit,
+          skip: skip,
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            price: true,
+            category: true,
+            imageUrl: true,
+            tags: true,
+            advantages: true,
+            disadvantages: true,
+            detailInfo: true,
+            pricingInfo: true,
+            videoUrls: true,
+            externalUrl: true,
+            hasTrial: true
           }
         }),
-        { 
-          status: 200, 
-          headers: {
-            'Content-Type': 'application/json',
-            'Cache-Control': 'no-store, no-cache, must-revalidate',
-            'Pragma': 'no-cache'
-          }
+        // Počet celkem
+        prisma.product.count()
+      ])
+      
+      // Rychlé zpracování dat
+      const processedProducts = products.map(product => ({
+        id: product.id,
+        name: product.name || '',
+        description: product.description || '',
+        price: typeof product.price === 'number' ? product.price : 0,
+        category: product.category || '',
+        imageUrl: product.imageUrl || '',
+        tags: safeParseArray(product.tags as string | null),
+        advantages: safeParseArray(product.advantages as string | null),
+        disadvantages: safeParseArray(product.disadvantages as string | null),
+        detailInfo: product.detailInfo || '',
+        pricingInfo: safeParsePricing(product.pricingInfo as string | null),
+        videoUrls: safeParseArray(product.videoUrls as string | null),
+        externalUrl: product.externalUrl || '',
+        hasTrial: Boolean(product.hasTrial)
+      }))
+      
+      const totalPages = Math.ceil(totalCount / limit)
+      
+      return NextResponse.json({ 
+        products: processedProducts,
+        count: processedProducts.length,
+        pagination: {
+          page,
+          limit,
+          totalCount,
+          totalPages,
+          hasMore: page < totalPages
         }
-      )
+      }, {
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate',
+          'Pragma': 'no-cache'
+        }
+      })
+      
     } catch (error) {
       console.error('Admin API error:', error)
-      return new NextResponse(
-        JSON.stringify({ error: 'Database error' }),
-        { 
-          status: 500, 
-          headers: { 'Content-Type': 'application/json' }
-        }
+      return NextResponse.json(
+        { error: 'Database error', details: error instanceof Error ? error.message : 'Unknown error' },
+        { status: 500 }
       )
   }
 }
 
-// Pomocná funkce pro bezpečné parsování JSON
-function parseSafely(jsonString: string | null, defaultValue: any): any {
-  if (!jsonString) return defaultValue;
-  
+// Optimalizované helper funkce
+function safeParseArray(jsonString: string | null): string[] {
+  if (!jsonString) return [];
   try {
-    return JSON.parse(jsonString);
-  } catch (error) {
-    console.error('Error parsing JSON:', error);
-    return defaultValue;
+    const parsed = JSON.parse(jsonString);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
   }
 }
 
-// Pomocná funkce pro zpracování pricingInfo
-function parsePricingInfo(jsonString: string | null): { basic: string; pro: string; enterprise: string } {
+function safeParsePricing(jsonString: string | null): { basic: string; pro: string; enterprise: string } {
   const defaultValue = { basic: '0', pro: '0', enterprise: '0' };
-  
   if (!jsonString) return defaultValue;
   
   try {
     const parsed = JSON.parse(jsonString);
-    return {
-      basic: typeof parsed.basic === 'string' ? parsed.basic : '0',
-      pro: typeof parsed.pro === 'string' ? parsed.pro : '0',
-      enterprise: typeof parsed.enterprise === 'string' ? parsed.enterprise : '0'
-    };
-  } catch (error) {
-    console.error('Error parsing pricingInfo:', error);
-    return defaultValue;
+    if (typeof parsed === 'object' && parsed !== null) {
+      return {
+        basic: String(parsed.basic || '0'),
+        pro: String(parsed.pro || '0'),
+        enterprise: String(parsed.enterprise || '0')
+      };
+    }
+  } catch {
+    // Ignorovat chyby parsování
   }
+  
+  return defaultValue;
 } 
