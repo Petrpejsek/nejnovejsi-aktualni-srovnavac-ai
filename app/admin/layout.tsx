@@ -3,19 +3,6 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { 
-  HomeIcon,
-  CubeIcon,
-  AcademicCapIcon,
-  BuildingOfficeIcon,
-  DocumentTextIcon,
-  ChartBarIcon,
-  CogIcon,
-  UserGroupIcon,
-  Bars3Icon,
-  XMarkIcon,
-  ListBulletIcon
-} from '@heroicons/react/24/outline'
 
 interface AdminLayoutProps {
   children: React.ReactNode
@@ -29,55 +16,55 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     {
       name: 'Dashboard',
       href: '/admin',
-      icon: HomeIcon,
+      icon: '🏠',
       current: pathname === '/admin'
     },
     {
       name: 'Produkty',
       href: '/admin/products',
-      icon: CubeIcon,
+      icon: '📦',
       current: pathname.startsWith('/admin/products')
     },
     {
       name: 'AI Kurzy',
       href: '/admin/courses',
-      icon: AcademicCapIcon,
+      icon: '🎓',
       current: pathname.startsWith('/admin/courses')
     },
     {
       name: 'Top Listy',
       href: '/admin/top-lists',
-      icon: ListBulletIcon,
+      icon: '📋',
       current: pathname.startsWith('/admin/top-lists')
     },
     {
       name: 'Firmy',
       href: '/admin/companies',
-      icon: BuildingOfficeIcon,
+      icon: '🏢',
       current: pathname.startsWith('/admin/companies')
     },
     {
       name: 'Stránky',
       href: '/admin/pages',
-      icon: DocumentTextIcon,
+      icon: '📄',
       current: pathname.startsWith('/admin/pages')
     },
     {
       name: 'Analytics',
       href: '/admin/analytics',
-      icon: ChartBarIcon,
+      icon: '📊',
       current: pathname.startsWith('/admin/analytics')
     },
     {
       name: 'Uživatelé',
       href: '/admin/users',
-      icon: UserGroupIcon,
+      icon: '👥',
       current: pathname.startsWith('/admin/users')
     },
     {
       name: 'Nastavení',
       href: '/admin/settings',
-      icon: CogIcon,
+      icon: '⚙️',
       current: pathname.startsWith('/admin/settings')
     }
   ]
@@ -95,7 +82,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               className="ml-1 flex items-center justify-center h-10 w-10 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
               onClick={() => setSidebarOpen(false)}
             >
-              <XMarkIcon className="h-6 w-6 text-white" />
+              <span className="text-white text-xl">×</span>
             </button>
           </div>
           
@@ -122,12 +109,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                   `}
                   onClick={() => setSidebarOpen(false)}
                 >
-                  <item.icon
-                    className={`
-                      mr-4 flex-shrink-0 h-6 w-6
-                      ${item.current ? 'text-purple-500' : 'text-gray-400 group-hover:text-gray-500'}
-                    `}
-                  />
+                  <span className="mr-4 flex-shrink-0 text-lg">{item.icon}</span>
                   {item.name}
                 </Link>
               ))}
@@ -161,12 +143,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                     }
                   `}
                 >
-                  <item.icon
-                    className={`
-                      mr-3 flex-shrink-0 h-6 w-6
-                      ${item.current ? 'text-purple-500' : 'text-gray-400 group-hover:text-gray-500'}
-                    `}
-                  />
+                  <span className="mr-3 flex-shrink-0 text-lg">{item.icon}</span>
                   {item.name}
                 </Link>
               ))}
@@ -198,7 +175,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             className="-ml-0.5 -mt-0.5 h-12 w-12 inline-flex items-center justify-center rounded-md text-gray-500 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-purple-500"
             onClick={() => setSidebarOpen(true)}
           >
-            <Bars3Icon className="h-6 w-6" />
+            <span className="text-xl">☰</span>
           </button>
         </div>
         
