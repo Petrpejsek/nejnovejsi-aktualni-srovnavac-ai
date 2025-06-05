@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import {
   PlusIcon,
@@ -33,9 +34,10 @@ interface Product {
 }
 
 export default function ProductsPage() {
+  const router = useRouter()
   const [selectedTab, setSelectedTab] = useState<'all' | 'active' | 'pending' | 'draft'>('all')
   
-  // Mock data
+  // Mock data - simplified for realistic company with 3 products
   const products: Product[] = [
     {
       id: '1',
@@ -76,19 +78,7 @@ export default function ProductsPage() {
       lastUpdated: '2024-01-22',
       createdAt: '2024-01-22'
     },
-    {
-      id: '4',
-      name: 'Smart Email Assistant',
-      description: 'AI-powered email writing and management tool for professionals and businesses.',
-      price: 39,
-      status: 'draft',
-      imageUrl: 'https://images.unsplash.com/photo-1596526131083-e8c633c948d2?w=200&h=200&fit=crop',
-      category: 'AI Productivity',
-      tags: ['Email', 'AI', 'Productivity'],
-      stats: { views: 0, clicks: 0, ctr: 0 },
-      lastUpdated: '2024-01-21',
-      createdAt: '2024-01-20'
-    }
+
   ]
 
   const filteredProducts = products.filter(product => 
@@ -150,27 +140,23 @@ export default function ProductsPage() {
         </button>
       </div>
 
-      {/* Stats overview - compact */}
-      <div className="flex-shrink-0 grid grid-cols-5 gap-3 mb-4">
-        <div className="bg-white p-3 rounded-lg border border-gray-200">
-          <p className="text-xs text-gray-500">Total</p>
-          <p className="text-lg font-semibold text-gray-900">{overviewStats.total}</p>
+      {/* Stats overview - simplified for small companies */}
+      <div className="flex-shrink-0 grid grid-cols-4 gap-4 mb-4">
+        <div className="bg-white p-4 rounded-lg border border-gray-200">
+          <p className="text-sm text-gray-500">Total Products</p>
+          <p className="text-2xl font-semibold text-gray-900">{overviewStats.total}</p>
         </div>
-        <div className="bg-white p-3 rounded-lg border border-gray-200">
-          <p className="text-xs text-gray-500">Active</p>
-          <p className="text-lg font-semibold text-green-600">{overviewStats.active}</p>
+        <div className="bg-white p-4 rounded-lg border border-gray-200">
+          <p className="text-sm text-gray-500">Active</p>
+          <p className="text-2xl font-semibold text-green-600">{overviewStats.active}</p>
         </div>
-        <div className="bg-white p-3 rounded-lg border border-gray-200">
-          <p className="text-xs text-gray-500">Pending</p>
-          <p className="text-lg font-semibold text-yellow-600">{overviewStats.pending}</p>
+        <div className="bg-white p-4 rounded-lg border border-gray-200">
+          <p className="text-sm text-gray-500">Total Views</p>
+          <p className="text-2xl font-semibold text-gray-900">{overviewStats.totalViews.toLocaleString()}</p>
         </div>
-        <div className="bg-white p-3 rounded-lg border border-gray-200">
-          <p className="text-xs text-gray-500">Total Views</p>
-          <p className="text-lg font-semibold text-gray-900">{overviewStats.totalViews.toLocaleString()}</p>
-        </div>
-        <div className="bg-white p-3 rounded-lg border border-gray-200">
-          <p className="text-xs text-gray-500">Avg. CTR</p>
-          <p className="text-lg font-semibold text-gray-900">{overviewStats.avgCtr.toFixed(1)}%</p>
+        <div className="bg-white p-4 rounded-lg border border-gray-200">
+          <p className="text-sm text-gray-500">Avg. CTR</p>
+          <p className="text-2xl font-semibold text-purple-600">{overviewStats.avgCtr.toFixed(1)}%</p>
         </div>
       </div>
 
@@ -270,10 +256,17 @@ export default function ProductsPage() {
                   </td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex items-center justify-end space-x-2">
-                      <button className="p-1 text-gray-400 hover:text-purple-600 transition-colors">
+                      <button 
+                        className="p-1 text-gray-400 hover:text-purple-600 transition-colors"
+                        title="View Analytics"
+                      >
                         <ChartBarIcon className="w-4 h-4" />
                       </button>
-                      <button className="p-1 text-gray-400 hover:text-purple-600 transition-colors">
+                      <button 
+                        onClick={() => router.push(`/company-admin/products/${product.id}/edit`)}
+                        className="p-1 text-gray-400 hover:text-purple-600 transition-colors"
+                        title="Edit Product"
+                      >
                         <PencilIcon className="w-4 h-4" />
                       </button>
                     </div>

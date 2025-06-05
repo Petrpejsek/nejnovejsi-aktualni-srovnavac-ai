@@ -17,6 +17,8 @@ model Product {
   price       Float
   category    String?
   imageUrl    String?
+  pendingImageUrl String? // Nová fotka čekající na schválení
+  imageApprovalStatus String? // 'pending', 'approved', 'rejected'
   tags        Json?    // Uloženo jako JSON
   advantages  Json?    // Uloženo jako JSON
   disadvantages Json?  // Uloženo jako JSON

@@ -191,77 +191,97 @@ export default function AdminDashboard() {
 
       {/* Analytics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <span className="text-2xl">👁️</span>
-            </div>
-            <div className="ml-5 w-0 flex-1">
-              <dl>
-                <dt className="text-sm font-medium text-gray-500 truncate">
-                  Celkové návštěvy
-                </dt>
-                <dd className="text-lg font-medium text-gray-900">
-                  {analytics.uniqueVisitors}
-                </dd>
-              </dl>
+        <Link
+          href="/admin/analytics"
+          className="group"
+        >
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 hover:border-purple-300 hover:shadow-md transition-all duration-200 cursor-pointer">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <span className="text-2xl">👁️</span>
+              </div>
+              <div className="ml-5 w-0 flex-1">
+                <dl>
+                  <dt className="text-sm font-medium text-gray-500 truncate group-hover:text-purple-600 transition-colors">
+                    Celkové návštěvy
+                  </dt>
+                  <dd className="text-lg font-medium text-gray-900 group-hover:text-purple-700 transition-colors">
+                    {analytics.uniqueVisitors}
+                  </dd>
+                </dl>
+              </div>
             </div>
           </div>
-        </div>
+        </Link>
 
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <span className="text-2xl">👆</span>
-            </div>
-            <div className="ml-5 w-0 flex-1">
-              <dl>
-                <dt className="text-sm font-medium text-gray-500 truncate">
-                  Celkové kliky
-                </dt>
-                <dd className="text-lg font-medium text-gray-900">
-                  {analytics.totalClicks}
-                </dd>
-              </dl>
+        <Link
+          href="/admin/analytics"
+          className="group"
+        >
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 hover:border-purple-300 hover:shadow-md transition-all duration-200 cursor-pointer">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <span className="text-2xl">👆</span>
+              </div>
+              <div className="ml-5 w-0 flex-1">
+                <dl>
+                  <dt className="text-sm font-medium text-gray-500 truncate group-hover:text-purple-600 transition-colors">
+                    Celkové kliky
+                  </dt>
+                  <dd className="text-lg font-medium text-gray-900 group-hover:text-purple-700 transition-colors">
+                    {analytics.totalClicks}
+                  </dd>
+                </dl>
+              </div>
             </div>
           </div>
-        </div>
+        </Link>
 
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <span className="text-2xl">📦</span>
-            </div>
-            <div className="ml-5 w-0 flex-1">
-              <dl>
-                <dt className="text-sm font-medium text-gray-500 truncate">
-                  Produkty v DB
-                </dt>
-                <dd className="text-lg font-medium text-gray-900">
-                  {dashboardStats.products.total}
-                </dd>
-              </dl>
+        <Link
+          href="/admin/products"
+          className="group"
+        >
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 hover:border-purple-300 hover:shadow-md transition-all duration-200 cursor-pointer">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <span className="text-2xl">📦</span>
+              </div>
+              <div className="ml-5 w-0 flex-1">
+                <dl>
+                  <dt className="text-sm font-medium text-gray-500 truncate group-hover:text-purple-600 transition-colors">
+                    Produkty v DB
+                  </dt>
+                  <dd className="text-lg font-medium text-gray-900 group-hover:text-purple-700 transition-colors">
+                    {dashboardStats.products.total}
+                  </dd>
+                </dl>
+              </div>
             </div>
           </div>
-        </div>
+        </Link>
 
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <span className="text-2xl">⭐</span>
-            </div>
-            <div className="ml-5 w-0 flex-1">
-              <dl>
-                <dt className="text-sm font-medium text-gray-500 truncate">
-                  Celkové hodnocení
-                </dt>
-                <dd className="text-lg font-medium text-gray-900">
-                  4.8
-                </dd>
-              </dl>
+        <Link
+          href="/admin/analytics"
+          className="group"
+        >
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 hover:border-purple-300 hover:shadow-md transition-all duration-200 cursor-pointer">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <span className="text-2xl">⭐</span>
+              </div>
+              <div className="ml-5 w-0 flex-1">
+                <dl>
+                  <dt className="text-sm font-medium text-gray-500 truncate group-hover:text-purple-600 transition-colors">
+                    Celkové hodnocení
+                  </dt>
+                  <dd className="text-lg font-medium text-gray-900 group-hover:text-purple-700 transition-colors">
+                    4.8
+                  </dd>
+                </dl>
+              </div>
             </div>
           </div>
-        </div>
+        </Link>
       </div>
 
       {/* Quick Actions */}

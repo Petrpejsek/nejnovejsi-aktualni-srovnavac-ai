@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useRef, useEffect } from 'react'
+import { useSession } from 'next-auth/react'
 import { 
   PlayIcon, 
   ClockIcon, 
@@ -9,10 +10,13 @@ import {
   BookmarkIcon,
   ShareIcon,
   MagnifyingGlassIcon,
-  AdjustmentsHorizontalIcon
+  AdjustmentsHorizontalIcon,
+  ArrowRightIcon
 } from '@heroicons/react/24/outline'
 import { StarIcon as StarFilledIcon, BookmarkIcon as BookmarkFilledIcon } from '@heroicons/react/24/solid'
 import Link from 'next/link'
+import Modal from '../../components/Modal'
+import RegisterForm from '../../components/RegisterForm'
 
 // Types for courses
 interface Course {
@@ -211,6 +215,8 @@ export default function AiKurzyPage() {
   const [sortBy, setSortBy] = useState('popularity') // popularity, rating, newest, price
   const [displayedCourses, setDisplayedCourses] = useState(6) // Show 6 courses initially
   const [loading, setLoading] = useState(false)
+  const [showSignUpModal, setShowSignUpModal] = useState(false)
+  const { data: session } = useSession()
 
   // Filter courses
   const filteredCourses = courses.filter(course => {
@@ -244,6 +250,12 @@ export default function AiKurzyPage() {
   const hasMoreCourses = sortedCourses.length > displayedCourses
 
   const handleBookmark = (courseId: number) => {
+    if (!session) {
+      setShowSignUpModal(true)
+      return
+    }
+
+    // User je přihlášen - toggle bookmark stav
     setCourses(prev => prev.map(course => 
       course.id === courseId 
         ? { ...course, isBookmarked: !course.isBookmarked }
@@ -380,8 +392,17 @@ export default function AiKurzyPage() {
           {coursesToShow.map(course => (
             <div
               key={course.id}
-              className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 group flex flex-col h-full"
+              className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg hover:border-purple-300 transition-all duration-300 group flex flex-col h-full cursor-pointer relative"
+              onClick={() => window.location.href = `/ai-kurzy/${course.id}`}
             >
+              {/* Hover overlay with instruction */}
+              <div className="absolute inset-0 bg-purple-600 bg-opacity-0 group-hover:bg-opacity-5 transition-all duration-300 pointer-events-none rounded-xl"></div>
+                             <div className="absolute top-4 left-4 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none">
+                 <div className="bg-purple-600 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1">
+                   <span>Click for details</span>
+                   <ArrowRightIcon className="w-3 h-3" />
+                 </div>
+               </div>
               {/* Thumbnail with play button */}
               <div className="relative aspect-video overflow-hidden">
                 <img
@@ -390,13 +411,19 @@ export default function AiKurzyPage() {
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
                 <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
-                  <button className="w-16 h-16 bg-white bg-opacity-90 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-opacity-100 hover:scale-110">
+                  <button 
+                    className="w-16 h-16 bg-white bg-opacity-90 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-opacity-100 hover:scale-110"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <PlayIcon className="w-6 h-6 text-purple-600 ml-1" />
                   </button>
                 </div>
                 <div className="absolute top-4 right-4">
                   <button
-                    onClick={() => handleBookmark(course.id)}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleBookmark(course.id)
+                    }}
                     className="w-10 h-10 bg-black bg-opacity-50 rounded-full flex items-center justify-center hover:bg-opacity-70 transition-all duration-200"
                   >
                     {course.isBookmarked ? (
@@ -426,7 +453,7 @@ export default function AiKurzyPage() {
                 </div>
 
                 {/* Title */}
-                <Link href={`/ai-kurzy/chatgpt-for-business-complete-guide`}>
+                <Link href={`/ai-kurzy/${course.id}`}>
                   <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2 group-hover:text-purple-600 transition-colors cursor-pointer">
                     {course.title}
                   </h3>
@@ -464,16 +491,26 @@ export default function AiKurzyPage() {
                   ))}
                 </div>
 
-                {/* Price and button - mt-auto pushes this to the bottom */}
-                <div className="flex items-center justify-between mt-auto">
+                {/* Price and action buttons - mt-auto pushes this to the bottom */}
+                <div className="space-y-3 mt-auto">
+                  {/* Price */}
                   <div className="text-2xl font-bold text-purple-600">
                     {formatPrice(course.price)}
                   </div>
-                  <Link href={`/ai-kurzy/chatgpt-for-business-complete-guide`}>
-                    <button className="px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-200 font-medium">
-                      Buy Course
-                    </button>
-                  </Link>
+                  
+                  {/* Action buttons */}
+                  <div className="flex gap-3" onClick={(e) => e.stopPropagation()}>
+                    <Link href={`/ai-kurzy/${course.id}`} className="flex-1">
+                      <button className="w-full px-4 py-2 h-10 bg-white border-2 border-purple-600 text-purple-600 rounded-lg hover:bg-purple-50 transition-all duration-200 font-medium text-sm flex items-center justify-center">
+                        Course Details
+                      </button>
+                    </Link>
+                    <Link href={`/ai-kurzy/${course.id}`} className="flex-1">
+                      <button className="w-full px-4 py-2 h-10 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-200 font-medium text-sm flex items-center justify-center">
+                        Buy Course
+                      </button>
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>
@@ -528,6 +565,21 @@ export default function AiKurzyPage() {
             </button>
           </div>
         )}
+
+        {/* Sign Up Modal */}
+        <Modal
+          isOpen={showSignUpModal}
+          onClose={() => setShowSignUpModal(false)}
+          title="Sign Up to Bookmark"
+        >
+          <RegisterForm
+            onSuccess={() => {
+              setShowSignUpModal(false)
+              window.location.reload()
+            }}
+            onSwitchToLogin={() => setShowSignUpModal(false)}
+          />
+        </Modal>
       </div>
     </div>
   )

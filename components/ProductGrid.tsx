@@ -13,6 +13,7 @@ interface Product {
   tags?: string[]
   externalUrl?: string
   hasTrial?: boolean
+  isBookmarked?: boolean
 }
 
 interface ProductGridProps {
@@ -28,6 +29,14 @@ export default function ProductGrid({ selectedTags }: ProductGridProps = {}) {
   const [hasMore, setHasMore] = useState(true)
   const [totalProducts, setTotalProducts] = useState(0)
   const PAGE_SIZE = 12
+
+  const handleBookmarkChange = (productId: string, isBookmarked: boolean) => {
+    setProducts(prev => prev.map(product => 
+      product.id === productId 
+        ? { ...product, isBookmarked }
+        : product
+    ))
+  }
 
   useEffect(() => {
     let isMounted = true
@@ -52,7 +61,8 @@ export default function ProductGrid({ selectedTags }: ProductGridProps = {}) {
             imageUrl: product.imageUrl,
             tags: Array.isArray(product.tags) ? product.tags : [],
             externalUrl: product.externalUrl,
-            hasTrial: Boolean(product.hasTrial)
+            hasTrial: Boolean(product.hasTrial),
+            isBookmarked: false // Default to false, would be loaded from user data
           }))
           
           setProducts(simpleProducts)
@@ -105,7 +115,8 @@ export default function ProductGrid({ selectedTags }: ProductGridProps = {}) {
           imageUrl: product.imageUrl,
           tags: Array.isArray(product.tags) ? product.tags : [],
           externalUrl: product.externalUrl,
-          hasTrial: Boolean(product.hasTrial)
+          hasTrial: Boolean(product.hasTrial),
+          isBookmarked: false // Default to false, would be loaded from user data
         }))
         
         setProducts(prev => [...prev, ...newProducts])
@@ -164,6 +175,8 @@ export default function ProductGrid({ selectedTags }: ProductGridProps = {}) {
             tags={product.tags}
             externalUrl={product.externalUrl}
             hasTrial={product.hasTrial}
+            isBookmarked={product.isBookmarked}
+            onBookmarkChange={handleBookmarkChange}
           />
         ))}
       </div>

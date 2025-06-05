@@ -4,7 +4,10 @@ import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { PlayIcon, PauseIcon, FunnelIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline'
 import { HeartIcon, ShareIcon, BookmarkIcon, FireIcon } from '@heroicons/react/24/outline'
-import { HeartIcon as HeartFilledIcon } from '@heroicons/react/24/solid'
+import { HeartIcon as HeartFilledIcon, BookmarkIcon as BookmarkFilledIcon } from '@heroicons/react/24/solid'
+import { useSession } from 'next-auth/react'
+import Modal from '../../components/Modal'
+import RegisterForm from '../../components/RegisterForm'
 
 // Extended mockdata pro reels s kategoriemi
 const allReels = [
@@ -145,15 +148,18 @@ interface Reel {
   category: string
   tags: string[]
   trending: boolean
+  isBookmarked?: boolean
 }
 
 export default function ReelsPage() {
-  const [reels, setReels] = useState<Reel[]>(allReels)
-  const [filteredReels, setFilteredReels] = useState<Reel[]>(allReels)
+  const [reels, setReels] = useState<Reel[]>(allReels.map(reel => ({...reel, isBookmarked: false})))
+  const [filteredReels, setFilteredReels] = useState<Reel[]>(allReels.map(reel => ({...reel, isBookmarked: false})))
   const [selectedCategory, setSelectedCategory] = useState('All')
   const [searchQuery, setSearchQuery] = useState('')
   const [playingId, setPlayingId] = useState<number | null>(null)
   const [showTrendingOnly, setShowTrendingOnly] = useState(false)
+  const [showSignUpModal, setShowSignUpModal] = useState(false)
+  const { data: session } = useSession()
 
   // Filter reels based on category, search and trending
   useEffect(() => {
@@ -191,6 +197,20 @@ export default function ReelsPage() {
 
   const handlePlay = (id: number) => {
     setPlayingId(playingId === id ? null : id)
+  }
+
+  const handleBookmark = (id: number) => {
+    // Check if user is authenticated
+    if (!session) {
+      setShowSignUpModal(true)
+      return
+    }
+    
+    setReels(reels.map(reel => 
+      reel.id === id 
+        ? { ...reel, isBookmarked: !reel.isBookmarked }
+        : reel
+    ))
   }
 
   const formatLikes = (likes: number) => {
@@ -357,6 +377,21 @@ export default function ReelsPage() {
                   <button className="flex flex-col items-center gap-1 group/share">
                     <ShareIcon className="w-6 h-6 text-white group-hover/share:text-blue-400 group-hover/share:scale-110 transition-all" />
                   </button>
+
+                  {/* Bookmark Button */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleBookmark(reel.id)
+                    }}
+                    className="flex flex-col items-center gap-1 group/bookmark"
+                  >
+                    {reel.isBookmarked ? (
+                      <BookmarkFilledIcon className="w-6 h-6 text-yellow-400 group-hover/bookmark:scale-110 transition-transform" />
+                    ) : (
+                      <BookmarkIcon className="w-6 h-6 text-white group-hover/bookmark:text-yellow-400 group-hover/bookmark:scale-110 transition-all" />
+                    )}
+                  </button>
                 </div>
               </div>
 
@@ -414,6 +449,21 @@ export default function ReelsPage() {
           </Link>
         </div>
       </div>
+      
+      {/* Sign Up Modal */}
+      <Modal
+        isOpen={showSignUpModal}
+        onClose={() => setShowSignUpModal(false)}
+        title="Sign Up to Bookmark"
+      >
+        <RegisterForm
+          onSuccess={() => {
+            setShowSignUpModal(false)
+            window.location.reload()
+          }}
+          onSwitchToLogin={() => setShowSignUpModal(false)}
+        />
+      </Modal>
     </div>
   )
 } 

@@ -186,6 +186,17 @@ export async function GET(request: NextRequest) {
       
       console.log(`API: Successfully loaded ${products.length} products (page ${validPage}, pageSize ${validPageSize}, total ${totalProducts})`);
       
+      // Cache the product count for homepage animation
+      try {
+        await fetch(new URL('/api/product-count', request.url), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ count: totalProducts })
+        });
+      } catch (error) {
+        console.warn('Failed to cache product count:', error);
+      }
+      
       const response = {
         products,
         pagination: {

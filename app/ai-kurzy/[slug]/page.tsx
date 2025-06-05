@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react'
 import Link from 'next/link'
+import { useSession } from 'next-auth/react'
 import { 
   PlayIcon, 
   ClockIcon, 
@@ -23,6 +24,8 @@ import {
   LockClosedIcon
 } from '@heroicons/react/24/outline'
 import { StarIcon as StarFilledIcon, BookmarkIcon as BookmarkFilledIcon, HeartIcon as HeartFilledIcon } from '@heroicons/react/24/solid'
+import Modal from '../../../components/Modal'
+import RegisterForm from '../../../components/RegisterForm'
 
 // Types
 interface CourseLesson {
@@ -268,6 +271,8 @@ export default function CourseDetailPage({ params }: { params: { slug: string } 
   const [isBookmarked, setIsBookmarked] = useState(courseData.isBookmarked)
   const [isLiked, setIsLiked] = useState(courseData.isLiked)
   const [expandedSections, setExpandedSections] = useState<number[]>([1])
+  const [showSignUpModal, setShowSignUpModal] = useState(false)
+  const { data: session } = useSession()
 
   const toggleSection = (sectionId: number) => {
     setExpandedSections(prev => 
@@ -711,7 +716,13 @@ export default function CourseDetailPage({ params }: { params: { slug: string } 
                 {/* Action Buttons */}
                 <div className="flex items-center justify-between mt-6 pt-6 border-t">
                   <button
-                    onClick={() => setIsBookmarked(!isBookmarked)}
+                    onClick={() => {
+                      if (!session) {
+                        setShowSignUpModal(true)
+                        return
+                      }
+                      setIsBookmarked(!isBookmarked)
+                    }}
                     className="flex items-center space-x-2 text-gray-600 hover:text-purple-600"
                   >
                     {isBookmarked ? (
@@ -794,6 +805,21 @@ export default function CourseDetailPage({ params }: { params: { slug: string } 
           </div>
         </div>
       </div>
+
+      {/* Sign Up Modal */}
+      <Modal
+        isOpen={showSignUpModal}
+        onClose={() => setShowSignUpModal(false)}
+        title="Sign Up to Bookmark"
+      >
+        <RegisterForm
+          onSuccess={() => {
+            setShowSignUpModal(false)
+            window.location.reload()
+          }}
+          onSwitchToLogin={() => setShowSignUpModal(false)}
+        />
+      </Modal>
     </div>
   )
 } 

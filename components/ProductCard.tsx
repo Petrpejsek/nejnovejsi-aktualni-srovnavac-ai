@@ -3,9 +3,13 @@ import Image from 'next/image'
 import { 
   StarIcon,
   ShieldCheckIcon,
-  CheckBadgeIcon
+  CheckBadgeIcon,
+  BookmarkIcon
 } from '@heroicons/react/24/outline'
-import { StarIcon as StarFilledIcon } from '@heroicons/react/24/solid'
+import { StarIcon as StarFilledIcon, BookmarkIcon as BookmarkFilledIcon } from '@heroicons/react/24/solid'
+import { useSession } from 'next-auth/react'
+import Modal from './Modal'
+import RegisterForm from './RegisterForm'
 
 interface Review {
   id: number
@@ -25,6 +29,8 @@ interface ProductCardProps {
   tags?: string[]
   externalUrl?: string
   hasTrial?: boolean
+  isBookmarked?: boolean
+  onBookmarkChange?: (productId: string, isBookmarked: boolean) => void
 }
 
 declare global {
@@ -65,11 +71,14 @@ const getProductReviews = (productId: string): { rating: number; reviewsCount: n
   return reviewsData[productKey] || reviewsData.default
 }
 
-export default function ProductCard({ id, name, description, price, imageUrl, tags, externalUrl, hasTrial }: ProductCardProps) {
+export default function ProductCard({ id, name, description, price, imageUrl, tags, externalUrl, hasTrial, isBookmarked, onBookmarkChange }: ProductCardProps) {
   const [visibleTags, setVisibleTags] = useState<string[]>(tags || [])
   const [hiddenTagsCount, setHiddenTagsCount] = useState(0)
+  const [showSignUpModal, setShowSignUpModal] = useState(false)
+  const [localBookmarked, setLocalBookmarked] = useState(isBookmarked || false)
   const tagsContainerRef = useRef<HTMLDivElement>(null)
   const measurementDivRef = useRef<HTMLDivElement>(null)
+  const { data: session } = useSession()
 
   // Get reviews for this product
   const productReviews = getProductReviews(name)
@@ -147,6 +156,29 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
     }
   }
 
+  const handleBookmark = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    
+    // Check if user is authenticated
+    if (!session) {
+      setShowSignUpModal(true)
+      return
+    }
+    
+    // Toggle bookmark
+    const newBookmarkedState = !localBookmarked
+    setLocalBookmarked(newBookmarkedState)
+    
+    // Call parent callback if provided
+    if (onBookmarkChange) {
+      onBookmarkChange(id, newBookmarkedState)
+    }
+    
+    // Here you would typically save to backend
+    console.log(`Product ${id} bookmark status: ${newBookmarkedState}`)
+  }
+
   // Malé hvězdičky pro decentní rating
   const renderSmallStars = (rating: number) => {
     const stars = []
@@ -207,16 +239,8 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
   }
 
   return (
-    <a 
-      href={externalUrl}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="block bg-gradient-to-b from-white to-gray-50 rounded-lg shadow-lg hover:shadow-2xl border border-gray-200 transition-all duration-300 hover:scale-[1.02] hover:border-purple-300 cursor-pointer h-full min-h-[400px] flex flex-col relative overflow-hidden"
-      onClick={(e) => {
-        handleVisit(e)
-        handleClick(id)
-      }}
-    >
+    <>
+      <div className="bg-gradient-to-b from-white to-gray-50 rounded-lg shadow-lg hover:shadow-2xl border border-gray-200 transition-all duration-300 hover:scale-[1.02] hover:border-purple-300 h-full min-h-[400px] flex flex-col relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-purple-50/30 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
       
       {/* Image section - původní aspect ratio */}
@@ -232,6 +256,18 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
             Free Trial
           </div>
         )}
+        
+        {/* Bookmark button */}
+        <button
+          onClick={handleBookmark}
+          className="absolute top-2 left-2 w-8 h-8 bg-white bg-opacity-90 hover:bg-opacity-100 rounded-full flex items-center justify-center shadow-sm transition-all duration-200 hover:scale-110"
+        >
+          {localBookmarked ? (
+            <BookmarkFilledIcon className="w-4 h-4 text-purple-600" />
+          ) : (
+            <BookmarkIcon className="w-4 h-4 text-gray-600" />
+          )}
+        </button>
       </div>
       
       {/* Content section - původní layout */}
@@ -292,11 +328,34 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
           ) : (
             <div className="text-lg font-bold text-purple-600">${price}</div>
           )}
-          <div className="px-2 py-1.5 bg-gradient-primary text-white text-sm font-medium rounded-[14px] hover:opacity-90 transition-opacity">
+          <button 
+            onClick={(e) => {
+              e.stopPropagation()
+              handleVisit(e)
+              handleClick(id)
+            }}
+            className="px-2 py-1.5 bg-gradient-primary text-white text-sm font-medium rounded-[14px] hover:opacity-90 transition-opacity"
+          >
             {hasTrial ? 'Try for Free' : 'Try it'}
-          </div>
+          </button>
         </div>
+              </div>
       </div>
-    </a>
+      
+      {/* Sign Up Modal */}
+      <Modal
+        isOpen={showSignUpModal}
+        onClose={() => setShowSignUpModal(false)}
+        title="Sign Up to Bookmark"
+      >
+        <RegisterForm
+          onSuccess={() => {
+            setShowSignUpModal(false)
+            window.location.reload()
+          }}
+          onSwitchToLogin={() => setShowSignUpModal(false)}
+        />
+      </Modal>
+    </>
   )
 } 

@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
+import { useSession } from 'next-auth/react'
 import { 
   ChevronLeftIcon, 
   ChevronRightIcon, 
@@ -14,6 +15,8 @@ import {
   CheckBadgeIcon
 } from '@heroicons/react/24/outline'
 import { StarIcon as StarFilledIcon, BookmarkIcon as BookmarkFilledIcon } from '@heroicons/react/24/solid'
+import Modal from './Modal'
+import RegisterForm from './RegisterForm'
 
 interface Review {
   id: number
@@ -221,6 +224,8 @@ export default function AiCoursesCarousel() {
   const scrollRef = useRef<HTMLDivElement>(null)
   const [canScrollLeft, setCanScrollLeft] = useState(false)
   const [canScrollRight, setCanScrollRight] = useState(true)
+  const [showSignUpModal, setShowSignUpModal] = useState(false)
+  const { data: session } = useSession()
 
   const checkScrollButtons = () => {
     if (scrollRef.current) {
@@ -249,6 +254,12 @@ export default function AiCoursesCarousel() {
   }
 
   const handleBookmark = (courseId: number) => {
+    if (!session) {
+      setShowSignUpModal(true)
+      return
+    }
+
+    // User je přihlášen - toggle bookmark stav
     setCourses(prev => prev.map(course => 
       course.id === courseId 
         ? { ...course, isBookmarked: !course.isBookmarked }
@@ -491,15 +502,25 @@ export default function AiCoursesCarousel() {
                 )}
 
                 {/* Price and button - always at bottom */}
-                <div className="flex items-center justify-between mt-auto pt-3 border-t border-gray-100">
+                <div className="space-y-3 mt-auto pt-3 border-t border-gray-100">
+                  {/* Price */}
                   <div className="text-xl font-bold text-purple-600">
                     {formatPrice(course.price)}
                   </div>
-                  <Link href={`/ai-kurzy/chatgpt-for-business-complete-guide`}>
-                    <button className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-200 font-medium text-sm">
-                      Buy Now
-                    </button>
-                  </Link>
+                  
+                  {/* Action buttons */}
+                  <div className="flex gap-3">
+                    <Link href={`/ai-kurzy/${course.id}`} className="flex-1">
+                      <button className="w-full px-4 py-2 h-10 bg-white border-2 border-purple-600 text-purple-600 rounded-lg hover:bg-purple-50 transition-all duration-200 font-medium text-sm flex items-center justify-center">
+                        Course Details
+                      </button>
+                    </Link>
+                    <Link href={`/ai-kurzy/${course.id}`} className="flex-1">
+                      <button className="w-full px-4 py-2 h-10 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-200 font-medium text-sm flex items-center justify-center">
+                        Buy Course
+                      </button>
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>
@@ -513,6 +534,21 @@ export default function AiCoursesCarousel() {
           💡 Tip: Swipe left and right to browse more courses
         </p>
       </div>
+
+      {/* Sign Up Modal */}
+      <Modal
+        isOpen={showSignUpModal}
+        onClose={() => setShowSignUpModal(false)}
+        title="Sign Up to Bookmark"
+      >
+        <RegisterForm
+          onSuccess={() => {
+            setShowSignUpModal(false)
+            window.location.reload()
+          }}
+          onSwitchToLogin={() => setShowSignUpModal(false)}
+        />
+      </Modal>
     </div>
   )
 } 

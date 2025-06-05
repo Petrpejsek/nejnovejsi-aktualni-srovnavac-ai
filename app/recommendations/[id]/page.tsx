@@ -3,6 +3,9 @@
 import React, { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useSession } from 'next-auth/react'
+import Modal from '../../../components/Modal'
+import RegisterForm from '../../../components/RegisterForm'
 
 interface Product {
   id: string
@@ -36,6 +39,8 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
   const [product, setProduct] = useState<Product | null>(null)
   const [loading, setLoading] = useState(true)
   const [savedItems, setSavedItems] = useState<Set<string>>(new Set())
+  const [showSignUpModal, setShowSignUpModal] = useState(false)
+  const { data: session } = useSession()
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -56,6 +61,12 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
   }, [params.id])
 
   const handleSave = (id: string) => {
+    if (!session) {
+      setShowSignUpModal(true)
+      return
+    }
+
+    // User je přihlášen - toggle save stav
     const newSaved = new Set(savedItems)
     if (newSaved.has(id)) {
       newSaved.delete(id)
@@ -319,6 +330,21 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
           </div>
         </div>
       </div>
+
+      {/* Sign Up Modal */}
+      <Modal
+        isOpen={showSignUpModal}
+        onClose={() => setShowSignUpModal(false)}
+        title="Sign Up to Save"
+      >
+        <RegisterForm
+          onSuccess={() => {
+            setShowSignUpModal(false)
+            window.location.reload()
+          }}
+          onSwitchToLogin={() => setShowSignUpModal(false)}
+        />
+      </Modal>
     </div>
   )
 } 

@@ -177,56 +177,56 @@ export default function TopListsPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50/50 to-white">
-      <div className="container mx-auto px-4 py-12">
+      <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-12">
         <div className="max-w-7xl mx-auto">
           
           {/* Header */}
-          <div className="text-center mb-12">
+          <div className="text-center mb-8 sm:mb-12">
             <Link
               href="/"
-              className="inline-flex items-center text-purple-600 hover:text-purple-700 mb-6 transition-colors"
+              className="inline-flex items-center text-purple-600 hover:text-purple-700 mb-4 sm:mb-6 transition-colors text-sm sm:text-base"
             >
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
               Back to Homepage
             </Link>
             
-            <div className="mb-6">
-              <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            <div className="mb-4 sm:mb-6">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-2 sm:mb-4 px-2">
                 🏆 <span className="text-gradient-primary">TOP AI Tools</span> Lists
               </h1>
-              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              <p className="text-base sm:text-lg lg:text-xl text-gray-600 max-w-3xl mx-auto px-4">
                 Carefully curated collections of the best AI tools in each category. 
                 Find the perfect tools for your specific needs and stay ahead of the curve.
               </p>
             </div>
 
-            {/* Stats */}
-            <div className="flex flex-col sm:flex-row justify-center gap-4 sm:gap-8 mb-8">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-purple-600">{topListCategories.length}</div>
-                <div className="text-sm text-gray-600">Categories</div>
+            {/* Stats - Mobilní optimalizace */}
+            <div className="grid grid-cols-3 gap-2 sm:gap-4 lg:gap-8 mb-6 sm:mb-8 max-w-lg mx-auto">
+              <div className="text-center bg-white rounded-lg p-3 sm:p-4 shadow-sm">
+                <div className="text-lg sm:text-2xl font-bold text-purple-600">{topListCategories.length}</div>
+                <div className="text-xs sm:text-sm text-gray-600">Categories</div>
               </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-purple-600">{topListCategories.length * 20}</div>
-                <div className="text-sm text-gray-600">AI Tools</div>
+              <div className="text-center bg-white rounded-lg p-3 sm:p-4 shadow-sm">
+                <div className="text-lg sm:text-2xl font-bold text-purple-600">{topListCategories.length * 20}</div>
+                <div className="text-xs sm:text-sm text-gray-600">AI Tools</div>
               </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-purple-600">Weekly</div>
-                <div className="text-sm text-gray-600">Updates</div>
+              <div className="text-center bg-white rounded-lg p-3 sm:p-4 shadow-sm">
+                <div className="text-lg sm:text-2xl font-bold text-purple-600">Weekly</div>
+                <div className="text-xs sm:text-sm text-gray-600">Updates</div>
               </div>
             </div>
           </div>
 
           {/* Trending Lists */}
           {trendingLists.length > 0 && (
-            <div className="mb-12">
-              <div className="flex items-center gap-2 mb-6">
-                <FireIcon className="w-6 h-6 text-red-500" />
-                <h2 className="text-2xl font-bold text-gray-900">Trending Now</h2>
+            <div className="mb-8 sm:mb-12">
+              <div className="flex items-center gap-2 mb-4 sm:mb-6 px-2">
+                <FireIcon className="w-5 h-5 sm:w-6 sm:h-6 text-red-500" />
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Trending Now</h2>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
                 {trendingLists.map(category => (
                   <CategoryCard key={category.id} category={category} />
                 ))}
@@ -236,12 +236,12 @@ export default function TopListsPage() {
 
           {/* Popular Lists */}
           {popularLists.length > 0 && (
-            <div className="mb-12">
-              <div className="flex items-center gap-2 mb-6">
-                <StarIcon className="w-6 h-6 text-blue-500" />
-                <h2 className="text-2xl font-bold text-gray-900">Most Popular</h2>
+            <div className="mb-8 sm:mb-12">
+              <div className="flex items-center gap-2 mb-4 sm:mb-6 px-2">
+                <StarIcon className="w-5 h-5 sm:w-6 sm:h-6 text-blue-500" />
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Most Popular</h2>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
                 {popularLists.map(category => (
                   <CategoryCard key={category.id} category={category} />
                 ))}
@@ -250,12 +250,12 @@ export default function TopListsPage() {
           )}
 
           {/* All Categories */}
-          <div className="mb-12">
-            <div className="flex items-center gap-2 mb-6">
-              <TrophyFilledIcon className="w-6 h-6 text-amber-500" />
-              <h2 className="text-2xl font-bold text-gray-900">All Categories</h2>
+          <div className="mb-8 sm:mb-12">
+            <div className="flex items-center gap-2 mb-4 sm:mb-6 px-2">
+              <TrophyFilledIcon className="w-5 h-5 sm:w-6 sm:h-6 text-amber-500" />
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900">All Categories</h2>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
               {topListCategories.map(category => (
                 <CategoryCard key={category.id} category={category} />
               ))}
@@ -268,18 +268,18 @@ export default function TopListsPage() {
   )
 }
 
-// Separate component for category cards
+// Mobilní optimalizovaná komponenta pro kartičky kategorií
 function CategoryCard({ category }: { category: TopListCategory }) {
   return (
     <Link
       href={`/top-lists/${category.id}`}
       className="group block"
     >
-      <div className={`${category.gradient} rounded-xl p-6 border border-gray-200 hover:shadow-lg transition-all duration-300 h-56 sm:h-64 relative`}>
+      <div className={`${category.gradient} rounded-xl p-4 sm:p-6 border border-gray-200 hover:shadow-lg transition-all duration-300 h-auto sm:h-64 relative`}>
         
         {/* Badge */}
         {category.badge && (
-          <div className="absolute top-3 right-3">
+          <div className="absolute top-2 sm:top-3 right-2 sm:right-3">
             <span className={`px-2 py-1 rounded-full text-xs font-bold text-white bg-gradient-to-r ${category.color} shadow-sm`}>
               {category.badge}
             </span>
@@ -287,48 +287,46 @@ function CategoryCard({ category }: { category: TopListCategory }) {
         )}
 
         {/* Icon and title */}
-        <div className="flex items-start gap-4 mb-4">
-          <div className={`w-12 h-12 rounded-lg bg-gradient-to-r ${category.color} text-white flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
+        <div className="flex items-start gap-3 sm:gap-4 mb-3 sm:mb-4">
+          <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-gradient-to-r ${category.color} text-white flex items-center justify-center group-hover:scale-110 transition-transform duration-300 flex-shrink-0`}>
             {category.icon}
           </div>
-          <div className="flex-1">
-            <h3 className="text-lg font-bold text-gray-900 mb-1 group-hover:text-purple-600 transition-colors">
+          <div className="flex-1 min-w-0">
+            <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-1 group-hover:text-purple-600 transition-colors leading-tight">
               {category.title}
             </h3>
-            <div className="flex items-center gap-2 text-sm text-gray-600">
-              <TrophyFilledIcon className="w-4 h-4 text-amber-500" />
+            <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600">
+              <TrophyFilledIcon className="w-3 h-3 sm:w-4 sm:h-4 text-amber-500 flex-shrink-0" />
               <span>TOP {category.toolsCount}</span>
             </div>
           </div>
         </div>
 
-        {/* Description */}
-        <p className="text-gray-600 text-sm mb-4 line-clamp-3">
+        {/* Description - na mobilu kratší */}
+        <p className="text-gray-600 text-sm mb-4 line-clamp-2 sm:line-clamp-3">
           {category.detailedDescription}
         </p>
 
         {/* Footer */}
-        <div className="absolute bottom-6 left-6 right-6">
-          <div className="flex items-center justify-between">
-            <div className="text-xs text-gray-500">
-              Updated {category.lastUpdated}
-            </div>
-            <div className="flex items-center gap-2">
-              {category.trending && (
-                <div className="flex items-center gap-1 text-xs text-red-600">
-                  <FireIcon className="w-3 h-3" />
-                  <span>Hot</span>
-                </div>
-              )}
-              {category.popular && (
-                <div className="flex items-center gap-1 text-xs text-blue-600">
-                  <StarIcon className="w-3 h-3" />
-                  <span>Popular</span>
-                </div>
-              )}
-              <div className="text-xs text-gray-500 group-hover:text-purple-600 transition-colors">
-                View list →
+        <div className="flex items-center justify-between">
+          <div className="text-xs text-gray-500">
+            Updated {category.lastUpdated}
+          </div>
+          <div className="flex items-center gap-2">
+            {category.trending && (
+              <div className="flex items-center gap-1 text-xs text-red-600">
+                <FireIcon className="w-3 h-3" />
+                <span className="hidden sm:inline">Hot</span>
               </div>
+            )}
+            {category.popular && (
+              <div className="flex items-center gap-1 text-xs text-blue-600">
+                <StarIcon className="w-3 h-3" />
+                <span className="hidden sm:inline">Popular</span>
+              </div>
+            )}
+            <div className="text-xs text-gray-500 group-hover:text-purple-600 transition-colors">
+              View list →
             </div>
           </div>
         </div>

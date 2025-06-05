@@ -4,7 +4,10 @@ import React, { useRef, useState, useEffect } from 'react'
 import Link from 'next/link'
 import { ChevronLeftIcon, ChevronRightIcon, PlayIcon, PauseIcon } from '@heroicons/react/24/outline'
 import { HeartIcon, ShareIcon, BookmarkIcon } from '@heroicons/react/24/outline'
-import { HeartIcon as HeartFilledIcon } from '@heroicons/react/24/solid'
+import { HeartIcon as HeartFilledIcon, BookmarkIcon as BookmarkFilledIcon } from '@heroicons/react/24/solid'
+import { useSession } from 'next-auth/react'
+import Modal from './Modal'
+import RegisterForm from './RegisterForm'
 
 // Mockdata pro reels - později to bude z API/databáze
 const mockReels = [
@@ -86,15 +89,18 @@ interface Reel {
   likes: number
   duration: string
   isLiked: boolean
+  isBookmarked?: boolean
 }
 
 export default function ReelsCarousel() {
   const scrollRef = useRef<HTMLDivElement>(null)
   const [canScrollLeft, setCanScrollLeft] = useState(false)
   const [canScrollRight, setCanScrollRight] = useState(true)
-  const [reels, setReels] = useState<Reel[]>(mockReels)
+  const [reels, setReels] = useState<Reel[]>(mockReels.map(reel => ({...reel, isBookmarked: false})))
   const [playingId, setPlayingId] = useState<number | null>(null)
   const [currentIndex, setCurrentIndex] = useState(0)
+  const [showSignUpModal, setShowSignUpModal] = useState(false)
+  const { data: session } = useSession()
 
   // Kontrola možnosti scrollování
   const checkScrollButtons = () => {
@@ -152,6 +158,20 @@ export default function ReelsCarousel() {
 
   const handlePlay = (id: number) => {
     setPlayingId(playingId === id ? null : id)
+  }
+
+  const handleBookmark = (id: number) => {
+    // Check if user is authenticated
+    if (!session) {
+      setShowSignUpModal(true)
+      return
+    }
+    
+    setReels(reels.map(reel => 
+      reel.id === id 
+        ? { ...reel, isBookmarked: !reel.isBookmarked }
+        : reel
+    ))
   }
 
   const formatLikes = (likes: number) => {
@@ -295,8 +315,18 @@ export default function ReelsCarousel() {
                     </button>
 
                     {/* Bookmark Button */}
-                    <button className="flex flex-col items-center gap-1 group/bookmark">
-                      <BookmarkIcon className="w-8 h-8 text-white group-hover/bookmark:text-yellow-400 group-hover/bookmark:scale-110 transition-all" />
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleBookmark(reel.id)
+                      }}
+                      className="flex flex-col items-center gap-1 group/bookmark"
+                    >
+                      {reel.isBookmarked ? (
+                        <BookmarkFilledIcon className="w-8 h-8 text-yellow-400 group-hover/bookmark:scale-110 transition-transform" />
+                      ) : (
+                        <BookmarkIcon className="w-8 h-8 text-white group-hover/bookmark:text-yellow-400 group-hover/bookmark:scale-110 transition-all" />
+                      )}
                     </button>
                   </div>
                 </div>
@@ -337,6 +367,21 @@ export default function ReelsCarousel() {
             <ChevronRightIcon className="w-5 h-5 ml-2" />
           </Link>
         </div>
+        
+        {/* Sign Up Modal */}
+        <Modal
+          isOpen={showSignUpModal}
+          onClose={() => setShowSignUpModal(false)}
+          title="Sign Up"
+        >
+          <RegisterForm
+            onSuccess={() => {
+              setShowSignUpModal(false)
+              window.location.reload()
+            }}
+            onSwitchToLogin={() => setShowSignUpModal(false)}
+          />
+        </Modal>
       </div>
     </section>
   )
