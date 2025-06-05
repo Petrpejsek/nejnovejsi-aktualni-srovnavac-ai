@@ -26,6 +26,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       current: pathname.startsWith('/admin/products')
     },
     {
+      name: 'URL Upload',
+      href: '/admin/url-upload',
+      icon: '🚀',
+      current: pathname.startsWith('/admin/url-upload')
+    },
+    {
       name: 'AI Kurzy',
       href: '/admin/courses',
       icon: '🎓',

@@ -9,6 +9,7 @@ import { useSession } from 'next-auth/react'
 import Modal from '../../components/Modal'
 import RegisterForm from '../../components/RegisterForm'
 import ReelEmbed from '../../components/ReelEmbed'
+import VideoModal from '../../components/VideoModal'
 
 // Načítám data z API místo mockdata
 
@@ -17,6 +18,7 @@ interface Reel {
   title: string
   description: string
   embedUrl: string
+  thumbnailUrl: string
   platform: 'tiktok' | 'instagram'
   author: string
   authorHandle: string
@@ -38,6 +40,8 @@ export default function ReelsPage() {
   const [playingId, setPlayingId] = useState<number | null>(null)
   const [showTrendingOnly, setShowTrendingOnly] = useState(false)
   const [showSignUpModal, setShowSignUpModal] = useState(false)
+  const [showVideoModal, setShowVideoModal] = useState(false)
+  const [selectedReel, setSelectedReel] = useState<Reel | null>(null)
   const [loading, setLoading] = useState(true)
   const { data: session } = useSession()
 
@@ -47,11 +51,11 @@ export default function ReelsPage() {
       try {
         setLoading(true)
         const url = new URL('/api/reels', window.location.origin)
-        
-        if (selectedCategory !== 'All') {
+
+    if (selectedCategory !== 'All') {
           url.searchParams.set('category', selectedCategory)
-        }
-        if (searchQuery) {
+    }
+    if (searchQuery) {
           url.searchParams.set('search', searchQuery)
         }
         if (showTrendingOnly) {
@@ -107,6 +111,11 @@ export default function ReelsPage() {
         ? { ...reel, isBookmarked: !reel.isBookmarked }
         : reel
     ))
+  }
+
+  const handleVideoClick = (reel: Reel) => {
+    setSelectedReel(reel)
+    setShowVideoModal(true)
   }
 
   const formatLikes = (likes: number) => {
@@ -182,15 +191,35 @@ export default function ReelsPage() {
         </div>
       </div>
 
-      {/* Reels Grid */}
+      {/* Reels Grid by Categories */}
       <div className="container mx-auto px-4 py-8">
         {loading ? (
           <div className="flex justify-center items-center py-16">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
           </div>
         ) : (
-          <div className="flex flex-wrap gap-4 md:gap-6">
-            {filteredReels.map((reel) => (
+          <div className="space-y-12">
+            {categories
+              .filter(category => category.name !== 'All')
+              .map(category => {
+                const categoryReels = filteredReels.filter(reel => reel.category === category.name);
+                if (categoryReels.length === 0) return null;
+                
+                return (
+                  <div key={category.name} className="space-y-6">
+                    {/* Category Header */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <h2 className="text-2xl font-bold text-gray-900">{category.name}</h2>
+                        <span className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm font-medium">
+                          {categoryReels.length} {categoryReels.length === 1 ? 'reel' : 'reels'}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    {/* Reels Grid for this category */}
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-x-1 gap-y-4">
+                      {categoryReels.map((reel) => (
             <div
               key={reel.id}
               className="relative group cursor-pointer"
@@ -199,49 +228,44 @@ export default function ReelsPage() {
               <div className="relative h-72 w-40 rounded-2xl overflow-hidden bg-gray-900 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]"
                    style={{ height: '288px', width: '160px' }}
               >
-                {/* Reel Embed */}
-                <ReelEmbed
-                  embedUrl={reel.embedUrl}
-                  platform={reel.platform}
-                  title={reel.title}
-                  className="w-full h-full"
+                            {/* Reel Embed */}
+                            <ReelEmbed
+                              embedUrl={reel.embedUrl}
+                              thumbnailUrl={reel.thumbnailUrl}
+                              platform={reel.platform}
+                              title={reel.title}
+                              className="w-full h-full"
+                              onClick={() => handleVideoClick(reel)}
                 />
                 
                 {/* Gradient Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
                 
                 {/* Trending Badge */}
                 {reel.trending && (
-                  <div className="absolute top-3 left-3 bg-orange-500 text-white px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1">
+                              <div className="absolute top-3 left-3 bg-orange-500 text-white px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 pointer-events-none">
                     <FireIcon className="w-3 h-3" />
                     Trending
                   </div>
                 )}
 
                 {/* Duration Badge */}
-                <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-sm rounded-full px-2 py-1">
+                            <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-sm rounded-full px-2 py-1 pointer-events-none">
                   <span className="text-white text-xs font-medium">{reel.duration}</span>
                 </div>
 
-                {/* Play Button */}
-                <button
-                  onClick={() => handlePlay(reel.id)}
-                  className="absolute inset-0 flex items-center justify-center group/play"
-                >
-                  <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 group/play:opacity-100 transition-opacity duration-200">
-                    {playingId === reel.id ? (
-                      <PauseIcon className="w-6 h-6 text-white" />
-                    ) : (
+                            {/* Platform Badge */}
+                            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+                              <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
                       <PlayIcon className="w-6 h-6 text-white ml-0.5" />
-                    )}
+                              </div>
                   </div>
-                </button>
 
                 {/* Content Overlay */}
-                <div className="absolute bottom-0 left-0 right-0 p-3">
+                            <div className="absolute bottom-0 left-0 right-0 p-3 pointer-events-none">
                   {/* Author */}
                   <div className="text-white/80 text-xs font-medium mb-1">
-                    {reel.authorHandle}
+                                {reel.authorHandle}
                   </div>
                   
                   {/* Title */}
@@ -256,14 +280,14 @@ export default function ReelsPage() {
                 </div>
 
                 {/* Side Actions */}
-                <div className="absolute right-2 bottom-16 flex flex-col gap-2">
+                            <div className="absolute right-2 bottom-16 flex flex-col gap-2 pointer-events-none">
                   {/* Like Button */}
                   <button
                     onClick={(e) => {
                       e.stopPropagation()
                       handleLike(reel.id)
                     }}
-                    className="flex flex-col items-center gap-1 group/like"
+                                className="flex flex-col items-center gap-1 group/like pointer-events-auto"
                   >
                     {reel.isLiked ? (
                       <HeartFilledIcon className="w-6 h-6 text-red-500 group-hover/like:scale-110 transition-transform" />
@@ -276,7 +300,7 @@ export default function ReelsPage() {
                   </button>
 
                   {/* Share Button */}
-                  <button className="flex flex-col items-center gap-1 group/share">
+                              <button className="flex flex-col items-center gap-1 group/share pointer-events-auto">
                     <ShareIcon className="w-6 h-6 text-white group-hover/share:text-blue-400 group-hover/share:scale-110 transition-all" />
                   </button>
 
@@ -286,7 +310,7 @@ export default function ReelsPage() {
                       e.stopPropagation()
                       handleBookmark(reel.id)
                     }}
-                    className="flex flex-col items-center gap-1 group/bookmark"
+                                className="flex flex-col items-center gap-1 group/bookmark pointer-events-auto"
                   >
                     {reel.isBookmarked ? (
                       <BookmarkFilledIcon className="w-6 h-6 text-yellow-400 group-hover/bookmark:scale-110 transition-transform" />
@@ -310,6 +334,10 @@ export default function ReelsPage() {
               </div>
             </div>
           ))}
+        </div>
+                  </div>
+                );
+              })}
           </div>
         )}
 
@@ -353,6 +381,13 @@ export default function ReelsPage() {
         </div>
       </div>
       
+      {/* Video Modal */}
+      <VideoModal
+        isOpen={showVideoModal}
+        onClose={() => setShowVideoModal(false)}
+        reel={selectedReel}
+      />
+      
       {/* Sign Up Modal */}
       <Modal
         isOpen={showSignUpModal}
@@ -368,5 +403,5 @@ export default function ReelsPage() {
         />
       </Modal>
     </div>
-  )
+  );
 } 
