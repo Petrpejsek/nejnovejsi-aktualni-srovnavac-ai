@@ -8,140 +8,18 @@ import { HeartIcon as HeartFilledIcon, BookmarkIcon as BookmarkFilledIcon } from
 import { useSession } from 'next-auth/react'
 import Modal from '../../components/Modal'
 import RegisterForm from '../../components/RegisterForm'
+import ReelEmbed from '../../components/ReelEmbed'
 
-// Extended mockdata pro reels s kategoriemi
-const allReels = [
-  {
-    id: 1,
-    title: 'AI Tool for Content Generation',
-    description: 'See how to create quality content quickly with AI',
-    thumbnail: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&h=600&fit=crop',
-    videoUrl: '#',
-    author: 'TechGuru',
-    likes: 1250,
-    duration: '0:45',
-    isLiked: false,
-    category: 'Content Creation',
-    tags: ['AI Writing', 'Content', 'Productivity'],
-    trending: true
-  },
-  {
-    id: 2,
-    title: 'Workflow Process Automation',
-    description: 'Save time with AI automation',
-    thumbnail: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=400&h=600&fit=crop',
-    videoUrl: '#',
-    author: 'AutomatePro',
-    likes: 987,
-    duration: '1:12',
-    isLiked: true,
-    category: 'Automation',
-    tags: ['Workflow', 'Automation', 'Efficiency'],
-    trending: false
-  },
-  {
-    id: 3,
-    title: 'AI Assistant for Business',
-    description: 'How AI can help your business grow',
-    thumbnail: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?w=400&h=600&fit=crop',
-    videoUrl: '#',
-    author: 'BusinessAI',
-    likes: 2150,
-    duration: '0:58',
-    isLiked: false,
-    category: 'Business',
-    tags: ['Business', 'AI Assistant', 'Growth'],
-    trending: true
-  },
-  {
-    id: 4,
-    title: 'Creativity with AI Tools',
-    description: 'Discover new creative possibilities',
-    thumbnail: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=400&h=600&fit=crop',
-    videoUrl: '#',
-    author: 'CreativeAI',
-    likes: 1543,
-    duration: '1:25',
-    isLiked: false,
-    category: 'Design',
-    tags: ['Design', 'Art', 'Creativity'],
-    trending: false
-  },
-  {
-    id: 5,
-    title: 'Data Analysis with AI',
-    description: 'Fast data analysis using artificial intelligence',
-    thumbnail: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=600&fit=crop',
-    videoUrl: '#',
-    author: 'DataExpert',
-    likes: 892,
-    duration: '0:37',
-    isLiked: true,
-    category: 'Analytics',
-    tags: ['Data', 'Analytics', 'AI'],
-    trending: false
-  },
-  {
-    id: 6,
-    title: 'AI in Marketing',
-    description: 'Revolution in digital marketing',
-    thumbnail: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=600&fit=crop',
-    videoUrl: '#',
-    author: 'MarketingAI',
-    likes: 1876,
-    duration: '1:03',
-    isLiked: false,
-    category: 'Marketing',
-    tags: ['Marketing', 'Digital', 'Strategy'],
-    trending: true
-  },
-  {
-    id: 7,
-    title: 'ChatGPT Advanced Tips',
-    description: 'Pro tips for better ChatGPT prompts',
-    thumbnail: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&h=600&fit=crop',
-    videoUrl: '#',
-    author: 'ChatGPTExpert',
-    likes: 3200,
-    duration: '2:15',
-    isLiked: false,
-    category: 'Content Creation',
-    tags: ['ChatGPT', 'Prompts', 'AI Writing'],
-    trending: true
-  },
-  {
-    id: 8,
-    title: 'Midjourney Masterclass',
-    description: 'Create stunning AI art with Midjourney',
-    thumbnail: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=400&h=600&fit=crop',
-    videoUrl: '#',
-    author: 'AIArtist',
-    likes: 2890,
-    duration: '1:45',
-    isLiked: true,
-    category: 'Design',
-    tags: ['Midjourney', 'AI Art', 'Visual'],
-    trending: true
-  }
-]
-
-const categories = [
-  { name: 'All', count: allReels.length },
-  { name: 'Content Creation', count: allReels.filter(r => r.category === 'Content Creation').length },
-  { name: 'Design', count: allReels.filter(r => r.category === 'Design').length },
-  { name: 'Business', count: allReels.filter(r => r.category === 'Business').length },
-  { name: 'Marketing', count: allReels.filter(r => r.category === 'Marketing').length },
-  { name: 'Automation', count: allReels.filter(r => r.category === 'Automation').length },
-  { name: 'Analytics', count: allReels.filter(r => r.category === 'Analytics').length }
-]
+// Načítám data z API místo mockdata
 
 interface Reel {
   id: number
   title: string
   description: string
-  thumbnail: string
-  videoUrl: string
+  embedUrl: string
+  platform: 'tiktok' | 'instagram'
   author: string
+  authorHandle: string
   likes: number
   duration: string
   isLiked: boolean
@@ -152,40 +30,58 @@ interface Reel {
 }
 
 export default function ReelsPage() {
-  const [reels, setReels] = useState<Reel[]>(allReels.map(reel => ({...reel, isBookmarked: false})))
-  const [filteredReels, setFilteredReels] = useState<Reel[]>(allReels.map(reel => ({...reel, isBookmarked: false})))
+  const [reels, setReels] = useState<Reel[]>([])
+  const [filteredReels, setFilteredReels] = useState<Reel[]>([])
+  const [categories, setCategories] = useState<{name: string, count: number}[]>([])
   const [selectedCategory, setSelectedCategory] = useState('All')
   const [searchQuery, setSearchQuery] = useState('')
   const [playingId, setPlayingId] = useState<number | null>(null)
   const [showTrendingOnly, setShowTrendingOnly] = useState(false)
   const [showSignUpModal, setShowSignUpModal] = useState(false)
+  const [loading, setLoading] = useState(true)
   const { data: session } = useSession()
 
-  // Filter reels based on category, search and trending
+  // Fetch reels from API
   useEffect(() => {
-    let filtered = reels
+    const fetchReels = async () => {
+      try {
+        setLoading(true)
+        const url = new URL('/api/reels', window.location.origin)
+        
+        if (selectedCategory !== 'All') {
+          url.searchParams.set('category', selectedCategory)
+        }
+        if (searchQuery) {
+          url.searchParams.set('search', searchQuery)
+        }
+        if (showTrendingOnly) {
+          url.searchParams.set('trending', 'true')
+        }
 
-    // Category filter
-    if (selectedCategory !== 'All') {
-      filtered = filtered.filter(reel => reel.category === selectedCategory)
+        const response = await fetch(url.toString())
+        const data = await response.json()
+        
+        const reelsWithBookmarks = data.reels?.map((reel: Reel) => ({
+          ...reel,
+          isBookmarked: false
+        })) || []
+        
+        setReels(reelsWithBookmarks)
+        setFilteredReels(reelsWithBookmarks)
+        setCategories(data.categories || [])
+      } catch (error) {
+        console.error('Error fetching reels:', error)
+        setReels([])
+        setFilteredReels([])
+      } finally {
+        setLoading(false)
+      }
     }
 
-    // Search filter
-    if (searchQuery) {
-      filtered = filtered.filter(reel => 
-        reel.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        reel.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        reel.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
-      )
-    }
+    fetchReels()
+  }, [selectedCategory, searchQuery, showTrendingOnly])
 
-    // Trending filter
-    if (showTrendingOnly) {
-      filtered = filtered.filter(reel => reel.trending)
-    }
-
-    setFilteredReels(filtered)
-  }, [selectedCategory, searchQuery, showTrendingOnly, reels])
+  // Filtering is now handled by API
 
   const handleLike = (id: number) => {
     setReels(reels.map(reel => 
@@ -241,7 +137,7 @@ export default function ReelsPage() {
               <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
               <input
                 type="text"
-                placeholder="Search reels, tools, or topics..."
+                placeholder="Search reels, tools, topics, or authors..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
@@ -288,8 +184,13 @@ export default function ReelsPage() {
 
       {/* Reels Grid */}
       <div className="container mx-auto px-4 py-8">
-        <div className="flex flex-wrap gap-4 md:gap-6">
-          {filteredReels.map((reel) => (
+        {loading ? (
+          <div className="flex justify-center items-center py-16">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+          </div>
+        ) : (
+          <div className="flex flex-wrap gap-4 md:gap-6">
+            {filteredReels.map((reel) => (
             <div
               key={reel.id}
               className="relative group cursor-pointer"
@@ -298,11 +199,12 @@ export default function ReelsPage() {
               <div className="relative h-72 w-40 rounded-2xl overflow-hidden bg-gray-900 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]"
                    style={{ height: '288px', width: '160px' }}
               >
-                {/* Thumbnail */}
-                <img
-                  src={reel.thumbnail}
-                  alt={reel.title}
-                  className="w-full h-full object-cover"
+                {/* Reel Embed */}
+                <ReelEmbed
+                  embedUrl={reel.embedUrl}
+                  platform={reel.platform}
+                  title={reel.title}
+                  className="w-full h-full"
                 />
                 
                 {/* Gradient Overlay */}
@@ -339,7 +241,7 @@ export default function ReelsPage() {
                 <div className="absolute bottom-0 left-0 right-0 p-3">
                   {/* Author */}
                   <div className="text-white/80 text-xs font-medium mb-1">
-                    @{reel.author}
+                    {reel.authorHandle}
                   </div>
                   
                   {/* Title */}
@@ -408,10 +310,11 @@ export default function ReelsPage() {
               </div>
             </div>
           ))}
-        </div>
+          </div>
+        )}
 
         {/* Empty State */}
-        {filteredReels.length === 0 && (
+        {!loading && filteredReels.length === 0 && (
           <div className="text-center py-16">
             <div className="text-gray-400 mb-4">
               <FunnelIcon className="w-16 h-16 mx-auto" />
