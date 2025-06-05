@@ -70,33 +70,56 @@ function RecommendationsPageContent() {
   
   // TagFilter now loads its own tags optimally, no need for ProductStore initialization
 
-  // Loading messages rotation
-  const loadingMessages = [
-    "Analyzing and ranking tools based on their relevance to you...",
-    "Creating personalized recommendations based on your needs..."
+  // Advanced loading messages with steps and dynamic percentages
+  const loadingSteps = [
+    {
+      text: "Analyzing your requirements...",
+      percentage: 15,
+      duration: 3000
+    },
+    {
+      text: "Scanning our database of AI tools...",
+      percentage: 35,
+      duration: 3000
+    },
+    {
+      text: "Calculating match percentages...",
+      percentage: 60,
+      duration: 3000
+    },
+    {
+      text: "Creating personalized recommendations...",
+      percentage: 85,
+      duration: 4000
+    },
+    {
+      text: "Finalizing your perfect matches...",
+      percentage: 100,
+      duration: 3000
+    }
   ];
 
-  // Loading messages rotation
+  // Advanced loading messages rotation with progress
   useEffect(() => {
     if (!recommending) {
-      console.log('🔄 Rotation STOPPED - recommending:', recommending);
+      setCurrentLoadingMessage(0);
       return;
     }
 
-    console.log('🔄 Rotation STARTED - recommending:', recommending);
+    let currentStep = 0;
+    setCurrentLoadingMessage(0);
     
-    const interval = setInterval(() => {
-      setCurrentLoadingMessage(prev => {
-        const next = (prev + 1) % 2;
-        console.log('🔄 Loading message rotation:', prev, '->', next, 'message:', loadingMessages[next]);
-        return next;
-      });
-    }, 4000); // 4 seconds for each message
-
-    return () => {
-      console.log('🔄 Rotation ENDED');
-      clearInterval(interval);
+    const rotateSteps = () => {
+      if (currentStep < loadingSteps.length - 1) {
+        setTimeout(() => {
+          currentStep++;
+          setCurrentLoadingMessage(currentStep);
+          rotateSteps();
+        }, loadingSteps[currentStep].duration);
+      }
     };
+
+    rotateSteps();
   }, [recommending]);
 
   // Load products - only if we don't have query (for catalog page)
@@ -380,12 +403,52 @@ function RecommendationsPageContent() {
         </p>
       </div>
 
-      {/* Loading state for recommendations */}
+      {/* Enhanced Loading state for recommendations */}
       {recommending && (
-        <div className="flex justify-center items-center py-8">
-          <div className="flex flex-col items-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mb-4"></div>
-            <p className="text-purple-600 font-medium">{loadingMessages[currentLoadingMessage]}</p>
+        <div className="flex justify-center items-center py-12">
+          <div className="max-w-md w-full">
+            <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
+              <div className="flex flex-col items-center text-center">
+                {/* Progress bar */}
+                <div className="w-full bg-gray-200 rounded-full h-3 mb-6">
+                  <div 
+                    className="bg-gradient-to-r from-purple-600 to-pink-600 h-3 rounded-full transition-all duration-1000 ease-out"
+                    style={{ width: `${loadingSteps[currentLoadingMessage].percentage}%` }}
+                  ></div>
+                </div>
+                
+                {/* Dynamic percentage display */}
+                <div className="relative mb-4">
+                  <div className="w-20 h-20 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full flex items-center justify-center mb-2 shadow-lg">
+                    <span className="text-white text-xl font-bold">
+                      {loadingSteps[currentLoadingMessage].percentage}%
+                    </span>
+                  </div>
+                  <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-white border-2 border-purple-600 rounded-full flex items-center justify-center shadow-md">
+                    <span className="text-purple-600 text-xs font-semibold">
+                      {currentLoadingMessage + 1}
+                    </span>
+                  </div>
+                </div>
+                
+                {/* Current step text */}
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  {loadingSteps[currentLoadingMessage].text}
+                </h3>
+                
+                {/* Step counter */}
+                <p className="text-sm text-gray-500 mb-4">
+                  Step {currentLoadingMessage + 1} of {loadingSteps.length}
+                </p>
+                
+                {/* Animated dots */}
+                <div className="flex space-x-1">
+                  <div className="w-2 h-2 bg-purple-600 rounded-full animate-bounce"></div>
+                  <div className="w-2 h-2 bg-purple-600 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                  <div className="w-2 h-2 bg-purple-600 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}

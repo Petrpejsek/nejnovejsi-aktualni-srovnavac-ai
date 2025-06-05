@@ -28,7 +28,7 @@ export default function ProductGrid({ selectedTags }: ProductGridProps = {}) {
   const [currentPage, setCurrentPage] = useState(1)
   const [hasMore, setHasMore] = useState(true)
   const [totalProducts, setTotalProducts] = useState(0)
-  const PAGE_SIZE = 12
+  const PAGE_SIZE = 6
 
   const handleBookmarkChange = (productId: string, isBookmarked: boolean) => {
     setProducts(prev => prev.map(product => 
