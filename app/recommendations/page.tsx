@@ -63,10 +63,12 @@ function RecommendationsPageContent() {
   const [hasLoadedRecs, setHasLoadedRecs] = useState(false)
   const [isLoadingRecs, setIsLoadingRecs] = useState(false)
   const [currentLoadingMessage, setCurrentLoadingMessage] = useState(0)
+  const [animatedPercentage, setAnimatedPercentage] = useState(0)
 
   const prevQueryRef = useRef<string | null>(null);
   const isLoadingRef = useRef(false);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const animatedPercentageRef = useRef(0);
   
   // TagFilter now loads its own tags optimally, no need for ProductStore initialization
 
@@ -75,47 +77,80 @@ function RecommendationsPageContent() {
     {
       text: "Analyzing your requirements...",
       percentage: 15,
-      duration: 3000
+      duration: 4000
     },
     {
       text: "Scanning our database of AI tools...",
       percentage: 35,
-      duration: 3000
+      duration: 5000
     },
     {
       text: "Calculating match percentages...",
       percentage: 60,
-      duration: 3000
+      duration: 6000
     },
     {
       text: "Creating personalized recommendations...",
       percentage: 85,
-      duration: 4000
+      duration: 7000
     },
     {
       text: "Finalizing your perfect matches...",
       percentage: 100,
-      duration: 3000
+      duration: 4000
     }
   ];
 
-  // Advanced loading messages rotation with progress
+  // Advanced loading messages rotation with animated progress
   useEffect(() => {
     if (!recommending) {
       setCurrentLoadingMessage(0);
+      setAnimatedPercentage(0);
+      animatedPercentageRef.current = 0;
       return;
     }
 
     let currentStep = 0;
     setCurrentLoadingMessage(0);
+    setAnimatedPercentage(0);
+    animatedPercentageRef.current = 0;
+    
+    // Start percentage animation immediately
+    const animatePercentage = (targetPercentage: number, duration: number) => {
+      const startPercentage = animatedPercentageRef.current;
+      const startTime = Date.now();
+      
+      const updatePercentage = () => {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        // Smooth easing function (ease-out)
+        const easedProgress = 1 - Math.pow(1 - progress, 3);
+        const currentPercentage = Math.round(startPercentage + (targetPercentage - startPercentage) * easedProgress);
+        
+        setAnimatedPercentage(currentPercentage);
+        animatedPercentageRef.current = currentPercentage;
+        
+        if (progress < 1) {
+          requestAnimationFrame(updatePercentage);
+        }
+      };
+      
+      requestAnimationFrame(updatePercentage);
+    };
     
     const rotateSteps = () => {
+      const currentStepData = loadingSteps[currentStep];
+      
+      // Animate to current step's percentage
+      animatePercentage(currentStepData.percentage, currentStepData.duration);
+      
       if (currentStep < loadingSteps.length - 1) {
         setTimeout(() => {
           currentStep++;
           setCurrentLoadingMessage(currentStep);
           rotateSteps();
-        }, loadingSteps[currentStep].duration);
+        }, currentStepData.duration);
       }
     };
 
@@ -397,7 +432,7 @@ function RecommendationsPageContent() {
         </p>
         <p className="text-gray-500 text-base">
           {query
-            ? "We've filtered out tools that don't match your specific needs to save you time."
+            ? ""
             : "Browse through the options and save the ones that interest you. You can compare them in detail later."
           }
         </p>
@@ -412,8 +447,8 @@ function RecommendationsPageContent() {
                 {/* Progress bar */}
                 <div className="w-full bg-gray-200 rounded-full h-3 mb-6">
                   <div 
-                    className="bg-gradient-to-r from-purple-600 to-pink-600 h-3 rounded-full transition-all duration-1000 ease-out"
-                    style={{ width: `${loadingSteps[currentLoadingMessage].percentage}%` }}
+                    className="bg-gradient-to-r from-purple-600 to-pink-600 h-3 rounded-full transition-all duration-500 ease-out"
+                    style={{ width: `${animatedPercentage}%` }}
                   ></div>
                 </div>
                 
@@ -421,12 +456,7 @@ function RecommendationsPageContent() {
                 <div className="relative mb-4">
                   <div className="w-20 h-20 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full flex items-center justify-center mb-2 shadow-lg">
                     <span className="text-white text-xl font-bold">
-                      {loadingSteps[currentLoadingMessage].percentage}%
-                    </span>
-                  </div>
-                  <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-white border-2 border-purple-600 rounded-full flex items-center justify-center shadow-md">
-                    <span className="text-purple-600 text-xs font-semibold">
-                      {currentLoadingMessage + 1}
+                      {animatedPercentage}%
                     </span>
                   </div>
                 </div>
