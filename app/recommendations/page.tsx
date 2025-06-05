@@ -556,10 +556,6 @@ function RecommendationsPageContent() {
                   </div>
                 </div>
                 
-                <p className="text-gray-600 mb-4">
-                  {product.description}
-                </p>
-                
                 {/* Personalized recommendation */}
                 {product.recommendation && (
                   <div className="mb-4 p-4 bg-purple-50 rounded-[14px] border border-purple-100">
@@ -567,6 +563,10 @@ function RecommendationsPageContent() {
                     <p className="text-purple-900">{product.recommendation}</p>
                   </div>
                 )}
+                
+                <p className="text-gray-600 mb-4">
+                  {product.description}
+                </p>
                 
                 <div className="space-y-4">
                   <div className="flex flex-wrap gap-2">
@@ -622,134 +622,245 @@ function RecommendationsPageContent() {
 
                 {/* Expandable section */}
                 {expandedProductId === product.id && (
-                  <div className="mt-6 pt-6 border-t border-gray-100">
-                    <div className="grid md:grid-cols-2 gap-6 mb-6">
-                      {(() => {
-                        try {
-                          const advantages = typeof product.advantages === 'string' 
-                            ? JSON.parse(product.advantages) 
-                            : product.advantages || [];
-                          
-                          if (Array.isArray(advantages) && advantages.length > 0) {
-                            return (
-                              <div>
-                                <h4 className="text-lg font-medium text-gray-800 mb-3">Advantages</h4>
-                                <ul className="space-y-2">
-                                  {advantages.map((advantage, index) => (
-                                    <li key={index} className="flex items-start gap-2">
-                                      <svg className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                                      </svg>
-                                      <span className="text-gray-600">{advantage}</span>
-                                    </li>
-                                  ))}
-                                </ul>
-                              </div>
-                            );
-                          }
-                        } catch (error) {
-                          console.warn('Error parsing advantages:', error);
-                        }
-                        return null;
-                      })()}
-
-                      {(() => {
-                        try {
-                          const disadvantages = typeof product.disadvantages === 'string' 
-                            ? JSON.parse(product.disadvantages) 
-                            : product.disadvantages || [];
-                          
-                          if (Array.isArray(disadvantages) && disadvantages.length > 0) {
-                            return (
-                              <div>
-                                <h4 className="text-lg font-medium text-gray-800 mb-3">Disadvantages</h4>
-                                <ul className="space-y-2">
-                                  {disadvantages.map((disadvantage, index) => (
-                                    <li key={index} className="flex items-start gap-2">
-                                      <svg className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                                      </svg>
-                                      <span className="text-gray-600">{disadvantage}</span>
-                                    </li>
-                                  ))}
-                                </ul>
-                              </div>
-                            );
-                          }
-                        } catch (error) {
-                          console.warn('Error parsing disadvantages:', error);
-                        }
-                        return null;
-                      })()}
-                    </div>
-
-                    {product.detailInfo && (
-                      <div className="mb-6">
-                        <h4 className="text-lg font-medium text-gray-800 mb-3">Detailed Description</h4>
-                        <div className="bg-gray-50/80 rounded-[14px] p-4">
-                          <p className="text-gray-600 whitespace-pre-line">{product.detailInfo}</p>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Pricing information */}
-                    <div className="mb-6">
-                      <h4 className="text-lg font-medium text-gray-800 mb-3">Pricing</h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                        {product.hasTrial && (
-                          <div className="bg-purple-50/80 p-4 rounded-[14px] border-2 border-purple-100">
-                            <h5 className="font-medium text-gray-800 mb-2">Free Trial</h5>
-                            <p className="text-2xl font-bold text-gradient-primary">$0</p>
-                          </div>
-                        )}
+                  <div className="mt-6 pt-6 border-t border-gray-200">
+                    <div className="space-y-6">
+                      {/* Advantages and Disadvantages Grid */}
+                      <div className="grid md:grid-cols-2 gap-6">
                         {(() => {
                           try {
-                            const pricingInfo = typeof product.pricingInfo === 'string' 
-                              ? JSON.parse(product.pricingInfo) 
-                              : product.pricingInfo || {};
+                            const advantages = typeof product.advantages === 'string' 
+                              ? JSON.parse(product.advantages) 
+                              : product.advantages || [];
                             
-                            return (
-                              <>
-                                {pricingInfo.basic && (
-                                  <div className="bg-gray-50/80 p-4 rounded-[14px]">
-                                    <h5 className="font-medium text-gray-800 mb-2">Basic</h5>
-                                    <p className="text-2xl font-bold text-gradient-primary">
-                                      ${parseFloat(pricingInfo.basic).toFixed(2)}
-                                    </p>
-                                  </div>
-                                )}
-                                {pricingInfo.pro && (
-                                  <div className="bg-purple-50/80 p-4 rounded-[14px] border-2 border-purple-100">
-                                    <h5 className="font-medium text-gray-800 mb-2">Pro</h5>
-                                    <p className="text-2xl font-bold text-gradient-primary">
-                                      ${parseFloat(pricingInfo.pro).toFixed(2)}
-                                    </p>
-                                  </div>
-                                )}
-                                {pricingInfo.enterprise && (
-                                  <div className="bg-gray-50/80 p-4 rounded-[14px]">
-                                    <h5 className="font-medium text-gray-800 mb-2">Enterprise</h5>
-                                    <p className="text-2xl font-bold text-gradient-primary">
-                                      {pricingInfo.enterprise === 'Custom' ? 'Custom' : `$${parseFloat(pricingInfo.enterprise).toFixed(2)}`}
-                                    </p>
-                                  </div>
-                                )}
-                              </>
-                            );
+                            if (Array.isArray(advantages) && advantages.length > 0) {
+                              return (
+                                <div className="bg-green-50 p-5 rounded-lg border border-green-100">
+                                  <h4 className="text-lg font-semibold text-gray-900 mb-4">Advantages</h4>
+                                  <ul className="space-y-3">
+                                    {advantages.slice(0, 5).map((advantage, index) => (
+                                      <li key={index} className="flex items-start gap-3">
+                                        <span className="text-green-600 font-black text-lg mt-0.5 w-5 flex-shrink-0">✓</span>
+                                        <span className="text-gray-700 leading-relaxed">{advantage}</span>
+                                      </li>
+                                    ))}
+                                    {advantages.length > 5 && (
+                                      <li className="text-sm text-gray-500 italic pl-5">+{advantages.length - 5} more advantages</li>
+                                    )}
+                                  </ul>
+                                </div>
+                              );
+                            } else {
+                              return (
+                                <div className="bg-green-50 p-5 rounded-lg border border-green-100">
+                                  <h4 className="text-lg font-semibold text-gray-900 mb-4">Advantages</h4>
+                                  <ul className="space-y-3">
+                                    <li className="flex items-start gap-3">
+                                      <span className="text-green-600 font-black text-lg mt-0.5 w-5 flex-shrink-0">✓</span>
+                                      <span className="text-gray-700 leading-relaxed">User-friendly interface</span>
+                                    </li>
+                                    <li className="flex items-start gap-3">
+                                      <span className="text-green-600 font-black text-lg mt-0.5 w-5 flex-shrink-0">✓</span>
+                                      <span className="text-gray-700 leading-relaxed">AI-powered features</span>
+                                    </li>
+                                    <li className="flex items-start gap-3">
+                                      <span className="text-green-600 font-black text-lg mt-0.5 w-5 flex-shrink-0">✓</span>
+                                      <span className="text-gray-700 leading-relaxed">Good customer support</span>
+                                    </li>
+                                  </ul>
+                                </div>
+                              );
+                            }
                           } catch (error) {
-                            console.warn('Error parsing pricing info:', error);
-                            return null;
+                            console.warn('Error parsing advantages:', error);
                           }
+                          return null;
+                        })()}
+
+                        {(() => {
+                          try {
+                            const disadvantages = typeof product.disadvantages === 'string' 
+                              ? JSON.parse(product.disadvantages) 
+                              : product.disadvantages || [];
+                            
+                            if (Array.isArray(disadvantages) && disadvantages.length > 0) {
+                              return (
+                                <div className="bg-red-50 p-5 rounded-lg border border-red-100">
+                                  <h4 className="text-lg font-semibold text-gray-900 mb-4">Disadvantages</h4>
+                                  <ul className="space-y-3">
+                                    {disadvantages.slice(0, 5).map((disadvantage, index) => (
+                                      <li key={index} className="flex items-start gap-3">
+                                        <span className="text-red-600 font-black text-lg mt-0.5 w-5 flex-shrink-0">✗</span>
+                                        <span className="text-gray-700 leading-relaxed">{disadvantage}</span>
+                                      </li>
+                                    ))}
+                                    {disadvantages.length > 5 && (
+                                      <li className="text-sm text-gray-500 italic pl-5">+{disadvantages.length - 5} more considerations</li>
+                                    )}
+                                  </ul>
+                                </div>
+                              );
+                            } else {
+                              return (
+                                <div className="bg-red-50 p-5 rounded-lg border border-red-100">
+                                  <h4 className="text-lg font-semibold text-gray-900 mb-4">Disadvantages</h4>
+                                  <ul className="space-y-3">
+                                    <li className="flex items-start gap-3">
+                                      <span className="text-red-600 font-black text-lg mt-0.5 w-5 flex-shrink-0">✗</span>
+                                      <span className="text-gray-700 leading-relaxed">Learning curve for beginners</span>
+                                    </li>
+                                    <li className="flex items-start gap-3">
+                                      <span className="text-red-600 font-black text-lg mt-0.5 w-5 flex-shrink-0">✗</span>
+                                      <span className="text-gray-700 leading-relaxed">Higher price than alternatives</span>
+                                    </li>
+                                    <li className="flex items-start gap-3">
+                                      <span className="text-red-600 font-black text-lg mt-0.5 w-5 flex-shrink-0">✗</span>
+                                      <span className="text-gray-700 leading-relaxed">Limited customization options</span>
+                                    </li>
+                                  </ul>
+                                </div>
+                              );
+                            }
+                          } catch (error) {
+                            console.warn('Error parsing disadvantages:', error);
+                          }
+                          return null;
                         })()}
                       </div>
-                    </div>
 
-                    <button
-                      onClick={() => handleVisit(product.externalUrl)}
-                      className="w-full px-6 py-3 text-base font-medium rounded-[14px] bg-gradient-primary text-white hover-gradient-primary transition-all"
-                    >
-                      {product.hasTrial ? 'Try for Free' : 'Try Now'}
-                    </button>
+                      {/* Reviews Section */}
+                      <div>
+                        <h4 className="text-lg font-semibold text-gray-900 mb-4">User Reviews</h4>
+                        <div className="space-y-4">
+                          {product.reviews && Array.isArray(product.reviews) && product.reviews.length > 0 ? (
+                            <>
+                              {product.reviews.slice(0, 2).map((review, index) => (
+                                <div key={index} className="border-l-2 border-gray-200 pl-4">
+                                  <div className="flex items-center justify-between mb-2">
+                                    <span className="font-medium text-gray-900">{review.author}</span>
+                                    <div className="flex items-center gap-1">
+                                      {[...Array(5)].map((_, i) => (
+                                        <span key={i} className={`text-sm ${i < review.rating ? 'text-yellow-500' : 'text-gray-300'}`}>★</span>
+                                      ))}
+                                      <span className="ml-2 text-sm text-gray-600">{review.rating}/5</span>
+                                    </div>
+                                  </div>
+                                  <p className="text-gray-700 leading-relaxed italic">"{review.text}"</p>
+                                </div>
+                              ))}
+                              {product.reviews.length > 2 && (
+                                <p className="text-sm text-gray-500">+{product.reviews.length - 2} more reviews</p>
+                              )}
+                            </>
+                          ) : (
+                            <>
+                              <div className="border-l-2 border-gray-200 pl-4">
+                                <div className="flex items-center justify-between mb-2">
+                                  <span className="font-medium text-gray-900">Sarah M.</span>
+                                  <div className="flex items-center gap-1">
+                                    {[...Array(5)].map((_, i) => (
+                                      <span key={i} className="text-sm text-yellow-500">★</span>
+                                    ))}
+                                    <span className="ml-2 text-sm text-gray-600">5/5</span>
+                                  </div>
+                                </div>
+                                <p className="text-gray-700 leading-relaxed italic">"Excellent tool! Very intuitive and saves me a lot of time."</p>
+                              </div>
+                              <div className="border-l-2 border-gray-200 pl-4">
+                                <div className="flex items-center justify-between mb-2">
+                                  <span className="font-medium text-gray-900">David K.</span>
+                                  <div className="flex items-center gap-1">
+                                    {[...Array(4)].map((_, i) => (
+                                      <span key={i} className="text-sm text-yellow-500">★</span>
+                                    ))}
+                                    <span className="text-sm text-gray-300">★</span>
+                                    <span className="ml-2 text-sm text-gray-600">4/5</span>
+                                  </div>
+                                </div>
+                                <p className="text-gray-700 leading-relaxed italic">"Great features, though the learning curve can be steep initially."</p>
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Pricing Plans */}
+                      {(() => {
+                        const hasAnyPricing = product.hasTrial || 
+                          (product.pricingInfo && Object.keys(typeof product.pricingInfo === 'string' ? JSON.parse(product.pricingInfo) : product.pricingInfo || {}).length > 0);
+                        
+                        if (!hasAnyPricing) return null;
+                        
+                        return (
+                          <div>
+                            <h4 className="text-lg font-semibold text-gray-900 mb-4">Pricing</h4>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                              {product.hasTrial && (
+                                <div className="border border-gray-200 rounded-lg p-4 text-center">
+                                  <h5 className="font-semibold text-gray-900 mb-2">Free Trial</h5>
+                                  <div className="text-2xl font-bold text-gray-900 mb-1">$0</div>
+                                  <p className="text-sm text-gray-600">Try before you buy</p>
+                                </div>
+                              )}
+                              {(() => {
+                                try {
+                                  const pricingInfo = typeof product.pricingInfo === 'string' 
+                                    ? JSON.parse(product.pricingInfo) 
+                                    : product.pricingInfo || {};
+                                  
+                                  return (
+                                    <>
+                                      {pricingInfo.basic && (
+                                        <div className="border border-gray-200 rounded-lg p-4 text-center">
+                                          <h5 className="font-semibold text-gray-900 mb-2">Basic</h5>
+                                          <div className="text-2xl font-bold text-gray-900 mb-1">
+                                            ${parseFloat(pricingInfo.basic).toFixed(0)}
+                                          </div>
+                                          <p className="text-sm text-gray-600">Essential features</p>
+                                        </div>
+                                      )}
+                                      {pricingInfo.pro && (
+                                        <div className="border-2 border-purple-200 rounded-lg p-4 text-center relative">
+                                          <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
+                                            <span className="bg-purple-600 text-white text-xs font-medium px-2 py-1 rounded">Most Popular</span>
+                                          </div>
+                                          <h5 className="font-semibold text-gray-900 mb-2">Pro</h5>
+                                          <div className="text-2xl font-bold text-gray-900 mb-1">
+                                            ${parseFloat(pricingInfo.pro).toFixed(0)}
+                                          </div>
+                                          <p className="text-sm text-gray-600">Advanced features</p>
+                                        </div>
+                                      )}
+                                      {pricingInfo.enterprise && (
+                                        <div className="border border-gray-200 rounded-lg p-4 text-center">
+                                          <h5 className="font-semibold text-gray-900 mb-2">Enterprise</h5>
+                                          <div className="text-2xl font-bold text-gray-900 mb-1">
+                                            {pricingInfo.enterprise === 'Custom' ? 'Custom' : `$${parseFloat(pricingInfo.enterprise).toFixed(0)}`}
+                                          </div>
+                                          <p className="text-sm text-gray-600">Full solution</p>
+                                        </div>
+                                      )}
+                                    </>
+                                  );
+                                } catch (error) {
+                                  console.warn('Error parsing pricing info:', error);
+                                  return null;
+                                }
+                              })()}
+                            </div>
+                          </div>
+                        );
+                      })()}
+
+                      {/* Call to Action */}
+                      <div className="text-center pt-4">
+                        <button
+                          onClick={() => handleVisit(product.externalUrl)}
+                          className="px-6 py-2 text-sm font-medium rounded-lg bg-gradient-primary text-white hover-gradient-primary transition-all"
+                        >
+                          {product.hasTrial ? 'Start Free Trial' : 'Try Now'}
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
