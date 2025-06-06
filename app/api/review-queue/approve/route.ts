@@ -1,11 +1,60 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
+import fs from 'fs'
+import path from 'path'
 
 const prisma = new PrismaClient()
 
-// Importujeme reviewQueue z hlavního API
-// V reálné aplikaci by toto bylo v externe databázi
+// Import typu z hlavního route
 import type { ReviewProduct } from '../route'
+
+// File path for persistent storage
+const QUEUE_FILE_PATH = path.join(process.cwd(), 'tmp', 'review-queue.json')
+
+// Load queue from file
+function loadQueue(): ReviewProduct[] {
+  try {
+    if (fs.existsSync(QUEUE_FILE_PATH)) {
+      const data = fs.readFileSync(QUEUE_FILE_PATH, 'utf8')
+      return JSON.parse(data)
+    }
+  } catch (error) {
+    console.error('❌ Error loading queue from file:', error)
+  }
+  return []
+}
+
+// Save queue to file
+function saveQueue(queue: ReviewProduct[]): void {
+  try {
+    fs.writeFileSync(QUEUE_FILE_PATH, JSON.stringify(queue, null, 2))
+  } catch (error) {
+    console.error('❌ Error saving queue to file:', error)
+  }
+}
+
+// Helper funkce pro manipulaci s queue
+function getReviewQueue(): ReviewProduct[] {
+  return loadQueue()
+}
+
+function removeFromReviewQueue(reviewId: string): boolean {
+  const queue = loadQueue()
+  const initialLength = queue.length
+  const newQueue = queue.filter((p: ReviewProduct) => p.reviewId !== reviewId)
+  saveQueue(newQueue)
+  return newQueue.length < initialLength
+}
+
+function updateInReviewQueue(reviewId: string, updatedData: Partial<ReviewProduct>): boolean {
+  const queue = loadQueue()
+  const index = queue.findIndex((p: ReviewProduct) => p.reviewId === reviewId)
+  if (index === -1) return false
+  
+  queue[index] = { ...queue[index], ...updatedData }
+  saveQueue(queue)
+  return true
+}
 
 // POST - Schválit produkty a uložit do databáze
 export async function POST(request: NextRequest) {
@@ -19,17 +68,13 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
-    // Načíst reviewQueue z dočasného úložiště
-    const reviewQueueModule = await import('../route')
-    const { getReviewQueue, removeFromReviewQueue } = reviewQueueModule
-
     const approvedProducts = []
     const failedProducts = []
 
     for (const reviewId of reviewIds) {
       try {
         // Najít produkt v review queue
-        const reviewProduct = getReviewQueue().find(p => p.reviewId === reviewId)
+        const reviewProduct = getReviewQueue().find((p: ReviewProduct) => p.reviewId === reviewId)
         
         if (!reviewProduct) {
           failedProducts.push({
@@ -154,10 +199,6 @@ export async function PUT(request: NextRequest) {
         error: 'Chybí reviewId nebo updatedData'
       }, { status: 400 })
     }
-
-    // Načíst reviewQueue z dočasného úložiště
-    const reviewQueueModule = await import('../route')
-    const { updateInReviewQueue } = reviewQueueModule
 
     const success = updateInReviewQueue(reviewId, updatedData)
 
