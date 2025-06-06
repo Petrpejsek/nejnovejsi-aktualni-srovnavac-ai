@@ -50,29 +50,6 @@ function saveQueue(queue: ReviewProduct[]): void {
   }
 }
 
-// Helper funkce pro manipulaci s queue
-export function getReviewQueue(): ReviewProduct[] {
-  return loadQueue()
-}
-
-export function removeFromReviewQueue(reviewId: string): boolean {
-  const queue = loadQueue()
-  const initialLength = queue.length
-  const newQueue = queue.filter((p: ReviewProduct) => p.reviewId !== reviewId)
-  saveQueue(newQueue)
-  return newQueue.length < initialLength
-}
-
-export function updateInReviewQueue(reviewId: string, updatedData: Partial<ReviewProduct>): boolean {
-  const queue = loadQueue()
-  const index = queue.findIndex((p: ReviewProduct) => p.reviewId === reviewId)
-  if (index === -1) return false
-  
-  queue[index] = { ...queue[index], ...updatedData }
-  saveQueue(queue)
-  return true
-}
-
 // GET - Získat všechny produkty v review queue
 export async function GET(request: NextRequest) {
   try {
