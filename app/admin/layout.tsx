@@ -25,12 +25,13 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       icon: '📦',
       current: pathname.startsWith('/admin/products')
     },
-    {
+    // URL Upload pouze ve development nebo když je explicitně povoleno
+    ...(process.env.NODE_ENV === 'development' || process.env.NEXT_PUBLIC_ENABLE_ADMIN_UPLOAD === 'true' ? [{
       name: 'URL Upload',
       href: '/admin/url-upload',
       icon: '🚀',
       current: pathname.startsWith('/admin/url-upload')
-    },
+    }] : []),
     {
       name: 'AI Kurzy',
       href: '/admin/courses',

@@ -102,6 +102,16 @@ export async function GET(request: NextRequest) {
 // POST - Přidat produkty do review queue
 export async function POST(request: NextRequest) {
   try {
+    // Kontrola prostředí - blokace na produkci
+    const isAdminUploadEnabled = process.env.NODE_ENV === 'development' || process.env.NEXT_PUBLIC_ENABLE_ADMIN_UPLOAD === 'true'
+    
+    if (!isAdminUploadEnabled) {
+      return NextResponse.json({
+        success: false,
+        error: 'Review queue funkcionalita není dostupná na tomto prostředí'
+      }, { status: 403 });
+    }
+
     const { products } = await request.json()
 
     if (!products || !Array.isArray(products)) {

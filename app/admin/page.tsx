@@ -41,6 +41,12 @@ interface DashboardStats {
     totalClicks: number
     uniqueVisitors: number
   }
+  companyApplications?: {
+    total: number
+    pending: number
+    approved: number
+    rejected: number
+  }
 }
 
 export default function AdminDashboard() {
@@ -189,6 +195,48 @@ export default function AdminDashboard() {
         </p>
       </div>
 
+      {/* Upozornění pro pending company applications - zvýrazněné */}
+      {dashboardStats.companyApplications && dashboardStats.companyApplications.pending > 0 && (
+        <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-l-4 border-amber-400 shadow-lg rounded-lg p-6">
+          <div className="flex items-start">
+            <div className="flex-shrink-0">
+              <span className="text-3xl animate-pulse">🔔</span>
+            </div>
+            <div className="ml-4 flex-1">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-amber-900">
+                  Nové firemní aplikace k vyřízení!
+                </h3>
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800 border border-amber-200">
+                  {dashboardStats.companyApplications.pending} čeká na schválení
+                </span>
+              </div>
+              <div className="mt-2 text-sm text-amber-800">
+                <p>
+                  Máte <strong>{dashboardStats.companyApplications.pending}</strong> {dashboardStats.companyApplications.pending === 1 ? 'firemní aplikaci' : 'firemních aplikací'} čekajících na vaše posouzení a schválení.
+                </p>
+              </div>
+              <div className="mt-4 flex space-x-3">
+                <Link
+                  href="/admin/companies"
+                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-amber-600 hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 shadow-sm transition-colors"
+                >
+                  <span className="mr-2">📋</span>
+                  Zkontrolovat aplikace
+                  <span className="ml-2">→</span>
+                </Link>
+                <Link
+                  href="/admin/companies"
+                  className="inline-flex items-center px-4 py-2 border border-amber-300 text-sm font-medium rounded-md text-amber-800 bg-amber-100 hover:bg-amber-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-colors"
+                >
+                  Pouze čekající
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Analytics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Link
@@ -261,21 +309,40 @@ export default function AdminDashboard() {
         </Link>
 
         <Link
-          href="/admin/analytics"
+          href="/admin/companies"
           className="group"
         >
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 hover:border-purple-300 hover:shadow-md transition-all duration-200 cursor-pointer">
+          <div className={`bg-white p-6 rounded-lg shadow-sm border transition-all duration-200 cursor-pointer ${
+            dashboardStats.companyApplications && dashboardStats.companyApplications.pending > 0 
+              ? 'border-amber-300 hover:border-amber-400 hover:shadow-md bg-amber-50' 
+              : 'border-gray-200 hover:border-purple-300 hover:shadow-md'
+          }`}>
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <span className="text-2xl">⭐</span>
+                <span className="text-2xl">
+                  {dashboardStats.companyApplications && dashboardStats.companyApplications.pending > 0 ? '🔔' : '🏢'}
+                </span>
               </div>
               <div className="ml-5 w-0 flex-1">
                 <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate group-hover:text-purple-600 transition-colors">
-                    Celkové hodnocení
+                  <dt className={`text-sm font-medium truncate transition-colors ${
+                    dashboardStats.companyApplications && dashboardStats.companyApplications.pending > 0 
+                      ? 'text-amber-700 group-hover:text-amber-800' 
+                      : 'text-gray-500 group-hover:text-purple-600'
+                  }`}>
+                    {dashboardStats.companyApplications && dashboardStats.companyApplications.pending > 0 
+                      ? 'Čekající žádosti' 
+                      : 'Firemní žádosti'}
                   </dt>
-                  <dd className="text-lg font-medium text-gray-900 group-hover:text-purple-700 transition-colors">
-                    4.8
+                  <dd className={`text-lg font-medium transition-colors ${
+                    dashboardStats.companyApplications && dashboardStats.companyApplications.pending > 0 
+                      ? 'text-amber-900 group-hover:text-amber-900' 
+                      : 'text-gray-900 group-hover:text-purple-700'
+                  }`}>
+                    {dashboardStats.companyApplications ? dashboardStats.companyApplications.pending : 0}
+                    {dashboardStats.companyApplications && dashboardStats.companyApplications.pending > 0 && (
+                      <span className="ml-2 text-sm">čeká na schválení</span>
+                    )}
                   </dd>
                 </dl>
               </div>

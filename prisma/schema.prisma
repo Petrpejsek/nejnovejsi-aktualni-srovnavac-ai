@@ -10,12 +10,30 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Category {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  slug        String   @unique
+  icon        String?
+  parent_id   String?
+  parent      Category? @relation("CategoryHierarchy", fields: [parent_id], references: [id])
+  children    Category[] @relation("CategoryHierarchy")
+  products    Product[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([parent_id])
+}
+
 model Product {
   id          String   @id @default(uuid())
   name        String
   description String?
   price       Float
-  category    String?
+  category    String?  // Zachovat pro zpětnou kompatibilitu
+  primary_category_id    String?
+  secondary_category_id  String?
+  primary_category       Category? @relation(fields: [primary_category_id], references: [id])
   imageUrl    String?
   pendingImageUrl String? // Nová fotka čekající na schválení
   imageApprovalStatus String? // 'pending', 'approved', 'rejected'
@@ -30,6 +48,9 @@ model Product {
   hasTrial    Boolean  @default(false) // Indikuje, zda produkt má zkušební verzi
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  @@index([primary_category_id])
+  @@index([secondary_category_id])
 }
 
 model Click {
@@ -41,4 +62,23 @@ model Click {
 
   @@index([visitorId])
   @@index([productId])
+}
+
+model CompanyApplications {
+  id              String   @id @default(uuid())
+  companyName     String   // Název firmy
+  contactPerson   String   // Kontaktní osoba
+  businessEmail   String   // Firemní email
+  website         String?  // Website firmy (volitelné)
+  productUrls     Json?    // Array URL produktů které chtějí spravovat
+  description     String?  // Popis firmy/produktů (volitelné)
+  status          String   @default("pending") // pending/approved/rejected
+  adminNotes      String?  // Poznámky admina
+  submittedAt     DateTime @default(now())
+  reviewedAt      DateTime?
+  reviewedBy      String?  // Email admina který aplikaci zkontroloval
+  
+  @@index([status])
+  @@index([businessEmail])
+  @@index([submittedAt])
 } 

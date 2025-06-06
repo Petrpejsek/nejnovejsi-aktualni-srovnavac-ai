@@ -5,21 +5,33 @@ const prisma = new PrismaClient()
 
 export async function GET(request: NextRequest) {
   try {
-    // Získáme skutečné počty z databáze paralelně - pouze z existujících tabulek
+    // Získáme skutečné počty z databáze paralelně
     const [
       totalProducts,
       totalClicks,
-      uniqueVisitors
+      uniqueVisitors,
+      companyApplicationsStats
     ] = await Promise.all([
       prisma.product.count(),
       prisma.click.count(),
       prisma.click.groupBy({
         by: ['visitorId'],
         _count: true
-      }).then(visitors => visitors.length)
+      }).then(visitors => visitors.length),
+      // Nové: Statistiky CompanyApplications - nyní aktivní
+      prisma.companyApplications.groupBy({
+        by: ['status'],
+        _count: true
+      })
     ])
 
-    // Vytvoříme statistiky pouze s daty, která máme
+    // Spočítáme statistiky pro firemní aplikace s explicitními typy
+    const companyStats: Record<string, number> = companyApplicationsStats.reduce((acc: Record<string, number>, item: { status: string; _count: number }) => {
+      acc[item.status] = item._count
+      return acc
+    }, { pending: 0, approved: 0, rejected: 0 })
+
+    // Vytvoříme statistiky s reálnými i statickými daty
     const stats = {
       products: {
         total: totalProducts,
@@ -34,10 +46,11 @@ export async function GET(request: NextRequest) {
         enrolled: 2341
       },
       companies: {
-        total: 8, // Statické data - firmy zatím nejsou v databázi
-        active: 8,
-        pending: 0,
-        verified: 8
+        total: companyStats.pending + companyStats.approved + companyStats.rejected,
+        active: companyStats.approved,
+        pending: companyStats.pending,
+        verified: companyStats.approved,
+        rejected: companyStats.rejected
       },
       pages: {
         total: 12, // Statické data - stránky zatím nejsou v databázi
@@ -47,11 +60,18 @@ export async function GET(request: NextRequest) {
       users: {
         total: 156, // Statické data - uživatelé zatím nejsou v databázi
         active: 134,
-        companies: 8
+        companies: companyStats.approved
       },
       analytics: {
         totalClicks,
         uniqueVisitors
+      },
+      // Nové: Specifické statistiky pro company applications
+      companyApplications: {
+        total: companyStats.pending + companyStats.approved + companyStats.rejected,
+        pending: companyStats.pending,
+        approved: companyStats.approved,
+        rejected: companyStats.rejected
       }
     }
 

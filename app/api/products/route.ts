@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { NextRequest } from 'next/server'
+import { Prisma } from '@prisma/client'
 
 interface Product {
   id: string
@@ -51,7 +52,9 @@ function cleanProduct(product: any): any {
     advantages: safeJsonParse(product.advantages, []),
     disadvantages: safeJsonParse(product.disadvantages, []),
     pricingInfo: safeJsonParse(product.pricingInfo, {}),
-    videoUrls: safeJsonParse(product.videoUrls, [])
+    videoUrls: safeJsonParse(product.videoUrls, []),
+    // Ensure externalUrl is always included
+    externalUrl: product.externalUrl || null
   };
 }
 
@@ -171,13 +174,14 @@ export async function GET(request: NextRequest) {
         where: whereClause
       });
       
-      // Get paginated products (with filter)
-      const rawProducts = await prisma.product.findMany({
-          where: whereClause,
-          orderBy: { name: 'asc' },
-          skip,
-          take: validPageSize,
-        });
+      // Get paginated products (with filter) - random order for homepage
+      const rawProducts = await prisma.$queryRaw`
+        SELECT * FROM "Product" 
+        ${categoryParam ? Prisma.sql`WHERE "category" = ${categoryParam}` : Prisma.empty}
+        ORDER BY RANDOM()
+        LIMIT ${validPageSize}
+        OFFSET ${skip}
+      ` as Product[];
       
       // Clean products before sending
       const products = rawProducts.map(cleanProduct);

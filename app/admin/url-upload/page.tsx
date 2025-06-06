@@ -1,7 +1,10 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import { Inter } from 'next/font/google'
 import EditProductModal from './components/EditProductModal'
+
+const inter = Inter({ subsets: ['latin'] })
 
 interface ScrapingResult {
   url: string
@@ -46,6 +49,21 @@ interface ReviewQueueResponse {
 }
 
 export default function URLUploadPage() {
+  // Kontrola prostředí - blokace na produkci
+  const isAdminUploadEnabled = process.env.NODE_ENV === 'development' || process.env.NEXT_PUBLIC_ENABLE_ADMIN_UPLOAD === 'true'
+  
+  if (!isAdminUploadEnabled) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">🚫 Funkce není dostupná</h1>
+          <p className="text-gray-600 mb-6">URL Upload funkcionalita je dostupná pouze v development prostředí.</p>
+          <p className="text-sm text-gray-500">Pro aktivaci nastavte NEXT_PUBLIC_ENABLE_ADMIN_UPLOAD=true</p>
+        </div>
+      </div>
+    )
+  }
+
   // Základní stav
   const [urls, setUrls] = useState('')
   const [isProcessing, setIsProcessing] = useState(false)

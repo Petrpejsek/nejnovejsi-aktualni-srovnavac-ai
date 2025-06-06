@@ -11,7 +11,8 @@ const openai = new OpenAI({
 interface ProductData {
   name: string;
   description: string;
-  category: string;
+  primary_category: string;
+  secondary_category?: string;
   price: number;
   advantages: string[];
   disadvantages: string[];
@@ -21,9 +22,93 @@ interface ProductData {
   pricingInfo: any;
 }
 
+// Funkce pro normalizaci tagů
+function normalizeTag(tag: string): string {
+  const normalizedTag = tag.trim().toLowerCase()
+  
+  // Sjednotíme podobné tagy
+  const tagMap: { [key: string]: string } = {
+    'text na řeč': 'Text to Speech',
+    'text to speech': 'Text to Speech',
+    'úprava fotek': 'Image Editing',
+    'úprava obrázků': 'Image Editing',
+    'generování obrázků': 'Image Generation',
+    'generování obrázkú': 'Image Generation',
+    'zákaznický servis': 'Customer Support',
+    'zákaznická podpora': 'Customer Support',
+    'projektové řízení': 'Project Management',
+    'projektový management': 'Project Management',
+    'avatary': 'Digital Avatars',
+    'digitální avatary': 'Digital Avatars',
+    'video': 'Video Creation',
+    'video tvorba': 'Video Creation',
+    'voiceover': 'Text to Speech',
+    'writing assistants': 'Writing Assistants',
+    'ai writing': 'AI Writing',
+    'content generation': 'Content Generation',
+    'writing assistant': 'Writing Assistant'
+  }
+
+  return tagMap[normalizedTag] || tag.trim()
+}
+
+// Funkce pro odstranění duplicitních tagů
+function removeDuplicateTags(tags: string[]): string[] {
+  const normalizedTags = new Set<string>()
+  const uniqueTags: string[] = []
+  
+  tags.forEach(tag => {
+    const normalized = normalizeTag(tag).toLowerCase()
+    if (!normalizedTags.has(normalized)) {
+      normalizedTags.add(normalized)
+      uniqueTags.push(normalizeTag(tag)) // Přidáme normalizovaný tag
+    }
+  })
+  
+  return uniqueTags
+}
+
+// Funkce pro přípravu dat kategorie
+function prepareProductData(productData: ProductData) {
+  // Připravit tagy - přidat secondary_category pokud existuje
+  let tags = [...productData.tags];
+  
+  if (productData.secondary_category) {
+    // Normalizujeme secondary_category pro srovnání
+    const normalizedSecondary = normalizeTag(productData.secondary_category).toLowerCase()
+    const tagExists = tags.some(tag => normalizeTag(tag).toLowerCase() === normalizedSecondary)
+    
+    if (!tagExists) {
+      tags.unshift(productData.secondary_category); // Přidat na začátek
+    }
+  }
+  
+  // Odstranit všechny duplikáty
+  tags = removeDuplicateTags(tags)
+
+  return {
+    ...productData,
+    category: productData.primary_category, // Hlavní kategorie → category string
+    tags: tags, // Tags včetně secondary_category, bez duplikátů
+    // Odstraníme primary_category a secondary_category z finálních dat
+    primary_category: undefined,
+    secondary_category: undefined
+  };
+}
+
 // POST /api/products/scrape - Automatické scrapování produktů z URL
 export async function POST(request: NextRequest) {
   try {
+    // Kontrola prostředí - blokace na produkci
+    const isAdminUploadEnabled = process.env.NODE_ENV === 'development' || process.env.NEXT_PUBLIC_ENABLE_ADMIN_UPLOAD === 'true'
+    
+    if (!isAdminUploadEnabled) {
+      return NextResponse.json({
+        success: false,
+        error: 'URL scraping funkcionalita není dostupná na tomto prostředí'
+      }, { status: 403 });
+    }
+
     const { urls } = await request.json();
 
     if (!urls || !Array.isArray(urls) || urls.length === 0) {
@@ -84,20 +169,22 @@ export async function POST(request: NextRequest) {
 
         console.log(`✅ Data extrahována: ${productData.name}`);
         
+        // 3. Připravit data s kategoriemi
+        const preparedData = prepareProductData(productData);
 
-        // 3. Vytvořit screenshot
+        // 4. Vytvořit screenshot
         console.log(`📸 Tvořím screenshot pro: ${productData.name}`);
         const screenshotUrl = await createScreenshot(url, productData.name);
         console.log(`📸 Screenshot ${screenshotUrl ? 'vytvořen' : 'selhal'}: ${screenshotUrl || 'žádná URL'}`);
 
-        // 4. Přidat do review queue (duplikáty se kontrolují při approve)
+        // 5. Přidat do review queue (duplikáty se kontrolují při approve)
         console.log(`✅ Produkt připraven k review: ${productData.name}`);
 
         results.push({
           url,
           success: true,
           reviewData: {
-            ...productData,
+            ...preparedData,
             externalUrl: url,
             screenshotUrl,
             scrapedAt: new Date().toISOString(),
@@ -204,12 +291,22 @@ Vrať data ve formátu JSON s těmito poli:
 {
   "name": "Název produktu (max 100 znaků)",
   "description": "Krátký popis produktu (2-4 věty)",
-  "category": "Kategorie (např. 'AI Tools', 'SaaS', 'Productivity', 'Design Tools', 'Analytics', 'Marketing Tools', 'Developer Tools')",
+  "primary_category": "Hlavní kategorie - vybráno z těchto: 'Content & Writing', 'Meetings & Communication', 'Productivity & Organization', 'Design & Visual', 'Marketing & Social Media', 'Audio & Music', 'Business & Enterprise', 'Developer & Technical', 'Browsing & Utilities'",
+  "secondary_category": "Podkategorie - vybráno podle primary_category:
+    Content & Writing: 'AI Copywriting', 'Writing Assistants', 'Creative Writing', 'Blog & SEO Content'
+    Meetings & Communication: 'Meeting Notes & Transcription', 'Voice & Speech', 'Video Conferencing Tools'
+    Productivity & Organization: 'Task Management', 'Note-taking & Knowledge', 'Email & Communication', 'Calendar & Scheduling'
+    Design & Visual: 'Presentations', 'Graphic Design', 'Image Generation', 'Video Editing'
+    Marketing & Social Media: 'Social Media Management', 'Content Scheduling', 'Analytics & Insights', 'Ad Creation'
+    Audio & Music: 'Music Generation', 'Voice Synthesis', 'Audio Editing', 'Podcast Tools'
+    Business & Enterprise: 'HR & People Management', 'Sales & CRM', 'Data Analysis', 'Automation'
+    Developer & Technical: 'Code Assistants', 'API & Integration', 'Infrastructure'
+    Browsing & Utilities: 'Browsers & Extensions', 'Search & Research', 'General Utilities'",
   "price": číselná hodnota základní ceny (0 pokud je zdarma),
   "advantages": ["výhoda 1", "výhoda 2", "výhoda 3", "výhoda 4"] - 4-6 výhod,
   "disadvantages": ["nevýhoda 1", "nevýhoda 2"] - 1-3 nevýhody,
   "hasTrial": true/false - má zkušební verzi zdarma,
-  "tags": ["tag1", "tag2", "tag3"] - relevantní tagy,
+  "tags": ["tag1", "tag2", "tag3"] - relevantní tagy (3-5 tagů),
   "detailInfo": "Detailní popis produktu a jeho funkcí (3-5 vět)",
   "pricingInfo": {
     "plans": [
@@ -221,11 +318,23 @@ Vrať data ve formátu JSON s těmito poli:
 
 DŮLEŽITÉ:
 - Všechny texty piš v ANGLIČTINĚ
+- POVINNĚ vybírej primary_category POUZE z uvedeného seznamu
+- POVINNĚ vybírej secondary_category POUZE z odpovídající sekce
 - Pokud nenajdeš cenu, použij 0
 - Buď precizní s názvy a popisy
 - Zaměř se na klíčové funkce a výhody
 - Ignoruj cookies bannery a reklamy
 - Pokud to není AI/tech produkt, vrať null
+
+PŘÍKLADY KATEGORIZACE:
+- Writesonic → primary: "Content & Writing", secondary: "AI Copywriting"
+- Fireflies.ai → primary: "Meetings & Communication", secondary: "Meeting Notes & Transcription"
+- Motion → primary: "Productivity & Organization", secondary: "Task Management"
+- Beautiful.ai → primary: "Design & Visual", secondary: "Presentations"
+- Buffer → primary: "Marketing & Social Media", secondary: "Social Media Management"
+- Suno → primary: "Audio & Music", secondary: "Music Generation"
+- Lattice → primary: "Business & Enterprise", secondary: "HR & People Management"
+- Arc Browser → primary: "Browsing & Utilities", secondary: "Browsers & Extensions"
 `;
 
     const response = await openai.chat.completions.create({

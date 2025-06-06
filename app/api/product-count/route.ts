@@ -1,10 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
+import prisma from '@/lib/prisma'
 
-// In-memory cache pro poslední počet produktů
-let lastProductCount = 219 // Výchozí hodnota na základě současného stavu
+// In-memory cache pro poslední počet produktů - RESET pro aktualizaci
+let lastProductCount: number | null = null // FORCE REFRESH - vynuceně invalidace cache pro aktuální stav
 
 export async function GET(request: NextRequest) {
   try {
+    // Pokud cache není inicializovaná, načti z databáze
+    if (lastProductCount === null) {
+      const count = await prisma.product.count()
+      lastProductCount = count
+      console.log(`📊 Product count initialized from database: ${count}`)
+    }
+    
     // Vrátit cachovaný počet
     return NextResponse.json({ 
       count: lastProductCount,

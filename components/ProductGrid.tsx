@@ -52,18 +52,35 @@ export default function ProductGrid({ selectedTags }: ProductGridProps = {}) {
         const data = await response.json()
         
         if (isMounted && data.products && Array.isArray(data.products)) {
-          const simpleProducts = data.products.map((product: any) => ({
-            id: product.id,
-            name: product.name,
-            description: product.description || '',
-            price: product.price || 0,
-            category: product.category || '',
-            imageUrl: product.imageUrl,
-            tags: Array.isArray(product.tags) ? product.tags : [],
-            externalUrl: product.externalUrl,
-            hasTrial: Boolean(product.hasTrial),
-            isBookmarked: false // Default to false, would be loaded from user data
-          }))
+          const simpleProducts = data.products.map((product: any) => {
+            // Parse tags from JSON string if needed
+            let tags = [];
+            try {
+              if (typeof product.tags === 'string') {
+                tags = JSON.parse(product.tags);
+              } else if (Array.isArray(product.tags)) {
+                tags = product.tags;
+              }
+            } catch (e) {
+              console.warn('Failed to parse tags for product:', product.name, product.id, 'raw tags:', product.tags, e);
+              tags = [];
+            }
+            
+            // Tags parsed successfully
+
+            return {
+              id: product.id,
+              name: product.name,
+              description: product.description || '',
+              price: product.price || 0,
+              category: product.category || '',
+              imageUrl: product.imageUrl,
+              tags: tags,
+              externalUrl: product.externalUrl,
+              hasTrial: Boolean(product.hasTrial),
+              isBookmarked: false // Default to false, would be loaded from user data
+            };
+          })
           
           setProducts(simpleProducts)
           setCurrentPage(1)
@@ -106,18 +123,35 @@ export default function ProductGrid({ selectedTags }: ProductGridProps = {}) {
       const data = await response.json()
       
       if (data.products && Array.isArray(data.products)) {
-        const newProducts = data.products.map((product: any) => ({
-          id: product.id,
-          name: product.name,
-          description: product.description || '',
-          price: product.price || 0,
-          category: product.category || '',
-          imageUrl: product.imageUrl,
-          tags: Array.isArray(product.tags) ? product.tags : [],
-          externalUrl: product.externalUrl,
-          hasTrial: Boolean(product.hasTrial),
-          isBookmarked: false // Default to false, would be loaded from user data
-        }))
+        const newProducts = data.products.map((product: any) => {
+          // Parse tags from JSON string if needed
+          let tags = [];
+          try {
+            if (typeof product.tags === 'string') {
+              tags = JSON.parse(product.tags);
+            } else if (Array.isArray(product.tags)) {
+              tags = product.tags;
+            }
+          } catch (e) {
+            console.warn('Failed to parse tags for product:', product.name, product.id, 'raw tags:', product.tags, e);
+            tags = [];
+          }
+          
+          // Tags parsed successfully for loadMore
+
+          return {
+            id: product.id,
+            name: product.name,
+            description: product.description || '',
+            price: product.price || 0,
+            category: product.category || '',
+            imageUrl: product.imageUrl,
+            tags: tags,
+            externalUrl: product.externalUrl,
+            hasTrial: Boolean(product.hasTrial),
+            isBookmarked: false // Default to false, would be loaded from user data
+          };
+        })
         
         setProducts(prev => [...prev, ...newProducts])
         setCurrentPage(nextPage)

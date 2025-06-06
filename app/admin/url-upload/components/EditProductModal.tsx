@@ -284,16 +284,15 @@ export default function EditProductModal({ product, onClose, onSave }: EditProdu
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="">Vyberte kategorii</option>
-                    <option value="AI Tools">AI Tools</option>
-                    <option value="SaaS">SaaS</option>
-                    <option value="Productivity">Productivity</option>
-                    <option value="Design Tools">Design Tools</option>
-                    <option value="Analytics">Analytics</option>
-                    <option value="Marketing Tools">Marketing Tools</option>
-                    <option value="Developer Tools">Developer Tools</option>
-                    <option value="Content Creation">Content Creation</option>
-                    <option value="Communication">Communication</option>
-                    <option value="E-commerce">E-commerce</option>
+                    <option value="Content & Writing">📝 Content & Writing</option>
+                    <option value="Meetings & Communication">🎤 Meetings & Communication</option>
+                    <option value="Productivity & Organization">📊 Productivity & Organization</option>
+                    <option value="Design & Visual">🎨 Design & Visual</option>
+                    <option value="Marketing & Social Media">📢 Marketing & Social Media</option>
+                    <option value="Audio & Music">🎵 Audio & Music</option>
+                    <option value="Business & Enterprise">🏢 Business & Enterprise</option>
+                    <option value="Developer & Technical">💻 Developer & Technical</option>
+                    <option value="Browsing & Utilities">🔧 Browsing & Utilities</option>
                   </select>
                 </div>
 

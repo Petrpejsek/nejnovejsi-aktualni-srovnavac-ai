@@ -13,13 +13,13 @@ export default function AiAdvisor() {
   const [userStartedTyping, setUserStartedTyping] = useState(false)
   const [totalProducts, setTotalProducts] = useState(0) // Start from 0 for animation
   const [isRealData, setIsRealData] = useState(false) // Track if we have real data
-  const [cachedCount, setCachedCount] = useState(219) // Cached count from backend
+  const [cachedCount, setCachedCount] = useState(264) // Cached count from backend (updated)
   const router = useRouter()
   const typedRef = useRef<HTMLInputElement>(null)
   const typedInstance = useRef<Typed | null>(null)
   
   // Single animation state
-  const [targetValue, setTargetValue] = useState(219) // Target for animation - will be updated from cache
+  const [targetValue, setTargetValue] = useState(264) // Target for animation - will be updated from cache
   const animationStarted = useRef(false)
   const currentAnimationId = useRef<number | null>(null)
 
@@ -121,7 +121,7 @@ export default function AiAdvisor() {
         const response = await fetch('/api/product-count')
         if (response.ok) {
           const data = await response.json()
-          const cached = data.count || 219
+          const cached = data.count || 264  // Updated fallback
           setCachedCount(cached)
           setTargetValue(cached)
           console.log('📊 Loaded cached product count:', cached)
