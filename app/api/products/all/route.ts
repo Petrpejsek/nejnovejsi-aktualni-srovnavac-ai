@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 
+// Force dynamic rendering to avoid ISR problems
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
   try {
-    // Získáme všechny produkty pro dropdown
+    // Získáme pouze základní data produktů pro dropdown (omezené množství dat)
     const products = await prisma.product.findMany({
       orderBy: [
         { name: 'asc' }
@@ -11,11 +14,8 @@ export async function GET(request: NextRequest) {
       select: {
         id: true,
         name: true,
-        description: true,
-        externalUrl: true,
-        imageUrl: true,
         category: true,
-        price: true
+        externalUrl: true
       }
     })
 

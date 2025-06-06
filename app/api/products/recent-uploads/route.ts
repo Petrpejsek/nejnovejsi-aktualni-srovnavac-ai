@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server'
 import { NextRequest } from 'next/server'
 import prisma from '@/lib/prisma'
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
+
 // GET /api/products/recent-uploads - Získá posledních naskladnění produktů
 export async function GET(request: NextRequest) {
   try {
