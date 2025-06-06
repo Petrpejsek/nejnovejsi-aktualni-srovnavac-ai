@@ -42,6 +42,9 @@ export default function ProductsAdminPage() {
   const [loadingMore, setLoadingMore] = useState(false)
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
   const [savingProductId, setSavingProductId] = useState<string | null>(null)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [isSearching, setIsSearching] = useState(false)
+  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [formData, setFormData] = useState<Partial<Product>>({
     name: '',
     description: '',
@@ -74,8 +77,30 @@ export default function ProductsAdminPage() {
     fetchProducts(1)
   }, [])
 
+  // Effect pro debounced vyhledávání
+  useEffect(() => {
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current)
+    }
+
+    if (searchQuery) {
+      setIsSearching(true)
+      searchTimeoutRef.current = setTimeout(() => {
+        fetchProducts(1, false, searchQuery)
+      }, 500)
+    } else {
+      fetchProducts(1)
+    }
+
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current)
+      }
+    }
+  }, [searchQuery])
+
   // Optimalizovaná funkce pro načítání produktů
-  const fetchProducts = useCallback(async (page: number = 1, append: boolean = false) => {
+  const fetchProducts = useCallback(async (page: number = 1, append: boolean = false, search: string = '') => {
     try {
       if (page === 1 && !append) {
         setLoading(true);
@@ -84,7 +109,8 @@ export default function ProductsAdminPage() {
       }
       
       const timestamp = new Date().getTime();
-      const response = await fetch(`/api/admin-products?page=${page}&limit=30&t=${timestamp}`, {
+      const searchParam = search ? `&search=${encodeURIComponent(search)}` : '';
+      const response = await fetch(`/api/admin-products?page=${page}&limit=30${searchParam}&t=${timestamp}`, {
         cache: 'no-store',
         headers: {
           'Pragma': 'no-cache',
@@ -138,6 +164,7 @@ export default function ProductsAdminPage() {
     } finally {
       setLoading(false);
       setLoadingMore(false);
+      setIsSearching(false);
     }
   }, [])
 
@@ -153,7 +180,7 @@ export default function ProductsAdminPage() {
   // Funkce pro načtení další stránky
   const handleLoadMore = () => {
     if (pagination && currentPage < pagination.totalPages) {
-      fetchProducts(currentPage + 1, true);
+      fetchProducts(currentPage + 1, true, searchQuery);
     }
   }
 
@@ -556,6 +583,40 @@ export default function ProductsAdminPage() {
           )}
         </div>
       )}
+
+      {/* Search bar */}
+      <div className="mb-6">
+        <div className="relative">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Vyhledat produkty podle názvu..."
+            className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
+          />
+          {isSearching && (
+            <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-purple-600"></div>
+            </div>
+          )}
+        </div>
+        {searchQuery && (
+          <p className="mt-2 text-sm text-gray-600">
+            Vyhledávání: "<span className="font-medium">{searchQuery}</span>"
+            <button
+              onClick={() => setSearchQuery('')}
+              className="ml-2 text-purple-600 hover:text-purple-800"
+            >
+              Zrušit
+            </button>
+          </p>
+        )}
+      </div>
 
       {/* Statistics */}
       {pagination && (

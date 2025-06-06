@@ -14,11 +14,21 @@ export async function GET(request: NextRequest) {
       const limit = Math.min(parseInt(searchParams.get('limit') || '30', 10), 50) // Max 50 produktů najednou
       const page = parseInt(searchParams.get('page') || '1', 10) 
       const skip = (page - 1) * limit
+      const search = searchParams.get('search') || ''
+      
+      // Sestavení where podmínky pro vyhledávání
+      const whereCondition = search ? {
+        name: {
+          contains: search,
+          mode: 'insensitive' as const
+        }
+      } : {}
       
       // Paralelní dotazy pro rychlejší odpověď
       const [products, totalCount] = await Promise.all([
         // Optimalizovaný dotaz jen s potřebnými poli
         prisma.product.findMany({
+          where: whereCondition,
           orderBy: [
             { imageUrl: { sort: 'desc', nulls: 'last' } }, // Produkty s obrázkem první
             { name: 'asc' }
@@ -42,8 +52,10 @@ export async function GET(request: NextRequest) {
             hasTrial: true
           }
         }),
-        // Počet celkem
-        prisma.product.count()
+        // Počet celkem s vyhledáváním
+        prisma.product.count({
+          where: whereCondition
+        })
       ])
       
       // Rychlé zpracování dat
