@@ -48,6 +48,20 @@ interface ReviewQueueResponse {
   products: ReviewProduct[]
 }
 
+interface DuplicateCheckResponse {
+  success: boolean
+  totalChecked: number
+  duplicatesCount: number
+  uniqueCount: number
+  duplicates: string[]
+  uniqueUrls: string[]
+  duplicateDetails: Array<{
+    url: string
+    existingProduct: string
+  }>
+  error?: string
+}
+
 export default function URLUploadPage() {
   // Kontrola prostředí - blokace na produkci
   const isAdminUploadEnabled = process.env.NODE_ENV === 'development' || process.env.NEXT_PUBLIC_ENABLE_ADMIN_UPLOAD === 'true'
@@ -137,13 +151,62 @@ export default function URLUploadPage() {
 
     setIsProcessing(true)
     setResults(null)
+    setProcessingStep('Kontroluji duplicity...')
+
+    try {
+      // KROK 1: Kontrola duplicit v databázi
+      console.log('🔍 Kontroluji duplicity před scrapingem...')
+      const duplicateCheckResponse = await fetch('/api/products/check-duplicates', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ urls: urlList })
+      })
+
+      const duplicateData: DuplicateCheckResponse = await duplicateCheckResponse.json()
+
+      if (!duplicateCheckResponse.ok) {
+        throw new Error(duplicateData.error || 'Chyba při kontrole duplicit')
+      }
+
+      // Zobrazení výsledků kontroly duplicit
+      let finalUrlList = urlList
+      if (duplicateData.duplicatesCount > 0) {
+        const message = `🔍 Kontrola duplicit dokončena!\n\n` +
+          `📊 Celkem zkontrolováno: ${duplicateData.totalChecked} URL\n` +
+          `🗑️ Duplicit odstraněno: ${duplicateData.duplicatesCount}\n` +
+          `✅ Unikátních URL zůstalo: ${duplicateData.uniqueCount}\n\n` +
+          `Duplikátní produkty:\n` +
+          duplicateData.duplicateDetails.map((dup, index) => 
+            `${index + 1}. ${dup.existingProduct} (${dup.url})`
+          ).join('\n')
+
+        alert(message)
+
+        // Použijeme pouze unikátní URL pro scraping
+        finalUrlList = duplicateData.uniqueUrls
+        
+        // Aktualizujeme textarea s vyčištěnými URL
+        setUrls(finalUrlList.join('\n'))
+      }
+
+      // Pokud nezbývají žádné URL, ukončíme
+      if (finalUrlList.length === 0) {
+        alert('🚫 Všechny URL byly duplicitní. Nepokračuji se scrapingem.')
+        setIsProcessing(false)
+        setProcessingStep('')
+        return
+      }
+
+      // KROK 2: Pokračování se scrapingem pouze s unikátními URL
+      console.log(`🚀 Pokračuji se scrapingem ${finalUrlList.length} unikátních URL...`)
     
     // Progress tracking
-    setTotalToProcess(urlList.length)
+      setTotalToProcess(finalUrlList.length)
     setProcessedCount(0)
     setProcessingStep('Spouštím scraping...')
 
-    try {
       // Simulace progress kroků pro lepší UX
       const progressSteps = [
         'Načítám obsah stránek...',
@@ -156,7 +219,7 @@ export default function URLUploadPage() {
       const progressInterval = setInterval(() => {
         if (stepIndex < progressSteps.length) {
           setProcessingStep(progressSteps[stepIndex])
-          setProcessedCount(Math.min(stepIndex + 1, urlList.length))
+          setProcessedCount(Math.min(stepIndex + 1, finalUrlList.length))
           stepIndex++
         }
       }, 4000)
@@ -166,12 +229,12 @@ export default function URLUploadPage() {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ urls: urlList })
+        body: JSON.stringify({ urls: finalUrlList })
       })
 
       clearInterval(progressInterval)
       setProcessingStep('Hotovo!')
-      setProcessedCount(urlList.length)
+      setProcessedCount(finalUrlList.length)
 
       const data: ScrapingResponse = await response.json()
 

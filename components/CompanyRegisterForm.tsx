@@ -210,14 +210,32 @@ export default function CompanyRegisterForm({ onSuccess, onSwitchToLogin }: Comp
     setIsLoading(true)
 
     try {
-      // TODO: API call to register company
-      await new Promise(resolve => setTimeout(resolve, 1000)) // Simulate API call
-      
-      console.log('Company registration data:', formData)
-      onSuccess()
+      const response = await fetch('/api/advertiser/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name: formData.companyName,
+          email: formData.email,
+          password: formData.password,
+          contactPerson: formData.contactName,
+          website: formData.website,
+          description: `Role: ${formData.role}, Company Size: ${formData.companySize}, Products: ${formData.productTypes.join(', ')}${formData.otherProductType ? `, Other: ${formData.otherProductType}` : ''}`
+        })
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        console.log('Company registration successful:', data.data)
+        onSuccess()
+      } else {
+        setErrors({ general: data.error || 'Registration failed. Please try again.' })
+      }
     } catch (error) {
       console.error('Registration failed:', error)
-      setErrors({ general: 'Registration failed. Please try again.' })
+      setErrors({ general: 'Connection error. Please try again.' })
     } finally {
       setIsLoading(false)
     }

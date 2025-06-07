@@ -81,4 +81,182 @@ model CompanyApplications {
   @@index([status])
   @@index([businessEmail])
   @@index([submittedAt])
+}
+
+// === PPC ADVERTISING SYSTEM ===
+
+model Company {
+  id               String    @id @default(uuid())
+  name             String    // Název firmy
+  email            String    @unique // Přihlašovací email
+  hashedPassword   String    // Hashované heslo
+  contactPerson    String    // Kontaktní osoba
+  website          String?   // Website firmy
+  description      String?   // Popis firmy
+  logoUrl          String?   // Logo firmy
+  
+  // Billing informace
+  balance          Float     @default(0.0) // Aktuální kredit v USD
+  totalSpent       Float     @default(0.0) // Celkově utraceno
+  autoRecharge     Boolean   @default(false) // Automatické dobíjení
+  autoRechargeAmount Float?  // Částka automatického dobíjení
+  autoRechargeThreshold Float? // Práh pro automatické dobíjení
+  
+  // Tax/Invoice informace
+  taxId            String?   // DIČ
+  billingAddress   String?   // Fakturační adresa
+  billingCountry   String?   // Země pro faktury
+  
+  // Status
+  status           String    @default("active") // active/suspended/pending
+  isVerified       Boolean   @default(false) // Email ověřen
+  assignedProductId String?  // ID přiřazeného produktu (pro admin organizaci)
+  
+  // Metadata
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  lastLoginAt      DateTime?
+  
+  // Relations
+  campaigns        Campaign[]
+  billingRecords   BillingRecord[]
+  adClicks         AdClick[]
+  
+  @@index([email])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model Campaign {
+  id               String    @id @default(uuid())
+  companyId        String
+  company          Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  
+  // Campaign základní info
+  name             String    // Název kampaně
+  productId        String    // ID produktu který se inzeruje
+  targetUrl        String    // URL na kterou má klik směřovat
+  
+  // Bidding & Budget
+  bidAmount        Float     // CPC bid v USD
+  dailyBudget      Float     // Denní rozpočet v USD
+  totalBudget      Float?    // Celkový rozpočet (optional)
+  
+  // Status a řízení
+  status           String    @default("active") // active/paused/completed/rejected
+  isApproved       Boolean   @default(false) // Schváleno adminem
+  
+  // Targeting (pro budoucnost)
+  targetCategories Json?     // Array kategorií
+  targetCountries  Json?     // Array zemí (pro budoucnost)
+  
+  // Statistics cache (aktualizovano každých 5 minut)
+  todaySpent       Float     @default(0.0)
+  todayImpressions Int       @default(0)
+  todayClicks      Int       @default(0)
+  totalImpressions Int       @default(0)
+  totalClicks      Int       @default(0)
+  totalSpent       Float     @default(0.0)
+  
+  // Metadata
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  startDate        DateTime? // Když začala kampaň
+  endDate          DateTime? // Plánované ukončení
+  
+  // Relations
+  adClicks         AdClick[]
+  adImpressions    AdImpression[]
+  
+  @@index([companyId])
+  @@index([productId])
+  @@index([status])
+  @@index([isApproved])
+  @@index([createdAt])
+}
+
+model AdClick {
+  id               String    @id @default(uuid())
+  campaignId       String
+  campaign         Campaign  @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  companyId        String
+  company          Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  
+  // Click data
+  ipAddress        String    // IP klikajícího
+  userAgent        String?   // User agent
+  country          String?   // Země (z IP)
+  referrer         String?   // Odkud přišel
+  
+  // Cost & Attribution
+  costPerClick     Float     // Kolik stál tento klik
+  isValidClick     Boolean   @default(true) // Fraud detection
+  fraudReason      String?   // Důvod označení jako fraud
+  
+  // Attribution tracking
+  conversionTracked Boolean  @default(false)
+  conversionValue   Float?   // Hodnota konverze (budoucnost)
+  
+  // Metadata
+  clickedAt        DateTime  @default(now())
+  
+  @@index([campaignId])
+  @@index([companyId])
+  @@index([clickedAt])
+  @@index([ipAddress])
+  @@index([isValidClick])
+}
+
+model AdImpression {
+  id               String    @id @default(uuid())
+  campaignId       String
+  campaign         Campaign  @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  
+  // Impression data
+  position         Int       // Pozice v seznamu (1=první, 2=druhý, atd.)
+  pageType         String    // homepage/category/search
+  categorySlug     String?   // V jaké kategorii se zobrazilo
+  ipAddress        String    // IP uživatele
+  country          String?   // Země
+  
+  // Metadata
+  displayedAt      DateTime  @default(now())
+  
+  @@index([campaignId])
+  @@index([displayedAt])
+  @@index([position])
+  @@index([pageType])
+}
+
+model BillingRecord {
+  id               String    @id @default(uuid())
+  companyId        String
+  company          Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  
+  // Transaction info
+  type             String    // "charge" (dobití) nebo "spend" (utracení)
+  amount           Float     // Částka v USD
+  description      String    // Popis transakce
+  
+  // Payment info (pro charges)
+  paymentMethod    String?   // "stripe", "paypal", "manual"
+  paymentIntentId  String?   // Stripe Payment Intent ID
+  invoiceNumber    String?   // Číslo faktury
+  invoiceUrl       String?   // URL ke stažení faktury
+  
+  // Campaign reference (pro spends)
+  campaignId       String?   // Reference na kampaň (pro spend)
+  clickId          String?   // Reference na klik (pro spend)
+  
+  // Status
+  status           String    @default("completed") // pending/completed/failed/refunded
+  
+  // Metadata
+  createdAt        DateTime  @default(now())
+  processedAt      DateTime?
+  
+  @@index([companyId])
+  @@index([type])
+  @@index([createdAt])
+  @@index([status])
 } 

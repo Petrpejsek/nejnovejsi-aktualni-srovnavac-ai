@@ -60,14 +60,30 @@ export default function CompanyLoginForm({ onSuccess, onSwitchToRegister }: Comp
     setIsLoading(true)
 
     try {
-      // TODO: API call to login company
-      await new Promise(resolve => setTimeout(resolve, 1000)) // Simulate API call
-      
-      console.log('Company login data:', formData)
-      onSuccess()
+      const response = await fetch('/api/advertiser/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password
+        })
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        console.log('Company login successful:', data.data)
+        onSuccess()
+        // Redirect to advertiser dashboard
+        window.location.href = '/advertiser/dashboard'
+      } else {
+        setErrors({ general: data.error || 'Invalid email or password. Please try again.' })
+      }
     } catch (error) {
       console.error('Login failed:', error)
-      setErrors({ general: 'Invalid email or password. Please try again.' })
+      setErrors({ general: 'Connection error. Please try again.' })
     } finally {
       setIsLoading(false)
     }

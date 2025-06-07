@@ -13,7 +13,10 @@ import {
   GlobeAltIcon,
   DocumentTextIcon,
   MagnifyingGlassIcon,
-  LinkIcon
+  LinkIcon,
+  CheckCircleIcon,
+  CogIcon,
+  CubeIcon
 } from '@heroicons/react/24/outline'
 
 interface CompanyApplication {
@@ -29,6 +32,8 @@ interface CompanyApplication {
   submittedAt: string
   reviewedAt?: string
   reviewedBy?: string
+  isPPCAdvertiser?: boolean
+  assignedProductId?: string // Pro PPC inzerenty
 }
 
 interface Product {
@@ -41,8 +46,24 @@ interface Product {
   price: number
 }
 
+interface AdvertiserCompany {
+  id: string
+  name: string
+  email: string
+  contactPerson: string
+  website?: string
+  description?: string
+  status: string
+  isVerified: boolean
+  balance: number
+  totalSpent: number
+  createdAt: string
+  assignedProductId?: string
+}
+
 export default function CompaniesAdmin() {
   const [activeTab, setActiveTab] = useState<'applications' | 'approved' | 'rejected'>('applications')
+  const [approvedSubTab, setApprovedSubTab] = useState<'with-product' | 'waiting-product' | 'future-categories'>('with-product')
   const [applications, setApplications] = useState<CompanyApplication[]>([])
   const [allProducts, setAllProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
@@ -51,13 +72,14 @@ export default function CompaniesAdmin() {
   const [matchedProducts, setMatchedProducts] = useState<Product[]>([])
   const [selectedProductId, setSelectedProductId] = useState<string>('')
   const [searchTerm, setSearchTerm] = useState('')
+  const [advertisers, setAdvertisers] = useState<AdvertiserCompany[]>([])
+  const [advertisersLoading, setAdvertisersLoading] = useState(true)
 
   // Statistiky pro dashboard
   const [stats, setStats] = useState({
-    total: 0,
-    pending: 0,
-    approved: 0,
-    rejected: 0
+    totalPending: 0,
+    totalApproved: 0,
+    totalRejected: 0
   })
 
   // Načtení aplikací z API
@@ -69,13 +91,8 @@ export default function CompaniesAdmin() {
         const apps = data.data || []
         setApplications(apps)
         
-        // Vypočítáme statistiky
-        setStats({
-          total: apps.length,
-          pending: apps.filter((app: CompanyApplication) => app.status === 'pending').length,
-          approved: apps.filter((app: CompanyApplication) => app.status === 'approved').length,
-          rejected: apps.filter((app: CompanyApplication) => app.status === 'rejected').length
-        })
+        // Vypočítáme statistiky včetně PPC inzerentů
+        updateStatsWithAdvertisers(apps, advertisers)
       }
     } catch (error) {
       console.error('Chyba při načítání aplikací:', error)
@@ -97,11 +114,77 @@ export default function CompaniesAdmin() {
     }
   }
 
+  // Načtení PPC inzerentů
+  const loadAdvertisers = async () => {
+    try {
+      // Načteme všechny PPC inzerenty (bez filtru pro status)
+      const response = await fetch('/api/admin/advertisers')
+      if (response.ok) {
+        const data = await response.json()
+        const advertisersData = data.data || []
+        setAdvertisers(advertisersData)
+        // Aktualizuj statistiky s novými PPC inzerenty
+        updateStatsWithAdvertisers(applications, advertisersData)
+      } else {
+        console.log('Failed to load advertisers:', response.status)
+      }
+    } catch (error) {
+      console.error('Error loading advertisers:', error)
+    } finally {
+      setAdvertisersLoading(false)
+    }
+  }
+
+  // Funkce pro nalezení spárovaných produktů na základě domény
+  const findMatchedProductsByDomain = (website: string) => {
+    if (!website || allProducts.length === 0) {
+      setMatchedProducts([])
+      setSelectedProductId('')
+      return
+    }
+
+    try {
+      // Extrahuj doménu z URL
+      const domain = new URL(website.startsWith('http') ? website : `https://${website}`).hostname.toLowerCase()
+      
+      // Najdi produkty se stejnou doménou
+      const matches = allProducts.filter(product => {
+        if (!product.externalUrl) return false
+        try {
+          const productDomain = new URL(product.externalUrl).hostname.toLowerCase()
+          return productDomain === domain || 
+                 productDomain.includes(domain.replace('www.', '')) ||
+                 domain.includes(productDomain.replace('www.', ''))
+        } catch {
+          return false
+        }
+      })
+
+      setMatchedProducts(matches)
+      
+      // Automaticky předvyber první nalezený produkt
+      if (matches.length > 0) {
+        setSelectedProductId(matches[0].id)
+      } else {
+        setSelectedProductId('')
+      }
+    } catch (error) {
+      console.error('Chyba při matchování podle domény:', error)
+      setMatchedProducts([])
+      setSelectedProductId('')
+    }
+  }
+
   // Funkce pro nalezení spárovaných produktů
   const findMatchedProducts = async (application: CompanyApplication) => {
     if (!application.productUrls || application.productUrls.length === 0) {
-      setMatchedProducts([])
-      setSelectedProductId('')
+      // Pokud nejsou URL produktů, zkus matchovat podle domény
+      if (application.website) {
+        findMatchedProductsByDomain(application.website)
+      } else {
+        setMatchedProducts([])
+        setSelectedProductId('')
+      }
       return
     }
 
@@ -136,10 +219,76 @@ export default function CompaniesAdmin() {
   }
 
   // Zpracování schválení/zamítnutí s možností přiřazení produktu
-  const handleAction = async (applicationId: string, action: 'approve' | 'reject', notes?: string) => {
+  const handleAction = async (applicationId: string, action: 'approve' | 'reject' | 'delete', notes?: string) => {
     setActionLoading(applicationId)
     
     try {
+      // Pokud je to PPC inzerent
+      if (selectedApp?.isPPCAdvertiser) {
+        if (action === 'delete') {
+          // Skutečné smazání PPC inzerenta
+          const response = await fetch(`/api/admin/advertisers?id=${applicationId}`, {
+            method: 'DELETE'
+          })
+          
+          if (response.ok) {
+            await loadAdvertisers()
+            setSelectedApp(null)
+            alert('PPC inzerent byl úspěšně smazán')
+          } else {
+            alert('Chyba při mazání PPC inzerenta')
+          }
+        } else if (action === 'reject') {
+          // Zamítnutí PPC inzerenta (změna statusu na rejected)
+          const response = await fetch(`/api/admin/advertisers?id=${applicationId}`, {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ action: 'reject' })
+          })
+          
+          if (response.ok) {
+            await loadAdvertisers()
+            setSelectedApp(null)
+            alert('PPC inzerent byl zamítnut')
+          } else {
+            alert('Chyba při zamítání PPC inzerenta')
+          }
+        } else if (action === 'approve') {
+          // Schválení PPC inzerenta s možností přiřazení produktu
+          const requestBody: any = { action: 'approve' }
+          
+          // Pokud je vybraný produkt, přidej ho do requestu
+          if (selectedProductId && selectedProductId !== 'CREATE_NEW') {
+            requestBody.assignedProductId = selectedProductId
+          }
+          
+          const response = await fetch(`/api/admin/advertisers?id=${applicationId}`, {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestBody)
+          })
+          
+          if (response.ok) {
+            await loadAdvertisers()
+            setSelectedApp(null)
+            setSelectedProductId('')
+            setMatchedProducts([])
+            const productMessage = selectedProductId && selectedProductId !== 'CREATE_NEW' 
+              ? ` a přiřazen produkt: ${allProducts.find(p => p.id === selectedProductId)?.name || 'Neznámý'}`
+              : ''
+            alert(`PPC inzerent byl úspěšně schválen${productMessage}`)
+          } else {
+            alert('Chyba při schvalování PPC inzerenta')
+          }
+        }
+        return
+      }
+
+      // Standardní logika pro company applications
       const updateData: any = {
         status: action === 'approve' ? 'approved' : 'rejected',
         adminNotes: notes || ''
@@ -178,14 +327,104 @@ export default function CompaniesAdmin() {
     }
   }
 
+  // Funkce pro přiřazení produktu k již schválenému PPC inzerentovi
+  const handleAssignProduct = async (advertiserId: string) => {
+    if (!selectedProductId || selectedProductId === 'CREATE_NEW') {
+      alert('Prosím vyberte existující produkt')
+      return
+    }
+
+    setActionLoading(advertiserId)
+    
+    try {
+      const response = await fetch(`/api/admin/advertisers?id=${advertiserId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          action: 'assign-product',
+          assignedProductId: selectedProductId 
+        })
+      })
+      
+      if (response.ok) {
+        await loadAdvertisers()
+        setSelectedApp(null)
+        setSelectedProductId('')
+        setMatchedProducts([])
+        const productName = allProducts.find(p => p.id === selectedProductId)?.name || 'Neznámý'
+        alert(`Produkt "${productName}" byl úspěšně přiřazen`)
+      } else {
+        alert('Chyba při přiřazování produktu')
+      }
+    } catch (error) {
+      console.error('Chyba:', error)
+      alert('Chyba při přiřazování produktu')
+    } finally {
+      setActionLoading(null)
+    }
+  }
+
+  // Funkce pro určení stavu kreditu PPC inzerenta
+  const getCreditStatus = (advertiser: AdvertiserCompany) => {
+    if (advertiser.balance > 0) {
+      return {
+        label: 'Nabitý kredit',
+        color: 'bg-green-100 text-green-800',
+        icon: '💳'
+      }
+    } else if (advertiser.totalSpent > 0) {
+      return {
+        label: 'Došel kredit',
+        color: 'bg-orange-100 text-orange-800',
+        icon: '⚠️'
+      }
+    } else {
+      return {
+        label: 'Nikdy nedostal kredit',
+        color: 'bg-gray-100 text-gray-800',
+        icon: '❌'
+      }
+    }
+  }
+
+  // Funkce pro aktualizaci statistik včetně PPC inzerentů
+  const updateStatsWithAdvertisers = (applications: CompanyApplication[], advertisers: AdvertiserCompany[]) => {
+    const standardPending = applications.filter(app => app.status === 'pending').length
+    const standardApproved = applications.filter(app => app.status === 'approved').length
+    const standardRejected = applications.filter(app => app.status === 'rejected').length
+    
+    const ppcPending = advertisers.filter(adv => adv.status === 'pending').length
+    const ppcApproved = advertisers.filter(adv => adv.status === 'approved').length
+    const ppcRejected = advertisers.filter(adv => adv.status === 'rejected').length
+    
+    setStats({
+      totalPending: standardPending + ppcPending,
+      totalApproved: standardApproved + ppcApproved,
+      totalRejected: standardRejected + ppcRejected
+    })
+  }
+
   useEffect(() => {
     loadApplications()
     loadAllProducts()
+    loadAdvertisers()
   }, [])
 
   // Filtrování aplikací podle aktivního tabu a vyhledávání
   const filteredApplications = applications.filter(app => {
-    const matchesTab = app.status === activeTab || (activeTab === 'applications' && app.status === 'pending')
+    let matchesTab = false;
+    
+    // Správné mapování tab -> status
+    if (activeTab === 'applications') {
+      matchesTab = app.status === 'pending'
+    } else if (activeTab === 'approved') {
+      matchesTab = app.status === 'approved'
+    } else if (activeTab === 'rejected') {
+      matchesTab = app.status === 'rejected'
+    }
+    
     const matchesSearch = searchTerm === '' || 
       app.companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       app.contactPerson.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -248,7 +487,7 @@ export default function CompaniesAdmin() {
                   Celkem žádostí
                 </dt>
                 <dd className="text-lg font-medium text-gray-900 group-hover:text-blue-700 transition-colors">
-                  {stats.total}
+                  {stats.totalPending + stats.totalApproved + stats.totalRejected}
                 </dd>
               </dl>
             </div>
@@ -269,7 +508,7 @@ export default function CompaniesAdmin() {
                   Čekající na schválení
                 </dt>
                 <dd className="text-lg font-medium text-gray-900 group-hover:text-yellow-700 transition-colors">
-                  {stats.pending}
+                  {stats.totalPending}
                 </dd>
               </dl>
             </div>
@@ -290,7 +529,7 @@ export default function CompaniesAdmin() {
                   Schválené firmy
                 </dt>
                 <dd className="text-lg font-medium text-gray-900 group-hover:text-green-700 transition-colors">
-                  {stats.approved}
+                  {stats.totalApproved}
                 </dd>
               </dl>
             </div>
@@ -311,7 +550,7 @@ export default function CompaniesAdmin() {
                   Zamítnuté žádosti
                 </dt>
                 <dd className="text-lg font-medium text-gray-900 group-hover:text-red-700 transition-colors">
-                  {stats.rejected}
+                  {stats.totalRejected}
                 </dd>
               </dl>
             </div>
@@ -346,9 +585,9 @@ export default function CompaniesAdmin() {
               } py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap`}
             >
               Žádosti o registraci
-              {stats.pending > 0 && (
+              {stats.totalPending > 0 && (
                 <span className="ml-2 bg-yellow-100 text-yellow-800 py-1 px-2 rounded-full text-xs">
-                  {stats.pending}
+                  {stats.totalPending}
                 </span>
               )}
             </button>
@@ -362,7 +601,7 @@ export default function CompaniesAdmin() {
             >
               Schválené firmy
               <span className="ml-2 bg-green-100 text-green-800 py-1 px-2 rounded-full text-xs">
-                {stats.approved}
+                {stats.totalApproved}
               </span>
             </button>
             <button
@@ -375,7 +614,7 @@ export default function CompaniesAdmin() {
             >
               Zamítnuté žádosti
               <span className="ml-2 bg-red-100 text-red-800 py-1 px-2 rounded-full text-xs">
-                {stats.rejected}
+                {stats.totalRejected}
               </span>
             </button>
           </nav>
@@ -383,7 +622,10 @@ export default function CompaniesAdmin() {
 
         {/* Seznam aplikací */}
         <div className="divide-y divide-gray-200">
-          {filteredApplications.length === 0 ? (
+          {(filteredApplications.length === 0 && advertisers.length === 0) || 
+           (filteredApplications.length === 0 && activeTab === 'applications' && advertisers.filter(adv => adv.status === 'pending').length === 0) ||
+           (filteredApplications.length === 0 && activeTab === 'approved' && advertisers.filter(adv => adv.status === 'approved').length === 0) ||
+           (filteredApplications.length === 0 && activeTab === 'rejected' && advertisers.filter(adv => adv.status === 'rejected').length === 0) ? (
             <div className="text-center py-12">
               <BuildingOfficeIcon className="mx-auto h-12 w-12 text-gray-400" />
               <h3 className="mt-2 text-sm font-medium text-gray-900">Žádné aplikace</h3>
@@ -392,92 +634,770 @@ export default function CompaniesAdmin() {
               </p>
             </div>
           ) : (
-            filteredApplications.map((app) => (
-              <div key={app.id} className="p-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0">
-                        <BuildingOfficeIcon className="h-8 w-8 text-gray-400" />
-                      </div>
-                      <div className="ml-4 flex-1 min-w-0">
-                        <div className="flex items-center">
-                          <h3 className="text-lg font-medium text-gray-900 truncate">{app.companyName}</h3>
-                          <span className={`ml-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(app.status)}`}>
-                            {getStatusIcon(app.status)}
-                            <span className="ml-1">
-                              {app.status === 'pending' && 'Čeká na schválení'}
-                              {app.status === 'approved' && 'Schváleno'}
-                              {app.status === 'rejected' && 'Zamítnuto'}
+            <>
+              {/* Filtrované aplikace - standardní žádosti */}
+              {filteredApplications.map((application) => (
+                <div key={application.id} className="p-6 hover:bg-gray-50 border-b">
+                  <div 
+                    className="flex items-center justify-between cursor-pointer"
+                    onClick={() => {
+                      setSelectedApp(application);
+                      findMatchedProducts(application);
+                    }}
+                  >
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center">
+                        <div className="flex-shrink-0">
+                          <BuildingOfficeIcon className="h-8 w-8 text-gray-400" />
+                        </div>
+                        <div className="ml-4 flex-1 min-w-0">
+                          <div className="flex items-center">
+                            <h3 className="text-lg font-medium text-gray-900 truncate">{application.companyName}</h3>
+                            <span className={`ml-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(application.status)}`}>
+                              {getStatusIcon(application.status)}
+                              <span className="ml-1">
+                                {application.status === 'pending' && 'Čeká na schválení'}
+                                {application.status === 'approved' && 'Schváleno'}
+                                {application.status === 'rejected' && 'Zamítnuto'}
+                              </span>
                             </span>
-                          </span>
-                        </div>
-                        <div className="mt-1 flex items-center text-sm text-gray-500">
-                          <EnvelopeIcon className="flex-shrink-0 mr-1.5 h-4 w-4" />
-                          <span className="truncate">{app.contactPerson} ({app.businessEmail})</span>
-                        </div>
-                        {app.website && (
-                          <div className="mt-1 flex items-center text-sm text-gray-500">
-                            <GlobeAltIcon className="flex-shrink-0 mr-1.5 h-4 w-4" />
-                            <a 
-                              href={app.website} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className="text-purple-600 hover:text-purple-500 truncate"
-                            >
-                              {app.website}
-                            </a>
                           </div>
-                        )}
-                        <div className="mt-1 text-sm text-gray-500">
-                          Podáno: {new Date(app.submittedAt).toLocaleDateString('cs-CZ', { 
-                            year: 'numeric', 
-                            month: 'long', 
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })}
+                          <div className="mt-1 flex items-center text-sm text-gray-500">
+                            <EnvelopeIcon className="flex-shrink-0 mr-1.5 h-4 w-4" />
+                            <span className="truncate">{application.contactPerson} ({application.businessEmail})</span>
+                          </div>
+                          {application.website && (
+                            <div className="mt-1 flex items-center text-sm text-gray-500">
+                              <GlobeAltIcon className="flex-shrink-0 mr-1.5 h-4 w-4" />
+                              <a 
+                                href={application.website} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="text-purple-600 hover:text-purple-500 truncate"
+                              >
+                                {application.website}
+                              </a>
+                            </div>
+                          )}
+                          <div className="mt-1 text-sm text-gray-500">
+                            Podáno: {new Date(application.submittedAt).toLocaleDateString('cs-CZ', { 
+                              year: 'numeric', 
+                              month: 'long', 
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </div>
                         </div>
                       </div>
                     </div>
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setSelectedApp(application)
+                          if (application.status === 'pending') {
+                            findMatchedProducts(application)
+                          }
+                        }}
+                        className="text-purple-600 hover:text-purple-900 font-medium"
+                      >
+                        <EyeIcon className="w-4 h-4 inline mr-1" />
+                        Detail
+                      </button>
+                      {application.status === 'pending' && (
+                        <>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleAction(application.id, 'approve')
+                            }}
+                            disabled={actionLoading === application.id}
+                            className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
+                          >
+                            <CheckIcon className="w-4 h-4 mr-1" />
+                            Schválit
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleAction(application.id, 'reject')
+                            }}
+                            disabled={actionLoading === application.id}
+                            className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
+                          >
+                            <XMarkIcon className="w-4 h-4 mr-1" />
+                            Zamítnout
+                          </button>
+                        </>
+                      )}
+                    </div>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <button
-                      onClick={() => {
-                        setSelectedApp(app)
-                        if (app.status === 'pending') {
-                          findMatchedProducts(app)
-                        }
-                      }}
-                      className="text-purple-600 hover:text-purple-900 font-medium"
-                    >
-                      <EyeIcon className="w-4 h-4 inline mr-1" />
-                      Detail
-                    </button>
-                    {app.status === 'pending' && (
-                      <>
-                        <button
-                          onClick={() => handleAction(app.id, 'approve')}
-                          disabled={actionLoading === app.id}
-                          className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
-                        >
-                          <CheckIcon className="w-4 h-4 mr-1" />
-                          Schválit
-                        </button>
-                        <button
-                          onClick={() => handleAction(app.id, 'reject')}
-                          disabled={actionLoading === app.id}
-                          className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
-                        >
-                          <XMarkIcon className="w-4 h-4 mr-1" />
-                          Zamítnout
-                        </button>
-                      </>
+                </div>
+              ))}
+
+              {/* PPC Inzerenti - zobrazí se pouze v tab "applications" pro pending */}
+              {activeTab === 'applications' && advertisers.filter(adv => adv.status === 'pending').length > 0 && (
+                <>
+                  {filteredApplications.length > 0 && (
+                    <div className="bg-blue-50 px-6 py-3">
+                      <h4 className="text-sm font-medium text-blue-900 flex items-center">
+                        <BuildingOfficeIcon className="h-4 w-4 mr-2" />
+                        Nové PPC Advertiser registrace
+                      </h4>
+                    </div>
+                  )}
+                  {advertisers.filter(adv => adv.status === 'pending').map((advertiser) => (
+                    <div key={`advertiser-${advertiser.id}`} className="p-6 bg-blue-50/30">
+                      <div 
+                        className="flex items-center justify-between cursor-pointer"
+                        onClick={() => {
+                          const appData = {
+                            id: advertiser.id,
+                            companyName: advertiser.name,
+                            contactPerson: advertiser.contactPerson,
+                            businessEmail: advertiser.email,
+                            website: advertiser.website,
+                            description: advertiser.description,
+                            status: 'pending',
+                            submittedAt: advertiser.createdAt,
+                            isPPCAdvertiser: true,
+                            assignedProductId: advertiser.assignedProductId
+                          } as any;
+                          setSelectedApp(appData);
+                          // Automaticky spustí matching podle domény pro PPC inzerenty
+                          if (advertiser.website) {
+                            setTimeout(() => findMatchedProductsByDomain(advertiser.website!), 100);
+                          }
+                        }}
+                      >
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center">
+                            <div className="flex-shrink-0">
+                              <BuildingOfficeIcon className="h-8 w-8 text-blue-500" />
+                            </div>
+                            <div className="ml-4 flex-1 min-w-0">
+                              <div className="flex items-center">
+                                <h3 className="text-lg font-medium text-gray-900 truncate">{advertiser.name}</h3>
+                                {(() => {
+                                  const creditStatus = getCreditStatus(advertiser);
+                                  return (
+                                    <span className={`ml-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${creditStatus.color}`}>
+                                      <span className="mr-1">{creditStatus.icon}</span>
+                                      {creditStatus.label}
+                                    </span>
+                                  );
+                                })()}
+                                {advertiser.isVerified && (
+                                  <CheckCircleIcon className="h-4 w-4 text-green-500 ml-2" />
+                                )}
+                              </div>
+                              <div className="mt-1 flex items-center text-sm text-gray-500">
+                                <EnvelopeIcon className="flex-shrink-0 mr-1.5 h-4 w-4" />
+                                <span className="truncate">{advertiser.contactPerson} (</span>
+                                <a 
+                                  href={`mailto:${advertiser.email}`}
+                                  className="text-purple-600 hover:text-purple-500 hover:underline"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  {advertiser.email}
+                                </a>
+                                <span>)</span>
+                              </div>
+                              {advertiser.website && (
+                                <div className="mt-1 flex items-center text-sm text-gray-500">
+                                  <GlobeAltIcon className="flex-shrink-0 mr-1.5 h-4 w-4" />
+                                  <a 
+                                    href={advertiser.website} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className="text-purple-600 hover:text-purple-500 truncate"
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    {advertiser.website}
+                                  </a>
+                                </div>
+                              )}
+                              <div className="mt-1 flex items-center text-sm text-gray-500">
+                                <span>Registrováno: {new Date(advertiser.createdAt).toLocaleDateString('cs-CZ', { 
+                                  year: 'numeric', 
+                                  month: 'long', 
+                                  day: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })}</span>
+                                <span className="ml-3">Balance: ${advertiser.balance.toFixed(2)}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-2" onClick={(e) => e.stopPropagation()}>
+                          <button
+                            onClick={() => handleAction(advertiser.id, 'approve')}
+                            disabled={actionLoading === advertiser.id}
+                            className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
+                          >
+                            <CheckIcon className="w-4 h-4 mr-1" />
+                            Schválit
+                          </button>
+                          <button
+                            onClick={() => handleAction(advertiser.id, 'reject')}
+                            disabled={actionLoading === advertiser.id}
+                            className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
+                          >
+                            <XMarkIcon className="w-4 h-4 mr-1" />
+                            Zamítnout
+                          </button>
+                        </div>
+                      </div>
+                      {advertiser.description && (
+                        <div className="mt-3 ml-12">
+                          <p className="text-sm text-gray-600 line-clamp-2">{advertiser.description}</p>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </>
+              )}
+
+              {/* Schválené firmy s proklikávacími podkategoriemi */}
+              {activeTab === 'approved' && (
+                <div className="space-y-4">
+                  {/* Sub-tabs pro schválené firmy */}
+                  <div className="border-b border-gray-200 bg-white rounded-lg">
+                    <nav className="-mb-px flex space-x-8 px-6 pt-4" aria-label="Approved Sub-tabs">
+                      <button
+                        onClick={() => setApprovedSubTab('with-product')}
+                        className={`${
+                          approvedSubTab === 'with-product'
+                            ? 'border-green-500 text-green-600 bg-green-50'
+                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                        } py-2 px-3 border-b-2 font-medium text-sm whitespace-nowrap rounded-t-md transition-colors`}
+                      >
+                        S přiřazeným produktem
+                        {advertisers.filter(adv => adv.status === 'approved' && adv.assignedProductId).length > 0 && (
+                          <span className="ml-2 bg-green-100 text-green-800 py-1 px-2 rounded-full text-xs">
+                            {advertisers.filter(adv => adv.status === 'approved' && adv.assignedProductId).length}
+                          </span>
+                        )}
+                      </button>
+                      <button
+                        onClick={() => setApprovedSubTab('waiting-product')}
+                        className={`${
+                          approvedSubTab === 'waiting-product'
+                            ? 'border-orange-500 text-orange-600 bg-orange-50'
+                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                        } py-2 px-3 border-b-2 font-medium text-sm whitespace-nowrap rounded-t-md transition-colors`}
+                      >
+                        Čekající na produkt
+                        <span className="ml-2 bg-orange-100 text-orange-800 py-1 px-2 rounded-full text-xs">
+                          {advertisers.filter(adv => adv.status === 'approved' && !adv.assignedProductId).length}
+                        </span>
+                      </button>
+                      <button
+                        onClick={() => setApprovedSubTab('future-categories')}
+                        className={`${
+                          approvedSubTab === 'future-categories'
+                            ? 'border-purple-500 text-purple-600 bg-purple-50'
+                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                        } py-2 px-3 border-b-2 font-medium text-sm whitespace-nowrap rounded-t-md transition-colors`}
+                      >
+                        Budoucí kategorie
+                        <span className="ml-2 bg-gray-100 text-gray-600 py-1 px-2 rounded-full text-xs">
+                          0
+                        </span>
+                      </button>
+                    </nav>
+                  </div>
+
+                  {/* Obsah sub-tabs */}
+                  <div className="bg-white rounded-lg border">
+                    {/* S přiřazeným produktem */}
+                    {approvedSubTab === 'with-product' && (
+                      <div>
+                        {/* Schválené standardní aplikace */}
+                        {filteredApplications.length > 0 && (
+                          <>
+                            <div className="bg-green-50 px-6 py-3 border-b">
+                              <h4 className="text-sm font-medium text-green-900 flex items-center">
+                                <CheckCircleIcon className="h-4 w-4 mr-2" />
+                                Schválené standardní žádosti ({filteredApplications.length})
+                              </h4>
+                            </div>
+                            {filteredApplications.map((application) => (
+                              <div key={application.id} className="p-6 hover:bg-gray-50 border-b last:border-b-0">
+                                <div 
+                                  className="flex items-center justify-between cursor-pointer"
+                                  onClick={() => {
+                                    setSelectedApp(application);
+                                    findMatchedProducts(application);
+                                  }}
+                                >
+                                  {/* Zobrazení schválené aplikace */}
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center">
+                                      <div className="flex-shrink-0">
+                                        <CheckCircleIcon className="h-8 w-8 text-green-500" />
+                                      </div>
+                                      <div className="ml-4 flex-1 min-w-0">
+                                        <div className="flex items-center">
+                                          <h3 className="text-lg font-medium text-gray-900 truncate">{application.companyName}</h3>
+                                          <span className="ml-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            <CheckIcon className="w-3 h-3 mr-1" />
+                                            Schváleno
+                                          </span>
+                                        </div>
+                                        <div className="mt-1 flex items-center text-sm text-gray-500">
+                                          <EnvelopeIcon className="flex-shrink-0 mr-1.5 h-4 w-4" />
+                                          <span className="truncate">{application.contactPerson} (</span>
+                                          <a 
+                                            href={`mailto:${application.businessEmail}`}
+                                            className="text-purple-600 hover:text-purple-500 hover:underline"
+                                            onClick={(e) => e.stopPropagation()}
+                                          >
+                                            {application.businessEmail}
+                                          </a>
+                                          <span>)</span>
+                                        </div>
+                                        {application.website && (
+                                          <div className="mt-1 flex items-center text-sm text-gray-500">
+                                            <GlobeAltIcon className="flex-shrink-0 mr-1.5 h-4 w-4" />
+                                            <a 
+                                              href={application.website} 
+                                              target="_blank" 
+                                              rel="noopener noreferrer"
+                                              className="text-purple-600 hover:text-purple-500 truncate"
+                                              onClick={(e) => e.stopPropagation()}
+                                            >
+                                              {application.website}
+                                            </a>
+                                          </div>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </>
+                        )}
+
+                        {/* PPC Advertiseři s produktem */}
+                        {advertisers.filter(adv => adv.status === 'approved' && adv.assignedProductId).length > 0 && (
+                          <>
+                            <div className="bg-green-50 px-6 py-3 border-b">
+                              <h4 className="text-sm font-medium text-green-900 flex items-center">
+                                <BuildingOfficeIcon className="h-4 w-4 mr-2" />
+                                PPC Advertiseři s přiřazeným produktem ({advertisers.filter(adv => adv.status === 'approved' && adv.assignedProductId).length})
+                              </h4>
+                            </div>
+                            {advertisers.filter(adv => adv.status === 'approved' && adv.assignedProductId).map((advertiser) => (
+                              <div key={`approved-advertiser-${advertiser.id}`} className="p-6 hover:bg-gray-50 border-b last:border-b-0">
+                                <div 
+                                  className="flex items-center justify-between cursor-pointer"
+                                  onClick={() => {
+                                    const appData = {
+                                      id: advertiser.id,
+                                      companyName: advertiser.name,
+                                      contactPerson: advertiser.contactPerson,
+                                      businessEmail: advertiser.email,
+                                      website: advertiser.website,
+                                      description: advertiser.description,
+                                      status: 'approved',
+                                      submittedAt: advertiser.createdAt,
+                                      isPPCAdvertiser: true,
+                                      assignedProductId: advertiser.assignedProductId
+                                    } as any;
+                                    setSelectedApp(appData);
+                                    // Automaticky spustí matching podle domény pro PPC inzerenty
+                                    if (advertiser.website) {
+                                      setTimeout(() => findMatchedProductsByDomain(advertiser.website!), 100);
+                                    }
+                                  }}
+                                >
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center">
+                                      <div className="flex-shrink-0">
+                                        <BuildingOfficeIcon className="h-8 w-8 text-green-500" />
+                                      </div>
+                                      <div className="ml-4 flex-1 min-w-0">
+                                        <div className="flex items-center">
+                                          <h3 className="text-lg font-medium text-gray-900 truncate">{advertiser.name}</h3>
+                                          <span className="ml-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            <CheckIcon className="w-3 h-3 mr-1" />
+                                            Schválen
+                                          </span>
+                                          {(() => {
+                                            const creditStatus = getCreditStatus(advertiser);
+                                            return (
+                                              <span className={`ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${creditStatus.color}`}>
+                                                <span className="mr-1">{creditStatus.icon}</span>
+                                                {creditStatus.label}
+                                              </span>
+                                            );
+                                          })()}
+                                          {advertiser.isVerified && (
+                                            <CheckCircleIcon className="h-4 w-4 text-green-500 ml-2" />
+                                          )}
+                                        </div>
+                                        <div className="mt-1 flex items-center text-sm text-gray-500">
+                                          <EnvelopeIcon className="flex-shrink-0 mr-1.5 h-4 w-4" />
+                                          <span className="truncate">{advertiser.contactPerson} (</span>
+                                          <a 
+                                            href={`mailto:${advertiser.email}`}
+                                            className="text-purple-600 hover:text-purple-500 hover:underline"
+                                            onClick={(e) => e.stopPropagation()}
+                                          >
+                                            {advertiser.email}
+                                          </a>
+                                          <span>)</span>
+                                        </div>
+                                        {advertiser.website && (
+                                          <div className="mt-1 flex items-center text-sm text-gray-500">
+                                            <GlobeAltIcon className="flex-shrink-0 mr-1.5 h-4 w-4" />
+                                            <a 
+                                              href={advertiser.website} 
+                                              target="_blank" 
+                                              rel="noopener noreferrer"
+                                              className="text-purple-600 hover:text-purple-500 truncate"
+                                              onClick={(e) => e.stopPropagation()}
+                                            >
+                                              {advertiser.website}
+                                            </a>
+                                          </div>
+                                        )}
+                                        <div className="mt-1 flex items-center text-sm text-gray-500">
+                                          <span>Registrováno: {new Date(advertiser.createdAt).toLocaleDateString('cs-CZ', { 
+                                            year: 'numeric', 
+                                            month: 'long', 
+                                            day: 'numeric',
+                                            hour: '2-digit',
+                                            minute: '2-digit'
+                                          })}</span>
+                                          <span className="ml-3">Balance: ${advertiser.balance.toFixed(2)}</span>
+                                        </div>
+                                        {/* Zobrazení přiřazeného produktu */}
+                                        {advertiser.assignedProductId && (() => {
+                                          const assignedProduct = allProducts.find((p: Product) => p.id === advertiser.assignedProductId);
+                                          return assignedProduct ? (
+                                            <div className="mt-1 flex items-center text-sm text-blue-600">
+                                              <CubeIcon className="flex-shrink-0 mr-1.5 h-4 w-4" />
+                                              <span className="font-medium">Přiřazený produkt: </span>
+                                              <Link
+                                                href={`/admin/products?search=${encodeURIComponent(assignedProduct.name)}`}
+                                                className="ml-1 text-blue-600 hover:text-blue-800 hover:underline font-medium"
+                                                onClick={(e) => e.stopPropagation()}
+                                              >
+                                                {assignedProduct.name}
+                                              </Link>
+                                            </div>
+                                          ) : (
+                                            <div className="mt-1 flex items-center text-sm text-gray-500">
+                                              <ExclamationTriangleIcon className="flex-shrink-0 mr-1.5 h-4 w-4 text-orange-500" />
+                                              <span>Přiřazený produkt nebyl nalezen (ID: {advertiser.assignedProductId})</span>
+                                            </div>
+                                          );
+                                        })()}
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div className="flex items-center space-x-2" onClick={(e) => e.stopPropagation()}>
+                                    <span className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-green-800 bg-green-100">
+                                      <CheckIcon className="w-4 h-4 mr-1" />
+                                      Aktivní
+                                    </span>
+                                  </div>
+                                </div>
+                                {advertiser.description && (
+                                  <div className="mt-3 ml-12">
+                                    <p className="text-sm text-gray-600 line-clamp-2">{advertiser.description}</p>
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </>
+                        )}
+
+                        {/* Prázdný stav */}
+                        {filteredApplications.length === 0 && advertisers.filter(adv => adv.status === 'approved' && adv.assignedProductId).length === 0 && (
+                          <div className="text-center py-12">
+                            <CheckCircleIcon className="mx-auto h-12 w-12 text-gray-400" />
+                            <h3 className="mt-2 text-sm font-medium text-gray-900">Žádné firmy s přiřazeným produktem</h3>
+                            <p className="mt-1 text-sm text-gray-500">
+                              Zde se zobrazí schválené firmy, které mají přiřazený produkt.
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Čekající na produkt */}
+                    {approvedSubTab === 'waiting-product' && (
+                      <div>
+                        {/* PPC Advertiseři bez produktu */}
+                        {advertisers.filter(adv => adv.status === 'approved' && !adv.assignedProductId).length > 0 ? (
+                          <>
+                            <div className="bg-orange-50 px-6 py-3 border-b">
+                              <h4 className="text-sm font-medium text-orange-900 flex items-center">
+                                <ExclamationTriangleIcon className="h-4 w-4 mr-2" />
+                                PPC Advertiseři čekající na přiřazení produktu ({advertisers.filter(adv => adv.status === 'approved' && !adv.assignedProductId).length})
+                              </h4>
+                            </div>
+                            {advertisers.filter(adv => adv.status === 'approved' && !adv.assignedProductId).map((advertiser) => (
+                              <div key={`waiting-advertiser-${advertiser.id}`} className="p-6 hover:bg-gray-50 border-b last:border-b-0">
+                                <div 
+                                  className="flex items-center justify-between cursor-pointer"
+                                  onClick={() => {
+                                    const appData = {
+                                      id: advertiser.id,
+                                      companyName: advertiser.name,
+                                      contactPerson: advertiser.contactPerson,
+                                      businessEmail: advertiser.email,
+                                      website: advertiser.website,
+                                      description: advertiser.description,
+                                      status: 'approved',
+                                      submittedAt: advertiser.createdAt,
+                                      isPPCAdvertiser: true,
+                                      assignedProductId: advertiser.assignedProductId
+                                    } as any;
+                                    setSelectedApp(appData);
+                                    // Automaticky spustí matching podle domény pro PPC inzerenty
+                                    if (advertiser.website) {
+                                      setTimeout(() => findMatchedProductsByDomain(advertiser.website!), 100);
+                                    }
+                                  }}
+                                >
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center">
+                                      <div className="flex-shrink-0">
+                                        <ExclamationTriangleIcon className="h-8 w-8 text-orange-500" />
+                                      </div>
+                                      <div className="ml-4 flex-1 min-w-0">
+                                        <div className="flex items-center">
+                                          <h3 className="text-lg font-medium text-gray-900 truncate">{advertiser.name}</h3>
+                                          <span className="ml-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                                            <ExclamationTriangleIcon className="w-3 h-3 mr-1" />
+                                            Čeká na produkt
+                                          </span>
+                                          {(() => {
+                                            const creditStatus = getCreditStatus(advertiser);
+                                            return (
+                                              <span className={`ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${creditStatus.color}`}>
+                                                <span className="mr-1">{creditStatus.icon}</span>
+                                                {creditStatus.label}
+                                              </span>
+                                            );
+                                          })()}
+                                          {advertiser.isVerified && (
+                                            <CheckCircleIcon className="h-4 w-4 text-green-500 ml-2" />
+                                          )}
+                                        </div>
+                                        <div className="mt-1 flex items-center text-sm text-gray-500">
+                                          <EnvelopeIcon className="flex-shrink-0 mr-1.5 h-4 w-4" />
+                                          <span className="truncate">{advertiser.contactPerson} (</span>
+                                          <a 
+                                            href={`mailto:${advertiser.email}`}
+                                            className="text-purple-600 hover:text-purple-500 hover:underline"
+                                            onClick={(e) => e.stopPropagation()}
+                                          >
+                                            {advertiser.email}
+                                          </a>
+                                          <span>)</span>
+                                        </div>
+                                        {advertiser.website && (
+                                          <div className="mt-1 flex items-center text-sm text-gray-500">
+                                            <GlobeAltIcon className="flex-shrink-0 mr-1.5 h-4 w-4" />
+                                            <a 
+                                              href={advertiser.website} 
+                                              target="_blank" 
+                                              rel="noopener noreferrer"
+                                              className="text-purple-600 hover:text-purple-500 truncate"
+                                              onClick={(e) => e.stopPropagation()}
+                                            >
+                                              {advertiser.website}
+                                            </a>
+                                          </div>
+                                        )}
+                                        <div className="mt-1 flex items-center text-sm text-gray-500">
+                                          <span>Registrováno: {new Date(advertiser.createdAt).toLocaleDateString('cs-CZ', { 
+                                            year: 'numeric', 
+                                            month: 'long', 
+                                            day: 'numeric',
+                                            hour: '2-digit',
+                                            minute: '2-digit'
+                                          })}</span>
+                                          <span className="ml-3">Balance: ${advertiser.balance.toFixed(2)}</span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                                {advertiser.description && (
+                                  <div className="mt-3 ml-12">
+                                    <p className="text-sm text-gray-600 line-clamp-2">{advertiser.description}</p>
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </>
+                        ) : (
+                          <div className="text-center py-12">
+                            <ExclamationTriangleIcon className="mx-auto h-12 w-12 text-orange-400" />
+                            <h3 className="mt-2 text-sm font-medium text-gray-900">Žádní advertiseři nečekají na produkt</h3>
+                            <p className="mt-1 text-sm text-gray-500">
+                              Všichni schválení PPC advertiseři mají již přiřazený produkt.
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Budoucí kategorie */}
+                    {approvedSubTab === 'future-categories' && (
+                      <div className="text-center py-12">
+                        <CogIcon className="mx-auto h-12 w-12 text-purple-400" />
+                        <h3 className="mt-2 text-sm font-medium text-gray-900">Připraveno pro budoucí rozšíření</h3>
+                        <p className="mt-1 text-sm text-gray-500">
+                          Systém je připraven na další typy kategorizace firem podle business potřeb.
+                        </p>
+                      </div>
                     )}
                   </div>
                 </div>
-              </div>
-            ))
+              )}
+
+              {/* Zamítnuté PPC Inzerenti - zobrazí se v tab "rejected" */}
+              {activeTab === 'rejected' && advertisers.filter(adv => adv.status === 'rejected').length > 0 && (
+                <>
+                  {filteredApplications.length > 0 && (
+                    <div className="bg-red-50 px-6 py-3">
+                      <h4 className="text-sm font-medium text-red-900 flex items-center">
+                        <BuildingOfficeIcon className="h-4 w-4 mr-2" />
+                        Zamítnutí PPC Advertiseři
+                      </h4>
+                    </div>
+                  )}
+                  {advertisers.filter(adv => adv.status === 'rejected').map((advertiser) => (
+                    <div key={`rejected-advertiser-${advertiser.id}`} className="p-6 bg-red-50/30">
+                      <div 
+                        className="flex items-center justify-between cursor-pointer"
+                        onClick={() => {
+                          const appData = {
+                            id: advertiser.id,
+                            companyName: advertiser.name,
+                            contactPerson: advertiser.contactPerson,
+                            businessEmail: advertiser.email,
+                            website: advertiser.website,
+                            description: advertiser.description,
+                            status: 'rejected',
+                            submittedAt: advertiser.createdAt,
+                            isPPCAdvertiser: true,
+                            assignedProductId: advertiser.assignedProductId
+                          } as any;
+                          setSelectedApp(appData);
+                          // Automaticky spustí matching podle domény pro PPC inzerenty
+                          if (advertiser.website) {
+                            setTimeout(() => findMatchedProductsByDomain(advertiser.website!), 100);
+                          }
+                        }}
+                      >
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center">
+                            <div className="flex-shrink-0">
+                              <BuildingOfficeIcon className="h-8 w-8 text-red-500" />
+                            </div>
+                            <div className="ml-4 flex-1 min-w-0">
+                              <div className="flex items-center">
+                                <h3 className="text-lg font-medium text-gray-900 truncate">{advertiser.name}</h3>
+                                <span className="ml-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                  <XMarkIcon className="w-3 h-3 mr-1" />
+                                  Zamítnuto
+                                </span>
+                                {(() => {
+                                  const creditStatus = getCreditStatus(advertiser);
+                                  return (
+                                    <span className={`ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${creditStatus.color}`}>
+                                      <span className="mr-1">{creditStatus.icon}</span>
+                                      {creditStatus.label}
+                                    </span>
+                                  );
+                                })()}
+                                {advertiser.isVerified && (
+                                  <CheckCircleIcon className="h-4 w-4 text-green-500 ml-2" />
+                                )}
+                              </div>
+                              <div className="mt-1 flex items-center text-sm text-gray-500">
+                                <EnvelopeIcon className="flex-shrink-0 mr-1.5 h-4 w-4" />
+                                <span className="truncate">{advertiser.contactPerson} (</span>
+                                <a 
+                                  href={`mailto:${advertiser.email}`}
+                                  className="text-purple-600 hover:text-purple-500 hover:underline"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  {advertiser.email}
+                                </a>
+                                <span>)</span>
+                              </div>
+                              {advertiser.website && (
+                                <div className="mt-1 flex items-center text-sm text-gray-500">
+                                  <GlobeAltIcon className="flex-shrink-0 mr-1.5 h-4 w-4" />
+                                  <a 
+                                    href={advertiser.website} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className="text-purple-600 hover:text-purple-500 truncate"
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    {advertiser.website}
+                                  </a>
+                                </div>
+                              )}
+                              <div className="mt-1 flex items-center text-sm text-gray-500">
+                                <span>Registrováno: {new Date(advertiser.createdAt).toLocaleDateString('cs-CZ', { 
+                                  year: 'numeric', 
+                                  month: 'long', 
+                                  day: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })}</span>
+                                <span className="ml-3">Balance: ${advertiser.balance.toFixed(2)}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-2" onClick={(e) => e.stopPropagation()}>
+                          <button
+                            onClick={() => handleAction(advertiser.id, 'approve')}
+                            disabled={actionLoading === advertiser.id}
+                            className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
+                          >
+                            <CheckIcon className="w-4 h-4 mr-1" />
+                            Schválit
+                          </button>
+                          <button
+                            onClick={() => {
+                              if (window.confirm('Opravdu chcete trvale smazat tuto firmu? Tato akce je nevratná.')) {
+                                handleAction(advertiser.id, 'delete');
+                              }
+                            }}
+                            disabled={actionLoading === advertiser.id}
+                            className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
+                          >
+                            <XMarkIcon className="w-4 h-4 mr-1" />
+                            Smazat
+                          </button>
+                        </div>
+                      </div>
+                      {advertiser.description && (
+                        <div className="mt-3 ml-12">
+                          <p className="text-sm text-gray-600 line-clamp-2">{advertiser.description}</p>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </>
+              )}
+            </>
           )}
         </div>
       </div>
@@ -487,7 +1407,29 @@ export default function CompaniesAdmin() {
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
           <div className="relative top-20 mx-auto p-5 border w-11/12 max-w-4xl shadow-lg rounded-md bg-white">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-lg font-medium text-gray-900">Detail firemní žádosti</h3>
+              <div className="flex items-center">
+                <h3 className="text-lg font-medium text-gray-900">
+                  {selectedApp.isPPCAdvertiser ? 'Detail PPC Inzerenta' : 'Detail firemní žádosti'}
+                </h3>
+                {selectedApp.isPPCAdvertiser && (() => {
+                  // Najdeme advertiser data pro zobrazení kreditu
+                  const advertiser = advertisers.find(adv => adv.id === selectedApp.id);
+                  if (!advertiser) return null;
+                  
+                  const creditStatus = getCreditStatus(advertiser);
+                  return (
+                    <div className="ml-3 flex items-center space-x-2">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        🏢 PPC Inzerent
+                      </span>
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${creditStatus.color}`}>
+                        <span className="mr-1">{creditStatus.icon}</span>
+                        {creditStatus.label}
+                      </span>
+                    </div>
+                  );
+                })()}
+              </div>
               <button
                 onClick={() => {
                   setSelectedApp(null)
@@ -514,7 +1456,12 @@ export default function CompaniesAdmin() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Email</label>
-                  <p className="mt-1 text-sm text-gray-900">{selectedApp.businessEmail}</p>
+                  <a 
+                    href={`mailto:${selectedApp.businessEmail}`}
+                    className="mt-1 text-sm text-purple-600 hover:text-purple-500 hover:underline"
+                  >
+                    {selectedApp.businessEmail}
+                  </a>
                 </div>
 
                 {selectedApp.website && (
@@ -579,8 +1526,8 @@ export default function CompaniesAdmin() {
                   </span>
                 </div>
 
-                {/* Dropdown s produkty pro pending aplikace */}
-                {selectedApp.status === 'pending' && (
+                {/* Dropdown s produkty pro pending aplikace (jen pro standardní aplikace) */}
+                {selectedApp.status === 'pending' && !selectedApp.isPPCAdvertiser && (
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Přiřadit existující produkt
@@ -662,6 +1609,109 @@ export default function CompaniesAdmin() {
                   </div>
                 )}
 
+                {/* Dropdown s produkty pro PPC inzerenty (pending i approved) */}
+                {selectedApp.isPPCAdvertiser && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {selectedApp.status === 'pending' ? 'Přiřadit produkt před schválením' : 'Správa přiřazeného produktu'}
+                    </label>
+                    
+                    {/* Automaticky nalezené produkty */}
+                    {matchedProducts.length > 0 && (
+                      <div className="mb-3 p-3 bg-blue-50 rounded-lg">
+                        <p className="text-sm font-medium text-blue-800 mb-2">
+                          🔍 Produkty se shodnou doménou ({selectedApp.website}):
+                        </p>
+                        <div className="space-y-2">
+                          {matchedProducts.map(product => (
+                            <label key={product.id} className="flex items-center">
+                              <input
+                                type="radio"
+                                name="matchedProduct"
+                                value={product.id}
+                                checked={selectedProductId === product.id}
+                                onChange={(e) => setSelectedProductId(e.target.value)}
+                                className="mr-2"
+                              />
+                              <span className="text-sm text-blue-700">{product.name}</span>
+                              {product.externalUrl && (
+                                <a 
+                                  href={product.externalUrl} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer"
+                                  className="ml-2 text-xs text-blue-500 hover:text-blue-600"
+                                >
+                                  🔗
+                                </a>
+                              )}
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Dropdown se všemi produkty */}
+                    <select
+                      value={selectedProductId}
+                      onChange={(e) => setSelectedProductId(e.target.value)}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    >
+                      <option value="">-- Vyberte existující produkt --</option>
+                      {allProducts.map(product => (
+                        <option key={product.id} value={product.id}>
+                          {product.name} {product.category ? `(${product.category})` : ''}
+                        </option>
+                      ))}
+                      <option value="CREATE_NEW">+ Založit nový produkt</option>
+                    </select>
+
+                    {selectedProductId && selectedProductId !== 'CREATE_NEW' && (
+                      <div className="mt-2 p-2 bg-gray-50 rounded">
+                        {(() => {
+                          const product = allProducts.find(p => p.id === selectedProductId)
+                          return product ? (
+                            <div>
+                              <p className="text-sm font-medium">{product.name}</p>
+                              {product.description && (
+                                <p className="text-xs text-gray-600 mt-1">{product.description.substring(0, 100)}...</p>
+                              )}
+                              {product.externalUrl && (
+                                <a 
+                                  href={product.externalUrl} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer"
+                                  className="text-xs text-purple-600 hover:text-purple-500 mt-1 block"
+                                >
+                                  {product.externalUrl}
+                                </a>
+                              )}
+                            </div>
+                          ) : null
+                        })()}
+                      </div>
+                    )}
+
+                    {selectedProductId === 'CREATE_NEW' && (
+                      <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                        <div className="flex items-center">
+                          <ExclamationTriangleIcon className="h-5 w-5 text-yellow-400 mr-2" />
+                          <p className="text-sm text-yellow-800">
+                            <strong>Nový produkt bude potřeba vytvořit:</strong>
+                          </p>
+                        </div>
+                        <div className="mt-2 text-sm text-yellow-700">
+                          <p>• Název: {selectedApp.companyName}</p>
+                          <p>• URL: {selectedApp.website}</p>
+                          <p>• Popis: {selectedApp.description || 'Bude potřeba doplnit'}</p>
+                        </div>
+                        <p className="mt-2 text-xs text-yellow-600">
+                          Po schválení firma obdrží instrukce pro dokončení profilu produktu.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Datum podání</label>
                   <p className="mt-1 text-sm text-gray-900">
@@ -678,31 +1728,107 @@ export default function CompaniesAdmin() {
               </div>
             </div>
 
-            {/* Akční tlačítka pro pending aplikace */}
-            {selectedApp.status === 'pending' && (
-              <div className="mt-6 flex justify-end space-x-3">
-                <button
-                  onClick={() => handleAction(selectedApp.id, 'reject', 'Zamítnuto administrátorem')}
-                  disabled={actionLoading === selectedApp.id}
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
-                >
-                  <XMarkIcon className="w-4 h-4 mr-2" />
-                  Zamítnout
-                </button>
-                <button
-                  onClick={() => {
-                    const notes = selectedProductId 
-                      ? `Schváleno a propojeno s produktem: ${allProducts.find(p => p.id === selectedProductId)?.name || 'Neznámý produkt'}`
-                      : 'Schváleno administrátorem'
-                    handleAction(selectedApp.id, 'approve', notes)
-                  }}
-                  disabled={actionLoading === selectedApp.id}
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
-                >
-                  <CheckIcon className="w-4 h-4 mr-2" />
-                  {actionLoading === selectedApp.id ? 'Zpracovávám...' : 'Schválit'}
-                </button>
-              </div>
+            {/* Akční tlačítka */}
+            {selectedApp.isPPCAdvertiser ? (
+              // Tlačítka pro PPC inzerenty
+              selectedApp.status === 'pending' ? (
+                <div className="mt-6 flex justify-end space-x-3">
+                  <button
+                    onClick={() => handleAction(selectedApp.id, 'reject')}
+                    disabled={actionLoading === selectedApp.id}
+                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
+                  >
+                    <XMarkIcon className="w-4 h-4 mr-2" />
+                    {actionLoading === selectedApp.id ? 'Mažu...' : 'Smazat firmu'}
+                  </button>
+                  <button
+                    onClick={() => {
+                      const productInfo = selectedProductId === 'CREATE_NEW' 
+                        ? 'Nový produkt bude vytvořen'
+                        : selectedProductId 
+                          ? `Přiřazen produkt: ${allProducts.find(p => p.id === selectedProductId)?.name || 'Neznámý'}`
+                          : 'Schváleno bez přiřazeného produktu (vyžaduje další akci)';
+                      handleAction(selectedApp.id, 'approve', productInfo);
+                    }}
+                    disabled={actionLoading === selectedApp.id}
+                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
+                  >
+                    <CheckIcon className="w-4 h-4 mr-2" />
+                    {actionLoading === selectedApp.id ? 'Schvaluji...' : (
+                      selectedProductId === 'CREATE_NEW' ? 'Schválit + Vytvořit produkt' :
+                      selectedProductId ? 'Schválit + Přiřadit produkt' :
+                      'Schválit (bez produktu)'
+                    )}
+                  </button>
+                </div>
+              ) : (
+                // Pro approved PPC inzerenty - pouze informativní
+                <div className="mt-6 flex justify-end space-x-3">
+                  <div className="flex items-center text-sm text-gray-500">
+                    {selectedApp.assignedProductId ? (() => {
+                      const assignedProduct = allProducts.find((p: Product) => p.id === selectedApp.assignedProductId);
+                      return assignedProduct ? (
+                        <div className="flex items-center">
+                          <CubeIcon className="w-4 h-4 mr-1 text-blue-500" />
+                          <span className="mr-1">Přiřazen produkt:</span>
+                                                     <Link
+                             href={`/admin/products?search=${encodeURIComponent(assignedProduct.name)}`}
+                             className="text-blue-600 hover:text-blue-800 hover:underline font-medium"
+                           >
+                             {assignedProduct.name}
+                           </Link>
+                        </div>
+                      ) : (
+                        <div className="flex items-center text-orange-500">
+                          <ExclamationTriangleIcon className="w-4 h-4 mr-1" />
+                          <span>Přiřazený produkt nebyl nalezen (ID: {selectedApp.assignedProductId})</span>
+                        </div>
+                      );
+                    })() : (
+                      <div className="flex items-center text-gray-500">
+                        <ExclamationTriangleIcon className="w-4 h-4 mr-1" />
+                        <span>Žádný produkt není přiřazen</span>
+                      </div>
+                    )}
+                  </div>
+                  {selectedProductId && selectedProductId !== 'CREATE_NEW' && (
+                    <button
+                      onClick={() => handleAssignProduct(selectedApp.id)}
+                      disabled={actionLoading === selectedApp.id}
+                      className="inline-flex items-center px-3 py-1 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50"
+                    >
+                      {actionLoading === selectedApp.id ? 'Přiřazuji...' : 'Přiřadit produkt'}
+                    </button>
+                  )}
+                </div>
+              )
+            ) : (
+              // Tlačítka pro standardní aplikace
+              selectedApp.status === 'pending' && (
+                <div className="mt-6 flex justify-end space-x-3">
+                  <button
+                    onClick={() => handleAction(selectedApp.id, 'reject', 'Zamítnuto administrátorem')}
+                    disabled={actionLoading === selectedApp.id}
+                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
+                  >
+                    <XMarkIcon className="w-4 h-4 mr-2" />
+                    Zamítnout
+                  </button>
+                  <button
+                    onClick={() => {
+                      const notes = selectedProductId 
+                        ? `Schváleno a propojeno s produktem: ${allProducts.find(p => p.id === selectedProductId)?.name || 'Neznámý produkt'}`
+                        : 'Schváleno administrátorem'
+                      handleAction(selectedApp.id, 'approve', notes)
+                    }}
+                    disabled={actionLoading === selectedApp.id}
+                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
+                  >
+                    <CheckIcon className="w-4 h-4 mr-2" />
+                    {actionLoading === selectedApp.id ? 'Zpracovávám...' : 'Schválit'}
+                  </button>
+                </div>
+              )
             )}
           </div>
         </div>

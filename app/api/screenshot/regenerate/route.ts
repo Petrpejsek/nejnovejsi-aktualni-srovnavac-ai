@@ -19,9 +19,11 @@ async function createScreenshot(url: string, productName: string): Promise<strin
 
     const data = await response.json()
     
-    if (data.success && data.screenshot_url) {
-      console.log(`📸 Screenshot vytvořen: ${data.screenshot_url}`)
-      return data.screenshot_url
+    console.log(`📊 Screenshot server odpověď:`, data)
+    
+    if (data.success && data.screenshotUrl) {
+      console.log(`📸 Screenshot vytvořen: ${data.screenshotUrl}`)
+      return data.screenshotUrl
     } else {
       console.warn(`⚠️ Screenshot nebyl vytvořen: ${data.error}`)
       return null
