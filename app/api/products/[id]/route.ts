@@ -99,18 +99,11 @@ export async function PUT(
       pricingInfo: updatedProduct.pricingInfo
     }
     
-    // Zpracovat obrázek
+    // Zpracovat obrázek - v super adminu se ukládá přímo bez schvalování
     if (imageChanged) {
-      // Nová fotka se uloží jako čekající na schválení
-      updateData.pendingImageUrl = updatedProduct.imageUrl
-      updateData.imageApprovalStatus = 'pending'
-      
-      // Zachovat původní fotku dokud se nová neschválí
-      if (currentProduct.imageUrl && !updatedProduct.imageUrl.startsWith('data:')) {
-        updateData.imageUrl = currentProduct.imageUrl
-      } else {
-        updateData.imageUrl = updatedProduct.imageUrl
-      }
+      updateData.imageUrl = updatedProduct.imageUrl
+      updateData.pendingImageUrl = null
+      updateData.imageApprovalStatus = null
     } else {
       updateData.imageUrl = updatedProduct.imageUrl
     }
@@ -127,9 +120,7 @@ export async function PUT(
     return NextResponse.json({
       success: true,
       product: savedProduct,
-      message: imageChanged 
-        ? 'Product updated successfully. Image is pending approval.' 
-        : 'Product updated successfully.'
+      message: 'Product updated successfully.'
     })
   } catch (error) {
     console.error('Error updating product:', error)

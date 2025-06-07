@@ -103,9 +103,22 @@ export default function AdminProductEditPage({ params }: { params: { id: string 
           
           setProduct(processedProduct)
           
-          // Pokud má produkt čekající fotku, nastavit ji jako preview
-          if (productData.pendingImageUrl) {
-            setImagePreview(productData.pendingImageUrl)
+          // V super adminu se pending obrázky nemají zobrazovat jako preview
+          // Pokud existuje pending obrázek, přesunout ho přímo do hlavního obrázku
+          if (productData.pendingImageUrl && productData.imageApprovalStatus === 'pending') {
+            // Přesunout pending obrázek do hlavního
+            const updatedProduct = {
+              ...processedProduct,
+              imageUrl: productData.pendingImageUrl,
+              pendingImageUrl: null,
+              imageApprovalStatus: null
+            }
+            setProduct(updatedProduct)
+            
+            // Automaticky uložit tuto změnu (bez zobrazení zprávy)
+            setTimeout(() => {
+              handleSubmit(new Event('submit') as any, false)
+            }, 100)
           }
         } else {
           setErrorMessage('Nepodařilo se načíst produkt')
@@ -121,7 +134,7 @@ export default function AdminProductEditPage({ params }: { params: { id: string 
     loadProduct()
   }, [params.id])
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent, showMessage: boolean = true) => {
     e.preventDefault()
     
     setIsLoading(true)
@@ -147,12 +160,15 @@ export default function AdminProductEditPage({ params }: { params: { id: string 
 
       if (response.ok) {
         const result = await response.json()
-        setSuccessMessage(result.message || 'Produkt byl úspěšně uložen!')
-        setErrorMessage(null)
-        
-        setTimeout(() => setSuccessMessage(null), 3000)
+        if (showMessage) {
+          setSuccessMessage('✅ Produkt byl úspěšně uložen!')
+          setErrorMessage(null)
+          
+          // Zpráva se zobrazí na 5 sekund
+          setTimeout(() => setSuccessMessage(null), 5000)
+        }
       } else {
-        setErrorMessage('Chyba při ukládání produktu')
+        setErrorMessage('❌ Chyba při ukládání produktu')
         setSuccessMessage(null)
       }
     } catch (error) {
@@ -266,7 +282,7 @@ export default function AdminProductEditPage({ params }: { params: { id: string 
     try {
       const formData = new FormData()
       formData.append('image', file)
-      formData.append('productId', params.id)
+      formData.append('productName', product.name || 'product')
 
       const response = await fetch('/api/upload-image', {
         method: 'POST',
@@ -275,15 +291,48 @@ export default function AdminProductEditPage({ params }: { params: { id: string 
 
       if (response.ok) {
         const result = await response.json()
-        setImagePreview(result.url)
+        setImagePreview(result.imageUrl)
         setProduct(prev => ({
           ...prev,
-          pendingImageUrl: result.url,
-          imageApprovalStatus: 'pending'
+          imageUrl: result.imageUrl, // V super adminu se nastaví přímo jako hlavní obrázek
+          pendingImageUrl: null,
+          imageApprovalStatus: null
         }))
-        setSuccessMessage('Obrázek byl nahrán a čeká na schválení')
+        
+        // Automaticky uložit produkt s novým obrázkem a pak zobrazit zprávu
+        setTimeout(async () => {
+          try {
+            const updatedData = {
+              ...product,
+              imageUrl: result.imageUrl,
+              pendingImageUrl: null,
+              imageApprovalStatus: null,
+              tags: JSON.stringify(product.tags),
+              advantages: JSON.stringify(product.advantages),
+              disadvantages: JSON.stringify(product.disadvantages),
+              videoUrls: JSON.stringify(product.videoUrls),
+              pricingInfo: JSON.stringify(product.pricingInfo)
+            }
+
+            const saveResponse = await fetch(`/api/products/${params.id}`, {
+              method: 'PUT',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(updatedData),
+            })
+
+            if (saveResponse.ok) {
+              setSuccessMessage('📸 Obrázek byl úspěšně nahrán a uložen!')
+              setTimeout(() => setSuccessMessage(null), 5000)
+            }
+          } catch (error) {
+            console.error('Error auto-saving product with new image:', error)
+          }
+        }, 100)
       } else {
-        setErrorMessage('Chyba při nahrávání obrázku')
+        const errorData = await response.json()
+        setErrorMessage(errorData.error || 'Chyba při nahrávání obrázku')
       }
     } catch (error) {
       console.error('Error uploading image:', error)
@@ -291,6 +340,25 @@ export default function AdminProductEditPage({ params }: { params: { id: string 
     } finally {
       setIsUploadingImage(false)
     }
+  }
+
+  const handleRemoveCurrentImage = () => {
+    setProduct(prev => ({
+      ...prev,
+      imageUrl: ''
+    }))
+    setSuccessMessage('🗑️ Aktuální obrázek bude odstraněn po uložení')
+  }
+
+  const handleRemoveNewImage = () => {
+    setImagePreview(null)
+    setProduct(prev => ({
+      ...prev,
+      imageUrl: product.imageUrl !== imagePreview ? product.imageUrl : '', // Pokud je nový obrázek stejný jako aktuální, odstraň ho
+      pendingImageUrl: null,
+      imageApprovalStatus: null
+    }))
+    setSuccessMessage('🗑️ Nový obrázek byl odstraněn')
   }
 
   if (isLoadingProduct) {
@@ -322,16 +390,32 @@ export default function AdminProductEditPage({ params }: { params: { id: string 
 
         {/* Zprávy */}
         {successMessage && (
-          <div className="mb-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded relative">
-            <CheckIcon className="h-5 w-5 inline mr-2" />
-            {successMessage}
+          <div className="mb-6 bg-green-50 border-l-4 border-green-400 bg-green-50 p-4 rounded-r shadow-md">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <CheckIcon className="h-5 w-5 text-green-400" />
+              </div>
+              <div className="ml-3">
+                <p className="text-sm font-medium text-green-800">
+                  {successMessage}
+                </p>
+              </div>
+            </div>
           </div>
         )}
 
         {errorMessage && (
-          <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative">
-            <XMarkIcon className="h-5 w-5 inline mr-2" />
-            {errorMessage}
+          <div className="mb-6 bg-red-50 border-l-4 border-red-400 bg-red-50 p-4 rounded-r shadow-md">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <XMarkIcon className="h-5 w-5 text-red-400" />
+              </div>
+              <div className="ml-3">
+                <p className="text-sm font-medium text-red-800">
+                  {errorMessage}
+                </p>
+              </div>
+            </div>
           </div>
         )}
 
@@ -454,7 +538,17 @@ export default function AdminProductEditPage({ params }: { params: { id: string 
               {/* Aktuální obrázek */}
               {product.imageUrl && (
                 <div>
-                  <p className="text-sm font-medium text-gray-700 mb-2">Aktuální obrázek:</p>
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-sm font-medium text-gray-700">Aktuální obrázek:</p>
+                    <button
+                      type="button"
+                      onClick={handleRemoveCurrentImage}
+                      className="text-red-600 hover:text-red-800 text-sm flex items-center"
+                    >
+                      <TrashIcon className="h-4 w-4 mr-1" />
+                      Smazat
+                    </button>
+                  </div>
                   <div className="relative inline-block">
                     <Image
                       src={product.imageUrl}
@@ -512,23 +606,33 @@ export default function AdminProductEditPage({ params }: { params: { id: string 
                 )}
               </div>
 
-              {/* Preview čekajícího obrázku */}
-              {imagePreview && product.imageApprovalStatus === 'pending' && (
+              {/* Preview nového obrázku */}
+              {imagePreview && imagePreview !== product.imageUrl && (
                 <div>
-                  <p className="text-sm font-medium text-gray-700 mb-2">
-                    Nový obrázek (čeká na schválení):
-                  </p>
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-sm font-medium text-gray-700">
+                      Nový obrázek (před uložením):
+                    </p>
+                    <button
+                      type="button"
+                      onClick={handleRemoveNewImage}
+                      className="text-red-600 hover:text-red-800 text-sm flex items-center"
+                    >
+                      <TrashIcon className="h-4 w-4 mr-1" />
+                      Smazat
+                    </button>
+                  </div>
                   <div className="relative inline-block">
                     <Image
                       src={imagePreview}
                       alt="Preview"
                       width={200}
                       height={150}
-                      className="rounded-lg object-cover opacity-75"
+                      className="rounded-lg object-cover"
                     />
-                    <div className="absolute inset-0 bg-yellow-500 bg-opacity-20 rounded-lg flex items-center justify-center">
-                      <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs font-medium">
-                        Čeká na schválení
+                    <div className="absolute inset-0 bg-green-500 bg-opacity-20 rounded-lg flex items-center justify-center">
+                      <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-medium">
+                        Připraven k uložení
                       </span>
                     </div>
                   </div>

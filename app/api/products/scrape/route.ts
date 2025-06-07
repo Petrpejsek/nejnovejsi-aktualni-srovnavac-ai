@@ -109,9 +109,19 @@ export async function POST(request: NextRequest) {
       }, { status: 403 });
     }
 
-    const { urls } = await request.json();
+    const body = await request.json();
+    const { urls } = body;
+
+    console.log('🔍 DEBUG: Přijatá data:', { 
+      body, 
+      urls, 
+      urlsType: typeof urls, 
+      isArray: Array.isArray(urls), 
+      length: urls?.length 
+    });
 
     if (!urls || !Array.isArray(urls) || urls.length === 0) {
+      console.error('❌ Chybná validace URL:', { urls, isArray: Array.isArray(urls), length: urls?.length });
       return NextResponse.json({ 
         success: false, 
         error: 'Prosím zadejte seznam URL' 
@@ -119,15 +129,28 @@ export async function POST(request: NextRequest) {
     }
 
     console.log(`🚀 Začínám scraping pro ${urls.length} URL...`);
+    console.log('📋 Seznam URL:', urls);
 
     const results = [];
 
     for (let i = 0; i < urls.length; i++) {
-      const url = urls[i].trim();
+      console.log(`🔍 DEBUG: Zpracovávám URL ${i + 1}/${urls.length}:`, { originalUrl: urls[i], type: typeof urls[i] });
       
-      if (!url.startsWith('http')) {
+      // Extrakt URL - odstraní číslování, neviditelné znaky a jiné prefixes
+      let url = urls[i]?.toString()?.trim();
+      
+      // Najdi https:// nebo http:// v textu
+      const httpMatch = url?.match(/(https?:\/\/[^\s]+)/);
+      if (httpMatch) {
+        url = httpMatch[1];
+      }
+      
+      console.log(`🔍 DEBUG: Po extrakci:`, { originalUrl: urls[i], extractedUrl: url, startsWithHttp: url?.startsWith('http') });
+      
+      if (!url || !url.startsWith('http')) {
+        console.error(`❌ Neplatná URL ${i + 1}:`, { url, original: urls[i] });
         results.push({
-          url,
+          url: url || urls[i] || 'undefined',
           success: false,
           error: 'Neplatná URL adresa'
         });
@@ -141,12 +164,12 @@ export async function POST(request: NextRequest) {
         console.log(`🌐 Stahuji obsah: ${url}`);
         const websiteContent = await fetchWebsiteContent(url);
         
-        if (!websiteContent) {
-          console.error(`❌ Nepodařilo se stáhnout obsah: ${url}`);
+        if (!websiteContent || websiteContent.trim().length === 0) {
+          console.error(`❌ Prázdný obsah: ${url}`);
           results.push({
             url,
             success: false,
-            error: 'Nepodařilo se stáhnout obsah stránky'
+            error: 'Stažený obsah stránky je prázdný'
           });
           continue;
         }
