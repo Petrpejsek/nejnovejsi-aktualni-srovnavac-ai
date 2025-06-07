@@ -19,27 +19,34 @@ export async function GET(request: NextRequest) {
     
     console.log('Search API - searching for:', searchTerm)
 
-    // Jednoduché vyhledávání bez složitých podmínek
+    // Jednoduché vyhledávání bez složitých podmínek - pouze aktivní produkty
     const products = await prisma.product.findMany({
       where: {
-        OR: [
+        AND: [
           {
-            name: {
-              contains: searchTerm,
-              mode: 'insensitive'
-            }
+            isActive: true  // Zobrazovat pouze aktivní produkty
           },
           {
-            description: {
-              contains: searchTerm,
-              mode: 'insensitive'
-            }
-          },
-          {
-            category: {
-              contains: searchTerm,
-              mode: 'insensitive'
-            }
+            OR: [
+              {
+                name: {
+                  contains: searchTerm,
+                  mode: 'insensitive'
+                }
+              },
+              {
+                description: {
+                  contains: searchTerm,
+                  mode: 'insensitive'
+                }
+              },
+              {
+                category: {
+                  contains: searchTerm,
+                  mode: 'insensitive'
+                }
+              }
+            ]
           }
         ]
       },

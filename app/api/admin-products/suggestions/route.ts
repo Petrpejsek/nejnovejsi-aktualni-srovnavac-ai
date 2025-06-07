@@ -14,37 +14,44 @@ export async function GET(request: NextRequest) {
 
     const searchTerm = query.trim().toLowerCase()
 
-    // Vylepšené vyhledávání pro suggestions
+    // Vylepšené vyhledávání pro suggestions - pouze aktivní produkty
     const products = await prisma.product.findMany({
       where: {
-        OR: [
-          // Název produktu - priorita
+        AND: [
           {
-            name: {
-              contains: searchTerm,
-              mode: 'insensitive'
-            }
+            isActive: true  // Zobrazovat pouze aktivní produkty
           },
-          // Kategorie
           {
-            category: {
-              contains: searchTerm,
-              mode: 'insensitive'
-            }
-          },
-          // Externí URL - může obsahovat název
-          {
-            externalUrl: {
-              contains: searchTerm,
-              mode: 'insensitive'
-            }
-          },
-          // Popis - pro širší pokrytí
-          {
-            description: {
-              contains: searchTerm,
-              mode: 'insensitive'
-            }
+            OR: [
+              // Název produktu - priorita
+              {
+                name: {
+                  contains: searchTerm,
+                  mode: 'insensitive'
+                }
+              },
+              // Kategorie
+              {
+                category: {
+                  contains: searchTerm,
+                  mode: 'insensitive'
+                }
+              },
+              // Externí URL - může obsahovat název
+              {
+                externalUrl: {
+                  contains: searchTerm,
+                  mode: 'insensitive'
+                }
+              },
+              // Popis - pro širší pokrytí
+              {
+                description: {
+                  contains: searchTerm,
+                  mode: 'insensitive'
+                }
+              }
+            ]
           }
         ]
       },

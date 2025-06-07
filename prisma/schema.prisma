@@ -46,11 +46,15 @@ model Product {
   videoUrls   Json?    // Seznam URL videí jako JSON
   externalUrl String?  // Externí odkaz na produkt
   hasTrial    Boolean  @default(false) // Indikuje, zda produkt má zkušební verzi
+  isActive    Boolean  @default(true) // Soft delete - false = smazáno
+  deletedAt   DateTime? // Kdy byl produkt smazán
+  deletedBy   String?   // Kdo produkt smazal (admin email)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   @@index([primary_category_id])
   @@index([secondary_category_id])
+  @@index([isActive])
 }
 
 model Click {

@@ -131,20 +131,53 @@ export async function PUT(
   }
 }
 
-// DELETE /api/products/[id] - Delete a product
+// DELETE /api/products/[id] - Soft delete a product (mark as inactive)
 export async function DELETE(
   request: Request,
   { params }: { params: { id: string } }
 ) {
   try {
-    await prisma.product.delete({
-      where: { id: params.id },
+    // Zkontroluj, jestli produkt existuje a je aktivní
+    const product = await prisma.product.findUnique({
+      where: { 
+        id: params.id,
+        isActive: true 
+      },
+      select: { id: true, name: true, imageUrl: true }
     })
-    return new NextResponse(null, { status: 204 })
+
+    if (!product) {
+      return NextResponse.json(
+        { error: 'Produkt nenalezen nebo už byl smazán' },
+        { status: 404 }
+      )
+    }
+
+    // TODO: Získat email přihlášeného admina ze session
+    const adminEmail = 'admin@example.com' // Placeholder
+
+    // Soft delete - označit jako neaktivní
+    await prisma.product.update({
+      where: { id: params.id },
+      data: {
+        isActive: false,
+        deletedAt: new Date(),
+        deletedBy: adminEmail
+      }
+    })
+    
+    console.log(`🗑️ Produkt označen jako smazaný: ${product.name} (ID: ${params.id})`)
+
+    return NextResponse.json({
+      success: true,
+      message: `Produkt "${product.name}" byl přesunut do koše`,
+      canRestore: true // Indikace, že může být obnoven
+    })
+
   } catch (error) {
-    console.error('Error deleting product:', error)
+    console.error('❌ Chyba při mazání produktu:', error)
     return NextResponse.json(
-      { error: 'Error deleting product' },
+      { error: 'Interní chyba serveru při mazání produktu' },
       { status: 500 }
     )
   }

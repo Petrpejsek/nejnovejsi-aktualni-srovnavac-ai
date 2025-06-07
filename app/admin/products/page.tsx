@@ -70,6 +70,10 @@ function ProductsAdminPageContent() {
   
   const [error, setError] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
+  
+  // Delete states
+  const [productToDelete, setProductToDelete] = useState<Product | null>(null)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   // Search function
   const performSearch = useCallback(async (term: string) => {
@@ -128,6 +132,51 @@ function ProductsAdminPageContent() {
     const timer = setTimeout(() => loadSuggestions(searchTerm), 300)
     return () => clearTimeout(timer)
   }, [searchTerm, loadSuggestions])
+
+  // Delete product function
+  const handleDeleteProduct = async (product: Product) => {
+    setProductToDelete(product)
+  }
+
+  const confirmDelete = async () => {
+    if (!productToDelete) return
+    
+    setIsDeleting(true)
+    try {
+      const response = await fetch(`/api/products/${productToDelete.id}`, {
+        method: 'DELETE'
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        setSuccessMessage(`✅ ${data.message}`)
+        setError('')
+        
+        // Refresh search results
+        if (searchTerm) {
+          performSearch(searchTerm)
+        }
+        
+        // Auto-hide success message after 5 seconds
+        setTimeout(() => setSuccessMessage(''), 5000)
+      } else {
+        const errorData = await response.json()
+        setError(`❌ Chyba při mazání: ${errorData.error}`)
+        setSuccessMessage('')
+      }
+    } catch (error) {
+      console.error('Delete error:', error)
+      setError('❌ Chyba při mazání produktu')
+      setSuccessMessage('')
+    } finally {
+      setIsDeleting(false)
+      setProductToDelete(null)
+    }
+  }
+
+  const cancelDelete = () => {
+    setProductToDelete(null)
+  }
 
   return (
     <>
@@ -257,15 +306,26 @@ function ProductsAdminPageContent() {
                     <p className="text-sm text-gray-500 line-clamp-2">{product.description}</p>
                     <div className="mt-3 flex justify-between items-center">
                       <span className="text-lg font-bold text-purple-600">${product.price}</span>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          window.location.href = `/admin/products/${product.id}/edit`
-                        }}
-                        className="px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors text-sm"
-                      >
-                        Upravit
-                      </button>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            window.location.href = `/admin/products/${product.id}/edit`
+                          }}
+                          className="px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors text-sm"
+                        >
+                          ✏️ Upravit
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleDeleteProduct(product)
+                          }}
+                          className="px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors text-sm"
+                        >
+                          🗑️ Smazat
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -274,6 +334,74 @@ function ProductsAdminPageContent() {
           )}
         </div>
       </div>
+
+      {/* Confirmation Dialog */}
+      {productToDelete && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <div className="flex items-center justify-center w-12 h-12 mx-auto bg-red-100 rounded-full mb-4">
+              <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+              </svg>
+            </div>
+            
+            <h3 className="text-lg font-medium text-gray-900 text-center mb-2">
+              Potvrdit smazání produktu
+            </h3>
+            
+            <p className="text-sm text-gray-500 text-center mb-2">
+              Opravdu chcete smazat tento produkt?
+            </p>
+            
+            <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
+              <div className="flex items-center">
+                {productToDelete.imageUrl && (
+                  <img 
+                    src={productToDelete.imageUrl} 
+                    alt={productToDelete.name}
+                    className="w-12 h-12 object-cover rounded mr-3"
+                  />
+                )}
+                <div>
+                  <p className="font-medium text-gray-900">{productToDelete.name}</p>
+                  <p className="text-sm text-gray-600">{productToDelete.category}</p>
+                </div>
+              </div>
+            </div>
+            
+            <p className="text-xs text-red-600 text-center mb-6">
+              ⚠️ Tato akce je nevratná! Produkt bude trvale smazán z databáze.
+            </p>
+            
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={cancelDelete}
+                disabled={isDeleting}
+                className="px-4 py-2 text-gray-700 bg-gray-100 rounded hover:bg-gray-200 transition-colors disabled:opacity-50"
+              >
+                Zrušit
+              </button>
+              <button
+                onClick={confirmDelete}
+                disabled={isDeleting}
+                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center"
+              >
+                {isDeleting ? (
+                  <>
+                    <svg className="animate-spin h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Mazání...
+                  </>
+                ) : (
+                  '🗑️ Smazat produkt'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   )
 }
