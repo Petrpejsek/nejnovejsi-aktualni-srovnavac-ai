@@ -19,7 +19,9 @@
     "backup": "node --loader ts-node/esm scripts/backup.ts",
     "restore": "node --loader ts-node/esm scripts/restore.ts",
     "export-products": "node --loader ts-node/esm scripts/export-products.js",
-    "assistant-setup": "node --loader ts-node/esm scripts/export-products.js"
+    "assistant-setup": "node --loader ts-node/esm scripts/export-products.js",
+    "upload-screenshots": "node scripts/upload-screenshots.js",
+    "fix-imageurl": "node --loader ts-node/esm scripts/fix-imageUrl-database.js"
   },
   "prisma": {
     "seed": "node --loader ts-node/esm prisma/seed.ts"
