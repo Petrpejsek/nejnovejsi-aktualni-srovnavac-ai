@@ -4,21 +4,16 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'placehold.co',
-      },
-      {
-        protocol: 'https',
-        hostname: 'auxia.ai',
-      },
-      {
-        protocol: 'https',
         hostname: '**',
+      },
+      {
+        protocol: 'http', 
+        hostname: 'localhost',
       }
     ],
     dangerouslyAllowSVG: true,
     contentDispositionType: 'attachment',
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
-    domains: ['raw.githubusercontent.com', 'auxia.ai'],
   },
   async headers() {
     return [
@@ -45,7 +40,13 @@ const nextConfig = {
       },
     ]
   },
-  webpack: (config) => {
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        '@prisma/client': require.resolve('@prisma/client'),
+      };
+    }
     config.watchOptions = {
       aggregateTimeout: 300,
       poll: 1000,
@@ -54,9 +55,19 @@ const nextConfig = {
   },
   reactStrictMode: false,
   experimental: {
-    largePageDataBytes: 512 * 1000,
+    largePageDataBytes: 128 * 1000,
   },
-  generateEtags: false
+  generateEtags: false,
+  env: {
+    DATABASE_URL: process.env.DATABASE_URL,
+    NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
+    NEXTAUTH_URL: process.env.NEXTAUTH_URL,
+    STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
+    STRIPE_PUBLISHABLE_KEY: process.env.STRIPE_PUBLISHABLE_KEY,
+    JWT_SECRET: process.env.JWT_SECRET,
+  },
+  swcMinify: true,
+  poweredByHeader: false,
 }
 
 export default nextConfig 

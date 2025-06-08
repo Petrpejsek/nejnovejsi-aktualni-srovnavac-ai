@@ -1,22 +1,23 @@
 {
-  "env": {
-    "PRISMA_SKIP_MIGRATE_DEPLOY": "true",
-    "DATABASE_URL": "postgres://neondb_owner:npg_1DPXCjFSnvO2@ep-empty-sea-a2114k4k-pooler.eu-central-1.aws.neon.tech/neondb?sslmode=require&pgbouncer=true&connect_timeout=5&pool_timeout=10&connection_limit=20&statement_timeout=30000",
-    "DATABASE_URL_UNPOOLED": "postgresql://neondb_owner:npg_1DPXCjFSnvO2@ep-empty-sea-a2114k4k.eu-central-1.aws.neon.tech/neondb?sslmode=require",
-    "VERCEL_BYPASS_FALLBACK_OVERSIZED_ERROR": "1"
-  },
-  "github": {
-    "silent": true
-  },
+  "version": 2,
+  "buildCommand": "npm run vercel-build",
+  "outputDirectory": ".next",
+  "installCommand": "npm install",
+  "framework": "nextjs",
   "functions": {
-    "app/api/assistant-recommendations/route.ts": {
-      "maxDuration": 60
-    },
-    "app/api/recommendations/route.ts": {
-      "maxDuration": 60
-    },
-    "app/api/test-timeout/route.ts": {
-      "maxDuration": 60
+    "app/api/**/*.ts": {
+      "maxDuration": 30
     }
-  }
+  },
+  "regions": ["iad1"],
+  "rewrites": [
+    {
+      "source": "/admin/:path*",
+      "destination": "/admin/:path*"
+    },
+    {
+      "source": "/company-admin/:path*", 
+      "destination": "/company-admin/:path*"
+    }
+  ]
 } 
