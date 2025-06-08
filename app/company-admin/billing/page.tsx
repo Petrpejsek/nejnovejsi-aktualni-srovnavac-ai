@@ -1222,7 +1222,7 @@ export default function BillingPage() {
               </button>
             </div>
           </div>
-          )}
+        )}
 
           {/* Promotional Packages */}
           <div className="bg-white shadow rounded-lg">
