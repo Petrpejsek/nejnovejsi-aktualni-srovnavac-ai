@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 
+// Force dynamic rendering
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
+
 // Mock funkce pro určení statusu uživatele
 function getUserStatus(userId?: string): string[] {
   // V reálné aplikaci by se načetl status z databáze

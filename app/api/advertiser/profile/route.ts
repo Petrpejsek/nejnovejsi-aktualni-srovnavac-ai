@@ -1,4 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
+
+// Force dynamic rendering
+export const runtime = 'nodejs'  
+export const dynamic = 'force-dynamic'
 import { PrismaClient } from '@prisma/client'
 import jwt from 'jsonwebtoken'
 

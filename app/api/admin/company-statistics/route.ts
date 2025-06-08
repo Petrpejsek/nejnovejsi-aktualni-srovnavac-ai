@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 
+// Force dynamic rendering
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
+
 // Mock data pro demonstraci - v produkci by se načítalo z databáze
 const generateMockStatistics = (timeframe: string) => {
   const baseCompanies = 127
