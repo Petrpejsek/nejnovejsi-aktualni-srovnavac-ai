@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
-import { authOptions } from '../../../../auth/[...nextauth]/route'
-import prisma from '../../../../../../lib/prisma'
+import { authOptions } from '@/lib/auth'
+import prisma from '@/lib/prisma'
 
 // POST /api/admin/pending-changes/[id]/approve - Approve pending product changes
 export async function POST(

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import prisma from '../../../../lib/prisma'
 import jwt from 'jsonwebtoken'
 import { getServerSession } from 'next-auth'
-import { authOptions } from '../../auth/[...nextauth]/route'
+import { authOptions } from '@/lib/auth'
 
 // Helper function to verify company JWT token
 function verifyCompanyToken(request: NextRequest) {
