@@ -51,6 +51,18 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       current: pathname.startsWith('/admin/companies')
     },
     {
+      name: 'Promocní balíčky',
+      href: '/admin/promotional-packages',
+      icon: '🎁',
+      current: pathname.startsWith('/admin/promotional-packages')
+    },
+    {
+      name: 'Firemní statistiky',
+      href: '/admin/company-statistics',
+      icon: '📈',
+      current: pathname.startsWith('/admin/company-statistics')
+    },
+    {
       name: 'Stránky',
       href: '/admin/pages',
       icon: '📄',

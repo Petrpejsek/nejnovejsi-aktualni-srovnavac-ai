@@ -20,13 +20,7 @@ function verifyToken(request: NextRequest) {
   }
 }
 
-// Promotional offers configuration
-const PROMOTIONAL_OFFERS = {
-  'starter-100': { amount: 100, bonus: 100, description: 'Welcome Bonus - Double your first deposit' },
-  'growth-500': { amount: 500, bonus: 100, description: 'Growth Package - Extra $100 bonus' },
-  'premium-1000': { amount: 1000, bonus: 200, description: 'Premium Package - Extra $200 bonus' },
-  'enterprise-2500': { amount: 2500, bonus: 750, description: 'Enterprise Package - Extra $750 bonus' }
-}
+
 
 // GET /api/advertiser/billing - načtení billing informací
 export async function GET(request: NextRequest) {
@@ -40,17 +34,14 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Načtení company s billing informacemi
+    // Načtení company dat z databáze
     const company = await prisma.company.findUnique({
       where: { id: user.companyId },
-      select: {
-        id: true,
-        name: true,
-        balance: true,
-        totalSpent: true,
-        autoRecharge: true,
-        autoRechargeAmount: true,
-        autoRechargeThreshold: true
+      include: {
+        billingRecords: {
+          orderBy: { createdAt: 'desc' },
+          take: 10
+        }
       }
     })
 
@@ -61,39 +52,85 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Načtení posledních 20 billing záznamů
-    const billingRecords = await prisma.billingRecord.findMany({
-      where: { companyId: user.companyId },
-      orderBy: { createdAt: 'desc' },
-      take: 20,
-      select: {
-        id: true,
-        type: true,
-        amount: true,
-        description: true,
-        status: true,
-        createdAt: true,
-        invoiceNumber: true,
-        invoiceUrl: true
-      }
-    })
-
-    // Statistiky za poslední měsíc
-    const lastMonth = new Date()
-    lastMonth.setMonth(lastMonth.getMonth() - 1)
-
-    const monthlyStats = await prisma.billingRecord.aggregate({
+    // Výpočet periodických výdajů
+    const now = new Date()
+    
+    // Dnešní výdaje
+    const startOfToday = new Date(now)
+    startOfToday.setHours(0, 0, 0, 0)
+    
+    const todaySpend = await prisma.billingRecord.aggregate({
       where: {
         companyId: user.companyId,
+        type: 'spend',
         createdAt: {
-          gte: lastMonth
-        },
-        type: 'spend'
+          gte: startOfToday
+        }
       },
       _sum: {
         amount: true
       }
     })
+
+    // Týdenní výdaje
+    const startOfWeek = new Date(now)
+    startOfWeek.setDate(now.getDate() - now.getDay())
+    startOfWeek.setHours(0, 0, 0, 0)
+    
+    const weekSpend = await prisma.billingRecord.aggregate({
+      where: {
+        companyId: user.companyId,
+        type: 'spend',
+        createdAt: {
+          gte: startOfWeek
+        }
+      },
+      _sum: {
+        amount: true
+      }
+    })
+
+    // Měsíční výdaje
+    const startOfMonth = new Date()
+    startOfMonth.setDate(1)
+    startOfMonth.setHours(0, 0, 0, 0)
+
+    const monthlySpend = await prisma.billingRecord.aggregate({
+      where: {
+        companyId: user.companyId,
+        type: 'spend',
+        createdAt: {
+          gte: startOfMonth
+        }
+      },
+      _sum: {
+        amount: true
+      }
+    })
+
+    // Formátování transakcí
+    const transactions = company.billingRecords.map(record => ({
+      id: record.id,
+      type: record.type,
+      amount: record.amount,
+      description: record.description,
+      status: record.status,
+      createdAt: record.createdAt.toISOString()
+    }))
+
+    // Simulace faktur (pro ukázku)
+    const invoices = [
+      {
+        id: 'inv-001',
+        invoiceNumber: 'INV-2024-001',
+        amount: 250.00,
+        status: 'paid',
+        issuedAt: new Date(2024, 4, 1).toISOString(),
+        dueAt: new Date(2024, 4, 31).toISOString(),
+        paidAt: new Date(2024, 4, 15).toISOString(),
+        downloadUrl: '/api/invoices/inv-001/download'
+      }
+    ]
 
     return NextResponse.json({
       success: true,
@@ -105,10 +142,17 @@ export async function GET(request: NextRequest) {
           totalSpent: company.totalSpent,
           autoRecharge: company.autoRecharge,
           autoRechargeAmount: company.autoRechargeAmount,
-          autoRechargeThreshold: company.autoRechargeThreshold
+          autoRechargeThreshold: company.autoRechargeThreshold,
+          currentDailySpend: todaySpend._sum.amount || 0,
+          dailySpendLimit: null // Dočasně null, protože pole není v databázi
         },
-        transactions: billingRecords,
-        monthlySpend: monthlyStats._sum.amount || 0
+        transactions,
+        invoices,
+        periodSpend: {
+          today: todaySpend._sum.amount || 0,
+          week: weekSpend._sum.amount || 0,
+          month: monthlySpend._sum.amount || 0
+        }
       }
     })
 
@@ -121,7 +165,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST /api/advertiser/billing - přidání finančních prostředků nebo nastavení auto-recharge
+// POST /api/advertiser/billing - přidání finančních prostředků nebo nastavení
 export async function POST(request: NextRequest) {
   try {
     const user = verifyToken(request)
@@ -134,139 +178,143 @@ export async function POST(request: NextRequest) {
     }
 
     const data = await request.json()
-    const { action, offerId, paymentMethod, autoRecharge, autoRechargeAmount, autoRechargeThreshold } = data
+    const { action } = data
 
-    // Auto-recharge settings
-    if (action === 'auto-recharge') {
-      // Validace
-      if (autoRecharge && (!autoRechargeAmount || !autoRechargeThreshold)) {
-        return NextResponse.json(
-          { success: false, error: 'Auto-recharge amount and threshold are required' },
-          { status: 400 }
-        )
-      }
-
-      if (autoRechargeAmount && autoRechargeAmount < 50) {
-        return NextResponse.json(
-          { success: false, error: 'Minimum auto-recharge amount is $50' },
-          { status: 400 }
-        )
-      }
-
-      // Aktualizace nastavení
-      await prisma.company.update({
-        where: { id: user.companyId },
-        data: {
-          autoRecharge,
-          autoRechargeAmount: autoRecharge ? autoRechargeAmount : null,
-          autoRechargeThreshold: autoRecharge ? autoRechargeThreshold : null
+    switch (action) {
+      case 'add-funds': {
+        const { offerId, paymentMethod } = data
+        
+        // Najdeme nabídku
+        const offers = [
+          { id: 'starter', amount: 50, bonus: 0 },
+          { id: 'growth', amount: 200, bonus: 20 },
+          { id: 'scale', amount: 500, bonus: 75 },
+          { id: 'enterprise', amount: 1000, bonus: 200 }
+        ]
+        
+        const offer = offers.find(o => o.id === offerId)
+        if (!offer) {
+          return NextResponse.json(
+            { success: false, error: 'Invalid offer' },
+            { status: 400 }
+          )
         }
-      })
 
-      console.log(`💳 Auto-recharge updated for company ${user.companyId}:`, { autoRecharge, autoRechargeAmount, autoRechargeThreshold })
+        const totalAmount = offer.amount + offer.bonus
 
-      return NextResponse.json({
-        success: true,
-        message: 'Auto-recharge settings updated successfully'
-      })
-    }
+        // Aktualizace balance a vytvoření záznamu
+        await prisma.$transaction([
+          prisma.company.update({
+            where: { id: user.companyId },
+            data: {
+              balance: {
+                increment: totalAmount
+              }
+            }
+          }),
+                     prisma.billingRecord.create({
+             data: {
+               companyId: user.companyId,
+               type: 'charge',
+               amount: totalAmount,
+               description: `Added funds: $${offer.amount}${offer.bonus > 0 ? ` + $${offer.bonus} bonus` : ''}`,
+               status: 'completed'
+             }
+           })
+        ])
 
-    // Add funds with promotional offers
-    if (action === 'add-funds') {
-      if (!offerId || !PROMOTIONAL_OFFERS[offerId as keyof typeof PROMOTIONAL_OFFERS]) {
-        return NextResponse.json(
-          { success: false, error: 'Invalid offer selected' },
-          { status: 400 }
-        )
-      }
+        const updatedCompany = await prisma.company.findUnique({
+          where: { id: user.companyId }
+        })
 
-      const offer = PROMOTIONAL_OFFERS[offerId as keyof typeof PROMOTIONAL_OFFERS]
-      
-      // In real implementation, here would be payment processor integration
-      // For now, we'll simulate a successful payment
-      
-      const company = await prisma.company.findUnique({
-        where: { id: user.companyId },
-        select: { balance: true, totalSpent: true }
-      })
-
-      if (!company) {
-        return NextResponse.json(
-          { success: false, error: 'Company not found' },
-          { status: 404 }
-        )
-      }
-
-      const baseAmount = offer.amount
-      const bonusAmount = offer.bonus
-      const totalAmount = baseAmount + bonusAmount
-
-      // Check if this is first time user (for welcome bonus validation)
-      const isFirstTime = company.totalSpent === 0
-
-      // Apply additional first-time bonus if applicable
-      let finalBonusAmount = bonusAmount
-      if (offerId === 'starter-100' && !isFirstTime) {
-        // Welcome bonus only for first-time users
-        finalBonusAmount = 0
-      }
-
-      const finalTotalAmount = baseAmount + finalBonusAmount
-
-      // Update company balance
-      await prisma.company.update({
-        where: { id: user.companyId },
-        data: {
-          balance: {
-            increment: finalTotalAmount
-          }
-        }
-      })
-
-      // Create billing record for the deposit
-      await prisma.billingRecord.create({
-        data: {
-          companyId: user.companyId,
-          type: 'deposit',
-          amount: baseAmount,
-          description: `Deposit - ${offer.description}`,
-          paymentMethod: paymentMethod || 'card',
-          status: 'completed',
-          invoiceNumber: `INV-${Date.now()}`
-        }
-      })
-
-      // Create billing record for the bonus if applicable
-      if (finalBonusAmount > 0) {
-        await prisma.billingRecord.create({
+        return NextResponse.json({
+          success: true,
+          message: 'Funds added successfully',
           data: {
-            companyId: user.companyId,
-            type: 'bonus',
-            amount: finalBonusAmount,
-            description: `Promotional bonus - ${offer.description}`,
-            status: 'completed'
+            baseAmount: offer.amount,
+            bonusAmount: offer.bonus,
+            totalAdded: totalAmount,
+            newBalance: updatedCompany?.balance || 0
           }
         })
       }
 
-      console.log(`💰 Funds added for company ${user.companyId}: $${baseAmount} + $${finalBonusAmount} bonus`)
-
-      return NextResponse.json({
-        success: true,
-        message: 'Funds added successfully',
-        data: {
-          baseAmount,
-          bonusAmount: finalBonusAmount,
-          totalAdded: finalTotalAmount,
-          newBalance: company.balance + finalTotalAmount
+      case 'add-funds-with-coupon': {
+        const { amount, couponCode, originalAmount, discount } = data
+        
+        if (amount < 10) {
+          return NextResponse.json(
+            { success: false, error: 'Minimum amount is $10' },
+            { status: 400 }
+          )
         }
-      })
-    }
 
-    return NextResponse.json(
-      { success: false, error: 'Invalid action' },
-      { status: 400 }
-    )
+        // Aktualizace balance a vytvoření záznamu
+        const [updatedCompany] = await prisma.$transaction([
+          prisma.company.update({
+            where: { id: user.companyId },
+            data: {
+              balance: {
+                increment: amount
+              }
+            }
+          }),
+          prisma.billingRecord.create({
+            data: {
+              companyId: user.companyId,
+              type: 'charge',
+              amount: amount,
+              description: `Added funds: $${amount}${discount > 0 ? ` (Original: $${originalAmount}, Discount: $${discount})` : ''}${couponCode ? ` - Coupon: ${couponCode}` : ''}`,
+              status: 'completed'
+            }
+          })
+        ])
+
+        return NextResponse.json({
+          success: true,
+          message: discount > 0 ? 'Funds added with coupon discount!' : 'Funds added successfully',
+          data: {
+            finalAmount: amount,
+            originalAmount: originalAmount,
+            discount: discount,
+            couponCode: couponCode,
+            newBalance: updatedCompany.balance
+          }
+        })
+      }
+
+      case 'update-daily-limit': {
+        // Dočasně vypnuto - pole dailySpendLimit není v Prisma schématu
+        return NextResponse.json({
+          success: true,
+          message: 'Daily limit feature temporarily disabled'
+        })
+      }
+
+      case 'auto-recharge': {
+        const { autoRecharge, autoRechargeAmount, autoRechargeThreshold } = data
+
+        await prisma.company.update({
+          where: { id: user.companyId },
+          data: {
+            autoRecharge,
+            autoRechargeAmount: autoRecharge ? autoRechargeAmount : null,
+            autoRechargeThreshold: autoRecharge ? autoRechargeThreshold : null
+          }
+        })
+
+        return NextResponse.json({
+          success: true,
+          message: 'Auto-recharge settings updated successfully'
+        })
+      }
+
+      default:
+        return NextResponse.json(
+          { success: false, error: 'Invalid action' },
+          { status: 400 }
+        )
+    }
 
   } catch (error) {
     console.error('Error processing billing request:', error)

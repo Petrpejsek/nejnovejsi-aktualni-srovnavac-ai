@@ -1,58 +1,58 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 
-// In-memory cache pro poslední počet produktů - RESET pro soft delete aktualizaci
-let lastProductCount: number | null = null // FORCE REFRESH - cache invalidated for soft delete update
-
 export async function GET(request: NextRequest) {
   try {
-    // Pokud cache není inicializovaná, načti z databáze - pouze aktivní produkty
-    if (lastProductCount === null) {
-      const count = await prisma.product.count({
-        where: { isActive: true }
-      })
-      lastProductCount = count
-      console.log(`📊 Product count initialized from database (active only): ${count}`)
-    }
+    // Vždy načíst aktuální počet z databáze - žádná cache
+    const count = await prisma.product.count({
+      where: { 
+        isActive: true,
+        deletedAt: null 
+      }
+    })
+    console.log(`📊 Product count loaded from database: ${count}`)
     
-    // Vrátit cachovaný počet
     return NextResponse.json({ 
-      count: lastProductCount,
-      cached: true
+      count: count,
+      cached: false,
+      timestamp: new Date().toISOString()
     })
   } catch (error) {
-    console.error('Error getting cached product count:', error)
-    return NextResponse.json(
-      { error: 'Failed to get cached count', count: 200 },
-      { status: 500 }
-    )
+    console.error('Error getting product count:', error)
+    
+    // Zkusíme fallback dotaz bez složitých podmínek
+    try {
+      const fallbackCount = await prisma.product.count()
+      console.log(`📊 Fallback product count: ${fallbackCount}`)
+      
+      return NextResponse.json({ 
+        count: fallbackCount,
+        cached: false,
+        fallback: true,
+        timestamp: new Date().toISOString()
+      })
+    } catch (fallbackError) {
+      console.error('Fallback count also failed:', fallbackError)
+      return NextResponse.json(
+        { error: 'Failed to get product count' },
+        { status: 500 }
+      )
+    }
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const { count } = await request.json()
-    
-    if (typeof count === 'number' && count > 0) {
-      lastProductCount = count
-      console.log(`📊 Product count updated in cache: ${count}`)
-      
-      return NextResponse.json({ 
-        success: true, 
-        count: lastProductCount,
-        message: 'Product count cached successfully'
-      })
-    } else {
-      return NextResponse.json(
-        { error: 'Invalid count value' },
-        { status: 400 }
-      )
-    }
+    // POST endpoint už není potřeba - vracíme vždy aktuální data
+    return NextResponse.json({ 
+      message: 'Cache disabled - using real-time counts only',
+      success: true
+    })
   } catch (error) {
-    console.error('Error caching product count:', error)
+    console.error('Error in POST product count:', error)
     return NextResponse.json(
-      { error: 'Failed to cache count' },
-      { status: 500 }
+      { error: 'POST method not needed' },
+      { status: 400 }
     )
   }
 } 

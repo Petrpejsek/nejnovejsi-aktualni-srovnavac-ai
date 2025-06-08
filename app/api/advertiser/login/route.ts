@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
   try {
     const data = await request.json()
     
-    const { email, password } = data
+    const { email, password, rememberMe = false } = data
     
     // Validation
     if (!email || !password) {
@@ -73,6 +73,10 @@ export async function POST(request: NextRequest) {
       data: updateData
     })
 
+    // Nastavení doby platnosti podle remember me
+    const tokenExpiry = rememberMe ? '30d' : '7d' // 30 dní pokud je remember me zapnuté, jinak 7 dní
+    const cookieMaxAge = rememberMe ? 60 * 60 * 24 * 30 : 60 * 60 * 24 * 7 // v sekundách
+
     // Create JWT token
     const token = jwt.sign(
       { 
@@ -81,10 +85,10 @@ export async function POST(request: NextRequest) {
         name: company.name 
       },
       process.env.JWT_SECRET || 'fallback-secret',
-      { expiresIn: '7d' }
+      { expiresIn: tokenExpiry }
     )
 
-    console.log('🔐 Company logged in:', company.email)
+    console.log(`🔐 Company logged in: ${company.email} ${rememberMe ? '(Remember Me enabled - 30 days)' : '(Standard login - 7 days)'}`)
 
     // Create response with secure cookie (use updated status)
     const finalStatus = company.status === 'approved' ? 'active' : company.status
@@ -96,16 +100,17 @@ export async function POST(request: NextRequest) {
         name: company.name,
         email: company.email,
         balance: company.balance,
-        status: finalStatus
+        status: finalStatus,
+        rememberMe: rememberMe // Informace pro frontend
       }
     })
 
-    // Set HTTP-only cookie
+    // Set HTTP-only cookie s odpovídající dobou platnosti
     response.cookies.set('advertiser-token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 7 // 7 days
+      maxAge: cookieMaxAge
     })
 
     return response

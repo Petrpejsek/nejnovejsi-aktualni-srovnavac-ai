@@ -12,16 +12,17 @@ export default function CompanyLoginForm({ onSuccess, onSwitchToRegister }: Comp
   const [formData, setFormData] = useState({
     email: '',
     password: '',
+    rememberMe: false,
   })
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
+    const { name, value, type, checked } = e.target
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: type === 'checkbox' ? checked : value
     }))
     
     // Clear error when user starts typing
@@ -67,7 +68,8 @@ export default function CompanyLoginForm({ onSuccess, onSwitchToRegister }: Comp
         },
         body: JSON.stringify({
           email: formData.email,
-          password: formData.password
+          password: formData.password,
+          rememberMe: formData.rememberMe
         })
       })
 
@@ -156,8 +158,31 @@ export default function CompanyLoginForm({ onSuccess, onSwitchToRegister }: Comp
           {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
         </div>
 
-        {/* Forgot Password */}
-        <div className="text-right">
+        {/* Remember Me Checkbox */}
+        <div className="flex items-center justify-between">
+          <label className="flex items-center group cursor-pointer">
+            <input
+              type="checkbox"
+              name="rememberMe"
+              checked={formData.rememberMe}
+              onChange={handleChange}
+              className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+            />
+            <span className="ml-2 text-sm text-gray-700 group-hover:text-gray-900">
+              Stay logged in
+            </span>
+            <div className="ml-1 group relative">
+              <svg className="w-4 h-4 text-gray-400 hover:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div className="invisible group-hover:visible absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 text-xs font-medium text-white bg-gray-900 rounded-lg shadow-sm z-10 whitespace-nowrap">
+                Extends login session to 30 days instead of 7 days
+                <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45"></div>
+              </div>
+            </div>
+          </label>
+
+          {/* Forgot Password */}
           <button
             type="button"
             className="text-sm text-purple-600 hover:text-purple-700"

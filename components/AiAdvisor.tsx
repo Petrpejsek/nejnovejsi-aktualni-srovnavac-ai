@@ -114,55 +114,42 @@ export default function AiAdvisor() {
     }
   }, [targetValue, totalProducts])
 
-  // Load cached count on component mount
+  // Load initial product count on component mount
   useEffect(() => {
-    const loadCachedCount = async () => {
+    const loadProductCount = async () => {
       try {
-        const response = await fetch('/api/product-count')
+        const response = await fetch('/api/product-count', {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache',
+          }
+        })
         if (response.ok) {
           const data = await response.json()
-          const cached = data.count || 264  // Updated fallback
-          setCachedCount(cached)
-          setTargetValue(cached)
-          console.log('📊 Loaded cached product count:', cached)
+          const count = data.count || 300  // Fallback na rozumné číslo
+          setCachedCount(count)
+          setTargetValue(count)
+          console.log('📊 Loaded product count:', count)
+        } else {
+          // Fallback při chybě
+          console.warn('Failed to load product count, using fallback')
+          const fallbackCount = 300
+          setCachedCount(fallbackCount)
+          setTargetValue(fallbackCount)
         }
       } catch (error) {
-        console.error('Failed to load cached count:', error)
-        // Keep default values
+        console.error('Failed to load product count:', error)
+        // Fallback při chybě
+        const fallbackCount = 300
+        setCachedCount(fallbackCount)
+        setTargetValue(fallbackCount)
       }
     }
     
-    loadCachedCount()
+    loadProductCount()
   }, [])
 
-  // Fetch real data and update target during animation
-  useEffect(() => {
-    const fetchProductCount = async () => {
-      try {
-        const response = await fetch('/api/products?page=1&pageSize=1')
-        if (response.ok) {
-          const data = await response.json()
-          if (data.pagination && data.pagination.totalProducts) {
-            const realCount = data.pagination.totalProducts
-            // Simply update the target - the running animation will adjust
-            setTargetValue(realCount)
-          }
-        }
-      } catch (error) {
-        console.error('Failed to fetch product count:', error)
-        // Keep the estimated target if fetch fails
-      }
-    }
-    
-    // Adaptive delay based on expected data size
-    const getApiDelay = () => {
-      if (targetValue <= 300) return 1200 // Longer delay for smaller databases
-      if (targetValue <= 1000) return 1000 // Medium delay
-      return 800 // Shorter delay for larger databases
-    }
-    
-    setTimeout(fetchProductCount, getApiDelay())
-  }, []) // Remove targetValue dependency to avoid infinite loop
+
 
   // Initialize typing animation
   useEffect(() => {
