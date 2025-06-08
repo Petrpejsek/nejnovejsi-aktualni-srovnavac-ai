@@ -5,16 +5,12 @@ import ReelsCarousel from '../components/ReelsCarousel'
 import TopListsSection from '../components/TopListsSection'
 import NewsletterSignup from '../components/NewsletterSignup'
 import AiCoursesCarousel from '../components/AiCoursesCarousel'
-import SponsoredAds from '../components/SponsoredAds'
 
 export default function Home() {
   return (
     <main className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto">
         <AiAdvisor />
-        <div className="mt-2">
-          <SponsoredAds pageType="homepage" maxAds={2} />
-        </div>
         <div className="mt-2">
           <ProductGridWrapper />
         </div>
