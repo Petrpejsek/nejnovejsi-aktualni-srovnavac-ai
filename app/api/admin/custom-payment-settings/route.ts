@@ -121,7 +121,4 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Export aktuálních nastavení pro použití v jiných API endpoints
-export function getCurrentCustomPaymentSettings(): CustomPaymentSettings {
-  return customPaymentSettings
-} 
+ 

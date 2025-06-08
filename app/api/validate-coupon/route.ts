@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getCurrentCustomPaymentSettings } from '../admin/custom-payment-settings/route'
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,8 +11,37 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
-    // Načte aktuální nastavení z admin rozhraní
-    const settings = getCurrentCustomPaymentSettings()
+    // Načte aktuální nastavení z custom payment settings
+    // Používáme fetch pro získání aktuálních nastavení
+    const baseUrl = process.env.VERCEL_URL 
+      ? `https://${process.env.VERCEL_URL}` 
+      : process.env.NEXTAUTH_URL || 'http://localhost:3000'
+    
+    let settings
+    try {
+      const response = await fetch(`${baseUrl}/api/admin/custom-payment-settings`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch settings')
+      }
+      
+      const result = await response.json()
+      settings = result.settings
+    } catch (error) {
+      // Fallback na default nastavení
+      settings = {
+        couponsEnabled: true,
+        availableCoupons: [
+          { code: 'WELCOME20', type: 'percent', value: 20, description: '20% sleva', active: true },
+          { code: 'SAVE50', type: 'amount', value: 50, description: '$50 sleva', active: true }
+        ]
+      }
+    }
     
     if (!settings.couponsEnabled) {
       return NextResponse.json({ 
@@ -24,7 +52,7 @@ export async function POST(request: NextRequest) {
 
     // Najde odpovídající kupón
     const coupon = settings.availableCoupons.find(
-      c => c.active && c.code.toUpperCase() === code.toUpperCase().trim()
+      (c: any) => c.active && c.code.toUpperCase() === code.toUpperCase().trim()
     )
 
     if (!coupon) {
