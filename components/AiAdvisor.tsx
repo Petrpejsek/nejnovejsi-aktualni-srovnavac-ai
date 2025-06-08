@@ -13,13 +13,13 @@ export default function AiAdvisor() {
   const [userStartedTyping, setUserStartedTyping] = useState(false)
   const [totalProducts, setTotalProducts] = useState(0) // Start from 0 for animation
   const [isRealData, setIsRealData] = useState(false) // Track if we have real data
-  const [cachedCount, setCachedCount] = useState(264) // Cached count from backend (updated)
+  const [cachedCount, setCachedCount] = useState(0) // Start from 0 to avoid showing wrong number
   const router = useRouter()
   const typedRef = useRef<HTMLInputElement>(null)
   const typedInstance = useRef<Typed | null>(null)
   
   // Single animation state
-  const [targetValue, setTargetValue] = useState(264) // Target for animation - will be updated from cache
+  const [targetValue, setTargetValue] = useState(0) // Start from 0 - will be updated from API
   const animationStarted = useRef(false)
   const currentAnimationId = useRef<number | null>(null)
 
@@ -39,17 +39,18 @@ export default function AiAdvisor() {
 
   // Single unified animation that can update target mid-flight
   useEffect(() => {
+    if (targetValue === 0) return // Don't start animation until we have target value
     if (animationStarted.current && totalProducts >= targetValue) return // Don't restart if already finished
     
     animationStarted.current = true
-    let currentNum = totalProducts // Start from current value, not 0
+    let currentNum = Math.max(0, totalProducts) // Start from current value, but never below 0
     
-    // Adaptive timing based on target value
+    // Adaptive timing based on target value - made more dynamic
     const getAnimationSpeed = (target: number) => {
-      if (target <= 300) return 150 // Much slower for small numbers (current state)
-      if (target <= 1000) return 100 // Medium speed
-      if (target <= 2500) return 60 // Faster for bigger numbers
-      return 40 // Very fast for large numbers (future)
+      if (target <= 300) return 120 // Smoother for small numbers
+      if (target <= 1000) return 80 // Medium-smooth speed  
+      if (target <= 2500) return 50 // Good balance for current size
+      return 35 // Still smooth for large numbers
     }
     
     const frameDelay = getAnimationSpeed(targetValue)
@@ -74,17 +75,17 @@ export default function AiAdvisor() {
         return
       }
       
-      // Adaptive increment size
+      // Adaptive increment size - more dynamic and interesting
       const getIncrement = (remaining: number, target: number) => {
         if (target <= 300) {
-          // Much smaller, more gentle increments for current size
-          return Math.max(1, Math.floor(remaining / 25) + Math.floor(Math.random() * 2) + 1)
+          // Gentle but varied increments
+          return Math.max(1, Math.floor(remaining / 20) + Math.floor(Math.random() * 3) + 1)
         } else if (target <= 1000) {
-          // Medium increments
-          return Math.max(1, Math.floor(remaining / 15) + Math.floor(Math.random() * 4) + 2)
+          // More dynamic increments with variation
+          return Math.max(1, Math.floor(remaining / 12) + Math.floor(Math.random() * 5) + 2)
         } else {
-          // Larger increments for big numbers
-          return Math.max(1, Math.floor(remaining / 10) + Math.floor(Math.random() * 8) + 4)
+          // Interesting increments for larger numbers
+          return Math.max(1, Math.floor(remaining / 8) + Math.floor(Math.random() * 6) + 3)
         }
       }
       
@@ -112,7 +113,7 @@ export default function AiAdvisor() {
         cancelAnimationFrame(currentAnimationId.current)
       }
     }
-  }, [targetValue, totalProducts])
+  }, [targetValue]) // Remove totalProducts dependency to avoid conflicts
 
   // Load initial product count on component mount
   useEffect(() => {
@@ -126,22 +127,32 @@ export default function AiAdvisor() {
         })
         if (response.ok) {
           const data = await response.json()
-          const count = data.count || 300  // Fallback na rozumné číslo
+          const count = data.count || 488  // Fallback na správné číslo
           setCachedCount(count)
+          // Reset animation state and start from a dynamic value for better effect
+          animationStarted.current = false
+          const startValue = Math.floor(count * 0.4) // Start from 40% of target for dynamic effect
+          setTotalProducts(startValue)
           setTargetValue(count)
           console.log('📊 Loaded product count:', count)
         } else {
           // Fallback při chybě
           console.warn('Failed to load product count, using fallback')
-          const fallbackCount = 300
+          const fallbackCount = 488
           setCachedCount(fallbackCount)
+          animationStarted.current = false
+          const startValue = Math.floor(fallbackCount * 0.4)
+          setTotalProducts(startValue)
           setTargetValue(fallbackCount)
         }
       } catch (error) {
         console.error('Failed to load product count:', error)
         // Fallback při chybě
-        const fallbackCount = 300
+        const fallbackCount = 488
         setCachedCount(fallbackCount)
+        animationStarted.current = false
+        const startValue = Math.floor(fallbackCount * 0.4)
+        setTotalProducts(startValue)
         setTargetValue(fallbackCount)
       }
     }

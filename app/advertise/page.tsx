@@ -1,10 +1,80 @@
 'use client'
 
+import { useState } from 'react'
+import Link from 'next/link'
 import CompanyAuth from '@/components/CompanyAuth'
+import Modal from '@/components/Modal'
+import CompanyLoginForm from '@/components/CompanyLoginForm'
+import CompanyRegisterForm from '@/components/CompanyRegisterForm'
 
 export default function AdvertisePage() {
+  const [isLoginOpen, setIsLoginOpen] = useState(false)
+  const [isRegisterOpen, setIsRegisterOpen] = useState(false)
+
+  const handleLoginSuccess = () => {
+    setIsLoginOpen(false)
+    window.location.href = '/company-admin'
+  }
+
+  const handleRegisterSuccess = () => {
+    setIsRegisterOpen(false)
+    window.location.href = '/company-registration-success'
+  }
+
+  const switchToRegister = () => {
+    setIsLoginOpen(false)
+    setIsRegisterOpen(true)
+  }
+
+  const switchToLogin = () => {
+    setIsRegisterOpen(false)
+    setIsLoginOpen(true)
+  }
+
   return (
     <div className="min-h-screen bg-white">
+      {/* Firemní Header */}
+      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-gray-100 shadow-sm">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <Link href="/" className="text-2xl md:text-3xl font-semibold text-gradient-primary">
+              comparee.ai
+            </Link>
+            
+            {/* Desktop - Firemní Login tlačítka */}
+            <div className="hidden md:flex items-center gap-4">
+              <button 
+                onClick={() => setIsLoginOpen(true)}
+                className="px-4 py-2 text-sm font-medium rounded-[14px] bg-gradient-primary text-white hover-gradient-primary transition-all"
+              >
+                Company Log In
+              </button>
+              <button
+                onClick={() => setIsRegisterOpen(true)}
+                className="text-sm text-gradient-primary font-medium hover:opacity-80 transition-opacity"
+              >
+                Company Sign Up
+              </button>
+            </div>
+
+            {/* Mobile - Firemní Login tlačítka */}
+            <div className="md:hidden flex items-center gap-2">
+              <button 
+                onClick={() => setIsLoginOpen(true)}
+                className="px-3 py-1.5 text-xs font-medium rounded-lg bg-gradient-primary text-white hover-gradient-primary transition-all"
+              >
+                Log In
+              </button>
+              <button
+                onClick={() => setIsRegisterOpen(true)}
+                className="text-xs text-gradient-primary font-medium hover:opacity-80 transition-opacity"
+              >
+                Sign Up
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 text-white overflow-hidden">
         <div className="absolute inset-0 bg-black bg-opacity-20"></div>
@@ -243,6 +313,27 @@ export default function AdvertisePage() {
           </button>
         </div>
       </section>
+
+      {/* Firemní Modal windows */}
+      <Modal
+        isOpen={isLoginOpen}
+        onClose={() => setIsLoginOpen(false)}
+      >
+        <CompanyLoginForm
+          onSuccess={handleLoginSuccess}
+          onSwitchToRegister={switchToRegister}
+        />
+      </Modal>
+
+      <Modal
+        isOpen={isRegisterOpen}
+        onClose={() => setIsRegisterOpen(false)}
+      >
+        <CompanyRegisterForm
+          onSuccess={handleRegisterSuccess}
+          onSwitchToLogin={switchToLogin}
+        />
+      </Modal>
     </div>
   )
 } 

@@ -106,7 +106,13 @@ function generateSVGPlaceholder(productName: string): string {
     <rect x="340" y="430" width="100" height="6" rx="3" fill="#ffffff" opacity="0.4"/>
   </svg>`;
   
-  return `data:image/svg+xml;base64,${btoa(svg)}`;
+  try {
+    return `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svg)))}`;
+  } catch (error) {
+    console.warn('Failed to generate SVG placeholder for:', productName, error);
+    // Fallback na jednoduché SVG bez base64
+    return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+  }
 }
 
 /**
