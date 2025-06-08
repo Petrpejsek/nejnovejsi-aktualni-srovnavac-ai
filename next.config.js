@@ -40,13 +40,7 @@ const nextConfig = {
       },
     ]
   },
-  webpack: (config, { isServer }) => {
-    if (isServer) {
-      config.resolve.alias = {
-        ...config.resolve.alias,
-        '@prisma/client': require.resolve('@prisma/client'),
-      };
-    }
+  webpack: (config) => {
     config.watchOptions = {
       aggregateTimeout: 300,
       poll: 1000,
