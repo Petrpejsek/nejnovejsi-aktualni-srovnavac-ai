@@ -5,10 +5,18 @@ import Stripe from 'stripe'
 
 const prisma = new PrismaClient()
 
-// Inicializace Stripe (pozor: potřebujete přidat STRIPE_SECRET_KEY do .env)
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2025-05-28.basil',
-})
+// Funkce pro inicializaci Stripe s error handlingem
+function getStripeInstance() {
+  const secretKey = process.env.STRIPE_SECRET_KEY
+  
+  if (!secretKey) {
+    throw new Error('STRIPE_SECRET_KEY is not configured. Please add it to your environment variables.')
+  }
+  
+  return new Stripe(secretKey, {
+    apiVersion: '2025-05-28.basil',
+  })
+}
 
 // Ověření JWT tokenu
 function verifyToken(request: NextRequest) {
@@ -29,6 +37,14 @@ function verifyToken(request: NextRequest) {
 // POST /api/advertiser/billing/stripe-payment - vytvoření Stripe payment intent
 export async function POST(request: NextRequest) {
   try {
+    // Zkontrolovat, zda je Stripe nakonfigurovaný
+    if (!process.env.STRIPE_SECRET_KEY) {
+      return NextResponse.json(
+        { success: false, error: 'Payment processing is temporarily unavailable' },
+        { status: 503 }
+      )
+    }
+    
     const user = verifyToken(request)
     
     if (!user) {
@@ -73,6 +89,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Inicializace Stripe instance
+    const stripe = getStripeInstance()
+    
     // Vytvoření Stripe payment intent
     const paymentIntent = await stripe.paymentIntents.create({
       amount: Math.round(amount * 100), // Stripe očekává centu
