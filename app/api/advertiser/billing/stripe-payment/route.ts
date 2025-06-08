@@ -7,7 +7,7 @@ const prisma = new PrismaClient()
 
 // Inicializace Stripe (pozor: potřebujete přidat STRIPE_SECRET_KEY do .env)
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2024-06-20',
+  apiVersion: '2025-05-28.basil',
 })
 
 // Ověření JWT tokenu
