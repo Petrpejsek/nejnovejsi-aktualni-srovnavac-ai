@@ -25,4 +25,5 @@ if (process.env.NODE_ENV === 'production') {
   console.log('DATABASE_URL defined:', !!process.env.DATABASE_URL)
 } 
 
-export default prisma 
+export default prisma
+export { prisma } 
