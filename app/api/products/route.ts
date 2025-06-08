@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { NextRequest } from 'next/server'
 import { Prisma } from '@prisma/client'
+import { enhanceProductWithScreenshot } from '@/lib/screenshot-utils'
 
 interface Product {
   id: string
@@ -132,8 +133,8 @@ export async function GET(request: NextRequest) {
           orderBy: { name: 'asc' }
         });
         
-        // Clean products before sending
-        const products = rawProducts.map(cleanProduct);
+        // Clean products and enhance with screenshots before sending
+        const products = rawProducts.map(product => enhanceProductWithScreenshot(cleanProduct(product)));
         
         console.log(`API: Successfully loaded ${products.length} products by IDs`);
         return NextResponse.json(products, { status: 200 });
@@ -186,8 +187,8 @@ export async function GET(request: NextRequest) {
         OFFSET ${skip}
       ` as Product[];
       
-      // Clean products before sending
-      const products = rawProducts.map(cleanProduct);
+      // Clean products and enhance with screenshots before sending
+      const products = rawProducts.map(product => enhanceProductWithScreenshot(cleanProduct(product)));
       
       const totalPages = Math.ceil(totalProducts / validPageSize);
       
