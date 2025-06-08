@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
@@ -26,7 +26,7 @@ const navigation = [
   { name: 'Dashboard', href: '/company-admin', icon: HomeIcon },
   { name: 'Company Profile', href: '/company-admin/profile', icon: BuildingOfficeIcon },
   { name: 'Products', href: '/company-admin/products', icon: CubeIcon },
-  { name: 'Credits & Billing', href: '/company-admin/billing', icon: CreditCardIcon },
+  { name: 'Billing', href: '/company-admin/billing', icon: CreditCardIcon },
   { name: 'Affiliate', href: '/company-admin/affiliate', icon: WalletIcon },
   { name: 'Promotions', href: '/company-admin/promotions', icon: MegaphoneIcon },
   { name: 'Reels', href: '/company-admin/reels', icon: FilmIcon },
@@ -44,19 +44,39 @@ export default function CompanyAdminLayout({
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
+  const [companyData, setCompanyData] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
   const pathname = usePathname()
 
-  // Mock company data - later from API/auth
-  const companyData = {
-    name: "TechFlow Solutions",
-    credits: 245,
-    logoUrl: "/api/placeholder/company-logo"
-  }
+  // Fetch real company data from API
+  useEffect(() => {
+    const fetchCompanyData = async () => {
+      try {
+        const response = await fetch('/api/advertiser/billing')
+        if (response.ok) {
+          const data = await response.json()
+          if (data.success) {
+            setCompanyData({
+              name: data.data.company.name,
+              balance: data.data.company.balance,
+              logoUrl: "/api/placeholder/company-logo"
+            })
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching company data:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchCompanyData()
+  }, [])
 
   // Mock user data - later from auth
   const userData = {
-    name: "John Smith",
-    email: "john@techflowsolutions.com",
+    name: "Company Admin",
+    email: "admin@company.com",
     role: "Admin",
     avatar: null // will use initials
   }
@@ -86,8 +106,22 @@ export default function CompanyAdminLayout({
               <div className="flex-shrink-0 flex items-center px-4 mb-6">
                 <WalletIcon className="h-6 w-6 text-purple-600 mr-2" />
                 <div>
-                  <div className="text-sm font-semibold text-gray-900">{companyData.name}</div>
-                  <div className="text-xs text-gray-500">{companyData.credits} credits</div>
+                  {loading ? (
+                    <>
+                      <div className="h-4 bg-gray-300 rounded w-24 mb-1 animate-pulse"></div>
+                      <div className="h-3 bg-gray-300 rounded w-16 animate-pulse"></div>
+                    </>
+                  ) : companyData ? (
+                    <>
+                      <div className="text-sm font-semibold text-gray-900">{companyData.name}</div>
+                      <div className="text-xs text-gray-500">${companyData.balance.toFixed(2)} available</div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="text-sm font-semibold text-gray-900">Loading...</div>
+                      <div className="text-xs text-gray-500">$0.00 available</div>
+                    </>
+                  )}
                 </div>
               </div>
               <nav className="space-y-1 px-2">
@@ -121,8 +155,22 @@ export default function CompanyAdminLayout({
           <div className="flex-shrink-0 flex items-center px-3 py-2">
             <WalletIcon className="h-5 w-5 text-purple-600 mr-2" />
             <div className="min-w-0 flex-1">
-              <div className="text-sm font-semibold text-gray-900 truncate">{companyData.name}</div>
-              <div className="text-xs text-gray-500">{companyData.credits} credits</div>
+              {loading ? (
+                <>
+                  <div className="h-4 bg-gray-300 rounded w-3/4 mb-1 animate-pulse"></div>
+                  <div className="h-3 bg-gray-300 rounded w-1/2 animate-pulse"></div>
+                </>
+              ) : companyData ? (
+                <>
+                  <div className="text-sm font-semibold text-gray-900 truncate">{companyData.name}</div>
+                  <div className="text-xs text-gray-500">${companyData.balance.toFixed(2)} available</div>
+                </>
+              ) : (
+                <>
+                  <div className="text-sm font-semibold text-gray-900 truncate">Loading...</div>
+                  <div className="text-xs text-gray-500">$0.00 available</div>
+                </>
+              )}
             </div>
           </div>
 

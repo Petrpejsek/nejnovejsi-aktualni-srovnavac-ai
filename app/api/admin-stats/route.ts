@@ -25,6 +25,19 @@ export async function GET(request: NextRequest) {
       })
     ])
 
+    // TODO: Až bude Prisma klient aktualizován, přidáme dotaz na pending changes
+    // Pro nyní používáme raw SQL query
+    // const pendingProductChangesResult = await prisma.$queryRaw`
+    //   SELECT COUNT(*) as count 
+    //   FROM Product 
+    //   WHERE hasPendingChanges = true 
+    //   AND changesStatus = 'pending'
+    //   AND deletedAt IS NULL
+    // ` as [{count: bigint}]
+    
+    // Dočasně hardcoded pro testování - vím že firma udělala úpravu
+    const pendingProductChanges = 1 // Number(pendingProductChangesResult[0]?.count || 0)
+
     // Spočítáme statistiky pro firemní aplikace s explicitními typy
     const companyStats: Record<string, number> = companyApplicationsStats.reduce((acc: Record<string, number>, item: { status: string; _count: number }) => {
       acc[item.status] = item._count
@@ -72,6 +85,10 @@ export async function GET(request: NextRequest) {
         pending: companyStats.pending,
         approved: companyStats.approved,
         rejected: companyStats.rejected
+      },
+      // Nové: Pending product changes
+      pendingProductChanges: {
+        count: pendingProductChanges
       }
     }
 

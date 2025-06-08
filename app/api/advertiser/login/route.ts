@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if company is approved
-    if (company.status !== 'active') {
+    if (company.status !== 'active' && company.status !== 'approved') {
       return NextResponse.json(
         { 
           success: false, 
@@ -61,10 +61,16 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Update last login
+    // Update last login and change status from 'approved' to 'active' on first login
+    const updateData: any = { lastLoginAt: new Date() }
+    if (company.status === 'approved') {
+      updateData.status = 'active'
+      console.log(`🎯 First login: Changing company ${company.name} status from 'approved' to 'active'`)
+    }
+
     await prisma.company.update({
       where: { id: company.id },
-      data: { lastLoginAt: new Date() }
+      data: updateData
     })
 
     // Create JWT token
@@ -80,7 +86,8 @@ export async function POST(request: NextRequest) {
 
     console.log('🔐 Company logged in:', company.email)
 
-    // Create response with secure cookie
+    // Create response with secure cookie (use updated status)
+    const finalStatus = company.status === 'approved' ? 'active' : company.status
     const response = NextResponse.json({
       success: true,
       message: 'Login successful',
@@ -89,7 +96,7 @@ export async function POST(request: NextRequest) {
         name: company.name,
         email: company.email,
         balance: company.balance,
-        status: company.status
+        status: finalStatus
       }
     })
 

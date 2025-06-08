@@ -1,5 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '../../../../lib/prisma'
+import jwt from 'jsonwebtoken'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '../../auth/[...nextauth]/route'
+
+// Helper function to verify company JWT token
+function verifyCompanyToken(request: NextRequest) {
+  const token = request.cookies.get('advertiser-token')?.value
+  
+  if (!token) {
+    return null
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret') as any
+    return decoded
+  } catch (error) {
+    return null
+  }
+}
 
 // GET /api/products/[id] - Get a single product
 export async function GET(
@@ -63,6 +82,20 @@ export async function PUT(
     const productId = params.id
     const updatedProduct = await request.json()
     
+    // Zjistit typ uživatele - super admin vs company admin
+    const session = await getServerSession(authOptions)
+    const companyUser = verifyCompanyToken(request)
+    
+    const isSuperAdmin = session?.user?.email === 'admin@admin.com'
+    const isCompanyAdmin = !!companyUser && !isSuperAdmin
+    
+    if (!isSuperAdmin && !isCompanyAdmin) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+    
     // Aktuální produkt
     const currentProduct = await prisma.product.findUnique({
       where: {
@@ -77,6 +110,21 @@ export async function PUT(
           'Content-Type': 'application/json',
         },
       })
+    }
+
+    // Zkontrolovat oprávnění pro company admin - pouze jejich přiřazený produkt
+    if (isCompanyAdmin) {
+      const company = await prisma.company.findUnique({
+        where: { id: companyUser.companyId },
+        select: { assignedProductId: true, name: true }
+      })
+      
+      if (!company || company.assignedProductId !== productId) {
+        return NextResponse.json(
+          { error: 'You can only edit your assigned product' },
+          { status: 403 }
+        )
+      }
     }
 
     // Zjistit, zda se změnila fotka
@@ -99,29 +147,82 @@ export async function PUT(
       pricingInfo: updatedProduct.pricingInfo
     }
     
-    // Zpracovat obrázek - v super adminu se ukládá přímo bez schvalování
-    if (imageChanged) {
-      updateData.imageUrl = updatedProduct.imageUrl
-      updateData.pendingImageUrl = null
-      updateData.imageApprovalStatus = null
-    } else {
-      updateData.imageUrl = updatedProduct.imageUrl
+    if (isSuperAdmin) {
+      // SUPER ADMIN - přímé ukládání bez schvalování
+      if (imageChanged) {
+        updateData.imageUrl = updatedProduct.imageUrl
+        updateData.pendingImageUrl = null
+        updateData.imageApprovalStatus = null
+      } else {
+        updateData.imageUrl = updatedProduct.imageUrl
+      }
+      
+      // Uložit do databáze
+      const savedProduct = await prisma.product.update({
+        where: { id: productId },
+        data: updateData
+      })
+      
+      console.log('✅ Product saved by super admin:', productId)
+      
+      return NextResponse.json({
+        success: true,
+        product: savedProduct,
+        message: 'Product updated successfully.'
+      })
+      
+    } else if (isCompanyAdmin) {
+      // COMPANY ADMIN - ukládání jako pending changes
+      
+      // Připravit pending changes (všechny změny kromě obrázku)
+      const pendingChanges = {
+        name: updatedProduct.name,
+        description: updatedProduct.description,
+        price: updatedProduct.price,
+        category: updatedProduct.category,
+        detailInfo: updatedProduct.detailInfo,
+        externalUrl: updatedProduct.externalUrl,
+        hasTrial: updatedProduct.hasTrial,
+        tags: updatedProduct.tags,
+        advantages: updatedProduct.advantages,
+        disadvantages: updatedProduct.disadvantages,
+        videoUrls: updatedProduct.videoUrls,
+        pricingInfo: updatedProduct.pricingInfo
+      }
+      
+      const pendingUpdateData: any = {
+        hasPendingChanges: true,
+        pendingChanges: JSON.stringify(pendingChanges),
+        changesSubmittedAt: new Date(),
+        changesSubmittedBy: companyUser.companyId,
+        changesStatus: 'pending',
+        adminNotes: null,
+        changesApprovedAt: null,
+        changesApprovedBy: null
+      }
+      
+      // Zpracovat obrázek - pokud se změnil, nastavit jako pending
+      if (imageChanged) {
+        pendingUpdateData.pendingImageUrl = updatedProduct.imageUrl
+        pendingUpdateData.imageApprovalStatus = 'pending'
+      }
+      
+      // Uložit pending changes
+      const savedProduct = await prisma.product.update({
+        where: { id: productId },
+        data: pendingUpdateData
+      })
+      
+      console.log('⏳ Product changes submitted for approval by company:', companyUser.companyId, 'Product:', productId)
+      
+      return NextResponse.json({
+        success: true,
+        product: savedProduct,
+        message: 'Changes submitted for approval. They will be reviewed by our admin team.',
+        isPending: true
+      })
     }
     
-    // Uložit do databáze
-    const savedProduct = await prisma.product.update({
-      where: { id: productId },
-      data: updateData
-    })
-    
-    console.log('Product saved successfully:', productId)
-    console.log('Image changed:', imageChanged)
-    
-    return NextResponse.json({
-      success: true,
-      product: savedProduct,
-      message: 'Product updated successfully.'
-    })
   } catch (error) {
     console.error('Error updating product:', error)
     return NextResponse.json(
@@ -137,6 +238,17 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
+    // Zkontrolovat oprávnění - pouze super admin může mazat produkty
+    const session = await getServerSession(authOptions)
+    const isSuperAdmin = session?.user?.email === 'admin@admin.com'
+    
+    if (!isSuperAdmin) {
+      return NextResponse.json(
+        { error: 'Unauthorized - only super admin can delete products' },
+        { status: 403 }
+      )
+    }
+    
     // Zkontroluj, jestli produkt existuje a je aktivní
     const product = await prisma.product.findUnique({
       where: { 
@@ -154,7 +266,7 @@ export async function DELETE(
     }
 
     // TODO: Získat email přihlášeného admina ze session
-    const adminEmail = 'admin@example.com' // Placeholder
+    const adminEmail = session?.user?.email || 'admin@example.com'
 
     // Soft delete - označit jako neaktivní
     await prisma.product.update({

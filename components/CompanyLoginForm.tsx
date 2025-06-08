@@ -76,8 +76,8 @@ export default function CompanyLoginForm({ onSuccess, onSwitchToRegister }: Comp
       if (data.success) {
         console.log('Company login successful:', data.data)
         onSuccess()
-        // Redirect to advertiser dashboard
-        window.location.href = '/advertiser/dashboard'
+        // Redirect to company dashboard
+        window.location.href = '/company-admin'
       } else {
         setErrors({ general: data.error || 'Invalid email or password. Please try again.' })
       }

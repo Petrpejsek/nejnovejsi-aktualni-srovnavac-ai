@@ -3,14 +3,40 @@ import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
-// GET - Získání všech company applications pro admin
+// GET - Získání všech company applications pro admin  
 export async function GET() {
   try {
-    const applications = await prisma.companyApplications.findMany({
+    const companies = await prisma.company.findMany({
+      where: {
+        status: 'pending'
+      },
       orderBy: {
-        submittedAt: 'desc'
+        createdAt: 'desc'
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        contactPerson: true,
+        website: true,
+        description: true,
+        status: true,
+        createdAt: true
       }
     })
+    
+    // Transformuj data pro admin komponentu
+    const applications = companies.map(company => ({
+      id: company.id,
+      companyName: company.name,
+      contactPerson: company.contactPerson,
+      businessEmail: company.email,
+      website: company.website,
+      description: company.description,
+      status: company.status,
+      submittedAt: company.createdAt.toISOString(),
+      isPPCAdvertiser: true // označí je jako PPC inzerenty
+    }))
     
     return NextResponse.json({
       success: true,

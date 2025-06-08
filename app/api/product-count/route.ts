@@ -1,16 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 
-// In-memory cache pro poslední počet produktů - RESET pro aktualizaci
-let lastProductCount: number | null = null // FORCE REFRESH - vynuceně invalidace cache pro aktuální stav
+// In-memory cache pro poslední počet produktů - RESET pro soft delete aktualizaci
+let lastProductCount: number | null = null // FORCE REFRESH - cache invalidated for soft delete update
 
 export async function GET(request: NextRequest) {
   try {
-    // Pokud cache není inicializovaná, načti z databáze
+    // Pokud cache není inicializovaná, načti z databáze - pouze aktivní produkty
     if (lastProductCount === null) {
-      const count = await prisma.product.count()
+      const count = await prisma.product.count({
+        where: { isActive: true }
+      })
       lastProductCount = count
-      console.log(`📊 Product count initialized from database: ${count}`)
+      console.log(`📊 Product count initialized from database (active only): ${count}`)
     }
     
     // Vrátit cachovaný počet

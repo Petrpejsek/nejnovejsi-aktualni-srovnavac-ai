@@ -84,34 +84,11 @@ export async function POST(request: NextRequest) {
           continue
         }
 
-        // Jednoduché duplicate check - pouze URL bez koncového lomítka
+        // URL normalizace pro uložení
         const normalizeUrl = (url: string) => url.replace(/\/$/, '').toLowerCase()
         const cleanUrl = normalizeUrl(reviewProduct.externalUrl)
         
-        const existingProduct = await prisma.product.findFirst({
-          where: {
-            externalUrl: {
-              equals: cleanUrl,
-              mode: 'insensitive'
-            }
-          }
-        })
-
-        if (existingProduct) {
-          failedProducts.push({
-            reviewId,
-            productName: reviewProduct.name,
-            productUrl: reviewProduct.externalUrl,
-            error: 'Produkt již existuje v databázi',
-            existingId: existingProduct.id,
-            duplicateReason: 'URL'
-          })
-          
-          // Odebrat duplikát z review queue
-          removeFromReviewQueue(reviewId)
-          console.log(`⚠️ Duplikát nalezen: ${reviewProduct.name} (duplicitní URL)`)
-          continue
-        }
+        // Duplikáty už byly zkontrolovány před scrapingem, takže přímo ukládáme
 
         console.log(`✅ Přidávám produkt: ${reviewProduct.name}`)
         console.log(`📊 Data pro uložení:`, {

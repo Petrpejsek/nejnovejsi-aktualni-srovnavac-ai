@@ -1,7 +1,7 @@
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 
-const handler = NextAuth({
+export const authOptions = {
   providers: [
     CredentialsProvider({
       name: 'Credentials',
@@ -12,19 +12,21 @@ const handler = NextAuth({
       async authorize(credentials) {
         // Zde by měla být implementace ověření přihlašovacích údajů
         // Pro testovací účely vracíme mock uživatele
-        if (credentials?.email === "test@test.com" && credentials?.password === "test") {
-          return { id: "1", name: "Test User", email: "test@test.com" };
+        if (credentials?.email === "admin@admin.com" && credentials?.password === "admin123") {
+          return { id: "1", name: "Super Admin", email: "admin@admin.com" };
         }
         return null;
       }
     })
   ],
   session: {
-    strategy: "jwt",
+    strategy: "jwt" as const,
   },
   pages: {
     signIn: '/auth/signin',
   },
-});
+};
+
+const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST }; 

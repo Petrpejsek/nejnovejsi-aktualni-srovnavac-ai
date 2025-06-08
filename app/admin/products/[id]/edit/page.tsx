@@ -11,7 +11,11 @@ import {
   PlusIcon,
   TrashIcon,
   PlayIcon,
-  LinkIcon
+  LinkIcon,
+  BuildingOfficeIcon,
+  EnvelopeIcon,
+  UserIcon,
+  CalendarIcon
 } from '@heroicons/react/24/outline'
 
 interface Product {
@@ -39,10 +43,23 @@ interface Product {
   updatedAt?: string
 }
 
+interface AssignedCompany {
+  id: string
+  name: string
+  email: string
+  contactPerson: string
+  website?: string
+  status: string
+  createdAt: string
+  lastLoginAt?: string
+}
+
 export default function AdminProductEditPage({ params }: { params: { id: string } }) {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [isLoadingProduct, setIsLoadingProduct] = useState(true)
+  const [assignedCompany, setAssignedCompany] = useState<AssignedCompany | null>(null)
+  const [isLoadingCompany, setIsLoadingCompany] = useState(true)
   const [dragActive, setDragActive] = useState(false)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [newTag, setNewTag] = useState('')
@@ -77,14 +94,21 @@ export default function AdminProductEditPage({ params }: { params: { id: string 
     hasTrial: false
   })
 
-  // Načtení produktu při načtení stránky
+  // Načtení produktu a přiřazené firmy při načtení stránky
   useEffect(() => {
     const loadProduct = async () => {
       try {
         setIsLoadingProduct(true)
-        const response = await fetch(`/api/products/${params.id}`)
-        if (response.ok) {
-          const productData = await response.json()
+        setIsLoadingCompany(true)
+        
+        // Načítání produktu a přiřazené firmy paralelně
+        const [productResponse, companyResponse] = await Promise.all([
+          fetch(`/api/products/${params.id}`),
+          fetch(`/api/products/${params.id}/assigned-company`)
+        ])
+        
+        if (productResponse.ok) {
+          const productData = await productResponse.json()
           
           // Zpracovat JSON pole z databáze
           const processedProduct = {
@@ -123,11 +147,21 @@ export default function AdminProductEditPage({ params }: { params: { id: string 
         } else {
           setErrorMessage('Nepodařilo se načíst produkt')
         }
+        
+        // Načtení přiřazené firmy
+        if (companyResponse.ok) {
+          const companyData = await companyResponse.json()
+          setAssignedCompany(companyData.assignedCompany)
+        } else {
+          console.error('Failed to load assigned company')
+        }
+        
       } catch (error) {
         console.error('Error loading product:', error)
         setErrorMessage('Chyba při načítání produktu')
       } finally {
         setIsLoadingProduct(false)
+        setIsLoadingCompany(false)
       }
     }
 
@@ -416,6 +450,105 @@ export default function AdminProductEditPage({ params }: { params: { id: string 
                 </p>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* Informace o přiřazené firmě */}
+        {!isLoadingCompany && (
+          <div className="bg-white shadow rounded-lg p-6 mb-8">
+            <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
+              <BuildingOfficeIcon className="w-6 h-6 mr-2 text-purple-600" />
+              Přiřazená firma
+            </h2>
+            
+            {assignedCompany ? (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center mb-3">
+                      <BuildingOfficeIcon className="w-5 h-5 mr-2 text-blue-600" />
+                      <h3 className="text-lg font-medium text-blue-900">{assignedCompany.name}</h3>
+                      <span className={`ml-3 px-2 py-1 text-xs font-medium rounded-full ${
+                        assignedCompany.status === 'active' 
+                          ? 'bg-green-100 text-green-800' 
+                          : 'bg-yellow-100 text-yellow-800'
+                      }`}>
+                        {assignedCompany.status === 'active' ? 'Aktivní' : 'Schválená'}
+                      </span>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                      <div className="flex items-center">
+                        <EnvelopeIcon className="w-4 h-4 mr-2 text-gray-500" />
+                        <span className="text-gray-600">Email:</span>
+                        <a 
+                          href={`mailto:${assignedCompany.email}`}
+                          className="ml-2 text-blue-600 hover:text-blue-800 underline"
+                        >
+                          {assignedCompany.email}
+                        </a>
+                      </div>
+                      
+                      <div className="flex items-center">
+                        <UserIcon className="w-4 h-4 mr-2 text-gray-500" />
+                        <span className="text-gray-600">Kontakt:</span>
+                        <span className="ml-2 text-gray-900">{assignedCompany.contactPerson}</span>
+                      </div>
+                      
+                      {assignedCompany.website && (
+                        <div className="flex items-center">
+                          <LinkIcon className="w-4 h-4 mr-2 text-gray-500" />
+                          <span className="text-gray-600">Web:</span>
+                          <a 
+                            href={assignedCompany.website}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="ml-2 text-blue-600 hover:text-blue-800 underline"
+                          >
+                            {assignedCompany.website}
+                          </a>
+                        </div>
+                      )}
+                      
+                      <div className="flex items-center">
+                        <CalendarIcon className="w-4 h-4 mr-2 text-gray-500" />
+                        <span className="text-gray-600">Registrace:</span>
+                        <span className="ml-2 text-gray-900">
+                          {new Date(assignedCompany.createdAt).toLocaleDateString('cs-CZ')}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="ml-4">
+                    <a
+                      href={`/admin/companies?search=${encodeURIComponent(assignedCompany.email)}`}
+                      className="inline-flex items-center px-3 py-2 border border-blue-300 text-sm font-medium rounded-md text-blue-700 bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    >
+                      Detail firmy
+                    </a>
+                  </div>
+                </div>
+                
+                <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded">
+                  <p className="text-sm text-yellow-800">
+                    ⚠️ <strong>Důležité:</strong> Tento produkt je již přiřazen k firmě. 
+                    Změny produktu se projeví v jejich reklamních kampaních.
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 text-center">
+                <BuildingOfficeIcon className="w-12 h-12 mx-auto text-gray-400 mb-3" />
+                <p className="text-gray-600 mb-2">Žádná firma nemá přiřazený tento produkt</p>
+                <p className="text-sm text-gray-500">
+                  Produkt lze přiřadit firmě v sekci 
+                  <a href="/admin/companies" className="text-blue-600 hover:text-blue-800 underline ml-1">
+                    Správa firem
+                  </a>
+                </p>
+              </div>
+            )}
           </div>
         )}
 

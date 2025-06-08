@@ -163,8 +163,10 @@ export async function GET(request: NextRequest) {
       // Calculate offset for pagination
       const skip = (validPage - 1) * validPageSize;
       
-      // Prepare where clause for filtering
-      const whereClause: any = {};
+      // Prepare where clause for filtering - include soft delete filter
+      const whereClause: any = {
+        isActive: true  // Only count active products
+      };
       if (categoryParam) {
         whereClause.category = categoryParam;
       }
@@ -174,10 +176,11 @@ export async function GET(request: NextRequest) {
         where: whereClause
       });
       
-      // Get paginated products (with filter) - random order for homepage
+      // Get paginated products (with filter) - random order for homepage, only active products
       const rawProducts = await prisma.$queryRaw`
         SELECT * FROM "Product" 
-        ${categoryParam ? Prisma.sql`WHERE "category" = ${categoryParam}` : Prisma.empty}
+        WHERE "isActive" = true
+        ${categoryParam ? Prisma.sql`AND "category" = ${categoryParam}` : Prisma.empty}
         ORDER BY RANDOM()
         LIMIT ${validPageSize}
         OFFSET ${skip}

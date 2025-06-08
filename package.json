@@ -51,6 +51,7 @@
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.50.1",
     "sharp": "^0.33.2",
+    "stripe": "^18.2.1",
     "tailwind-merge": "^3.0.1",
     "typed.js": "^2.1.0",
     "zustand": "^4.5.0"

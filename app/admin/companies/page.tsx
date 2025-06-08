@@ -89,10 +89,10 @@ export default function CompaniesAdmin() {
       if (response.ok) {
         const data = await response.json()
         const apps = data.data || []
+
         setApplications(apps)
         
-        // Vypočítáme statistiky včetně PPC inzerentů
-        updateStatsWithAdvertisers(apps, advertisers)
+        // Statistiky se aktualizují pomocí useEffect když se změní applications nebo advertisers
       }
     } catch (error) {
       console.error('Chyba při načítání aplikací:', error)
@@ -123,8 +123,7 @@ export default function CompaniesAdmin() {
         const data = await response.json()
         const advertisersData = data.data || []
         setAdvertisers(advertisersData)
-        // Aktualizuj statistiky s novými PPC inzerenty
-        updateStatsWithAdvertisers(applications, advertisersData)
+        // Statistiky se aktualizují pomocí useEffect když se změní applications nebo advertisers
       } else {
         console.log('Failed to load advertisers:', response.status)
       }
@@ -389,15 +388,26 @@ export default function CompaniesAdmin() {
     }
   }
 
-  // Funkce pro aktualizaci statistik včetně PPC inzerentů
+  // Funkce pro aktualizaci statistik včetně PPC inzerentů (bez duplikátů)
   const updateStatsWithAdvertisers = (applications: CompanyApplication[], advertisers: AdvertiserCompany[]) => {
     const standardPending = applications.filter(app => app.status === 'pending').length
     const standardApproved = applications.filter(app => app.status === 'approved').length
     const standardRejected = applications.filter(app => app.status === 'rejected').length
     
-    const ppcPending = advertisers.filter(adv => adv.status === 'pending').length
-    const ppcApproved = advertisers.filter(adv => adv.status === 'approved').length
-    const ppcRejected = advertisers.filter(adv => adv.status === 'rejected').length
+    // Počítej pouze PPC inzerenty kteří nejsou v applications (aby se nepočítali dvakrát)
+    const ppcPending = advertisers.filter(adv => 
+      adv.status === 'pending' && 
+      !applications.some(app => app.id === adv.id)
+    ).length
+    // OPRAVA: Počítej jak 'approved' tak 'active' firmy jako schválené
+    const ppcApproved = advertisers.filter(adv => 
+      (adv.status === 'approved' || adv.status === 'active') && 
+      !applications.some(app => app.id === adv.id)
+    ).length
+    const ppcRejected = advertisers.filter(adv => 
+      adv.status === 'rejected' && 
+      !applications.some(app => app.id === adv.id)
+    ).length
     
     setStats({
       totalPending: standardPending + ppcPending,
@@ -405,6 +415,11 @@ export default function CompaniesAdmin() {
       totalRejected: standardRejected + ppcRejected
     })
   }
+
+  // Aktualizace statistik když se změní data
+  useEffect(() => {
+    updateStatsWithAdvertisers(applications, advertisers)
+  }, [applications, advertisers])
 
   useEffect(() => {
     loadApplications()
@@ -624,7 +639,7 @@ export default function CompaniesAdmin() {
         <div className="divide-y divide-gray-200">
           {(filteredApplications.length === 0 && advertisers.length === 0) || 
            (filteredApplications.length === 0 && activeTab === 'applications' && advertisers.filter(adv => adv.status === 'pending').length === 0) ||
-           (filteredApplications.length === 0 && activeTab === 'approved' && advertisers.filter(adv => adv.status === 'approved').length === 0) ||
+           (filteredApplications.length === 0 && activeTab === 'approved' && advertisers.filter(adv => adv.status === 'approved' || adv.status === 'active').length === 0) ||
            (filteredApplications.length === 0 && activeTab === 'rejected' && advertisers.filter(adv => adv.status === 'rejected').length === 0) ? (
             <div className="text-center py-12">
               <BuildingOfficeIcon className="mx-auto h-12 w-12 text-gray-400" />
@@ -736,8 +751,11 @@ export default function CompaniesAdmin() {
                 </div>
               ))}
 
-              {/* PPC Inzerenti - zobrazí se pouze v tab "applications" pro pending */}
-              {activeTab === 'applications' && advertisers.filter(adv => adv.status === 'pending').length > 0 && (
+              {/* PPC Inzerenti - zobrazí se pouze v tab "applications" pro pending, ale pouze ti co nejsou již v applications */}
+              {activeTab === 'applications' && advertisers.filter(adv => 
+                adv.status === 'pending' && 
+                !applications.some(app => app.id === adv.id)
+              ).length > 0 && (
                 <>
                   {filteredApplications.length > 0 && (
                     <div className="bg-blue-50 px-6 py-3">
@@ -747,7 +765,10 @@ export default function CompaniesAdmin() {
                       </h4>
                     </div>
                   )}
-                  {advertisers.filter(adv => adv.status === 'pending').map((advertiser) => (
+                  {advertisers.filter(adv => 
+                    adv.status === 'pending' && 
+                    !applications.some(app => app.id === adv.id)
+                  ).map((advertiser) => (
                     <div key={`advertiser-${advertiser.id}`} className="p-6 bg-blue-50/30">
                       <div 
                         className="flex items-center justify-between cursor-pointer"
@@ -875,9 +896,9 @@ export default function CompaniesAdmin() {
                         } py-2 px-3 border-b-2 font-medium text-sm whitespace-nowrap rounded-t-md transition-colors`}
                       >
                         S přiřazeným produktem
-                        {advertisers.filter(adv => adv.status === 'approved' && adv.assignedProductId).length > 0 && (
+                        {advertisers.filter(adv => (adv.status === 'approved' || adv.status === 'active') && adv.assignedProductId).length > 0 && (
                           <span className="ml-2 bg-green-100 text-green-800 py-1 px-2 rounded-full text-xs">
-                            {advertisers.filter(adv => adv.status === 'approved' && adv.assignedProductId).length}
+                            {advertisers.filter(adv => (adv.status === 'approved' || adv.status === 'active') && adv.assignedProductId).length}
                           </span>
                         )}
                       </button>
@@ -891,7 +912,7 @@ export default function CompaniesAdmin() {
                       >
                         Čekající na produkt
                         <span className="ml-2 bg-orange-100 text-orange-800 py-1 px-2 rounded-full text-xs">
-                          {advertisers.filter(adv => adv.status === 'approved' && !adv.assignedProductId).length}
+                          {advertisers.filter(adv => (adv.status === 'approved' || adv.status === 'active') && !adv.assignedProductId).length}
                         </span>
                       </button>
                       <button
@@ -983,15 +1004,15 @@ export default function CompaniesAdmin() {
                         )}
 
                         {/* PPC Advertiseři s produktem */}
-                        {advertisers.filter(adv => adv.status === 'approved' && adv.assignedProductId).length > 0 && (
+                        {advertisers.filter(adv => (adv.status === 'approved' || adv.status === 'active') && adv.assignedProductId).length > 0 && (
                           <>
                             <div className="bg-green-50 px-6 py-3 border-b">
                               <h4 className="text-sm font-medium text-green-900 flex items-center">
                                 <BuildingOfficeIcon className="h-4 w-4 mr-2" />
-                                PPC Advertiseři s přiřazeným produktem ({advertisers.filter(adv => adv.status === 'approved' && adv.assignedProductId).length})
+                                PPC Advertiseři s přiřazeným produktem ({advertisers.filter(adv => (adv.status === 'approved' || adv.status === 'active') && adv.assignedProductId).length})
                               </h4>
                             </div>
-                            {advertisers.filter(adv => adv.status === 'approved' && adv.assignedProductId).map((advertiser) => (
+                            {advertisers.filter(adv => (adv.status === 'approved' || adv.status === 'active') && adv.assignedProductId).map((advertiser) => (
                               <div key={`approved-advertiser-${advertiser.id}`} className="p-6 hover:bg-gray-50 border-b last:border-b-0">
                                 <div 
                                   className="flex items-center justify-between cursor-pointer"
@@ -1023,9 +1044,9 @@ export default function CompaniesAdmin() {
                                       <div className="ml-4 flex-1 min-w-0">
                                         <div className="flex items-center">
                                           <h3 className="text-lg font-medium text-gray-900 truncate">{advertiser.name}</h3>
-                                          <span className="ml-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                          <span className={`ml-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${advertiser.status === 'active' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'}`}>
                                             <CheckIcon className="w-3 h-3 mr-1" />
-                                            Schválen
+                                            {advertiser.status === 'active' ? 'Aktivní' : 'Schválen'}
                                           </span>
                                           {(() => {
                                             const creditStatus = getCreditStatus(advertiser);
@@ -1084,7 +1105,7 @@ export default function CompaniesAdmin() {
                                               <CubeIcon className="flex-shrink-0 mr-1.5 h-4 w-4" />
                                               <span className="font-medium">Přiřazený produkt: </span>
                                               <Link
-                                                href={`/admin/products?search=${encodeURIComponent(assignedProduct.name)}`}
+                                                href={`/admin/products/${assignedProduct.id}/edit`}
                                                 className="ml-1 text-blue-600 hover:text-blue-800 hover:underline font-medium"
                                                 onClick={(e) => e.stopPropagation()}
                                               >
@@ -1119,7 +1140,7 @@ export default function CompaniesAdmin() {
                         )}
 
                         {/* Prázdný stav */}
-                        {filteredApplications.length === 0 && advertisers.filter(adv => adv.status === 'approved' && adv.assignedProductId).length === 0 && (
+                        {filteredApplications.length === 0 && advertisers.filter(adv => (adv.status === 'approved' || adv.status === 'active') && adv.assignedProductId).length === 0 && (
                           <div className="text-center py-12">
                             <CheckCircleIcon className="mx-auto h-12 w-12 text-gray-400" />
                             <h3 className="mt-2 text-sm font-medium text-gray-900">Žádné firmy s přiřazeným produktem</h3>
@@ -1135,15 +1156,15 @@ export default function CompaniesAdmin() {
                     {approvedSubTab === 'waiting-product' && (
                       <div>
                         {/* PPC Advertiseři bez produktu */}
-                        {advertisers.filter(adv => adv.status === 'approved' && !adv.assignedProductId).length > 0 ? (
+                        {advertisers.filter(adv => (adv.status === 'approved' || adv.status === 'active') && !adv.assignedProductId).length > 0 ? (
                           <>
                             <div className="bg-orange-50 px-6 py-3 border-b">
                               <h4 className="text-sm font-medium text-orange-900 flex items-center">
                                 <ExclamationTriangleIcon className="h-4 w-4 mr-2" />
-                                PPC Advertiseři čekající na přiřazení produktu ({advertisers.filter(adv => adv.status === 'approved' && !adv.assignedProductId).length})
+                                PPC Advertiseři čekající na přiřazení produktu ({advertisers.filter(adv => (adv.status === 'approved' || adv.status === 'active') && !adv.assignedProductId).length})
                               </h4>
                             </div>
-                            {advertisers.filter(adv => adv.status === 'approved' && !adv.assignedProductId).map((advertiser) => (
+                            {advertisers.filter(adv => (adv.status === 'approved' || adv.status === 'active') && !adv.assignedProductId).map((advertiser) => (
                               <div key={`waiting-advertiser-${advertiser.id}`} className="p-6 hover:bg-gray-50 border-b last:border-b-0">
                                 <div 
                                   className="flex items-center justify-between cursor-pointer"
@@ -1574,11 +1595,25 @@ export default function CompaniesAdmin() {
                       className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                     >
                       <option value="">-- Vyberte produkt --</option>
-                      {allProducts.map(product => (
-                        <option key={product.id} value={product.id}>
-                          {product.name} {product.category ? `(${product.category})` : ''}
-                        </option>
-                      ))}
+                      {allProducts.map(product => {
+                        // Zkontroluj jestli už je produkt přiřazený k jiné firmě
+                        const isAlreadyAssigned = advertisers.some(adv => 
+                          adv.assignedProductId === product.id && 
+                          (adv.status === 'approved' || adv.status === 'active')
+                        )
+                        
+                        return (
+                          <option 
+                            key={product.id} 
+                            value={product.id}
+                            disabled={isAlreadyAssigned}
+                            style={isAlreadyAssigned ? { color: '#9CA3AF', backgroundColor: '#F3F4F6' } : {}}
+                          >
+                            {product.name} {product.category ? `(${product.category})` : ''}
+                            {isAlreadyAssigned ? ' - ⚠️ Již přiřazeno' : ''}
+                          </option>
+                        )
+                      })}
                     </select>
 
                     {selectedProductId && (
@@ -1657,11 +1692,26 @@ export default function CompaniesAdmin() {
                       className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                     >
                       <option value="">-- Vyberte existující produkt --</option>
-                      {allProducts.map(product => (
-                        <option key={product.id} value={product.id}>
-                          {product.name} {product.category ? `(${product.category})` : ''}
-                        </option>
-                      ))}
+                      {allProducts.map(product => {
+                        // Zkontroluj jestli už je produkt přiřazený k jiné firmě (ale ne k aktuální)
+                        const isAlreadyAssigned = advertisers.some(adv => 
+                          adv.assignedProductId === product.id && 
+                          (adv.status === 'approved' || adv.status === 'active') &&
+                          adv.id !== selectedApp?.id // Nevylučuj aktuální firmu
+                        )
+                        
+                        return (
+                          <option 
+                            key={product.id} 
+                            value={product.id}
+                            disabled={isAlreadyAssigned}
+                            style={isAlreadyAssigned ? { color: '#9CA3AF', backgroundColor: '#F3F4F6' } : {}}
+                          >
+                            {product.name} {product.category ? `(${product.category})` : ''}
+                            {isAlreadyAssigned ? ' - ⚠️ Již přiřazeno' : ''}
+                          </option>
+                        )
+                      })}
                       <option value="CREATE_NEW">+ Založit nový produkt</option>
                     </select>
 
@@ -1772,7 +1822,7 @@ export default function CompaniesAdmin() {
                           <CubeIcon className="w-4 h-4 mr-1 text-blue-500" />
                           <span className="mr-1">Přiřazen produkt:</span>
                                                      <Link
-                             href={`/admin/products?search=${encodeURIComponent(assignedProduct.name)}`}
+                             href={`/admin/products/${assignedProduct.id}/edit`}
                              className="text-blue-600 hover:text-blue-800 hover:underline font-medium"
                            >
                              {assignedProduct.name}

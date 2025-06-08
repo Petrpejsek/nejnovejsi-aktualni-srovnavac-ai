@@ -91,6 +91,12 @@ export default function Header() {
                 >
                   AI Reels
                 </Link>
+                <Link 
+                  href="/advertise"
+                  className="text-gray-700 hover:text-gradient-primary font-medium transition-colors duration-200"
+                >
+                  For AI Companies
+                </Link>
               </nav>
               
               {/* Login buttons */}
@@ -158,6 +164,13 @@ export default function Header() {
                 >
                   AI Reels
                 </Link>
+                <Link 
+                  href="/advertise"
+                  onClick={closeMobileMenu}
+                  className="text-gray-700 hover:text-gradient-primary font-medium transition-colors duration-200 py-2"
+                >
+                  For AI Companies
+                </Link>
                 <div className="pt-4 border-t border-gray-100">
                   <button
                     onClick={() => {
@@ -197,6 +210,8 @@ export default function Header() {
           onSwitchToLogin={switchToLogin}
         />
       </Modal>
+
+
     </>
   )
 } 

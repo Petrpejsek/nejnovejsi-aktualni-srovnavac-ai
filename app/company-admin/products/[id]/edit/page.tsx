@@ -37,7 +37,113 @@ interface Product {
   hasTrial: boolean
   createdAt?: string
   updatedAt?: string
+  hasPendingChanges?: boolean
+  changesStatus?: 'pending' | 'approved' | 'rejected' | null
+  changesSubmittedAt?: string
+  pendingChanges?: string | null
+  adminNotes?: string | null
 }
+
+// Helper function to compare changes
+const getChangeSummary = (currentProduct: Product, pendingChanges: string | null) => {
+  if (!pendingChanges) return null;
+  
+  try {
+    const pending = JSON.parse(pendingChanges);
+    const changes: string[] = [];
+    
+    // Normalize values for comparison
+    const normalizeValue = (value: any) => {
+      if (value === null || value === undefined) return ""
+      if (typeof value === 'string') return value.trim()
+      return value
+    }
+    
+    // Compare main fields
+    if (normalizeValue(pending.name) !== normalizeValue(currentProduct.name)) {
+      changes.push(`Name: "${currentProduct.name}" → "${pending.name}"`);
+    }
+    if (normalizeValue(pending.description) !== normalizeValue(currentProduct.description)) {
+      changes.push(`Description: Updated`);
+    }
+    if (pending.price !== currentProduct.price) {
+      changes.push(`Price: $${currentProduct.price} → $${pending.price}`);
+    }
+    if (normalizeValue(pending.category) !== normalizeValue(currentProduct.category)) {
+      changes.push(`Category: "${currentProduct.category}" → "${pending.category}"`);
+    }
+    if (normalizeValue(pending.externalUrl) !== normalizeValue(currentProduct.externalUrl)) {
+      changes.push(`External URL: Updated`);
+    }
+    if (pending.hasTrial !== currentProduct.hasTrial) {
+      changes.push(`Trial version: ${currentProduct.hasTrial ? 'Yes' : 'No'} → ${pending.hasTrial ? 'Yes' : 'No'}`);
+    }
+    
+    // Compare arrays (order-independent)
+    const currentAdvantages = (currentProduct.advantages || []).sort()
+    const pendingAdvantages = (pending.advantages ? JSON.parse(pending.advantages) : []).sort()
+    if (JSON.stringify(currentAdvantages) !== JSON.stringify(pendingAdvantages)) {
+      const newItems = pendingAdvantages.filter((item: string) => !currentAdvantages.includes(item))
+      const removedItems = currentAdvantages.filter((item: string) => !pendingAdvantages.includes(item))
+      
+      if (newItems.length > 0 || removedItems.length > 0) {
+        let changeText = `Advantages:`
+        if (newItems.length > 0) {
+          changeText += ` Added "${newItems.join('", "')}"`
+        }
+        if (removedItems.length > 0) {
+          changeText += `${newItems.length > 0 ? ', ' : ''} Removed "${removedItems.join('", "')}"`
+        }
+        changes.push(changeText);
+      }
+    }
+    
+    const currentDisadvantages = (currentProduct.disadvantages || []).sort()
+    const pendingDisadvantages = (pending.disadvantages ? JSON.parse(pending.disadvantages) : []).sort()
+    if (JSON.stringify(currentDisadvantages) !== JSON.stringify(pendingDisadvantages)) {
+      const newItems = pendingDisadvantages.filter((item: string) => !currentDisadvantages.includes(item))
+      const removedItems = currentDisadvantages.filter((item: string) => !pendingDisadvantages.includes(item))
+      
+      if (newItems.length > 0 || removedItems.length > 0) {
+        let changeText = `Disadvantages:`
+        if (newItems.length > 0) {
+          changeText += ` Added "${newItems.join('", "')}"`
+        }
+        if (removedItems.length > 0) {
+          changeText += `${newItems.length > 0 ? ', ' : ''} Removed "${removedItems.join('", "')}"`
+        }
+        changes.push(changeText);
+      }
+    }
+    
+    const currentTags = (currentProduct.tags || []).sort()
+    const pendingTags = (pending.tags ? JSON.parse(pending.tags) : []).sort()
+    if (JSON.stringify(currentTags) !== JSON.stringify(pendingTags)) {
+      const newItems = pendingTags.filter((item: string) => !currentTags.includes(item))
+      const removedItems = currentTags.filter((item: string) => !pendingTags.includes(item))
+      
+      if (newItems.length > 0 || removedItems.length > 0) {
+        let changeText = `Tags:`
+        if (newItems.length > 0) {
+          changeText += ` Added "${newItems.join('", "')}"`
+        }
+        if (removedItems.length > 0) {
+          changeText += `${newItems.length > 0 ? ', ' : ''} Removed "${removedItems.join('", "')}"`
+        }
+        changes.push(changeText);
+      }
+    }
+    
+    if (normalizeValue(pending.detailInfo) !== normalizeValue(currentProduct.detailInfo)) {
+      changes.push(`Detailed information: Updated`);
+    }
+    
+    return changes;
+  } catch (error) {
+    console.error('Error parsing pending changes:', error);
+    return null;
+  }
+};
 
 export default function ProductEditPage({ params }: { params: { id: string } }) {
   const router = useRouter()
@@ -77,7 +183,7 @@ export default function ProductEditPage({ params }: { params: { id: string } }) 
     hasTrial: false
   })
 
-  // Načtení produktu při načtení stránky
+  // Load product on page load
   useEffect(() => {
     const loadProduct = async () => {
       try {
@@ -86,7 +192,7 @@ export default function ProductEditPage({ params }: { params: { id: string } }) 
         if (response.ok) {
           const productData = await response.json()
           
-          // Zpracovat JSON pole z databáze
+          // Process JSON arrays from database
           const processedProduct = {
             ...productData,
             tags: Array.isArray(productData.tags) ? productData.tags : 
@@ -103,16 +209,16 @@ export default function ProductEditPage({ params }: { params: { id: string } }) 
           
           setProduct(processedProduct)
           
-          // Pokud má produkt čekající fotku, nastavit ji jako preview
+          // If product has pending image, set it as preview
           if (productData.pendingImageUrl) {
             setImagePreview(productData.pendingImageUrl)
           }
         } else {
-          setErrorMessage('Nepodařilo se načíst produkt')
+          setErrorMessage('Failed to load product')
         }
       } catch (error) {
         console.error('Error loading product:', error)
-        setErrorMessage('Chyba při načítání produktu')
+        setErrorMessage('Error loading product')
       } finally {
         setIsLoadingProduct(false)
       }
@@ -126,10 +232,10 @@ export default function ProductEditPage({ params }: { params: { id: string } }) 
     
     setIsLoading(true)
     try {
-      // Připravit data pro odeslání
+      // Prepare data for submission
       const dataToSave = {
         ...product,
-        // Převést pole na JSON stringy pro databázi
+        // Convert arrays to JSON strings for database
         tags: JSON.stringify(product.tags),
         advantages: JSON.stringify(product.advantages),
         disadvantages: JSON.stringify(product.disadvantages),
@@ -147,24 +253,37 @@ export default function ProductEditPage({ params }: { params: { id: string } }) 
 
       if (response.ok) {
         const result = await response.json()
-        setSuccessMessage(result.message || 'Produkt byl úspěšně uložen!')
-        setErrorMessage(null)
         
-        setTimeout(() => setSuccessMessage(null), 3000)
+        if (result.isPending) {
+          // Changes submitted for approval
+          setSuccessMessage('Changes submitted for approval! They will be reviewed by our admin team.')
+          setProduct(prev => ({
+            ...prev,
+            hasPendingChanges: true,
+            changesStatus: 'pending'
+          }))
+        } else {
+          // Direct save (shouldn't happen for company admin, but handle it)
+          setSuccessMessage(result.message || 'Product saved successfully!')
+        }
+        
+        setErrorMessage(null)
+        setTimeout(() => setSuccessMessage(null), 5000)
       } else {
-        setErrorMessage('Chyba při ukládání produktu')
+        const errorData = await response.json()
+        setErrorMessage(errorData.error || 'Error saving product')
         setSuccessMessage(null)
       }
     } catch (error) {
       console.error('Error saving product:', error)
-      setErrorMessage('Chyba při ukládání produktu')
+      setErrorMessage('Error saving product')
       setSuccessMessage(null)
     } finally {
       setIsLoading(false)
     }
   }
 
-  // Funkce pro správu tagů
+  // Tag management functions
   const addTag = () => {
     if (newTag.trim()) {
       setProduct(prev => ({
@@ -182,7 +301,7 @@ export default function ProductEditPage({ params }: { params: { id: string } }) 
     }))
   }
 
-  // Funkce pro správu výhod
+  // Advantage management functions
   const addAdvantage = () => {
     if (newAdvantage.trim()) {
       setProduct(prev => ({
@@ -200,7 +319,7 @@ export default function ProductEditPage({ params }: { params: { id: string } }) 
     }))
   }
 
-  // Funkce pro správu nevýhod
+  // Disadvantage management functions
   const addDisadvantage = () => {
     if (newDisadvantage.trim()) {
       setProduct(prev => ({
@@ -218,7 +337,7 @@ export default function ProductEditPage({ params }: { params: { id: string } }) 
     }))
   }
 
-  // Funkce pro správu video URL
+  // Video URL management functions
   const addVideoUrl = () => {
     if (newVideoUrl.trim()) {
       setProduct(prev => ({
@@ -268,14 +387,14 @@ export default function ProductEditPage({ params }: { params: { id: string } }) 
     if (file) {
       // Check file size (10MB limit)
       if (file.size > 10 * 1024 * 1024) {
-        setErrorMessage('Soubor je příliš velký. Vyberte obrázek menší než 10MB.')
+        setErrorMessage('File is too large. Please select an image smaller than 10MB.')
         setSuccessMessage(null)
         return
       }
       
       // Check file type
       if (!file.type.startsWith('image/')) {
-        setErrorMessage('Prosím vyberte obrázek.')
+        setErrorMessage('Please select an image file.')
         setSuccessMessage(null)
         return
       }
@@ -292,13 +411,13 @@ export default function ProductEditPage({ params }: { params: { id: string } }) 
           imageApprovalStatus: 'pending'
         }))
         
-        setSuccessMessage('Obrázek byl nahrán! Bude zobrazen po schválení.')
+        setSuccessMessage('Image uploaded! It will be displayed after approval.')
         setErrorMessage(null)
         setIsUploadingImage(false)
         setTimeout(() => setSuccessMessage(null), 3000)
       }
       reader.onerror = () => {
-        setErrorMessage('Chyba při čtení souboru. Zkuste to znovu.')
+        setErrorMessage('Error reading file. Please try again.')
         setSuccessMessage(null)
         setIsUploadingImage(false)
       }
@@ -329,11 +448,11 @@ export default function ProductEditPage({ params }: { params: { id: string } }) 
               className="flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
             >
               <ArrowLeftIcon className="h-4 w-4 mr-2" />
-              Zpět na Produkty
+              Back to Products
             </button>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Upravit Produkt</h1>
-              <p className="text-sm text-gray-600">Kompletní editace všech informací o produktu</p>
+              <h1 className="text-2xl font-bold text-gray-900">Edit Product</h1>
+              <p className="text-sm text-gray-600">Complete editing of all product information</p>
             </div>
           </div>
         </div>
@@ -367,12 +486,54 @@ export default function ProductEditPage({ params }: { params: { id: string } }) 
           <div className="px-4 py-5 sm:p-6">
             <div className="space-y-8">
               
+              {/* Pending Changes Status */}
+              {product.hasPendingChanges && product.changesStatus === 'pending' && (() => {
+                const changes = getChangeSummary(product, (product as any).pendingChanges);
+                return (
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
+                    <div className="flex">
+                      <div className="flex-shrink-0">
+                        <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                      <div className="ml-3">
+                        <h3 className="text-sm font-medium text-yellow-800">
+                          Changes Pending Approval
+                        </h3>
+                        <div className="mt-2 text-sm text-yellow-700">
+                          <p>
+                            Your recent changes have been submitted and are waiting for admin approval. 
+                            You can continue editing, but new changes will replace the pending ones.
+                          </p>
+                          {product.changesSubmittedAt && (
+                            <p className="mt-1">
+                              <strong>Submitted:</strong> {new Date(product.changesSubmittedAt).toLocaleString()}
+                            </p>
+                          )}
+                          {changes && changes.length > 0 && (
+                            <div className="mt-3">
+                              <p className="font-medium text-yellow-800 mb-2">Pending changes:</p>
+                              <ul className="list-disc list-inside space-y-1">
+                                {changes.map((change, index) => (
+                                  <li key={index} className="text-sm">{change}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
+              
               {/* Basic Information */}
               <div>
-                <h4 className="text-lg font-medium text-gray-900 mb-4">Základní Informace</h4>
+                <h4 className="text-lg font-medium text-gray-900 mb-4">Basic Information</h4>
                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Název Produktu *</label>
+                    <label className="block text-sm font-medium text-gray-700">Product Name *</label>
                     <input
                       type="text"
                       value={product.name}
@@ -383,7 +544,7 @@ export default function ProductEditPage({ params }: { params: { id: string } }) 
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Kategorie</label>
+                    <label className="block text-sm font-medium text-gray-700">Category</label>
                     <select
                       value={product.category}
                       onChange={(e) => setProduct(prev => ({ ...prev, category: e.target.value }))}
@@ -401,7 +562,7 @@ export default function ProductEditPage({ params }: { params: { id: string } }) 
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Cena ($)</label>
+                    <label className="block text-sm font-medium text-gray-700">Price ($)</label>
                     <input
                       type="number"
                       step="0.01"
@@ -412,7 +573,7 @@ export default function ProductEditPage({ params }: { params: { id: string } }) 
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Externí URL</label>
+                    <label className="block text-sm font-medium text-gray-700">External URL</label>
                     <input
                       type="url"
                       value={product.externalUrl}
@@ -431,29 +592,29 @@ export default function ProductEditPage({ params }: { params: { id: string } }) 
                       className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
                     />
                     <label htmlFor="hasTrial" className="ml-2 block text-sm text-gray-900">
-                      Má zkušební verzi
+                      Has trial version
                     </label>
                   </div>
 
                   <div className="sm:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700">Stručný Popis</label>
+                    <label className="block text-sm font-medium text-gray-700">Short Description</label>
                     <textarea
                       value={product.description}
                       onChange={(e) => setProduct(prev => ({ ...prev, description: e.target.value }))}
                       rows={3}
                       className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
-                      placeholder="Stručně popište váš produkt..."
+                      placeholder="Briefly describe your product..."
                     />
                   </div>
 
                   <div className="sm:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700">Detailní Informace</label>
+                    <label className="block text-sm font-medium text-gray-700">Detailed Information</label>
                     <textarea
                       value={product.detailInfo}
                       onChange={(e) => setProduct(prev => ({ ...prev, detailInfo: e.target.value }))}
                       rows={6}
                       className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
-                      placeholder="Podrobný popis produktu, jeho funkcí a využití..."
+                      placeholder="Detailed description of the product, its features and use cases..."
                     />
                   </div>
                 </div>
@@ -461,22 +622,22 @@ export default function ProductEditPage({ params }: { params: { id: string } }) 
 
               {/* Product Image */}
               <div>
-                <h4 className="text-lg font-medium text-gray-900 mb-4">Obrázek Produktu</h4>
+                <h4 className="text-lg font-medium text-gray-900 mb-4">Product Image</h4>
                 <div className="space-y-4">
                   {displayImage && (
                     <div className="flex justify-center mb-4">
                       <div className="relative">
                         <Image
                           src={displayImage}
-                          alt="Náhled produktu"
+                          alt="Product preview"
                           width={250}
                           height={250}
                           className="rounded-lg object-cover border"
                         />
-                        {/* Indikátor stavu obrázku */}
+                        {/* Image status indicator */}
                         {product.imageApprovalStatus === 'pending' && (
                           <div className="absolute top-2 left-2 bg-yellow-500 text-white px-2 py-1 rounded text-xs font-medium">
-                            Čeká na schválení
+                            Pending approval
                           </div>
                         )}
                         <button
@@ -513,7 +674,7 @@ export default function ProductEditPage({ params }: { params: { id: string } }) 
                       <PhotoIcon className="mx-auto h-12 w-12 text-gray-400" />
                       <div className="flex text-sm text-gray-600">
                         <label className="relative cursor-pointer bg-white rounded-md font-medium text-purple-600 hover:text-purple-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-purple-500">
-                          <span>Nahrát soubor</span>
+                          <span>Upload file</span>
                           <input
                             type="file"
                             className="sr-only"
@@ -521,13 +682,13 @@ export default function ProductEditPage({ params }: { params: { id: string } }) 
                             onChange={handleImageChange}
                           />
                         </label>
-                        <p className="pl-1">nebo přetáhněte</p>
+                        <p className="pl-1">or drag and drop</p>
                       </div>
-                      <p className="text-xs text-gray-500">PNG, JPG, GIF do 10MB</p>
+                      <p className="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
                       {isUploadingImage && (
                         <div className="flex items-center justify-center mt-2">
                           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-600"></div>
-                          <span className="ml-2 text-sm text-gray-600">Nahrávám...</span>
+                          <span className="ml-2 text-sm text-gray-600">Uploading...</span>
                         </div>
                       )}
                     </div>
@@ -537,7 +698,7 @@ export default function ProductEditPage({ params }: { params: { id: string } }) 
 
               {/* Pricing Information */}
               <div>
-                <h4 className="text-lg font-medium text-gray-900 mb-4">Cenové Plány</h4>
+                <h4 className="text-lg font-medium text-gray-900 mb-4">Pricing Plans</h4>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Basic Plan ($)</label>
@@ -583,7 +744,7 @@ export default function ProductEditPage({ params }: { params: { id: string } }) 
 
               {/* Tags */}
               <div>
-                <h4 className="text-lg font-medium text-gray-900 mb-4">Štítky</h4>
+                <h4 className="text-lg font-medium text-gray-900 mb-4">Tags</h4>
                 <div className="flex flex-wrap gap-2 mb-2">
                   {product.tags.map((tag, index) => (
                     <span
@@ -607,7 +768,7 @@ export default function ProductEditPage({ params }: { params: { id: string } }) 
                     value={newTag}
                     onChange={(e) => setNewTag(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
-                    placeholder="Přidat nový štítek"
+                    placeholder="Add new tag"
                     className="flex-1 rounded-md border-gray-300 shadow-sm focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
                   />
                   <button
@@ -622,7 +783,7 @@ export default function ProductEditPage({ params }: { params: { id: string } }) 
 
               {/* Advantages */}
               <div>
-                <h4 className="text-lg font-medium text-gray-900 mb-4">Výhody</h4>
+                <h4 className="text-lg font-medium text-gray-900 mb-4">Advantages</h4>
                 <div className="space-y-2 mb-2">
                   {product.advantages.map((advantage, index) => (
                     <div
@@ -646,7 +807,7 @@ export default function ProductEditPage({ params }: { params: { id: string } }) 
                     value={newAdvantage}
                     onChange={(e) => setNewAdvantage(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addAdvantage())}
-                    placeholder="Přidat výhodu"
+                    placeholder="Add advantage"
                     className="flex-1 rounded-md border-gray-300 shadow-sm focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
                   />
                   <button
@@ -661,7 +822,7 @@ export default function ProductEditPage({ params }: { params: { id: string } }) 
 
               {/* Disadvantages */}
               <div>
-                <h4 className="text-lg font-medium text-gray-900 mb-4">Nevýhody</h4>
+                <h4 className="text-lg font-medium text-gray-900 mb-4">Disadvantages</h4>
                 <div className="space-y-2 mb-2">
                   {product.disadvantages.map((disadvantage, index) => (
                     <div
@@ -685,7 +846,7 @@ export default function ProductEditPage({ params }: { params: { id: string } }) 
                     value={newDisadvantage}
                     onChange={(e) => setNewDisadvantage(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addDisadvantage())}
-                    placeholder="Přidat nevýhodu"
+                    placeholder="Add disadvantage"
                     className="flex-1 rounded-md border-gray-300 shadow-sm focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
                   />
                   <button
@@ -700,7 +861,7 @@ export default function ProductEditPage({ params }: { params: { id: string } }) 
 
               {/* Video URLs */}
               <div>
-                <h4 className="text-lg font-medium text-gray-900 mb-4">Demo Videa</h4>
+                <h4 className="text-lg font-medium text-gray-900 mb-4">Demo Videos</h4>
                 <div className="space-y-2 mb-2">
                   {product.videoUrls.map((videoUrl, index) => (
                     <div
@@ -727,7 +888,7 @@ export default function ProductEditPage({ params }: { params: { id: string } }) 
                     value={newVideoUrl}
                     onChange={(e) => setNewVideoUrl(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addVideoUrl())}
-                    placeholder="Přidat URL videa (YouTube, Vimeo...)"
+                    placeholder="Add video URL (YouTube, Vimeo...)"
                     className="flex-1 rounded-md border-gray-300 shadow-sm focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
                   />
                   <button
@@ -751,12 +912,12 @@ export default function ProductEditPage({ params }: { params: { id: string } }) 
                     </div>
                     <div className="ml-3">
                       <h3 className="text-sm font-medium text-yellow-800">
-                        Obrázek čeká na schválení
+                        Image pending approval
                       </h3>
                       <div className="mt-2 text-sm text-yellow-700">
                         <p>
-                          Nový obrázek byl nahrán a čeká na schválení administrátorem. 
-                          Po schválení bude zobrazen na veřejné stránce produktu.
+                          New image was uploaded and is waiting for administrator approval. 
+                          It will be displayed on the public product page after approval.
                         </p>
                       </div>
                     </div>
@@ -771,7 +932,7 @@ export default function ProductEditPage({ params }: { params: { id: string } }) 
                   onClick={() => router.back()}
                   className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
                 >
-                  Zrušit
+                  Cancel
                 </button>
                 <button
                   type="submit"
@@ -781,12 +942,12 @@ export default function ProductEditPage({ params }: { params: { id: string } }) 
                   {isLoading ? (
                     <>
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Ukládám...
+                      Submitting for Approval...
                     </>
                   ) : (
                     <>
                       <CheckIcon className="h-4 w-4 mr-2" />
-                      Uložit Všechny Změny
+                      Submit Changes for Approval
                     </>
                   )}
                 </button>

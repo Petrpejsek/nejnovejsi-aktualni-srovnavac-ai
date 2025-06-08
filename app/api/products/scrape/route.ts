@@ -109,16 +109,7 @@ export async function POST(request: NextRequest) {
       }, { status: 403 });
     }
 
-    const body = await request.json();
-    const { urls } = body;
-
-    console.log('🔍 DEBUG: Přijatá data:', { 
-      body, 
-      urls, 
-      urlsType: typeof urls, 
-      isArray: Array.isArray(urls), 
-      length: urls?.length 
-    });
+    const { urls } = await request.json();
 
     if (!urls || !Array.isArray(urls) || urls.length === 0) {
       console.error('❌ Chybná validace URL:', { urls, isArray: Array.isArray(urls), length: urls?.length });
@@ -129,13 +120,10 @@ export async function POST(request: NextRequest) {
     }
 
     console.log(`🚀 Začínám scraping pro ${urls.length} URL...`);
-    console.log('📋 Seznam URL:', urls);
 
     const results = [];
 
     for (let i = 0; i < urls.length; i++) {
-      console.log(`🔍 DEBUG: Zpracovávám URL ${i + 1}/${urls.length}:`, { originalUrl: urls[i], type: typeof urls[i] });
-      
       // Extrakt URL - odstraní číslování, neviditelné znaky a jiné prefixes
       let url = urls[i]?.toString()?.trim();
       
@@ -145,10 +133,7 @@ export async function POST(request: NextRequest) {
         url = httpMatch[1];
       }
       
-      console.log(`🔍 DEBUG: Po extrakci:`, { originalUrl: urls[i], extractedUrl: url, startsWithHttp: url?.startsWith('http') });
-      
       if (!url || !url.startsWith('http')) {
-        console.error(`❌ Neplatná URL ${i + 1}:`, { url, original: urls[i] });
         results.push({
           url: url || urls[i] || 'undefined',
           success: false,

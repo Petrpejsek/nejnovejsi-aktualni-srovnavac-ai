@@ -17,7 +17,7 @@ export default function CompanyRegistrationSuccessPage() {
 
         {/* Main Message */}
         <h1 className="text-3xl font-bold text-gray-900 mb-4">
-          Registration Successful!
+          Company Registration Successful!
         </h1>
         
         <p className="text-xl text-gray-600 mb-8">

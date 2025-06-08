@@ -47,6 +47,9 @@ interface DashboardStats {
     approved: number
     rejected: number
   }
+  pendingProductChanges?: {
+    count: number
+  }
 }
 
 export default function AdminDashboard() {
@@ -195,6 +198,7 @@ export default function AdminDashboard() {
         </p>
       </div>
 
+
       {/* Upozornění pro pending company applications - zvýrazněné */}
       {dashboardStats.companyApplications && dashboardStats.companyApplications.pending > 0 && (
         <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-l-4 border-amber-400 shadow-lg rounded-lg p-6">
@@ -238,7 +242,50 @@ export default function AdminDashboard() {
       )}
 
       {/* Analytics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+        {/* Pending Product Changes */}
+        <Link
+          href="/admin/pending-changes"
+          className="group"
+        >
+          <div className={`bg-white p-6 rounded-lg shadow-sm border transition-all duration-200 cursor-pointer ${
+            dashboardStats.pendingProductChanges && dashboardStats.pendingProductChanges.count > 0 
+              ? 'border-red-300 hover:border-red-400 hover:shadow-md bg-red-50' 
+              : 'border-gray-200 hover:border-purple-300 hover:shadow-md'
+          }`}>
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <span className="text-2xl">
+                  {dashboardStats.pendingProductChanges && dashboardStats.pendingProductChanges.count > 0 ? '🔄' : '✅'}
+                </span>
+              </div>
+              <div className="ml-5 w-0 flex-1">
+                <dl>
+                  <dt className={`text-sm font-medium truncate transition-colors ${
+                    dashboardStats.pendingProductChanges && dashboardStats.pendingProductChanges.count > 0 
+                      ? 'text-red-700 group-hover:text-red-800' 
+                      : 'text-gray-500 group-hover:text-purple-600'
+                  }`}>
+                    {dashboardStats.pendingProductChanges && dashboardStats.pendingProductChanges.count > 0 
+                      ? 'Čeká na schválení' 
+                      : 'Pending Changes'}
+                  </dt>
+                  <dd className={`text-lg font-medium transition-colors ${
+                    dashboardStats.pendingProductChanges && dashboardStats.pendingProductChanges.count > 0 
+                      ? 'text-red-900 group-hover:text-red-900' 
+                      : 'text-gray-900 group-hover:text-purple-700'
+                  }`}>
+                    {dashboardStats.pendingProductChanges ? dashboardStats.pendingProductChanges.count : 0}
+                    {dashboardStats.pendingProductChanges && dashboardStats.pendingProductChanges.count > 0 && (
+                      <span className="ml-2 text-sm">produktů</span>
+                    )}
+                  </dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </Link>
+
         <Link
           href="/admin/analytics"
           className="group"

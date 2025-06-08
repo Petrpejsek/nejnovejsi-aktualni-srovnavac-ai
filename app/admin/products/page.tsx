@@ -41,9 +41,20 @@ function SearchParamsHandler({ onSearchTermChange }: { onSearchTermChange: (term
   return null
 }
 
+// Stats interface
+interface AdminStats {
+  products: {
+    total: number
+  }
+  pendingProductChanges: {
+    count: number
+  }
+}
+
 function ProductsAdminPageContent() {
   const [products, setProducts] = useState<Product[]>([])
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
+  const [adminStats, setAdminStats] = useState<AdminStats | null>(null)
   const [formData, setFormData] = useState<Partial<Product>>({
     name: '',
     description: '',
@@ -74,6 +85,30 @@ function ProductsAdminPageContent() {
   // Delete states
   const [productToDelete, setProductToDelete] = useState<Product | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
+
+  // Load admin stats
+  useEffect(() => {
+    const fetchAdminStats = async () => {
+      try {
+        const response = await fetch('/api/admin-stats')
+        if (response.ok) {
+          const data = await response.json()
+          setAdminStats({
+            products: {
+              total: data.products.total
+            },
+            pendingProductChanges: {
+              count: data.pendingProductChanges.count
+            }
+          })
+        }
+      } catch (error) {
+        console.error('Error fetching admin stats:', error)
+      }
+    }
+
+    fetchAdminStats()
+  }, [])
 
   // Search function
   const performSearch = useCallback(async (term: string) => {
@@ -199,6 +234,68 @@ function ProductsAdminPageContent() {
             {successMessage}
           </div>
         )}
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          {/* Pending Product Changes */}
+          <div className={`bg-white p-6 rounded-lg shadow-sm border transition-all duration-200 cursor-pointer ${
+            adminStats?.pendingProductChanges && adminStats.pendingProductChanges.count > 0 
+              ? 'border-red-300 hover:border-red-400 hover:shadow-md bg-red-50' 
+              : 'border-gray-200 hover:border-purple-300 hover:shadow-md'
+          }`}
+          onClick={() => window.location.href = '/admin/pending-changes'}>
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <span className="text-2xl">
+                  {adminStats?.pendingProductChanges && adminStats.pendingProductChanges.count > 0 ? '🔄' : '✅'}
+                </span>
+              </div>
+              <div className="ml-5 w-0 flex-1">
+                <dl>
+                  <dt className={`text-sm font-medium truncate transition-colors ${
+                    adminStats?.pendingProductChanges && adminStats.pendingProductChanges.count > 0 
+                      ? 'text-red-700 hover:text-red-800' 
+                      : 'text-gray-500 hover:text-purple-600'
+                  }`}>
+                    {adminStats?.pendingProductChanges && adminStats.pendingProductChanges.count > 0 
+                      ? 'Čeká na schválení' 
+                      : 'Pending Changes'}
+                  </dt>
+                  <dd className={`text-lg font-medium transition-colors ${
+                    adminStats?.pendingProductChanges && adminStats.pendingProductChanges.count > 0 
+                      ? 'text-red-900 hover:text-red-900' 
+                      : 'text-gray-900 hover:text-purple-700'
+                  }`}>
+                    {adminStats?.pendingProductChanges ? adminStats.pendingProductChanges.count : '...'}
+                    {adminStats?.pendingProductChanges && adminStats.pendingProductChanges.count > 0 && (
+                      <span className="ml-2 text-sm">produktů</span>
+                    )}
+                  </dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+
+          {/* Total Products */}
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 hover:border-purple-300 hover:shadow-md transition-all duration-200 cursor-pointer"
+          onClick={() => window.location.href = '/admin/products'}>
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <span className="text-2xl">📦</span>
+              </div>
+              <div className="ml-5 w-0 flex-1">
+                <dl>
+                  <dt className="text-sm font-medium text-gray-500 truncate hover:text-purple-600 transition-colors">
+                    Celkem produktů v DB
+                  </dt>
+                  <dd className="text-lg font-medium text-gray-900 hover:text-purple-700 transition-colors">
+                    {adminStats?.products ? adminStats.products.total : '...'}
+                  </dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* Search Section */}
         <div className="bg-white shadow rounded-lg p-6">
