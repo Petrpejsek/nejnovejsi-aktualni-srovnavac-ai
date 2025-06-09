@@ -4,6 +4,9 @@ import { authOptions } from '@/lib/auth'
 import prisma from '@/lib/prisma'
 import { v4 as uuidv4 } from 'uuid'
 
+// Force dynamic rendering to fix Vercel build error with headers()
+export const dynamic = 'force-dynamic'
+
 // GET - Načíst historii kliků uživatele
 export async function GET() {
   try {

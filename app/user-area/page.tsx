@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { FiUser, FiStar, FiSettings, FiHeart, FiZap, FiCalendar, FiMail, FiClock, FiBookmark } from 'react-icons/fi'
@@ -67,7 +67,8 @@ interface ClickHistoryItem {
   clickedAt: string
 }
 
-export default function UserAreaPage() {
+// Komponenta s useSearchParams
+function UserAreaContent() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -1915,4 +1916,20 @@ export default function UserAreaPage() {
   }
 
   return null
+}
+
+// Hlavní komponenta s Suspense boundary
+export default function UserAreaPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Načítám uživatelskou oblast...</p>
+        </div>
+      </div>
+    }>
+      <UserAreaContent />
+    </Suspense>
+  )
 } 

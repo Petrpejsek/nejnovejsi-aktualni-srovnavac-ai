@@ -5,6 +5,9 @@ import { writeFile, unlink } from 'fs/promises'
 import { join } from 'path'
 import { prisma } from '@/lib/prisma'
 
+// Force dynamic rendering to fix Vercel build error with headers()
+export const dynamic = 'force-dynamic'
+
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)

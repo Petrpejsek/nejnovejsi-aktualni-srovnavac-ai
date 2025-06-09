@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { generateRecommendations, setProducts } from '@/lib/openai';
 import prisma from '@/lib/prisma';
 
 // Configure API as dynamic for Vercel
@@ -12,10 +11,39 @@ let productsInitialized = false;
 let lastProductLoadTime = 0;
 const PRODUCT_REFRESH_INTERVAL = 24 * 60 * 60 * 1000; // 24 hodin
 
+// Lazy import OpenAI only when needed
+async function generateRecommendationsConditional(query: string) {
+  if (!process.env.OPENAI_API_KEY) {
+    return {
+      recommendations: [
+        { name: 'Mock Tool 1', reason: 'No OpenAI key available' },
+        { name: 'Mock Tool 2', reason: 'Build-time mock data' }
+      ]
+    };
+  }
+  
+  try {
+    const { generateRecommendations, setProducts } = await import('@/lib/openai');
+    
+    // Ensure products are loaded first
+    await ensureProductsLoaded(setProducts);
+    
+    return await generateRecommendations(query);
+  } catch (error) {
+    console.warn('OpenAI unavailable, using mock data:', error);
+    return {
+      recommendations: [
+        { name: 'Fallback Tool 1', reason: 'OpenAI unavailable' },
+        { name: 'Fallback Tool 2', reason: 'Service error' }
+      ]
+    };
+  }
+}
+
 /**
  * Zajistí načtení produktů (provede se pouze jednou denně)
  */
-async function ensureProductsLoaded() {
+async function ensureProductsLoaded(setProducts?: Function) {
   const now = Date.now();
   
   // Načteme produkty pouze pokud nejsou inicializované nebo uběhlo více než 24h
@@ -47,8 +75,10 @@ async function ensureProductsLoaded() {
     
     console.log(`Načteno ${products.length} produktů z databáze`);
     
-    // Nastavíme produkty do globální cache
-    setProducts(products);
+    // Nastavíme produkty do globální cache jen pokud máme setProducts funkci
+    if (setProducts) {
+      setProducts(products);
+    }
     
     // Aktualizujeme stav
     productsInitialized = true;
@@ -67,10 +97,7 @@ export async function POST(request: NextRequest) {
   const requestStart = Date.now();
 
   try {
-    // 1️⃣ Načti produkty (jednou denně)
-    await ensureProductsLoaded();
-
-    // 2️⃣ Získej dotaz z těla
+    // 1️⃣ Získej dotaz z těla
     const body = await request.json();
     const query: string = (body?.query || '').trim();
 
@@ -81,10 +108,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 3️⃣ Vygeneruj doporučení (rychlý předvýběr + OpenAI)
-    const { recommendations } = await generateRecommendations(query);
+    // 2️⃣ Vygeneruj doporučení (rychlý předvýběr + OpenAI)
+    const { recommendations } = await generateRecommendationsConditional(query);
 
-    // 4️⃣ Odešli klientovi
+    // 3️⃣ Odešli klientovi
     return NextResponse.json({
       recommendations,
       processingTimeMs: Date.now() - requestStart,

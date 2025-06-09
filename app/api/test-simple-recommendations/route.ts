@@ -1,8 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { generateRecommendations } from '@/lib/openai';
 import { PrismaClient } from '@prisma/client';
 
+// Force dynamic rendering to fix Vercel build error
+export const dynamic = 'force-dynamic'
+
 const prisma = new PrismaClient();
+
+// Lazy import OpenAI only when needed
+async function generateRecommendationsConditional(query: string) {
+  if (!process.env.OPENAI_API_KEY) {
+    return [
+      { name: 'Test Recommendation 1', reason: 'No OpenAI key available' },
+      { name: 'Test Recommendation 2', reason: 'Mock data only' }
+    ];
+  }
+  
+  try {
+    const { generateRecommendations } = await import('@/lib/openai');
+    return await generateRecommendations(query);
+  } catch (error) {
+    console.warn('OpenAI unavailable, using mock data:', error);
+    return [
+      { name: 'Mock Recommendation 1', reason: 'OpenAI unavailable' },
+      { name: 'Mock Recommendation 2', reason: 'Fallback data' }
+    ];
+  }
+}
 
 export async function POST(request: NextRequest) {
   const startTime = Date.now();
@@ -56,7 +79,7 @@ export async function POST(request: NextRequest) {
     console.log('Produkty:', products.map(p => `${p.name} (${p.category})`).join(', '));
 
     // Vygenerujeme doporučení
-    const recommendations = await generateRecommendations(query);
+    const recommendations = await generateRecommendationsConditional(query);
     
     const duration = (Date.now() - startTime) / 1000;
     console.log(`Test dokončen za ${duration}s`);

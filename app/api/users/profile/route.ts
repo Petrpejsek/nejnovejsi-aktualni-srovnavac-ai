@@ -3,6 +3,9 @@ import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
 import { PrismaClient } from '@prisma/client'
 
+// Force dynamic rendering to fix Vercel build error with headers()
+export const dynamic = 'force-dynamic'
+
 const prisma = new PrismaClient()
 
 export async function GET(request: NextRequest) {
