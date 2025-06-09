@@ -7,23 +7,184 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model AdClick {
+  id                String   @id
+  campaignId        String
+  companyId         String
+  ipAddress         String
+  userAgent         String?
+  country           String?
+  referrer          String?
+  costPerClick      Float
+  isValidClick      Boolean  @default(true)
+  fraudReason       String?
+  conversionTracked Boolean  @default(false)
+  conversionValue   Float?
+  clickedAt         DateTime @default(now())
+  Campaign          Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  Company           Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([campaignId])
+  @@index([clickedAt])
+  @@index([companyId])
+  @@index([ipAddress])
+  @@index([isValidClick])
+}
+
+model AdImpression {
+  id           String   @id
+  campaignId   String
+  position     Int
+  pageType     String
+  categorySlug String?
+  ipAddress    String
+  country      String?
+  displayedAt  DateTime @default(now())
+  Campaign     Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@index([campaignId])
+  @@index([displayedAt])
+  @@index([pageType])
+  @@index([position])
+}
+
+model BillingRecord {
+  id              String    @id
+  companyId       String
+  type            String
+  amount          Float
+  description     String
+  paymentMethod   String?
+  paymentIntentId String?
+  invoiceNumber   String?
+  invoiceUrl      String?
+  campaignId      String?
+  clickId         String?
+  status          String    @default("completed")
+  createdAt       DateTime  @default(now())
+  processedAt     DateTime?
+  Company         Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([companyId])
+  @@index([createdAt])
+  @@index([status])
+  @@index([type])
+}
+
+model Campaign {
+  id               String         @id
+  companyId        String
+  name             String
+  productId        String
+  targetUrl        String
+  bidAmount        Float
+  dailyBudget      Float
+  totalBudget      Float?
+  status           String         @default("active")
+  isApproved       Boolean        @default(false)
+  targetCategories Json?
+  targetCountries  Json?
+  todaySpent       Float          @default(0.0)
+  todayImpressions Int            @default(0)
+  todayClicks      Int            @default(0)
+  totalImpressions Int            @default(0)
+  totalClicks      Int            @default(0)
+  totalSpent       Float          @default(0.0)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime
+  startDate        DateTime?
+  endDate          DateTime?
+  bid              Decimal?       @default(1.00) @db.Decimal(10, 2)
+  AdClick          AdClick[]
+  AdImpression     AdImpression[]
+  Company          Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([companyId])
+  @@index([createdAt])
+  @@index([isApproved])
+  @@index([productId])
+  @@index([status])
+}
+
 model Category {
-  id        String     @id @default(uuid())
-  name      String     @unique
-  slug      String     @unique
-  icon      String?
-  parent_id String?
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  parent    Category?  @relation("CategoryHierarchy", fields: [parent_id], references: [id])
-  children  Category[] @relation("CategoryHierarchy")
-  products  Product[]
+  id             String     @id
+  name           String     @unique
+  slug           String     @unique
+  icon           String?
+  parent_id      String?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime
+  Category       Category?  @relation("CategoryToCategory", fields: [parent_id], references: [id])
+  other_Category Category[] @relation("CategoryToCategory")
+  Product        Product[]
 
   @@index([parent_id])
 }
 
+model Click {
+  id        Int      @id @default(autoincrement())
+  productId String
+  visitorId String
+  ipAddress String?
+  createdAt DateTime @default(now())
+
+  @@index([productId])
+  @@index([visitorId])
+}
+
+model Company {
+  id                    String          @id
+  name                  String
+  email                 String          @unique
+  hashedPassword        String
+  contactPerson         String
+  website               String?
+  description           String?
+  logoUrl               String?
+  balance               Float           @default(0.0)
+  totalSpent            Float           @default(0.0)
+  autoRecharge          Boolean         @default(false)
+  autoRechargeAmount    Float?
+  autoRechargeThreshold Float?
+  taxId                 String?
+  billingAddress        String?
+  billingCountry        String?
+  status                String          @default("active")
+  isVerified            Boolean         @default(false)
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime
+  lastLoginAt           DateTime?
+  assignedProductId     String?
+  AdClick               AdClick[]
+  BillingRecord         BillingRecord[]
+  Campaign              Campaign[]
+
+  @@index([createdAt])
+  @@index([email])
+  @@index([status])
+}
+
+model CompanyApplications {
+  id            String    @id
+  companyName   String
+  contactPerson String
+  businessEmail String
+  website       String?
+  productUrls   Json?
+  description   String?
+  status        String    @default("pending")
+  adminNotes    String?
+  submittedAt   DateTime  @default(now())
+  reviewedAt    DateTime?
+  reviewedBy    String?
+
+  @@index([businessEmail])
+  @@index([status])
+  @@index([submittedAt])
+}
+
 model Product {
-  id                    String    @id @default(uuid())
+  id                    String    @id
   name                  String
   description           String?
   price                 Float
@@ -33,7 +194,7 @@ model Product {
   externalUrl           String?
   hasTrial              Boolean   @default(false)
   createdAt             DateTime  @default(now())
-  updatedAt             DateTime  @updatedAt
+  updatedAt             DateTime
   imageApprovalStatus   String?
   pendingImageUrl       String?
   reviews               Json?
@@ -55,171 +216,73 @@ model Product {
   changesSubmittedBy    String?
   hasPendingChanges     Boolean   @default(false)
   pendingChanges        Json?
-  primary_category      Category? @relation(fields: [primary_category_id], references: [id])
+  Category              Category? @relation(fields: [primary_category_id], references: [id])
 
+  @@index([changesStatus])
+  @@index([hasPendingChanges])
+  @@index([isActive])
   @@index([primary_category_id])
   @@index([secondary_category_id])
-  @@index([isActive])
-  @@index([hasPendingChanges])
-  @@index([changesStatus])
 }
 
-model Click {
-  id        Int      @id @default(autoincrement())
-  productId String
-  visitorId String
-  ipAddress String?
-  createdAt DateTime @default(now())
+model SavedProduct {
+  id          String   @id
+  userId      String
+  productId   String
+  productName String
+  category    String?
+  imageUrl    String?
+  price       Float?
+  savedAt     DateTime @default(now())
+  User        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([visitorId])
+  @@unique([userId, productId])
   @@index([productId])
+  @@index([savedAt])
+  @@index([userId])
 }
 
-model CompanyApplications {
-  id            String    @id @default(uuid())
-  companyName   String
-  contactPerson String
-  businessEmail String
-  website       String?
-  productUrls   Json?
-  description   String?
-  status        String    @default("pending")
-  adminNotes    String?
-  submittedAt   DateTime  @default(now())
-  reviewedAt    DateTime?
-  reviewedBy    String?
+model ClickHistory {
+  id          String   @id
+  userId      String
+  productId   String
+  productName String
+  category    String?
+  imageUrl    String?
+  price       Float?
+  externalUrl String?
+  clickedAt   DateTime @default(now())
+  User        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([status])
-  @@index([businessEmail])
-  @@index([submittedAt])
-}
-
-model Company {
-  id                    String          @id @default(uuid())
-  name                  String
-  email                 String          @unique
-  hashedPassword        String
-  contactPerson         String
-  website               String?
-  description           String?
-  logoUrl               String?
-  balance               Float           @default(0.0)
-  totalSpent            Float           @default(0.0)
-  autoRecharge          Boolean         @default(false)
-  autoRechargeAmount    Float?
-  autoRechargeThreshold Float?
-  taxId                 String?
-  billingAddress        String?
-  billingCountry        String?
-  status                String          @default("active")
-  isVerified            Boolean         @default(false)
-  createdAt             DateTime        @default(now())
-  updatedAt             DateTime        @updatedAt
-  lastLoginAt           DateTime?
-  assignedProductId     String?
-  adClicks              AdClick[]
-  billingRecords        BillingRecord[]
-  campaigns             Campaign[]
-
-  @@index([email])
-  @@index([status])
-  @@index([createdAt])
-}
-
-model Campaign {
-  id               String         @id @default(uuid())
-  companyId        String
-  name             String
-  productId        String
-  targetUrl        String
-  bidAmount        Float
-  dailyBudget      Float
-  totalBudget      Float?
-  status           String         @default("active")
-  isApproved       Boolean        @default(false)
-  targetCategories Json?
-  targetCountries  Json?
-  todaySpent       Float          @default(0.0)
-  todayImpressions Int            @default(0)
-  todayClicks      Int            @default(0)
-  totalImpressions Int            @default(0)
-  totalClicks      Int            @default(0)
-  totalSpent       Float          @default(0.0)
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt
-  startDate        DateTime?
-  endDate          DateTime?
-  adClicks         AdClick[]
-  adImpressions    AdImpression[]
-  company          Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
-
-  @@index([companyId])
-  @@index([productId])
-  @@index([status])
-  @@index([isApproved])
-  @@index([createdAt])
-}
-
-model AdClick {
-  id                String   @id @default(uuid())
-  campaignId        String
-  companyId         String
-  ipAddress         String
-  userAgent         String?
-  country           String?
-  referrer          String?
-  costPerClick      Float
-  isValidClick      Boolean  @default(true)
-  fraudReason       String?
-  conversionTracked Boolean  @default(false)
-  conversionValue   Float?
-  clickedAt         DateTime @default(now())
-  campaign          Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  company           Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-
-  @@index([campaignId])
-  @@index([companyId])
+  @@index([userId])
   @@index([clickedAt])
-  @@index([ipAddress])
-  @@index([isValidClick])
+  @@index([productId])
 }
 
-model AdImpression {
-  id           String   @id @default(uuid())
-  campaignId   String
-  position     Int
-  pageType     String
-  categorySlug String?
-  ipAddress    String
-  country      String?
-  displayedAt  DateTime @default(now())
-  campaign     Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+model User {
+  id             String         @id
+  name           String
+  email          String         @unique
+  hashedPassword String
+  avatar         String?
+  premium        Boolean        @default(false)
+  points         Int            @default(0)
+  level          String         @default("Beginner")
+  streak         Int            @default(0)
+  joinDate       DateTime       @default(now())
+  lastLoginAt    DateTime?
+  isActive       Boolean        @default(true)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @default(now())
+  toolsUsed      Int            @default(0)
+  favoriteTools  Json?          @default("[]")
+  achievements   Json?          @default("[]")
+  preferences    Json?          @default("{}")
+  settings       Json?          @default("{}")
+  SavedProduct   SavedProduct[]
+  ClickHistory   ClickHistory[]
 
-  @@index([campaignId])
-  @@index([displayedAt])
-  @@index([position])
-  @@index([pageType])
-}
-
-model BillingRecord {
-  id              String    @id @default(uuid())
-  companyId       String
-  type            String
-  amount          Float
-  description     String
-  paymentMethod   String?
-  paymentIntentId String?
-  invoiceNumber   String?
-  invoiceUrl      String?
-  campaignId      String?
-  clickId         String?
-  status          String    @default("completed")
-  createdAt       DateTime  @default(now())
-  processedAt     DateTime?
-  company         Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
-
-  @@index([companyId])
-  @@index([type])
   @@index([createdAt])
-  @@index([status])
+  @@index([isActive])
+  @@index([premium])
 }

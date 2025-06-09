@@ -100,7 +100,7 @@ export default function AdvertisePage() {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-6 justify-center mb-16">
-              <a href="#register" className="bg-gradient-to-r from-yellow-400 to-orange-500 text-black font-bold px-8 py-4 rounded-xl text-lg hover:scale-105 transition-transform duration-200 shadow-2xl inline-block">
+              <a href="#signup" className="bg-gradient-to-r from-yellow-400 to-orange-500 text-black font-bold px-8 py-4 rounded-xl text-lg hover:scale-105 transition-transform duration-200 shadow-2xl inline-block">
                 Start Advertising Today
               </a>
               <button className="border-2 border-white text-white font-bold px-8 py-4 rounded-xl text-lg hover:bg-white hover:text-black transition-all duration-200">
@@ -276,8 +276,8 @@ export default function AdvertisePage() {
         </div>
       </section>
 
-      {/* Registration Section */}
-      <section id="register" className="py-24 bg-gray-50">
+      {/* Sign Up Section */}
+      <section id="signup" className="py-24 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
             <div className="text-center mb-12">

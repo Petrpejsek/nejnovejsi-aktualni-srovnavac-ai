@@ -26,7 +26,7 @@ export default function PrivacyPage() {
                   Information We Collect
                 </h2>
                 <p className="text-gray-600">
-                  We collect information that you provide directly to us, such as your name and email address when you register or contact us. We also automatically collect certain information about your device and how you interact with our website.
+                  We collect information that you provide directly to us, such as your name and email address when you sign up or contact us. We also automatically collect certain information about your device and how you interact with our website.
                 </p>
               </section>
 

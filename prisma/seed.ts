@@ -33,7 +33,7 @@ async function main() {
 
   for (const product of products) {
     try {
-    await prisma.product.create({
+      await prisma.product.create({
         data: {
           id: product.id,
           name: product.name,
@@ -77,5 +77,5 @@ async function main() {
 main()
   .catch((e) => {
     console.error('❌ Chyba při seeding:', e);
-  process.exit(1);
+    process.exit(1);
   }); 

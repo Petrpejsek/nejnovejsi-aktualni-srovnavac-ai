@@ -1,5 +1,8 @@
-import React, { useState, useRef, useEffect } from 'react'
+'use client'
+
+import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { 
   StarIcon,
   ShieldCheckIcon,
@@ -71,24 +74,59 @@ const getProductReviews = (productId: string): { rating: number; reviewsCount: n
   return reviewsData[productKey] || reviewsData.default
 }
 
+// Toast notification helper
+const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+  const toast = document.createElement('div')
+  toast.className = `fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg transform transition-all duration-300 ${
+    type === 'success' 
+      ? 'bg-green-500 text-white' 
+      : 'bg-red-500 text-white'
+  }`
+  toast.textContent = message
+  toast.style.transform = 'translateX(100%)'
+  
+  document.body.appendChild(toast)
+  
+  // Slide in
+  setTimeout(() => {
+    toast.style.transform = 'translateX(0)'
+  }, 10)
+  
+  // Slide out and remove
+  setTimeout(() => {
+    toast.style.transform = 'translateX(100%)'
+    setTimeout(() => {
+      if (document.body.contains(toast)) {
+        document.body.removeChild(toast)
+      }
+    }, 300)
+  }, 3000)
+}
+
 export default function ProductCard({ id, name, description, price, imageUrl, tags, externalUrl, hasTrial, isBookmarked, onBookmarkChange }: ProductCardProps) {
   const [showSignUpModal, setShowSignUpModal] = useState(false)
   const [localBookmarked, setLocalBookmarked] = useState(isBookmarked || false)
+  const [isAnimating, setIsAnimating] = useState(false)
   const { data: session } = useSession()
-
-  // Removed debug logs
 
   // Get reviews for this product
   const productReviews = getProductReviews(name)
 
-  const handleVisit = (e: React.MouseEvent) => {
+  useEffect(() => {
+    setLocalBookmarked(isBookmarked || false)
+  }, [isBookmarked])
+
+  const handleVisit = async (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
     
     if (!externalUrl) {
-      console.log('Chybí URL!')
+      console.log('Chybí externí URL!')
       return
     }
+
+    // Record click in history
+    await recordClickHistory()
 
     try {
       window.open(externalUrl, '_blank', 'noopener,noreferrer')
@@ -99,7 +137,6 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
 
   const handleClick = async (productId: string) => {
     try {
-      // Odešleme klik na server
       await fetch('/api/clicks', {
         method: 'POST',
         headers: {
@@ -112,7 +149,31 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
     }
   }
 
-  const handleBookmark = (e: React.MouseEvent) => {
+  const recordClickHistory = async () => {
+    // Only record if user is logged in
+    if (!session) return
+
+    try {
+      await fetch('/api/users/click-history', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          productId: id,
+          productName: name,
+          category: tags?.[0] || 'AI Tool',
+          imageUrl: imageUrl,
+          price: hasTrial ? 0 : price,
+          externalUrl: externalUrl
+        }),
+      })
+    } catch (error) {
+      console.error('Error recording click history:', error)
+    }
+  }
+
+  const handleBookmark = async (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
     
@@ -122,17 +183,67 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
       return
     }
     
+    // Start animation
+    setIsAnimating(true)
+    
     // Toggle bookmark
     const newBookmarkedState = !localBookmarked
-    setLocalBookmarked(newBookmarkedState)
     
-    // Call parent callback if provided
-    if (onBookmarkChange) {
-      onBookmarkChange(id, newBookmarkedState)
+    try {
+      if (newBookmarkedState) {
+        // Save product
+        const response = await fetch('/api/users/saved-products', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            productId: id,
+            productName: name,
+            category: tags?.[0] || 'AI Tool',
+            imageUrl: imageUrl,
+            price: hasTrial ? 0 : price
+          }),
+        })
+        
+        if (response.ok) {
+          setLocalBookmarked(true)
+          showToast('Saved')
+          console.log('Product saved successfully!')
+        } else if (response.status === 409) {
+          console.log('Product already saved')
+          setLocalBookmarked(true)
+          showToast('Saved')
+        } else {
+          console.error('Error saving product')
+          return
+        }
+      } else {
+        // Remove product
+        const response = await fetch(`/api/users/saved-products?productId=${id}`, {
+          method: 'DELETE'
+        })
+        
+        if (response.ok) {
+          setLocalBookmarked(false)
+          console.log('Product removed successfully!')
+        } else {
+          console.error('Error removing product')
+          return
+        }
+      }
+      
+      // Call parent callback if provided
+      if (onBookmarkChange) {
+        onBookmarkChange(id, newBookmarkedState)
+      }
+      
+    } catch (error) {
+      console.error('Error with bookmark operation:', error)
+    } finally {
+      // End animation
+      setTimeout(() => setIsAnimating(false), 300)
     }
-    
-    // Here you would typically save to backend
-    console.log(`Product ${id} bookmark status: ${newBookmarkedState}`)
   }
 
   // Malé hvězdičky pro decentní rating
@@ -223,10 +334,12 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
           </div>
         )}
         
-        {/* Bookmark button */}
+        {/* Bookmark button with gentle animation */}
         <button
           onClick={handleBookmark}
-          className="absolute top-2 left-2 w-8 h-8 bg-white bg-opacity-90 hover:bg-opacity-100 rounded-full flex items-center justify-center shadow-sm transition-all duration-200 hover:scale-110"
+          className={`absolute top-2 left-2 w-8 h-8 bg-white bg-opacity-90 hover:bg-opacity-100 rounded-full flex items-center justify-center shadow-sm transition-all duration-300 hover:scale-110 ${
+            isAnimating ? 'animate-pulse transform -translate-y-1' : ''
+          }`}
         >
           {localBookmarked ? (
             <BookmarkFilledIcon className="w-4 h-4 text-purple-600" />
@@ -237,38 +350,36 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
       </div>
       
       {/* Content section - původní layout */}
-      <div className="p-4 flex flex-col flex-grow">
-        <div className="flex-grow">
-          {/* Decentní rating nad názvem */}
-          {renderDecentRating(productReviews.rating, productReviews.reviewsCount)}
-          
-          {/* Název produktu */}
-          <h2 className="text-lg font-semibold text-gray-800 mb-2">{name}</h2>
-          
-          {/* Popis - původní */}
-          <p className="text-gray-600 text-sm mb-4 line-clamp-2">{description}</p>
-          
-          {/* Tagy - zjednodušená implementace */}
-          {tags && tags.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 mb-4 max-h-[3rem] overflow-hidden">
-              {tags.slice(0, 4).map((tag) => (
-                <span
-                  key={tag}
-                  className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-50 text-purple-700 border border-purple-100"
-                >
-                  {tag}
-                </span>
-              ))}
-              {tags.length > 4 && (
-                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600">
-                  +{tags.length - 4}
-                </span>
-              )}
-            </div>
-          )}
-        </div>
+      <div className="p-4 flex-1 flex flex-col">
+        {/* Rating - pouze pokud má recenze */}
+        {productReviews.reviews.length > 0 && renderDecentRating(productReviews.rating, productReviews.reviews.length)}
         
-        {/* Cena a tlačítko - původní */}
+        {/* Title */}
+        <h3 className="text-lg font-semibold text-gray-900 mb-2 leading-tight line-clamp-2">{name}</h3>
+        
+        {/* Description */}
+        <p className="text-gray-600 text-sm leading-relaxed mb-3 flex-1 line-clamp-3">{description}</p>
+        
+        {/* Tags */}
+        {tags && tags.length > 0 && (
+          <div className="flex flex-wrap gap-1 mb-3">
+            {tags.slice(0, 3).map((tag, index) => (
+              <span 
+                key={index} 
+                className="px-2 py-1 bg-purple-50 text-purple-600 text-xs rounded-md font-medium"
+              >
+                {tag}
+              </span>
+            ))}
+            {tags.length > 3 && (
+              <span className="text-xs text-gray-400 flex items-center">
+                +{tags.length - 3} more
+              </span>
+            )}
+          </div>
+        )}
+        
+        {/* Price and action */}
         <div className="flex justify-between items-center mt-auto pt-4 border-t border-gray-100">
           {hasTrial ? (
             <div className="text-lg font-bold text-purple-600">$0</div>

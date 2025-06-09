@@ -6,18 +6,14 @@ import { PrismaClient } from '@prisma/client'
  * - Improved error handling
  */
 
-// Singleton instance Prisma klienta 
-let prisma: PrismaClient;
+declare global {
+  var prisma: PrismaClient | undefined
+}
 
-// Inicializace Prisma klienta
-if (process.env.NODE_ENV === 'production') {
-  prisma = new PrismaClient();
-} else {
-  // Předcházení více instancím v režimu vývoje
-  if (!(global as any).prisma) {
-    (global as any).prisma = new PrismaClient();
-  }
-  prisma = (global as any).prisma;
+const prisma = globalThis.prisma || new PrismaClient()
+
+if (process.env.NODE_ENV === 'development') {
+  globalThis.prisma = prisma
 }
 
 if (process.env.NODE_ENV === 'production') {
@@ -25,5 +21,5 @@ if (process.env.NODE_ENV === 'production') {
   console.log('DATABASE_URL defined:', !!process.env.DATABASE_URL)
 } 
 
-export default prisma
-export { prisma } 
+export { prisma }
+export default prisma 

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import ProductCard from './ProductCard'
+import { useSession } from 'next-auth/react'
 
 interface Product {
   id: string
@@ -21,6 +22,7 @@ interface ProductGridProps {
 }
 
 export default function ProductGrid({ selectedTags }: ProductGridProps = {}) {
+  const { data: session, status } = useSession()
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [loadingMore, setLoadingMore] = useState(false)
@@ -28,6 +30,7 @@ export default function ProductGrid({ selectedTags }: ProductGridProps = {}) {
   const [currentPage, setCurrentPage] = useState(1)
   const [hasMore, setHasMore] = useState(true)
   const [totalProducts, setTotalProducts] = useState(0)
+  const [savedProducts, setSavedProducts] = useState<Set<string>>(new Set())
   const PAGE_SIZE = 6
 
   const handleBookmarkChange = (productId: string, isBookmarked: boolean) => {
@@ -36,7 +39,50 @@ export default function ProductGrid({ selectedTags }: ProductGridProps = {}) {
         ? { ...product, isBookmarked }
         : product
     ))
+    
+    // Update saved products set
+    if (isBookmarked) {
+      setSavedProducts(prev => {
+        const newSet = new Set(prev)
+        newSet.add(productId)
+        return newSet
+      })
+    } else {
+      setSavedProducts(prev => {
+        const newSet = new Set(prev)
+        newSet.delete(productId)
+        return newSet
+      })
+    }
   }
+
+  // Load saved products for authenticated users
+  useEffect(() => {
+    if (status === 'authenticated' && session?.user?.email) {
+      const loadSavedProducts = async () => {
+        try {
+          const response = await fetch('/api/users/saved-products')
+          if (response.ok) {
+            const savedProductsData = await response.json()
+            const savedProductIds = new Set<string>(
+              savedProductsData.map((sp: any) => sp.productId as string)
+            )
+            setSavedProducts(savedProductIds)
+            
+            // Update existing products with bookmark status
+            setProducts(prev => prev.map(product => ({
+              ...product,
+              isBookmarked: savedProductIds.has(product.id)
+            })))
+          }
+        } catch (error) {
+          console.error('Error loading saved products:', error)
+        }
+      }
+      
+      loadSavedProducts()
+    }
+  }, [status, session])
 
   useEffect(() => {
     let isMounted = true
@@ -78,7 +124,7 @@ export default function ProductGrid({ selectedTags }: ProductGridProps = {}) {
               tags: tags,
               externalUrl: product.externalUrl,
               hasTrial: Boolean(product.hasTrial),
-              isBookmarked: false // Default to false, would be loaded from user data
+              isBookmarked: false // Will be updated after loading saved products
             };
           })
           
@@ -149,7 +195,7 @@ export default function ProductGrid({ selectedTags }: ProductGridProps = {}) {
             tags: tags,
             externalUrl: product.externalUrl,
             hasTrial: Boolean(product.hasTrial),
-            isBookmarked: false // Default to false, would be loaded from user data
+            isBookmarked: savedProducts.has(product.id)
           };
         })
         

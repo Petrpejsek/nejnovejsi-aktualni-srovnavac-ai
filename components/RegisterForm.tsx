@@ -1,4 +1,6 @@
 import React, { useState } from 'react'
+import { FiEye, FiEyeOff } from 'react-icons/fi'
+import { signIn } from 'next-auth/react'
 
 interface RegisterFormProps {
   onSuccess?: () => void
@@ -9,16 +11,52 @@ export default function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFor
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (password !== confirmPassword) {
       alert('Passwords do not match')
       return
     }
-    // TODO: Implement registration
-    console.log('Register:', { email, password })
-    onSuccess?.()
+    
+    try {
+      const response = await fetch('/api/users/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password })
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        console.log('✅ Registration successful:', data.user)
+        
+        // Automaticky přihlásit nového uživatele
+        const loginResult = await signIn('credentials', {
+          email,
+          password,
+          redirect: false,
+        })
+
+        if (loginResult?.ok) {
+          onSuccess?.()
+          // Refresh page to update session
+          window.location.reload()
+        } else {
+          // Pokud automatické přihlášení selže, přepni na login
+          onSwitchToLogin?.()
+        }
+      } else {
+        alert(data.error || 'Registration failed')
+      }
+    } catch (error) {
+      console.error('Registration error:', error)
+      alert('Connection error. Please try again.')
+    }
   }
 
   const handleGoogleRegister = () => {
@@ -85,28 +123,46 @@ export default function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFor
           <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
             Password
           </label>
-          <input
-            type="password"
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-4 py-2 rounded-[14px] border border-gray-200 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500/50 outline-none transition-all"
-            required
-          />
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-4 py-2 pr-12 rounded-[14px] border border-gray-200 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500/50 outline-none transition-all"
+              required
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
+            >
+              {showPassword ? <FiEyeOff className="w-5 h-5" /> : <FiEye className="w-5 h-5" />}
+            </button>
+          </div>
         </div>
 
         <div>
           <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
             Confirm Password
           </label>
-          <input
-            type="password"
-            id="confirmPassword"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            className="w-full px-4 py-2 rounded-[14px] border border-gray-200 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500/50 outline-none transition-all"
-            required
-          />
+          <div className="relative">
+            <input
+              type={showConfirmPassword ? "text" : "password"}
+              id="confirmPassword"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="w-full px-4 py-2 pr-12 rounded-[14px] border border-gray-200 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500/50 outline-none transition-all"
+              required
+            />
+            <button
+              type="button"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
+            >
+              {showConfirmPassword ? <FiEyeOff className="w-5 h-5" /> : <FiEye className="w-5 h-5" />}
+            </button>
+          </div>
         </div>
 
         <button
