@@ -125,13 +125,32 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
       return
     }
 
-    // Record click in history
-    await recordClickHistory()
-
     try {
-      window.open(externalUrl, '_blank', 'noopener,noreferrer')
+      // Use new redirect API with click tracking
+      const response = await fetch('/api/redirect', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          productId: id,
+          externalUrl: externalUrl
+        }),
+      })
+
+      const result = await response.json()
+
+      if (result.success && result.redirectUrl) {
+        // Open the external URL
+        window.open(result.redirectUrl, '_blank', 'noopener,noreferrer')
+      } else {
+        // Fallback to direct redirect if API fails
+        window.open(externalUrl, '_blank', 'noopener,noreferrer')
+      }
     } catch (error) {
-      console.error('Chyba při otevírání URL:', error)
+      console.error('Error with redirect API:', error)
+      // Fallback to direct redirect
+      window.open(externalUrl, '_blank', 'noopener,noreferrer')
     }
   }
 

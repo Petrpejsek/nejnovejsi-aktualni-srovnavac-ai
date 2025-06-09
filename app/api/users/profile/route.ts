@@ -94,4 +94,53 @@ export async function GET(request: NextRequest) {
   } finally {
     await prisma.$disconnect()
   }
+}
+
+// PUT endpoint pro update profilu
+export async function PUT(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions)
+    
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const { name } = await request.json()
+
+    if (!name || name.trim().length === 0) {
+      return NextResponse.json({ error: 'Name is required' }, { status: 400 })
+    }
+
+    if (name.trim().length > 100) {
+      return NextResponse.json({ error: 'Name is too long (max 100 characters)' }, { status: 400 })
+    }
+
+    // Update uživatele
+    const updatedUser = await prisma.user.update({
+      where: { email: session.user.email },
+      data: { 
+        name: name.trim()
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        avatar: true
+      }
+    })
+
+    console.log(`✅ Profile updated for user: ${session.user.email}, new name: ${name.trim()}`)
+
+    return NextResponse.json({
+      success: true,
+      user: updatedUser,
+      message: 'Profile updated successfully'
+    })
+    
+  } catch (error) {
+    console.error('Error updating user profile:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  } finally {
+    await prisma.$disconnect()
+  }
 } 
