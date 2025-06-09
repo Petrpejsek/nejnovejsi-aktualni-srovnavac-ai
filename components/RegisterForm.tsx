@@ -48,7 +48,7 @@ export default function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFor
           window.location.reload()
         } else {
           // Pokud automatické přihlášení selže, přepni na login
-          onSwitchToLogin?.()
+        onSwitchToLogin?.()
         }
       } else {
         alert(data.error || 'Registration failed')

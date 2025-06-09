@@ -101,7 +101,7 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
 
     try {
       // Toggle save state
-      const newSaved = new Set(savedItems)
+    const newSaved = new Set(savedItems)
       const isCurrentlySaved = newSaved.has(id)
       
       if (!isCurrentlySaved) {
@@ -138,9 +138,9 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
         })
         
         if (response.ok) {
-          newSaved.delete(id)
+      newSaved.delete(id)
           setSavedItems(newSaved)
-        } else {
+    } else {
           console.error('Error removing product')
         }
       }
@@ -189,53 +189,53 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
       <div className="relative">
         {/* Main Content */}
         <div className="relative">
-          <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8">
             <div className="max-w-6xl mx-auto">
               {/* Back button */}
               <div className="mb-6">
                 <button
                   onClick={() => window.history.back()}
                   className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
-                >
+        >
                   <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                  </svg>
+          </svg>
                   Back to Results
                 </button>
               </div>
-              
+
               <div className="bg-white rounded-xl shadow-lg overflow-hidden">
                 <div className="grid lg:grid-cols-2 gap-8">
                   {/* Left Column - Image and Basic Info */}
                   <div className="p-8">
                     <div className="relative w-full aspect-video rounded-lg overflow-hidden mb-6">
-                      <Image
-                        src={product.imageUrl || 'https://placehold.co/800x450/f3f4f6/94a3b8?text=No+Image'}
-                        alt={product.name}
-                        fill
-                        className="object-cover"
-                      />
+                <Image
+                  src={product.imageUrl || 'https://placehold.co/800x450/f3f4f6/94a3b8?text=No+Image'}
+                  alt={product.name}
+                  fill
+                  className="object-cover"
+                />
                       {product.hasTrial && (
                         <div className="absolute top-4 right-4 bg-green-100 text-green-600 text-sm font-medium px-3 py-1 rounded-full">
                           Free Trial
                         </div>
                       )}
-                    </div>
-                    
+              </div>
+              
                     <h1 className="text-3xl font-bold text-gray-900 mb-4">{product.name}</h1>
                     
                     <div className="flex items-center justify-between mb-6">
                       <div className="flex items-center gap-4">
                         <div className="text-3xl font-bold text-purple-600">
-                          {product.hasTrial ? '$0' : `$${product.price}`}
-                        </div>
+                  {product.hasTrial ? '$0' : `$${product.price}`}
+                </div>
                         {product.category && (
                           <span className="px-3 py-1 bg-purple-100 text-purple-600 rounded-full text-sm font-medium">
                             {product.category}
                           </span>
                         )}
                       </div>
-                    </div>
+                  </div>
                     
                     <div className="flex gap-4">
                       <a
@@ -243,16 +243,16 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex-1 px-6 py-3 bg-gradient-primary text-white font-medium rounded-lg hover-gradient-primary transition-all text-center"
-                      >
+                >
                         {product.hasTrial ? 'Try for Free' : 'Try it'}
                       </a>
-                    </div>
-                  </div>
-                  
+              </div>
+            </div>
+
                   {/* Right Column - Detailed Information */}
                   <div className="p-8 bg-gray-50">
                     <div className="space-y-6">
-                      <div>
+                <div>
                         <h2 className="text-xl font-semibold text-gray-900 mb-3">Description</h2>
                         <p className="text-gray-700 leading-relaxed">{product.description}</p>
                       </div>
@@ -269,59 +269,59 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
                                 {tag}
                               </span>
                             ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {product.advantages && product.advantages.length > 0 && (
+                      </div>
+                      </div>
+                    )}
+                    
+                  {product.advantages && product.advantages.length > 0 && (
                         <div>
                           <h2 className="text-xl font-semibold text-gray-900 mb-3">Advantages</h2>
-                          <ul className="space-y-2">
-                            {product.advantages.map((advantage, index) => (
-                              <li key={index} className="flex items-start gap-2">
+                      <ul className="space-y-2">
+                        {product.advantages.map((advantage, index) => (
+                          <li key={index} className="flex items-start gap-2">
                                 <svg className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                </svg>
+                            </svg>
                                 <span className="text-gray-700">{advantage}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
 
-                      {product.disadvantages && product.disadvantages.length > 0 && (
+                  {product.disadvantages && product.disadvantages.length > 0 && (
                         <div>
                           <h2 className="text-xl font-semibold text-gray-900 mb-3">Considerations</h2>
-                          <ul className="space-y-2">
-                            {product.disadvantages.map((disadvantage, index) => (
-                              <li key={index} className="flex items-start gap-2">
+                      <ul className="space-y-2">
+                        {product.disadvantages.map((disadvantage, index) => (
+                          <li key={index} className="flex items-start gap-2">
                                 <svg className="w-5 h-5 text-orange-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                   <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                                </svg>
+                            </svg>
                                 <span className="text-gray-700">{disadvantage}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
 
-                      {product.videoUrls && product.videoUrls.length > 0 && (
-                        <div>
-                          <h2 className="text-lg font-medium text-gray-800 mb-4">Video Tutorials</h2>
-                          <div className="grid md:grid-cols-2 gap-4">
-                            {product.videoUrls.map((videoUrl, index) => (
-                              <div key={index} className="rounded-[14px] overflow-hidden bg-gray-50">
-                                <video
-                                  src={videoUrl}
-                                  controls
-                                  className="w-full aspect-video"
-                                  poster="/video-thumbnail.jpg"
-                                />
-                              </div>
-                            ))}
-                          </div>
+                {product.videoUrls && product.videoUrls.length > 0 && (
+                  <div>
+                    <h2 className="text-lg font-medium text-gray-800 mb-4">Video Tutorials</h2>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      {product.videoUrls.map((videoUrl, index) => (
+                        <div key={index} className="rounded-[14px] overflow-hidden bg-gray-50">
+                          <video
+                            src={videoUrl}
+                            controls
+                            className="w-full aspect-video"
+                            poster="/video-thumbnail.jpg"
+                          />
                         </div>
-                      )}
+                      ))}
+                    </div>
+                  </div>
+                )}
                     </div>
                   </div>
                 </div>

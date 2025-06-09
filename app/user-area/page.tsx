@@ -114,6 +114,11 @@ function UserAreaContent() {
   const [isChangingPassword, setIsChangingPassword] = useState(false)
   const [passwordSuccess, setPasswordSuccess] = useState('')
 
+  // Profile edit states
+  const [displayName, setDisplayName] = useState('')
+  const [isUpdatingProfile, setIsUpdatingProfile] = useState(false)
+  const [profileUpdateMessage, setProfileUpdateMessage] = useState('')
+
   // Mock data pro AI doporučení
   const [recommendedProducts, setRecommendedProducts] = useState<RecommendedProduct[]>([
     {
@@ -198,6 +203,9 @@ function UserAreaContent() {
         if (profile.avatar) {
           setAvatarUrl(profile.avatar)
         }
+
+        // Nastavíme display name do local state
+        setDisplayName(profile.name || '')
       }
 
       // Načteme uložené produkty z dedikovaného endpointu (má správné ceny)
@@ -511,6 +519,54 @@ function UserAreaContent() {
     } catch (error) {
       console.error('Error removing avatar:', error)
       alert('Chyba při odstraňování obrázku')
+    }
+  }
+
+  const handleProfileUpdate = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (!displayName.trim()) {
+      setProfileUpdateMessage('Jméno nemůže být prázdné')
+      return
+    }
+
+    try {
+      setIsUpdatingProfile(true)
+      setProfileUpdateMessage('')
+
+      const response = await fetch('/api/users/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: displayName.trim()
+        }),
+      })
+
+      if (response.ok) {
+        const updatedProfile = await response.json()
+        setUserData(prev => ({ ...prev, name: updatedProfile.name }))
+        setProfileUpdateMessage('Profil byl úspěšně aktualizován')
+        
+        // Show success message
+        const toast = document.createElement('div')
+        toast.innerHTML = `
+          <div class="fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-slide-in-right">
+            ✅ Profil byl aktualizován
+          </div>
+        `
+        document.body.appendChild(toast)
+        setTimeout(() => document.body.removeChild(toast), 3000)
+      } else {
+        const errorData = await response.json()
+        setProfileUpdateMessage(errorData.error || 'Chyba při aktualizaci profilu')
+      }
+    } catch (error) {
+      console.error('Error updating profile:', error)
+      setProfileUpdateMessage('Chyba při aktualizaci profilu')
+    } finally {
+      setIsUpdatingProfile(false)
     }
   }
 
@@ -1255,7 +1311,18 @@ function UserAreaContent() {
                 {/* User Profile Settings */}
                 <div className="bg-white rounded-lg shadow-sm p-6">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">Profile Information</h3>
-                  <div className="space-y-4">
+                  
+                  {profileUpdateMessage && (
+                    <div className={`mb-4 p-3 border rounded-lg ${
+                      profileUpdateMessage.includes('úspěšně') 
+                        ? 'bg-green-50 border-green-200 text-green-700' 
+                        : 'bg-red-50 border-red-200 text-red-700'
+                    }`}>
+                      <p className="text-sm font-medium">{profileUpdateMessage}</p>
+                    </div>
+                  )}
+
+                  <form onSubmit={handleProfileUpdate} className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
                       <input
@@ -1269,10 +1336,32 @@ function UserAreaContent() {
                       <label className="block text-sm font-medium text-gray-700 mb-1">Display Name</label>
                       <input
                         type="text"
-                        value={userData.name || ''}
+                        value={displayName}
+                        onChange={(e) => setDisplayName(e.target.value)}
                         placeholder="Enter your display name"
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                        maxLength={100}
                       />
+                    </div>
+                    <div className="pt-2">
+                      <button
+                        type="submit"
+                        disabled={isUpdatingProfile || displayName.trim() === userData.name}
+                        className={`px-6 py-2 text-sm font-medium rounded-lg transition-colors ${
+                          isUpdatingProfile || displayName.trim() === userData.name
+                            ? 'bg-gray-400 text-white cursor-not-allowed'
+                            : 'bg-gradient-primary text-white hover-gradient-primary'
+                        }`}
+                      >
+                        {isUpdatingProfile ? (
+                          <span className="flex items-center">
+                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                            Updating...
+                          </span>
+                        ) : (
+                          'Save Profile'
+                        )}
+                      </button>
                     </div>
                     <div className="pt-4 border-t border-gray-100">
                       <div className="flex items-center justify-between">
@@ -1280,7 +1369,7 @@ function UserAreaContent() {
                         <span className="text-sm text-gray-600">Points: {userData.points}</span>
                       </div>
                     </div>
-                  </div>
+                  </form>
                 </div>
 
                 {/* Password Change */}

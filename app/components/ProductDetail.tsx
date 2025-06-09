@@ -181,100 +181,100 @@ export default function ProductDetail({ productId }: ProductDetailProps) {
         </div>
       )}
       
-      <Box sx={{ p: 3 }}>
-        <Grid container spacing={3}>
-          {/* Detail produktu */}
-          <Grid item xs={12} md={8}>
-            <Card>
-              <CardContent>
-                <Typography variant="h4" gutterBottom>
-                  {product.name}
+    <Box sx={{ p: 3 }}>
+      <Grid container spacing={3}>
+        {/* Detail produktu */}
+        <Grid item xs={12} md={8}>
+          <Card>
+            <CardContent>
+              <Typography variant="h4" gutterBottom>
+                {product.name}
+              </Typography>
+              
+              <Box sx={{ mb: 2 }}>
+                <Chip label={product.category} color="primary" sx={{ mr: 1 }} />
+                <Chip label={product.provider} />
+                {product.hasTrial && (
+                  <Chip 
+                    label="Free Trial" 
+                    color="success" 
+                    sx={{ ml: 1 }}
+                  />
+                )}
+              </Box>
+              
+              <Box sx={{ mb: 3 }}>
+                <Rating value={product.rating} readOnly precision={0.5} />
+                <Typography variant="body2" color="text.secondary">
+                  ({product.review_count} hodnocení)
                 </Typography>
-                
-                <Box sx={{ mb: 2 }}>
-                  <Chip label={product.category} color="primary" sx={{ mr: 1 }} />
-                  <Chip label={product.provider} />
-                  {product.hasTrial && (
-                    <Chip 
-                      label="Free Trial" 
-                      color="success" 
-                      sx={{ ml: 1 }}
-                    />
-                  )}
-                </Box>
-                
-                <Box sx={{ mb: 3 }}>
-                  <Rating value={product.rating} readOnly precision={0.5} />
-                  <Typography variant="body2" color="text.secondary">
-                    ({product.review_count} hodnocení)
+              </Box>
+              
+              <Typography variant="h5" color="primary" sx={{ mb: 3 }}>
+                ${product.price}/měsíc
+              </Typography>
+              
+              <Typography variant="body1" paragraph>
+                {product.description}
+              </Typography>
+              
+              <Divider sx={{ my: 3 }} />
+              
+              {/* Funkce */}
+              <Typography variant="h6" gutterBottom>
+                Funkce
+              </Typography>
+              <List>
+                {product.features.map((feature, index) => (
+                  <ListItem key={index}>
+                    <ListItemText primary={feature} />
+                  </ListItem>
+                ))}
+              </List>
+              
+              <Grid container spacing={2} sx={{ mt: 2 }}>
+                {/* Výhody */}
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="h6" color="success.main" gutterBottom>
+                    Výhody
                   </Typography>
-                </Box>
-                
-                <Typography variant="h5" color="primary" sx={{ mb: 3 }}>
-                  ${product.price}/měsíc
-                </Typography>
-                
-                <Typography variant="body1" paragraph>
-                  {product.description}
-                </Typography>
-                
-                <Divider sx={{ my: 3 }} />
-                
-                {/* Funkce */}
-                <Typography variant="h6" gutterBottom>
-                  Funkce
-                </Typography>
-                <List>
-                  {product.features.map((feature, index) => (
-                    <ListItem key={index}>
-                      <ListItemText primary={feature} />
-                    </ListItem>
-                  ))}
-                </List>
-                
-                <Grid container spacing={2} sx={{ mt: 2 }}>
-                  {/* Výhody */}
-                  <Grid item xs={12} sm={6}>
-                    <Typography variant="h6" color="success.main" gutterBottom>
-                      Výhody
-                    </Typography>
-                    <List>
-                      {product.pros.map((pro, index) => (
-                        <ListItem key={index}>
-                          <ListItemText primary={`+ ${pro}`} />
-                        </ListItem>
-                      ))}
-                    </List>
-                  </Grid>
-                  
-                  {/* Nevýhody */}
-                  <Grid item xs={12} sm={6}>
-                    <Typography variant="h6" color="error.main" gutterBottom>
-                      Nevýhody
-                    </Typography>
-                    <List>
-                      {product.cons.map((con, index) => (
-                        <ListItem key={index}>
-                          <ListItemText primary={`- ${con}`} />
-                        </ListItem>
-                      ))}
-                    </List>
-                  </Grid>
+                  <List>
+                    {product.pros.map((pro, index) => (
+                      <ListItem key={index}>
+                        <ListItemText primary={`+ ${pro}`} />
+                      </ListItem>
+                    ))}
+                  </List>
                 </Grid>
                 
+                {/* Nevýhody */}
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="h6" color="error.main" gutterBottom>
+                    Nevýhody
+                  </Typography>
+                  <List>
+                    {product.cons.map((con, index) => (
+                      <ListItem key={index}>
+                        <ListItemText primary={`- ${con}`} />
+                      </ListItem>
+                    ))}
+                  </List>
+                </Grid>
+              </Grid>
+              
                 <Box sx={{ mt: 3, display: 'flex', gap: 2 }}>
-                  {product.affiliate_link && (
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      fullWidth
-                      href={product.affiliate_link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Vyzkoušet
-                    </Button>
-                  )}
+              {product.affiliate_link && (
+                <Button
+                  variant="contained"
+                  color="primary"
+                  fullWidth
+                  href={product.affiliate_link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Vyzkoušet
+                </Button>
+              )}
                   {session && (
                     <Button
                       variant="outlined"
@@ -293,175 +293,175 @@ export default function ProductDetail({ productId }: ProductDetailProps) {
                     </Button>
                   )}
                 </Box>
-              </CardContent>
-            </Card>
-          </Grid>
-          
-          {/* Recenze */}
-          <Grid item xs={12} md={4}>
-            <Card>
-              <CardContent>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                  <Typography variant="h6">
-                    Recenze
-                  </Typography>
-                  {session && (
-                    <Button
-                      variant="contained"
-                      onClick={() => setReviewDialogOpen(true)}
-                    >
-                      Přidat recenzi
-                    </Button>
-                  )}
-                </Box>
-                
-                {reviews.length > 0 ? (
-                  reviews.map((review) => (
-                    <Box key={review.id} sx={{ mb: 3 }}>
-                      <Rating value={review.rating} readOnly size="small" />
-                      <Typography variant="body2" paragraph>
-                        {review.comment}
-                      </Typography>
-                      
-                      {review.pros && review.pros.length > 0 && (
-                        <Box sx={{ mb: 1 }}>
-                          <Typography variant="body2" color="success.main">
-                            Výhody:
-                          </Typography>
-                          <List dense>
-                            {review.pros.map((pro, index) => (
-                              <ListItem key={index}>
-                                <ListItemText primary={`+ ${pro}`} />
-                              </ListItem>
-                            ))}
-                          </List>
-                        </Box>
-                      )}
-                      
-                      {review.cons && review.cons.length > 0 && (
-                        <Box sx={{ mb: 1 }}>
-                          <Typography variant="body2" color="error.main">
-                            Nevýhody:
-                          </Typography>
-                          <List dense>
-                            {review.cons.map((con, index) => (
-                              <ListItem key={index}>
-                                <ListItemText primary={`- ${con}`} />
-                              </ListItem>
-                            ))}
-                          </List>
-                        </Box>
-                      )}
-                      
-                      <Divider />
-                    </Box>
-                  ))
-                ) : (
-                  <Typography color="text.secondary">
-                    Zatím žádné recenze
-                  </Typography>
-                )}
-              </CardContent>
-            </Card>
-          </Grid>
+            </CardContent>
+          </Card>
         </Grid>
         
-        {/* Dialog pro přidání recenze */}
-        <Dialog open={reviewDialogOpen} onClose={() => setReviewDialogOpen(false)}>
-          <DialogTitle>Přidat recenzi</DialogTitle>
-          <DialogContent>
-            <Box sx={{ mt: 2 }}>
-              <Typography gutterBottom>Hodnocení</Typography>
-              <Rating
-                value={newReview.rating}
-                onChange={(_, value) => setNewReview({ ...newReview, rating: value || 0 })}
-              />
-            </Box>
-            
-            <TextField
-              fullWidth
-              multiline
-              rows={4}
-              label="Komentář"
-              value={newReview.comment}
-              onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
-              sx={{ mt: 2 }}
+        {/* Recenze */}
+        <Grid item xs={12} md={4}>
+          <Card>
+            <CardContent>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                <Typography variant="h6">
+                  Recenze
+                </Typography>
+                {session && (
+                  <Button
+                    variant="contained"
+                    onClick={() => setReviewDialogOpen(true)}
+                  >
+                    Přidat recenzi
+                  </Button>
+                )}
+              </Box>
+              
+              {reviews.length > 0 ? (
+                reviews.map((review) => (
+                  <Box key={review.id} sx={{ mb: 3 }}>
+                    <Rating value={review.rating} readOnly size="small" />
+                    <Typography variant="body2" paragraph>
+                      {review.comment}
+                    </Typography>
+                    
+                    {review.pros && review.pros.length > 0 && (
+                      <Box sx={{ mb: 1 }}>
+                        <Typography variant="body2" color="success.main">
+                          Výhody:
+                        </Typography>
+                        <List dense>
+                          {review.pros.map((pro, index) => (
+                            <ListItem key={index}>
+                              <ListItemText primary={`+ ${pro}`} />
+                            </ListItem>
+                          ))}
+                        </List>
+                      </Box>
+                    )}
+                    
+                    {review.cons && review.cons.length > 0 && (
+                      <Box sx={{ mb: 1 }}>
+                        <Typography variant="body2" color="error.main">
+                          Nevýhody:
+                        </Typography>
+                        <List dense>
+                          {review.cons.map((con, index) => (
+                            <ListItem key={index}>
+                              <ListItemText primary={`- ${con}`} />
+                            </ListItem>
+                          ))}
+                        </List>
+                      </Box>
+                    )}
+                    
+                    <Divider />
+                  </Box>
+                ))
+              ) : (
+                <Typography color="text.secondary">
+                  Zatím žádné recenze
+                </Typography>
+              )}
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+      
+      {/* Dialog pro přidání recenze */}
+      <Dialog open={reviewDialogOpen} onClose={() => setReviewDialogOpen(false)}>
+        <DialogTitle>Přidat recenzi</DialogTitle>
+        <DialogContent>
+          <Box sx={{ mt: 2 }}>
+            <Typography gutterBottom>Hodnocení</Typography>
+            <Rating
+              value={newReview.rating}
+              onChange={(_, value) => setNewReview({ ...newReview, rating: value || 0 })}
             />
-            
-            <Box sx={{ mt: 2 }}>
-              <Typography gutterBottom>Výhody</Typography>
-              {newReview.pros.map((pro, index) => (
-                <Box key={index} sx={{ display: 'flex', gap: 1, mb: 1 }}>
-                  <TextField
-                    fullWidth
-                    value={pro}
-                    onChange={(e) => {
-                      const newPros = [...newReview.pros];
-                      newPros[index] = e.target.value;
-                      setNewReview({ ...newReview, pros: newPros });
-                    }}
-                  />
-                  <Button
-                    onClick={() => {
-                      const newPros = newReview.pros.filter((_, i) => i !== index);
-                      setNewReview({ ...newReview, pros: newPros });
-                    }}
-                  >
-                    Odebrat
-                  </Button>
-                </Box>
-              ))}
-              <Button
-                onClick={() => setNewReview({
-                  ...newReview,
-                  pros: [...newReview.pros, '']
-                })}
-              >
-                Přidat výhodu
-              </Button>
-            </Box>
-            
-            <Box sx={{ mt: 2 }}>
-              <Typography gutterBottom>Nevýhody</Typography>
-              {newReview.cons.map((con, index) => (
-                <Box key={index} sx={{ display: 'flex', gap: 1, mb: 1 }}>
-                  <TextField
-                    fullWidth
-                    value={con}
-                    onChange={(e) => {
-                      const newCons = [...newReview.cons];
-                      newCons[index] = e.target.value;
-                      setNewReview({ ...newReview, cons: newCons });
-                    }}
-                  />
-                  <Button
-                    onClick={() => {
-                      const newCons = newReview.cons.filter((_, i) => i !== index);
-                      setNewReview({ ...newReview, cons: newCons });
-                    }}
-                  >
-                    Odebrat
-                  </Button>
-                </Box>
-              ))}
-              <Button
-                onClick={() => setNewReview({
-                  ...newReview,
-                  cons: [...newReview.cons, '']
-                })}
-              >
-                Přidat nevýhodu
-              </Button>
-            </Box>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setReviewDialogOpen(false)}>Zrušit</Button>
-            <Button onClick={handleAddReview} variant="contained">
-              Přidat recenzi
+          </Box>
+          
+          <TextField
+            fullWidth
+            multiline
+            rows={4}
+            label="Komentář"
+            value={newReview.comment}
+            onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
+            sx={{ mt: 2 }}
+          />
+          
+          <Box sx={{ mt: 2 }}>
+            <Typography gutterBottom>Výhody</Typography>
+            {newReview.pros.map((pro, index) => (
+              <Box key={index} sx={{ display: 'flex', gap: 1, mb: 1 }}>
+                <TextField
+                  fullWidth
+                  value={pro}
+                  onChange={(e) => {
+                    const newPros = [...newReview.pros];
+                    newPros[index] = e.target.value;
+                    setNewReview({ ...newReview, pros: newPros });
+                  }}
+                />
+                <Button
+                  onClick={() => {
+                    const newPros = newReview.pros.filter((_, i) => i !== index);
+                    setNewReview({ ...newReview, pros: newPros });
+                  }}
+                >
+                  Odebrat
+                </Button>
+              </Box>
+            ))}
+            <Button
+              onClick={() => setNewReview({
+                ...newReview,
+                pros: [...newReview.pros, '']
+              })}
+            >
+              Přidat výhodu
             </Button>
-          </DialogActions>
-        </Dialog>
-      </Box>
+          </Box>
+          
+          <Box sx={{ mt: 2 }}>
+            <Typography gutterBottom>Nevýhody</Typography>
+            {newReview.cons.map((con, index) => (
+              <Box key={index} sx={{ display: 'flex', gap: 1, mb: 1 }}>
+                <TextField
+                  fullWidth
+                  value={con}
+                  onChange={(e) => {
+                    const newCons = [...newReview.cons];
+                    newCons[index] = e.target.value;
+                    setNewReview({ ...newReview, cons: newCons });
+                  }}
+                />
+                <Button
+                  onClick={() => {
+                    const newCons = newReview.cons.filter((_, i) => i !== index);
+                    setNewReview({ ...newReview, cons: newCons });
+                  }}
+                >
+                  Odebrat
+                </Button>
+              </Box>
+            ))}
+            <Button
+              onClick={() => setNewReview({
+                ...newReview,
+                cons: [...newReview.cons, '']
+              })}
+            >
+              Přidat nevýhodu
+            </Button>
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setReviewDialogOpen(false)}>Zrušit</Button>
+          <Button onClick={handleAddReview} variant="contained">
+            Přidat recenzi
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
     </>
   );
 } 

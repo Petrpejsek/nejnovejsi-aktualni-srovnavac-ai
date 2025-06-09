@@ -121,9 +121,11 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
     e.stopPropagation()
     
     if (!externalUrl) {
-      console.log('Chybí externí URL!')
+      console.log('❌ Chybí externí URL!')
       return
     }
+
+    console.log('🚀 Pokus o přesměrování na:', externalUrl)
 
     try {
       // Use new redirect API with click tracking
@@ -139,16 +141,20 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
       })
 
       const result = await response.json()
+      console.log('📋 API odpověď:', result)
 
       if (result.success && result.redirectUrl) {
+        console.log('✅ Otevírám pomocí API:', result.redirectUrl)
         // Open the external URL
         window.open(result.redirectUrl, '_blank', 'noopener,noreferrer')
       } else {
+        console.log('⚠️ API selhalo, fallback na přímé přesměrování')
         // Fallback to direct redirect if API fails
         window.open(externalUrl, '_blank', 'noopener,noreferrer')
       }
     } catch (error) {
-      console.error('Error with redirect API:', error)
+      console.error('❌ Chyba s redirect API:', error)
+      console.log('⚠️ Fallback na přímé přesměrování')
       // Fallback to direct redirect
       window.open(externalUrl, '_blank', 'noopener,noreferrer')
     }
@@ -332,6 +338,8 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
           // Pokud klik není na bookmark tlačítku nebo "Try it" tlačítku, otevři externí URL
           const target = e.target as HTMLElement;
           if (!target.closest('button')) {
+            console.log('🎯 Klik na product card:', name)
+            recordClickHistory()
             handleVisit(e);
             handleClick(id);
           }
@@ -408,6 +416,8 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
           <button 
             onClick={(e) => {
               e.stopPropagation()
+              console.log('🎯 Klik na Try it button:', name)
+              recordClickHistory()
               handleVisit(e)
               handleClick(id)
             }}

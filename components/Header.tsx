@@ -168,7 +168,7 @@ export default function Header() {
                       {isLoadingAvatar ? (
                         <div className="w-8 h-8 rounded-full bg-gray-200 animate-pulse"></div>
                       ) : avatarUrl ? (
-                        <img
+                      <img
                           src={avatarUrl}
                           alt="Profile"
                           className="w-8 h-8 rounded-full object-cover border-2 border-gray-200"
