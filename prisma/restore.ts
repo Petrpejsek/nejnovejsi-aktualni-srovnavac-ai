@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import * as fs from 'fs';
 import * as path from 'path';
+import { v4 as uuidv4 } from 'uuid';
 
 const prisma = new PrismaClient();
 
@@ -17,6 +18,7 @@ async function main() {
     for (const product of backupData) {
       await prisma.product.create({
         data: {
+          id: uuidv4(),
           name: product.name,
           description: product.description,
           price: product.price,
@@ -29,7 +31,8 @@ async function main() {
           pricingInfo: product.pricingInfo,
           videoUrls: product.videoUrls,
           externalUrl: product.externalUrl,
-          hasTrial: product.hasTrial
+          hasTrial: product.hasTrial,
+          updatedAt: new Date()
         }
       });
     }

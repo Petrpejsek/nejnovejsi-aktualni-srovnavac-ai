@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
+import { v4 as uuidv4 } from 'uuid'
 
 const prisma = new PrismaClient()
 
@@ -26,12 +27,13 @@ export async function POST(request: NextRequest) {
     })
 
     // Vytvořit billing záznam
-    await prisma.billingRecord.create({
+    const billingRecord = await prisma.billingRecord.create({
       data: {
+        id: uuidv4(),
         companyId,
         type: 'credit',
-        amount,
-        description: `Test credit added: $${amount}`,
+        amount: parseFloat(amount as string),
+        description: 'Test credit addition',
         status: 'completed'
       }
     })

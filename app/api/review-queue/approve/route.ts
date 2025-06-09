@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
 import fs from 'fs'
 import path from 'path'
+import { v4 as uuidv4 } from 'uuid'
 
 const prisma = new PrismaClient()
 
@@ -99,35 +100,37 @@ export async function POST(request: NextRequest) {
         })
 
         // Uložit do databáze
-        const savedProduct = await prisma.product.create({
+        const newProduct = await prisma.product.create({
           data: {
+            id: uuidv4(),
             name: reviewProduct.name,
-            description: reviewProduct.description,
-            category: reviewProduct.category,
-            price: reviewProduct.price,
-            imageUrl: reviewProduct.screenshotUrl,
-            tags: JSON.stringify(reviewProduct.tags),
-            advantages: JSON.stringify(reviewProduct.advantages),
-            disadvantages: JSON.stringify(reviewProduct.disadvantages),
-            detailInfo: reviewProduct.detailInfo,
-            pricingInfo: JSON.stringify(reviewProduct.pricingInfo),
+            description: reviewProduct.description || '',
+            category: 'Business',
+            price: 0,
+            imageUrl: null,
+            tags: JSON.stringify([]),
+            advantages: JSON.stringify([]),
+            disadvantages: JSON.stringify([]),
+            detailInfo: reviewProduct.description || '',
+            pricingInfo: JSON.stringify({}),
             externalUrl: cleanUrl,
-            hasTrial: reviewProduct.hasTrial
+            hasTrial: false,
+            updatedAt: new Date()
           }
         })
         
-        console.log(`💾 Produkt úspěšně uložen do DB:`, savedProduct.id)
+        console.log(`💾 Produkt úspěšně uložen do DB:`, newProduct.id)
 
         // Odebrat z review queue
         removeFromReviewQueue(reviewId)
 
         approvedProducts.push({
           reviewId,
-          productId: savedProduct.id,
-          productName: savedProduct.name
+          productId: newProduct.id,
+          productName: newProduct.name
         })
 
-        console.log(`✅ Schválen a uložen produkt: ${savedProduct.name}`)
+        console.log(`✅ Schválen a uložen produkt: ${newProduct.name}`)
 
       } catch (error) {
         console.error(`❌ Chyba při schvalování ${reviewId}:`, error)

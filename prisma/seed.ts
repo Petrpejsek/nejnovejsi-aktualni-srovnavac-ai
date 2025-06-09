@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import fs from 'fs';
 import path from 'path';
+import { v4 as uuidv4 } from 'uuid';
 
 const prisma = new PrismaClient();
 
@@ -41,14 +42,15 @@ async function main() {
           price: product.price || 0,
           category: product.category || null,
           imageUrl: product.imageUrl || null,
-          tags: safeStringify(product.tags),
-          advantages: safeStringify(product.advantages),
-          disadvantages: safeStringify(product.disadvantages),
+          tags: safeStringify(product.tags || []),
+          advantages: safeStringify(product.advantages || []),
+          disadvantages: safeStringify(product.disadvantages || []),
           detailInfo: product.detailInfo || null,
-          pricingInfo: safeStringify(product.pricingInfo),
-          videoUrls: safeStringify(product.videoUrls),
+          pricingInfo: safeStringify(product.pricingInfo || {}),
+          videoUrls: safeStringify(product.videoUrls || []),
           externalUrl: product.externalUrl || null,
           hasTrial: product.hasTrial || false,
+          updatedAt: new Date()
         }
       });
       successCount++;
