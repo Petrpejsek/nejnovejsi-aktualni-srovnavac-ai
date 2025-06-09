@@ -116,7 +116,7 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
     setLocalBookmarked(isBookmarked || false)
   }, [isBookmarked])
 
-  const handleVisit = async (e: React.MouseEvent) => {
+  const handleVisit = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
     
@@ -125,39 +125,14 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
       return
     }
 
-    console.log('🚀 Pokus o přesměrování na:', externalUrl)
-
-    try {
-      // Use new redirect API with click tracking
-      const response = await fetch('/api/redirect', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          productId: id,
-          externalUrl: externalUrl
-        }),
-      })
-
-      const result = await response.json()
-      console.log('📋 API odpověď:', result)
-
-      if (result.success && result.redirectUrl) {
-        console.log('✅ Otevírám pomocí API:', result.redirectUrl)
-        // Open the external URL
-        window.open(result.redirectUrl, '_blank', 'noopener,noreferrer')
-      } else {
-        console.log('⚠️ API selhalo, fallback na přímé přesměrování')
-        // Fallback to direct redirect if API fails
-        window.open(externalUrl, '_blank', 'noopener,noreferrer')
-      }
-    } catch (error) {
-      console.error('❌ Chyba s redirect API:', error)
-      console.log('⚠️ Fallback na přímé přesměrování')
-      // Fallback to direct redirect
-      window.open(externalUrl, '_blank', 'noopener,noreferrer')
-    }
+    console.log('🚀 Přímé přesměrování přes tracking endpoint na:', externalUrl)
+    
+    // Místo async fetch + window.open (které prohlížeče blokují),
+    // přesměrujeme přímo na náš GET endpoint který udělá tracking a redirect
+    const trackingUrl = `/api/redirect?productId=${encodeURIComponent(id)}&externalUrl=${encodeURIComponent(externalUrl)}`
+    
+    // Toto prohlížeče NEblokují - je to přímé uživatelské kliknutí
+    window.open(trackingUrl, '_blank', 'noopener,noreferrer')
   }
 
   const handleClick = async (productId: string) => {
