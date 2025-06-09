@@ -29,15 +29,7 @@ export async function GET(request: NextRequest) {
       skip: (page - 1) * pageSize,
       take: pageSize,
       include: {
-        company: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            balance: true,
-            status: true
-          }
-        }
+        Company: true
       }
     })
 
@@ -87,7 +79,8 @@ export async function GET(request: NextRequest) {
             clicks: clickCount,
             spend: Math.round(spend * 100) / 100,
             ctr: Math.round(ctr * 100) / 100
-          }
+          },
+          companyName: campaign.Company.name
         }
       })
     )
@@ -134,9 +127,7 @@ export async function POST(request: NextRequest) {
     const campaign = await prisma.campaign.findUnique({
       where: { id: campaignId },
       include: {
-        company: {
-          select: { name: true, email: true }
-        }
+        Company: true
       }
     })
 
@@ -157,7 +148,7 @@ export async function POST(request: NextRequest) {
           status: 'active',
           startDate: new Date()
         }
-        logMessage = `✅ Campaign approved: ${campaign.name} (${campaign.company.name})`
+        logMessage = `✅ Campaign approved: ${campaign.name} (${campaign.Company.name})`
         break
         
       case 'reject':
@@ -165,17 +156,17 @@ export async function POST(request: NextRequest) {
           isApproved: false, 
           status: 'rejected'
         }
-        logMessage = `❌ Campaign rejected: ${campaign.name} (${campaign.company.name})`
+        logMessage = `❌ Campaign rejected: ${campaign.name} (${campaign.Company.name})`
         break
         
       case 'pause':
         updateData = { status: 'paused' }
-        logMessage = `⏸️ Campaign paused: ${campaign.name} (${campaign.company.name})`
+        logMessage = `⏸️ Campaign paused: ${campaign.name} (${campaign.Company.name})`
         break
         
       case 'resume':
         updateData = { status: 'active' }
-        logMessage = `▶️ Campaign resumed: ${campaign.name} (${campaign.company.name})`
+        logMessage = `▶️ Campaign resumed: ${campaign.name} (${campaign.Company.name})`
         break
         
       default:
@@ -202,7 +193,8 @@ export async function POST(request: NextRequest) {
         campaignId,
         action,
         newStatus: updateData.status,
-        isApproved: updateData.isApproved
+        isApproved: updateData.isApproved,
+        companyName: campaign.Company.name
       }
     })
 

@@ -3,6 +3,7 @@ import prisma from '@/lib/prisma'
 import { NextRequest } from 'next/server'
 import { Prisma } from '@prisma/client'
 import { enhanceProductWithScreenshot } from '@/lib/screenshot-utils'
+import { v4 as uuidv4 } from 'uuid'
 
 interface Product {
   id: string
@@ -251,7 +252,11 @@ export async function POST(request: Request) {
     }
 
     const product = await prisma.product.create({
-      data: processedData
+      data: {
+        id: uuidv4(),
+        ...processedData,
+        updatedAt: new Date()
+      }
     })
 
     // No data processing - return as is

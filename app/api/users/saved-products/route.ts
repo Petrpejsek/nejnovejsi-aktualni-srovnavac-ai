@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
-    const savedProducts = await prisma.SavedProduct.findMany({
+    const savedProducts = await prisma.savedProduct.findMany({
       where: { userId: user.id },
       orderBy: { savedAt: 'desc' }
     })
@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Zkontrolujeme, jestli produkt už není uložený
-    const existingSave = await prisma.SavedProduct.findUnique({
+    const existingSave = await prisma.savedProduct.findUnique({
       where: {
         userId_productId: {
           userId: user.id,
@@ -117,7 +117,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Uložíme produkt
-    const savedProduct = await prisma.SavedProduct.create({
+    const savedProduct = await prisma.savedProduct.create({
       data: {
         id: crypto.randomUUID(),
         userId: user.id,
@@ -165,7 +165,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Odstraníme produkt
-    await prisma.SavedProduct.delete({
+    await prisma.savedProduct.delete({
       where: {
         userId_productId: {
           userId: user.id,

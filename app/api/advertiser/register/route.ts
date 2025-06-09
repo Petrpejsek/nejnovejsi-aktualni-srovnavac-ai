@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
 import bcrypt from 'bcryptjs'
+import { v4 as uuidv4 } from 'uuid'
 
 const prisma = new PrismaClient()
 
@@ -63,29 +64,31 @@ export async function POST(request: NextRequest) {
     const hashedPassword = await bcrypt.hash(password, 12)
 
     // Create new company
-    const newCompany = await prisma.company.create({
+    const company = await prisma.company.create({
       data: {
-        name,
-        email,
-        hashedPassword,
-        contactPerson,
-        website: website || null,
-        description: description || null,
-        status: 'pending', // Requires admin approval
-        isVerified: false
+        id: uuidv4(),
+        name: data.name,
+        email: data.email,
+        hashedPassword: hashedPassword,
+        contactPerson: data.contactPerson,
+        website: data.website,
+        description: data.description,
+        status: 'pending',
+        isVerified: false,
+        updatedAt: new Date()
       }
     })
 
-    console.log('📝 New advertiser company registered:', newCompany.id)
+    console.log('📝 New advertiser company registered:', company.id)
 
     return NextResponse.json({
       success: true,
       message: 'Company registered successfully! Your account is pending approval.',
       data: {
-        id: newCompany.id,
-        name: newCompany.name,
-        email: newCompany.email,
-        status: newCompany.status
+        id: company.id,
+        name: company.name,
+        email: company.email,
+        status: company.status
       }
     })
   } catch (error) {

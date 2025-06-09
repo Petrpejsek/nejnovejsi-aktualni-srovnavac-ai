@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { PrismaClient } from '@prisma/client'
+import { v4 as uuidv4 } from 'uuid'
 
 // Force dynamic rendering
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
-import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
@@ -61,19 +62,13 @@ export async function GET(request: NextRequest) {
       where: {
         status: 'active',
         isApproved: true,
-        company: {
+        Company: {
           status: 'active',
           balance: { gt: 0 } // Pouze firmy s kreditem
         }
       },
       include: {
-        company: {
-          select: {
-            id: true,
-            name: true,
-            balance: true
-          }
-        }
+        Company: true
       }
     })
 
@@ -149,7 +144,7 @@ export async function GET(request: NextRequest) {
       return {
         campaignId: campaign.id,
         companyId: campaign.companyId,
-        companyName: campaign.company.name,
+        companyName: campaign.Company.name,
         productId: campaign.productId,
         productName: product?.name || 'Unknown Product',
         productDescription: product?.description,
@@ -162,7 +157,8 @@ export async function GET(request: NextRequest) {
     })
 
     // Zaznamenat impressions pro všechny zobrazené reklamy
-    const impressionRecords = adsToShow.map(ad => ({
+    const impressionData = adsToShow.map(ad => ({
+      id: uuidv4(),
       campaignId: ad.campaignId,
       position: ad.position,
       pageType,
@@ -173,7 +169,7 @@ export async function GET(request: NextRequest) {
     }))
 
     await prisma.adImpression.createMany({
-      data: impressionRecords
+      data: impressionData
     })
 
     // Aktualizovat cached impression counts

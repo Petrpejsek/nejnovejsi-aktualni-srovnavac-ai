@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
 import jwt from 'jsonwebtoken'
+import { v4 as uuidv4 } from 'uuid'
 
 const prisma = new PrismaClient()
 
@@ -38,9 +39,9 @@ export async function GET(request: NextRequest) {
     const company = await prisma.company.findUnique({
       where: { id: user.companyId },
       include: {
-        billingRecords: {
+        BillingRecord: {
           orderBy: { createdAt: 'desc' },
-          take: 10
+          take: 50
         }
       }
     })
@@ -109,7 +110,7 @@ export async function GET(request: NextRequest) {
     })
 
     // Formátování transakcí
-    const transactions = company.billingRecords.map(record => ({
+    const transactions = company.BillingRecord.map((record: any) => ({
       id: record.id,
       type: record.type,
       amount: record.amount,
@@ -214,6 +215,7 @@ export async function POST(request: NextRequest) {
           }),
                      prisma.billingRecord.create({
              data: {
+               id: uuidv4(),
                companyId: user.companyId,
                type: 'charge',
                amount: totalAmount,
@@ -261,6 +263,7 @@ export async function POST(request: NextRequest) {
           }),
           prisma.billingRecord.create({
             data: {
+              id: uuidv4(),
               companyId: user.companyId,
               type: 'charge',
               amount: amount,
@@ -306,6 +309,66 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({
           success: true,
           message: 'Auto-recharge settings updated successfully'
+        })
+      }
+
+      case 'add-manual-credit': {
+        const { amount } = data
+        
+        if (amount < 0) {
+          return NextResponse.json(
+            { success: false, error: 'Amount must be non-negative' },
+            { status: 400 }
+          )
+        }
+
+        const newRecord = await prisma.billingRecord.create({
+          data: {
+            id: uuidv4(),
+            companyId: user.companyId,
+            type: 'credit',
+            amount: parseFloat(amount as string),
+            description: 'Manual credit addition',
+            status: 'completed'
+          }
+        })
+
+        return NextResponse.json({
+          success: true,
+          message: 'Manual credit added successfully',
+          data: {
+            newRecordId: newRecord.id
+          }
+        })
+      }
+
+      case 'add-payment': {
+        const { amount } = data
+        
+        if (amount < 0) {
+          return NextResponse.json(
+            { success: false, error: 'Amount must be non-negative' },
+            { status: 400 }
+          )
+        }
+
+        const paymentRecord = await prisma.billingRecord.create({
+          data: {
+            id: uuidv4(),
+            companyId: user.companyId,
+            type: 'payment',
+            amount: parseFloat(amount as string),
+            description: 'Payment via Stripe',
+            status: 'completed'
+          }
+        })
+
+        return NextResponse.json({
+          success: true,
+          message: 'Payment added successfully',
+          data: {
+            newRecordId: paymentRecord.id
+          }
         })
       }
 

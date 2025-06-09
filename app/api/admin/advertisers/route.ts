@@ -35,8 +35,8 @@ export async function GET(request: NextRequest) {
         lastLoginAt: true,
         _count: {
           select: {
-            campaigns: true,
-            adClicks: true
+            Campaign: true,
+            AdClick: true
           }
         }
       },
@@ -60,8 +60,8 @@ export async function GET(request: NextRequest) {
       assignedProductId: company.assignedProductId,
       createdAt: company.createdAt.toISOString(),
       lastLoginAt: company.lastLoginAt?.toISOString() || null,
-      campaignCount: company._count.campaigns,
-      clickCount: company._count.adClicks,
+      campaignCount: company._count.Campaign,
+      clickCount: company._count.AdClick,
       type: 'advertiser' as const
     }))
 

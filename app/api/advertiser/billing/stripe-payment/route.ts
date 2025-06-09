@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
 import jwt from 'jsonwebtoken'
 import Stripe from 'stripe'
+import { v4 as uuidv4 } from 'uuid'
 
 const prisma = new PrismaClient()
 
@@ -106,15 +107,16 @@ export async function POST(request: NextRequest) {
     })
 
     // Vytvoření pending billing record
-    await prisma.billingRecord.create({
+    const billingRecord = await prisma.billingRecord.create({
       data: {
+        id: uuidv4(),
         companyId: company.id,
-        type: 'charge',
-        amount: amount,
-        description: `Credit recharge - $${amount}`,
+        type: 'payment',
+        amount: amount / 100,
+        description: `Stripe payment - ${amount / 100} EUR`,
         paymentMethod: 'stripe',
         paymentIntentId: paymentIntent.id,
-        status: 'pending'
+        status: 'completed'
       }
     })
 

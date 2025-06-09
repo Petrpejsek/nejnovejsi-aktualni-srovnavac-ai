@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
+import { v4 as uuidv4 } from 'uuid'
 
 const prisma = new PrismaClient()
 
@@ -28,7 +29,7 @@ export async function POST(request: NextRequest) {
     const campaign = await prisma.campaign.findUnique({
       where: { id: campaignId },
       include: {
-        company: {
+        Company: {
           select: {
             id: true,
             name: true,
@@ -55,7 +56,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Ověření že firma má dostatečný balance
-    if (campaign.company.balance < campaign.bidAmount) {
+    if (campaign.Company.balance < campaign.bidAmount) {
       console.log(`❌ Insufficient balance for campaign ${campaignId}`)
       return NextResponse.json(
         { success: false, error: 'Insufficient balance' },
@@ -121,10 +122,11 @@ export async function POST(request: NextRequest) {
       // 1. Zaznamenat klik
       const clickRecord = await tx.adClick.create({
         data: {
-          campaignId: campaign.id,
+          id: uuidv4(),
+          campaignId,
           companyId: campaign.companyId,
           ipAddress: clientIP,
-          userAgent,
+          userAgent: userAgent || '',
           referrer,
           costPerClick: isValidClick ? campaign.bidAmount : 0,
           isValidClick,
@@ -145,13 +147,14 @@ export async function POST(request: NextRequest) {
         })
 
         // Vytvořit billing record
-        await tx.billingRecord.create({
+        const billingRecord = await tx.billingRecord.create({
           data: {
+            id: uuidv4(),
             companyId: campaign.companyId,
-            type: 'spend',
-            amount: campaign.bidAmount,
-            description: `Click cost for campaign: ${campaign.name}`,
-            campaignId: campaign.id,
+            type: 'charge',
+            amount: -campaign.bidAmount,
+            description: `Ad click charge - Campaign: ${campaign.Company.name}`,
+            campaignId,
             clickId: clickRecord.id,
             status: 'completed'
           }
@@ -195,7 +198,8 @@ export async function POST(request: NextRequest) {
         targetUrl: campaign.targetUrl,
         costPerClick: isValidClick ? campaign.bidAmount : 0,
         isValidClick,
-        fraudReason
+        fraudReason,
+        companyName: campaign.Company.name
       }
     })
 

@@ -12,11 +12,22 @@ export async function GET() {
         parent_id: null
       },
       include: {
-        children: {
+        other_Category: {
           orderBy: { name: 'asc' }
         }
       },
       orderBy: { name: 'asc' }
+    });
+
+    const categories = await prisma.category.findMany({
+      include: {
+        other_Category: true,
+        Product: {
+          select: {
+            id: true
+          }
+        }
+      }
     });
 
     return NextResponse.json({

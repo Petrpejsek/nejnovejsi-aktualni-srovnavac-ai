@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
+import { v4 as uuidv4 } from 'uuid'
 
 const prisma = new PrismaClient()
 
@@ -85,24 +86,25 @@ export async function POST(request: NextRequest) {
     }
 
     // Vytvoření nové aplikace v databázi
-    const newApplication = await prisma.companyApplications.create({
+    const application = await prisma.companyApplications.create({
       data: {
-        companyName,
-        contactPerson,
-        businessEmail,
-        website: website || null,
-        productUrls: productUrls || null,
-        description: description || null,
+        id: uuidv4(),
+        companyName: data.companyName,
+        contactPerson: data.contactPerson,
+        businessEmail: data.businessEmail,
+        website: data.website,
+        productUrls: data.productUrls,
+        description: data.description,
         status: 'pending'
       }
     })
 
-    console.log('📝 Nová firemní aplikace vytvořena:', newApplication.id)
+    console.log('📝 Nová firemní aplikace vytvořena:', application.id)
 
     return NextResponse.json({
       success: true,
       message: 'Firemní aplikace byla úspěšně odeslána',
-      data: newApplication
+      data: application
     })
   } catch (error) {
     console.error('Chyba při vytváření company application:', error)

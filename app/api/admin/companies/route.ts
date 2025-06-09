@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
       skip: (page - 1) * pageSize,
       take: pageSize,
       include: {
-        campaigns: {
+        Campaign: {
           select: {
             id: true,
             name: true,
@@ -37,8 +37,8 @@ export async function GET(request: NextRequest) {
         },
         _count: {
           select: {
-            campaigns: true,
-            billingRecords: true
+            Campaign: true,
+            BillingRecord: true
           }
         }
       }
@@ -61,25 +61,28 @@ export async function GET(request: NextRequest) {
         })
 
         // Počet aktivních kampaní
-        const activeCampaigns = company.campaigns.filter(c => 
+        const activeCampaigns = company.Campaign.filter((c: any) => 
           c.status === 'active' && c.isApproved
         ).length
 
         // Celkové metriky napříč kampaněmi
-        const totalSpent = company.campaigns.reduce((sum, c) => sum + c.totalSpent, 0)
-        const totalClicks = company.campaigns.reduce((sum, c) => sum + c.totalClicks, 0)
-        const totalImpressions = company.campaigns.reduce((sum, c) => sum + c.totalImpressions, 0)
+        const totalSpent = company.Campaign.reduce((sum: any, c: any) => sum + c.totalSpent, 0)
+        const totalClicks = company.Campaign.reduce((sum: any, c: any) => sum + c.totalClicks, 0)
+        const totalImpressions = company.Campaign.reduce((sum: any, c: any) => sum + c.totalImpressions, 0)
 
         return {
           ...company,
           stats: {
             activeCampaigns,
-            totalCampaigns: company._count.campaigns,
+            totalCampaigns: company._count.Campaign,
             totalSpent: Math.round(totalSpent * 100) / 100,
             recentSpend: Math.round((recentSpend._sum.amount || 0) * 100) / 100,
             totalClicks,
             totalImpressions,
-            ctr: totalImpressions > 0 ? (totalClicks / totalImpressions) * 100 : 0
+            ctr: totalImpressions > 0 ? (totalClicks / totalImpressions) * 100 : 0,
+            currentBudget: company.Campaign.reduce((sum: any, c: any) => sum + c.dailyBudget, 0),
+            weeklySpend: company.Campaign.reduce((sum: any, c: any) => sum + c.todaySpent, 0),
+            campaignCount: company._count?.Campaign || 0
           }
         }
       })
@@ -237,7 +240,7 @@ export async function DELETE(request: NextRequest) {
         status: true,
         balance: true,
         _count: {
-          select: { campaigns: true }
+          select: { Campaign: true }
         }
       }
     })
@@ -250,7 +253,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Povolit smazání jen u pending/rejected firem bez kampaní
-    if (company.status === 'active' || company._count.campaigns > 0) {
+    if (company.status === 'active' || company._count.Campaign > 0) {
       return NextResponse.json(
         { success: false, error: 'Cannot delete active company or company with campaigns' },
         { status: 400 }

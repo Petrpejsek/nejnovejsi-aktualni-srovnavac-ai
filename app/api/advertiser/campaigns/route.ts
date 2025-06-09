@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
 import jwt from 'jsonwebtoken'
+import { v4 as uuidv4 } from 'uuid'
 
 const prisma = new PrismaClient()
 
@@ -157,31 +158,33 @@ export async function POST(request: NextRequest) {
     }
 
     // Vytvořit kampaň
-    const campaign = await prisma.campaign.create({
+    const newCampaign = await prisma.campaign.create({
       data: {
+        id: uuidv4(),
         companyId: user.companyId,
-        name,
-        productId,
-        targetUrl,
-        bidAmount,
-        dailyBudget,
-        totalBudget: totalBudget || null,
-        status: 'active',
-        isApproved: false, // Čeká na schválení adminem
-        startDate: new Date()
+        name: data.name,
+        productId: data.productId,
+        targetUrl: data.targetUrl,
+        bidAmount: parseFloat(data.bidAmount),
+        dailyBudget: parseFloat(data.dailyBudget),
+        totalBudget: parseFloat(data.totalBudget),
+        status: 'pending',
+        isApproved: false,
+        startDate: new Date(),
+        updatedAt: new Date()
       }
     })
 
-    console.log(`🎯 New campaign created: ${campaign.id} for company ${user.companyId}`)
+    console.log(`🎯 New campaign created: ${newCampaign.id} for company ${user.companyId}`)
 
     return NextResponse.json({
       success: true,
       message: 'Campaign created successfully! It will be reviewed by our team before going live.',
       data: {
-        id: campaign.id,
-        name: campaign.name,
-        status: campaign.status,
-        isApproved: campaign.isApproved
+        id: newCampaign.id,
+        name: newCampaign.name,
+        status: newCampaign.status,
+        isApproved: newCampaign.isApproved
       }
     })
 
