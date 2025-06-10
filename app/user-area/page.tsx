@@ -220,8 +220,7 @@ function UserAreaContent() {
       if (tempSavedProducts) {
         try {
           tempSaved = JSON.parse(tempSavedProducts)
-          // Vymaž temporary cache po načtení
-          localStorage.removeItem('tempSavedProducts')
+          // NEMAZEJ temporary cache hned - zachovej pro další refresh!
           console.log('🔄 Loaded temp saved products from home page:', tempSaved.length)
         } catch (error) {
           console.error('Error parsing temp saved products:', error)
@@ -255,8 +254,7 @@ function UserAreaContent() {
       if (tempClickHistory) {
         try {
           tempClicks = JSON.parse(tempClickHistory)
-          // Vymaž temporary cache po načtení
-          localStorage.removeItem('tempClickHistory')
+          // NEMAZEJ temporary cache hned - zachovej pro další refresh!
           console.log('🔄 Loaded temp click history from home page:', tempClicks.length)
         } catch (error) {
           console.error('Error parsing temp click history:', error)
@@ -331,6 +329,10 @@ function UserAreaContent() {
             const cacheKey = `savedProducts_${session.user.email}`
             localStorage.setItem(cacheKey, JSON.stringify(mergedSaved))
             console.log('💾 Merged saved products cached for user:', session.user.email)
+            
+            // Teď můžeme vymazat temporary cache - data jsou synchronizovaná
+            localStorage.removeItem('tempSavedProducts')
+            console.log('🧹 Cleaned temp saved products after successful sync')
           }
         } else {
           // Žádné temporary items, použij jen data z databáze
@@ -368,6 +370,10 @@ function UserAreaContent() {
             const clickHistoryCacheKey = `clickHistory_${session.user.email}`
             localStorage.setItem(clickHistoryCacheKey, JSON.stringify(mergedHistory))
             console.log('💾 Merged click history cached for user:', session.user.email)
+            
+            // Teď můžeme vymazat temporary cache - data jsou synchronizovaná
+            localStorage.removeItem('tempClickHistory')
+            console.log('🧹 Cleaned temp click history after successful sync')
           }
         } else {
           // Žádné temporary items, použij jen data z databáze
