@@ -26,42 +26,43 @@ export default function Header() {
   // Fetch user avatar when user is authenticated
   useEffect(() => {
     if (status === 'authenticated' && session?.user?.email) {
-      // Nejdřív zkusíme načíst z cache pro okamžité zobrazení
       const avatarCacheKey = `avatar_${session.user.email}`
       const cachedAvatar = localStorage.getItem(avatarCacheKey)
       
       if (cachedAvatar) {
+        // Máme cache - použijeme ji a NEVOLÁME API!
         setAvatarUrl(cachedAvatar)
         setIsLoadingAvatar(false)
-        console.log('🔄 Header: Loaded avatar from cache')
-      }
-      
-      // Pak načteme z API pro aktualizaci
-      const fetchUserProfile = async () => {
-        setIsLoadingAvatar(true)
-        try {
-          const response = await fetch('/api/users/profile')
-          if (response.ok) {
-            const profile = await response.json()
-            if (profile.avatar) {
-              setAvatarUrl(profile.avatar)
-              
-              // Uložíme do cache
-              localStorage.setItem(avatarCacheKey, profile.avatar)
-              console.log('💾 Header: Avatar cached')
-            } else if (!cachedAvatar) {
-              // Žádný avatar ani v cache ani v databázi
-              setAvatarUrl(null)
+        console.log('✅ Header: Loaded avatar from cache, skipping API')
+      } else {
+        // Nemáme cache - načteme z API
+        console.log('🔄 Header: No cache found, loading from API...')
+        const fetchUserProfile = async () => {
+          setIsLoadingAvatar(true)
+          try {
+            const response = await fetch('/api/users/profile')
+            if (response.ok) {
+              const profile = await response.json()
+              if (profile.avatar) {
+                setAvatarUrl(profile.avatar)
+                
+                // Uložíme do cache
+                localStorage.setItem(avatarCacheKey, profile.avatar)
+                console.log('💾 Header: Avatar cached from API')
+              } else {
+                // Žádný avatar v databázi
+                setAvatarUrl(null)
+              }
             }
+          } catch (error) {
+            console.error('Error fetching user profile:', error)
+          } finally {
+            setIsLoadingAvatar(false)
           }
-        } catch (error) {
-          console.error('Error fetching user profile:', error)
-        } finally {
-          setIsLoadingAvatar(false)
         }
-      }
 
-      fetchUserProfile()
+        fetchUserProfile()
+      }
     } else {
       setAvatarUrl(null)
       setIsLoadingAvatar(false)
