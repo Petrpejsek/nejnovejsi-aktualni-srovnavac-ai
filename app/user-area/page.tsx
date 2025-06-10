@@ -828,7 +828,7 @@ function UserAreaContent() {
           .then(data => {
             setClickHistory(data || [])
             // Aktualizujeme cache s reálnými daty z databáze
-            if (typeof window !== 'undefined') {
+            if (typeof window !== 'undefined' && session?.user?.email) {
               const clickHistoryCacheKey = `clickHistory_${session.user.email}`
               localStorage.setItem(clickHistoryCacheKey, JSON.stringify(data || []))
             }
