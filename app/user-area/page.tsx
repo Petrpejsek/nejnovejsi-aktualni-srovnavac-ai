@@ -682,7 +682,23 @@ function UserAreaContent() {
 
   useEffect(() => {
     if (status === 'authenticated' && session?.user?.email) {
-      fetchUserProfile()
+      // Zkontrolujeme jestli máme cache, pokud ne, načteme z API
+      const avatarCacheKey = `avatar_${session.user.email}`
+      const savedProductsCacheKey = `savedProducts_${session.user.email}`
+      const clickHistoryCacheKey = `clickHistory_${session.user.email}`
+      
+      const hasAvatarCache = localStorage.getItem(avatarCacheKey)
+      const hasSavedCache = localStorage.getItem(savedProductsCacheKey)
+      const hasHistoryCache = localStorage.getItem(clickHistoryCacheKey)
+      
+      // Pokud nemáme žádnou cache, načteme z API
+      if (!hasAvatarCache && !hasSavedCache && !hasHistoryCache) {
+        console.log('🔄 No cache found, loading from API...')
+        fetchUserProfile()
+      } else {
+        console.log('✅ Cache found, skipping API call')
+      }
+      
       setLoading(false)
     } else if (status === 'unauthenticated') {
       setLoading(false)
@@ -732,8 +748,8 @@ function UserAreaContent() {
           console.log('💾 New avatar cached after upload')
         }
         
-        // Refresh profil pro aktualizaci dat v databázi
-        await fetchUserProfile()
+        // Avatar už je aktualizován v UI i cache - nepotřebujeme fetchUserProfile
+        // await fetchUserProfile() // ODSTRANENO: přepisovalo cache
         
         // Show success message with toast animation
         const toast = document.createElement('div')
@@ -791,8 +807,8 @@ function UserAreaContent() {
           console.log('💾 Avatar cache cleared after removal')
         }
         
-        // Refresh profil pro aktualizaci dat v databázi
-        await fetchUserProfile()
+        // Avatar už je odstraněn z UI i cache - nepotřebujeme fetchUserProfile
+        // await fetchUserProfile() // ODSTRANENO: přepisovalo cache
         
         // Show success message
         const toast = document.createElement('div')
