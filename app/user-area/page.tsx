@@ -288,6 +288,28 @@ function UserAreaContent() {
     }
   }, [session?.user?.email])
 
+  // Helper funkce pro toast notifikace
+  const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
+    const colors = {
+      success: 'bg-green-500',
+      error: 'bg-red-500', 
+      info: 'bg-blue-500'
+    }
+    
+    const toast = document.createElement('div')
+    toast.innerHTML = `
+      <div class="fixed top-4 right-4 ${colors[type]} text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-slide-in-right">
+        ${message}
+      </div>
+    `
+    document.body.appendChild(toast)
+    setTimeout(() => {
+      if (document.body.contains(toast)) {
+        document.body.removeChild(toast)
+      }
+    }, 4000)
+  }
+
   // Funkce pro načítání dat z API
   const fetchUserProfile = async () => {
     try {
@@ -439,49 +461,26 @@ function UserAreaContent() {
       savedProducts: prev.savedProducts - 1
     }))
     
-    // API volání v pozadí - bez await
+    // API volání v pozadí - ZJEDNODUŠENÁ logika bez race conditions
     try {
-      fetch(`/api/users/saved-products?productId=${productId}`, {
+      const response = await fetch(`/api/users/saved-products?productId=${productId}`, {
         method: 'DELETE',
-      }).then(response => {
-        setRemovingProducts(prev => {
-          const newSet = new Set(prev)
-          newSet.delete(productId)
-          return newSet
-        })
-        
-        if (!response.ok) {
-          // Chyba - vrátíme původní stav
-          console.error('Error removing product, reverting UI')
-          setSavedProducts(backupProducts)
-          setUserData(backupUserData)
-          
-          // Vrátíme cache do původního stavu
-          if (typeof window !== 'undefined' && session?.user?.email) {
-            const cacheKey = `savedProducts_${session.user.email}`
-            localStorage.setItem(cacheKey, JSON.stringify(backupProducts))
-            console.log('💾 Reverted saved products cache after error')
-          }
-          
-          // Zobrazíme chybovou zprávu
-          alert('Error removing product. Please try again.')
-        } else {
-          // Úspěch - aktualizujeme cache s novým stavem
-          const currentProducts = savedProducts.filter(p => p.productId !== productId)
-          if (typeof window !== 'undefined' && session?.user?.email) {
-            const cacheKey = `savedProducts_${session.user.email}`
-            localStorage.setItem(cacheKey, JSON.stringify(currentProducts))
-            console.log('💾 Updated saved products cache after removal')
-          }
+      })
+      
+      if (response.ok) {
+        // Úspěch - aktualizujeme cache s novým stavem (bez smazaného produktu)
+        const newProducts = backupProducts.filter(p => p.productId !== productId)
+        if (typeof window !== 'undefined' && session?.user?.email) {
+          const cacheKey = `savedProducts_${session.user.email}`
+          localStorage.setItem(cacheKey, JSON.stringify(newProducts))
+          console.log('💾 Updated saved products cache after successful removal')
         }
-      }).catch(error => {
-        // Síťová chyba - vrátíme původní stav
-        setRemovingProducts(prev => {
-          const newSet = new Set(prev)
-          newSet.delete(productId)
-          return newSet
-        })
-        console.error('Network error removing product, reverting UI:', error)
+        
+        // Success notifikace
+        showToast(`✅ Produkt "${productToRemove.productName}" byl odstraněn`, 'success')
+      } else {
+        // API chyba - vrátíme původní stav
+        console.error('API error removing product, reverting UI')
         setSavedProducts(backupProducts)
         setUserData(backupUserData)
         
@@ -489,18 +488,33 @@ function UserAreaContent() {
         if (typeof window !== 'undefined' && session?.user?.email) {
           const cacheKey = `savedProducts_${session.user.email}`
           localStorage.setItem(cacheKey, JSON.stringify(backupProducts))
-          console.log('💾 Reverted saved products cache after network error')
+          console.log('💾 Reverted saved products cache after API error')
         }
         
-        alert('Network error. Please check your connection and try again.')
-      })
+        // Zobrazíme chybovou zprávu pomocí toast místo alert
+        showToast('❌ Nepodařilo se odstranit produkt. Zkuste to znovu.', 'error')
+      }
     } catch (error) {
+      // Síťová chyba - vrátíme původní stav
+      console.error('Network error removing product, reverting UI:', error)
+      setSavedProducts(backupProducts)
+      setUserData(backupUserData)
+      
+      // Vrátíme cache do původního stavu
+      if (typeof window !== 'undefined' && session?.user?.email) {
+        const cacheKey = `savedProducts_${session.user.email}`
+        localStorage.setItem(cacheKey, JSON.stringify(backupProducts))
+        console.log('💾 Reverted saved products cache after network error')
+      }
+      
+      showToast('🌐 Síťová chyba. Zkontrolujte připojení k internetu.', 'error')
+    } finally {
+      // Vždy ukončíme loading state
       setRemovingProducts(prev => {
         const newSet = new Set(prev)
         newSet.delete(productId)
         return newSet
       })
-      console.error('Unexpected error with remove operation:', error)
     }
   }
 
@@ -716,12 +730,12 @@ function UserAreaContent() {
   const uploadAvatarFile = async (file: File) => {
     // Validate file
     if (!file.type.startsWith('image/')) {
-      alert('Please select an image file')
+      showToast('📷 Prosím vyberte soubor obrázku', 'error')
       return
     }
 
     if (file.size > 5 * 1024 * 1024) { // 5MB
-      alert('File size must be less than 5MB')
+      showToast('📦 Velikost souboru musí být menší než 5MB', 'error')
       return
     }
 
@@ -765,7 +779,7 @@ function UserAreaContent() {
       }
     } catch (error) {
       console.error('Avatar upload error:', error)
-      alert('Failed to upload avatar. Please try again.')
+      showToast('❌ Nepodařilo se nahrát avatar. Zkuste to znovu.', 'error')
     } finally {
       setIsUploadingAvatar(false)
     }
@@ -822,7 +836,7 @@ function UserAreaContent() {
       }
     } catch (error) {
       console.error('Error removing avatar:', error)
-      alert('Chyba při odstraňování obrázku')
+      showToast('❌ Chyba při odstraňování obrázku', 'error')
     }
   }
 
@@ -2163,7 +2177,7 @@ function UserAreaContent() {
                   <button
                     onClick={() => {
                       // Here you would normally save to backend
-                      alert('Email preferences saved!')
+                      showToast('✅ Nastavení emailových preferencí bylo uloženo!', 'success')
                     }}
                     className="px-6 py-2 bg-gradient-primary text-white rounded-lg hover-gradient-primary transition-all"
                   >
