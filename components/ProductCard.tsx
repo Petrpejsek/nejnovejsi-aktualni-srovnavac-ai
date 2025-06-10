@@ -124,7 +124,7 @@ const showToast = (message: string, type: 'success' | 'error' = 'success') => {
 export default function ProductCard({ id, name, description, price, imageUrl, tags, externalUrl, hasTrial, isBookmarked, onBookmarkChange }: ProductCardProps) {
   const [localBookmarked, setLocalBookmarked] = useState(isBookmarked || false)
   const [isAnimating, setIsAnimating] = useState(false)
-  const [isProcessing, setIsProcessing] = useState(false)
+
   const [showSignUpModal, setShowSignUpModal] = useState(false)
   const { data: session } = useSession()
 
@@ -198,22 +198,19 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
       return
     }
     
-    // Start processing and animation
-    setIsProcessing(true)
+    // Start just animation (no processing indicator)
     setIsAnimating(true)
     
     // OPTIMISTIC UPDATE - update UI immediately
     const newBookmarkedState = !localBookmarked
     setLocalBookmarked(newBookmarkedState)
     
-    // Bez zbytečného "Saving..." toast - ukážeme pouze finální stav
-    
     // Call parent callback immediately for UI consistency
     if (onBookmarkChange) {
       onBookmarkChange(id, newBookmarkedState)
     }
     
-    // End animation quickly but keep processing indicator
+    // End animation quickly
     setTimeout(() => setIsAnimating(false), 300)
     
     // API call in background - no await, non-blocking
@@ -233,7 +230,6 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
             price: hasTrial ? 0 : price
           }),
         }).then(response => {
-          setIsProcessing(false)
           if (!response.ok && response.status !== 409) {
             // Only revert on real errors (not 409 which means already saved)
             console.error('Error saving product, reverting UI')
@@ -266,7 +262,6 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
           }
         }).catch(error => {
           // Revert on network errors
-          setIsProcessing(false)
           console.error('Network error saving product, reverting UI:', error)
           setLocalBookmarked(false)
           showToast('Error saving', 'error')
@@ -279,7 +274,6 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
         fetch(`/api/users/saved-products?productId=${id}`, {
           method: 'DELETE'
         }).then(response => {
-          setIsProcessing(false)
           if (!response.ok) {
             // Revert on error
             console.error('Error removing product, reverting UI')
@@ -293,7 +287,6 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
           }
         }).catch(error => {
           // Revert on network errors
-          setIsProcessing(false)
           console.error('Network error removing product, reverting UI:', error)
           setLocalBookmarked(true)
           showToast('Error removing', 'error')
@@ -304,7 +297,6 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
       }
     } catch (error) {
       // This should not happen since we're not awaiting, but just in case
-      setIsProcessing(false)
       console.error('Unexpected error with bookmark operation:', error)
     }
   }
@@ -402,14 +394,11 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
         {/* Bookmark button with gentle animation and loading state */}
         <button
           onClick={handleBookmark}
-          disabled={isProcessing}
           className={`absolute top-2 left-2 w-8 h-8 bg-white bg-opacity-90 hover:bg-opacity-100 rounded-full flex items-center justify-center shadow-sm transition-all duration-300 hover:scale-110 ${
             isAnimating ? 'animate-pulse transform -translate-y-1' : ''
-          } ${isProcessing ? 'cursor-not-allowed opacity-75' : ''}`}
+          }`}
         >
-          {isProcessing ? (
-            <div className="w-4 h-4 border-2 border-purple-300 border-t-purple-600 rounded-full animate-spin"></div>
-          ) : localBookmarked ? (
+          {localBookmarked ? (
             <BookmarkFilledIcon className="w-4 h-4 text-purple-600" />
           ) : (
             <BookmarkIcon className="w-4 h-4 text-gray-600" />
