@@ -214,30 +214,70 @@ function UserAreaContent() {
       const savedProductsCacheKey = `savedProducts_${session.user.email}`
       const cachedProducts = localStorage.getItem(savedProductsCacheKey)
       
+      // NOVÉ: Načti temporary cache z hlavní stránky
+      const tempSavedProducts = localStorage.getItem('tempSavedProducts')
+      let tempSaved = []
+      if (tempSavedProducts) {
+        try {
+          tempSaved = JSON.parse(tempSavedProducts)
+          // Vymaž temporary cache po načtení
+          localStorage.removeItem('tempSavedProducts')
+          console.log('🔄 Loaded temp saved products from home page:', tempSaved.length)
+        } catch (error) {
+          console.error('Error parsing temp saved products:', error)
+        }
+      }
+      
       if (cachedProducts) {
         try {
           const parsedProducts = JSON.parse(cachedProducts)
-          setSavedProducts(parsedProducts)
+          // Slož regular cache + temporary cache
+          const combinedProducts = [...tempSaved, ...parsedProducts]
+          setSavedProducts(combinedProducts)
           setIsLoadingProducts(false) // Cache data are ready immediately
-          console.log('🔄 Loaded saved products from cache:', parsedProducts.length)
+          console.log('🔄 Loaded saved products from cache:', combinedProducts.length)
         } catch (error) {
           console.error('Error parsing cached products:', error)
         }
+      } else if (tempSaved.length > 0) {
+        // Jen temporary cache
+        setSavedProducts(tempSaved)
+        setIsLoadingProducts(false)
       }
 
       // Cache pro click history
       const clickHistoryCacheKey = `clickHistory_${session.user.email}`
       const cachedHistory = localStorage.getItem(clickHistoryCacheKey)
       
+      // NOVÉ: Načti temporary click history z hlavní stránky
+      const tempClickHistory = localStorage.getItem('tempClickHistory')
+      let tempClicks = []
+      if (tempClickHistory) {
+        try {
+          tempClicks = JSON.parse(tempClickHistory)
+          // Vymaž temporary cache po načtení
+          localStorage.removeItem('tempClickHistory')
+          console.log('🔄 Loaded temp click history from home page:', tempClicks.length)
+        } catch (error) {
+          console.error('Error parsing temp click history:', error)
+        }
+      }
+      
       if (cachedHistory) {
         try {
           const parsedHistory = JSON.parse(cachedHistory)
-          setClickHistory(parsedHistory)
+          // Slož regular cache + temporary cache
+          const combinedHistory = [...tempClicks, ...parsedHistory]
+          setClickHistory(combinedHistory)
           setIsLoadingHistory(false) // Cache data are ready immediately
-          console.log('🔄 Loaded click history from cache:', parsedHistory.length)
+          console.log('🔄 Loaded click history from cache:', combinedHistory.length)
         } catch (error) {
           console.error('Error parsing cached click history:', error)
         }
+      } else if (tempClicks.length > 0) {
+        // Jen temporary cache
+        setClickHistory(tempClicks)
+        setIsLoadingHistory(false)
       }
     }
   }, [session?.user?.email])
