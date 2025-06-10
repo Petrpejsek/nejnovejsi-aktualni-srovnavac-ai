@@ -808,7 +808,7 @@ function UserAreaContent() {
     })
   }
 
-  // OPTIMISTICKÁ FUNKCE PRO PŘIDÁNÍ DO CLICK HISTORY
+  // JEDNODUCHÉ AKTUALIZACE CLICK HISTORY CACHE (bez optimistic updates)
   const addToClickHistory = (product: {
     id: string
     name: string
@@ -817,78 +817,28 @@ function UserAreaContent() {
     price?: number
     externalUrl?: string
   }): void => {
-    // Rychlá kontrola zda už není v historii (podle productId)
-    if (clickHistory.some(h => h.productId === product.id)) {
-      // Produkt už je v historii - pouze aktualizujeme časové razítko (přesuneme nahoru)
-      const updatedHistory = clickHistory.filter(h => h.productId !== product.id)
-      const newItem: ClickHistoryItem = {
-        id: `temp-${Date.now()}`,
-        productId: product.id,
-        productName: product.name,
-        category: product.category || null,
-        imageUrl: product.imageUrl || null,
-        price: product.price || null,
-        externalUrl: product.externalUrl || null,
-        clickedAt: new Date().toISOString()
+    // Čekáme na reálné ukládání přes /api/redirect a pak refreshujeme data
+    console.log('🎯 Click will be tracked via /api/redirect for:', product.name)
+    
+    // Po kliknutí refreshneme click history za krátkou chvíli
+    setTimeout(() => {
+      if (session?.user?.email) {
+        fetch('/api/users/click-history')
+          .then(response => response.json())
+          .then(data => {
+            setClickHistory(data || [])
+            // Aktualizujeme cache s reálnými daty z databáze
+            if (typeof window !== 'undefined') {
+              const clickHistoryCacheKey = `clickHistory_${session.user.email}`
+              localStorage.setItem(clickHistoryCacheKey, JSON.stringify(data || []))
+            }
+            console.log('✅ Click history refreshed after click:', data?.length || 0)
+          })
+          .catch(error => {
+            console.error('Error refreshing click history:', error)
+          })
       }
-      const newHistory = [newItem, ...updatedHistory]
-      setClickHistory(newHistory)
-      
-      // Aktualizujeme cache
-      if (typeof window !== 'undefined' && session?.user?.email) {
-        const clickHistoryCacheKey = `clickHistory_${session.user.email}`
-        localStorage.setItem(clickHistoryCacheKey, JSON.stringify(newHistory))
-      }
-      
-      console.log('🎯 Optimistic: Updated click history position for:', product.name)
-      return
-    }
-    
-    // OPTIMISTIC UPDATE - okamžitě přidáme do UI
-    const newHistoryItem: ClickHistoryItem = {
-      id: `temp-${Date.now()}`, // Temporary ID
-      productId: product.id,
-      productName: product.name,
-      category: product.category || null,
-      imageUrl: product.imageUrl || null,
-      price: product.price || null,
-      externalUrl: product.externalUrl || null,
-      clickedAt: new Date().toISOString()
-    }
-    
-    // Okamžitě aktualizujeme UI - přidáme na začátek
-    const updatedHistory = [newHistoryItem, ...clickHistory]
-    setClickHistory(updatedHistory)
-    
-    // Okamžitě aktualizujeme cache pro rychlé zobrazení při příštím refresh
-    if (typeof window !== 'undefined' && session?.user?.email) {
-      const clickHistoryCacheKey = `clickHistory_${session.user.email}`
-      localStorage.setItem(clickHistoryCacheKey, JSON.stringify(updatedHistory))
-      console.log('💾 Click history cache updated optimistically')
-    }
-    
-    console.log('🎯 Optimistic: Added product to click history:', product.name)
-    
-    // Nepotřebujeme extra API volání - historie se již ukládá automaticky přes /api/redirect endpoint
-    // Pouze obnovíme data z API po chvíli pro synchronizaci
-         setTimeout(() => {
-       if (session?.user?.email) {
-         fetch('/api/users/click-history')
-           .then(response => response.json())
-           .then(data => {
-             setClickHistory(data || [])
-             // Aktualizujeme cache s reálnými daty
-             if (typeof window !== 'undefined' && session?.user?.email) {
-               const clickHistoryCacheKey = `clickHistory_${session.user.email}`
-               localStorage.setItem(clickHistoryCacheKey, JSON.stringify(data || []))
-             }
-             console.log('✅ Click history synced with server')
-           })
-           .catch(error => {
-             console.error('Error syncing click history:', error)
-           })
-       }
-     }, 2000) // Synchronizace za 2 sekundy
+    }, 1000) // Refresh za 1 sekundu po kliknutí
   }
 
   // Nastavení globálních funkcí pro ProductCard komponenty
