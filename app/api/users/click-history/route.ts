@@ -12,28 +12,45 @@ export async function GET() {
   try {
     const session = await getServerSession(authOptions)
     
+    console.log('🔧 DEBUG: Click history request from:', session?.user?.email || 'not logged in')
+    
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Načíst historii kliků uživatele
+    // Najdeme uživatele nejdřív
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email }
+    })
+    
+    console.log('🔧 DEBUG: User found:', user?.id || 'not found')
+
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 })
+    }
+
+    // PŘÍMÝ DOTAZ s userId místo User relation
     const clickHistory = await prisma.clickHistory.findMany({
       where: {
-        User: {
-          email: session.user.email
-        }
+        userId: user.id  // Přímý vztah místo User relation
       },
       orderBy: {
         clickedAt: 'desc'
-      }
+      },
+      take: 50
     })
 
-    console.log(`🔍 Click history loaded for user: ${session.user.email}, count: ${clickHistory.length}`)
+    console.log(`🔧 DEBUG: Found ${clickHistory.length} clicks for userId: ${user.id}`)
+    if (clickHistory.length > 0) {
+      console.log('🔧 DEBUG: First click:', clickHistory[0])
+    }
 
-    return NextResponse.json(clickHistory)
+    // VŽDY vrátíme pole, i když je prázdné
+    return NextResponse.json(clickHistory || [])
   } catch (error) {
-    console.error('Error loading click history:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    console.error('🔧 DEBUG: Error loading click history:', error)
+    // I při chybě vrátíme prázdné pole místo error
+    return NextResponse.json([])
   }
 }
 

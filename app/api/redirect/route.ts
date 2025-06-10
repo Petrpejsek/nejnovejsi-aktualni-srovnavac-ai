@@ -13,6 +13,8 @@ export async function GET(request: NextRequest) {
     const productId = searchParams.get('productId')
     const externalUrl = searchParams.get('externalUrl')
 
+    console.log('🔧 DEBUG: Redirect called with:', { productId, externalUrl })
+
     if (!productId || !externalUrl) {
       return NextResponse.json({ error: 'Product ID and external URL are required' }, { status: 400 })
     }
@@ -25,6 +27,7 @@ export async function GET(request: NextRequest) {
     }
 
     const session = await getServerSession(authOptions)
+    console.log('🔧 DEBUG: Session:', session?.user?.email || 'not logged in')
     
     // If user is logged in, record click history
     if (session?.user?.email) {
@@ -32,6 +35,8 @@ export async function GET(request: NextRequest) {
         const user = await prisma.user.findUnique({
           where: { email: session.user.email }
         })
+
+        console.log('🔧 DEBUG: User found:', user?.id || 'not found')
 
         if (user) {
           // Get product details for better tracking
@@ -44,36 +49,38 @@ export async function GET(request: NextRequest) {
               price: true
             }
           })
+          
+          console.log('🔧 DEBUG: Product found:', product?.name || 'not found')
+          
+          // Record click in history (even if product not found)
+          const clickRecord = await prisma.clickHistory.create({
+            data: {
+              id: uuidv4(),
+              userId: user.id,
+              productId,
+              productName: product?.name || productId,
+              category: product?.category || null,
+              imageUrl: product?.imageUrl || null,
+              price: product?.price || null,
+              externalUrl
+            }
+          })
 
-          if (product) {
-            // Record click in history
-            await prisma.clickHistory.create({
-              data: {
-                id: uuidv4(),
-                userId: user.id,
-                productId,
-                productName: product.name,
-                category: product.category,
-                imageUrl: product.imageUrl,
-                price: product.price,
-                externalUrl
-              }
-            })
-
-            console.log(`🔗 Click tracked for user: ${session.user.email}, product: ${product.name}`)
-          }
+          console.log(`🔗 DEBUG: Click tracked successfully! ID: ${clickRecord.id}`)
         }
       } catch (trackingError) {
-        console.error('Error tracking click:', trackingError)
+        console.error('🔧 DEBUG: Error tracking click:', trackingError)
         // Continue with redirect even if tracking fails
       }
+    } else {
+      console.log('🔧 DEBUG: User not logged in, skipping tracking')
     }
 
     // Perform server-side redirect
     return NextResponse.redirect(externalUrl)
 
   } catch (error) {
-    console.error('Error in redirect API:', error)
+    console.error('🔧 DEBUG: Error in redirect API:', error)
     return NextResponse.redirect('/error')
   }
 }
@@ -114,23 +121,21 @@ export async function POST(request: NextRequest) {
             }
           })
 
-          if (product) {
-            // Record click in history
-            await prisma.clickHistory.create({
-              data: {
-                id: uuidv4(),
-                userId: user.id,
-                productId,
-                productName: product.name,
-                category: product.category,
-                imageUrl: product.imageUrl,
-                price: product.price,
-                externalUrl
-              }
-            })
+          // Record click in history (even if product not found)
+          await prisma.clickHistory.create({
+            data: {
+              id: uuidv4(),
+              userId: user.id,
+              productId,
+              productName: product?.name || productId,
+              category: product?.category || null,
+              imageUrl: product?.imageUrl || null,
+              price: product?.price || null,
+              externalUrl
+            }
+          })
 
-            console.log(`🔗 Click tracked for user: ${session.user.email}, product: ${product.name}`)
-          }
+          console.log(`🔗 Click tracked for user: ${session.user.email}, productId: ${productId}`)
         }
       } catch (trackingError) {
         console.error('Error tracking click:', trackingError)

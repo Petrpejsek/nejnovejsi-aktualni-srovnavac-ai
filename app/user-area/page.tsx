@@ -808,7 +808,7 @@ function UserAreaContent() {
     })
   }
 
-  // JEDNODUCHÉ AKTUALIZACE CLICK HISTORY CACHE (bez optimistic updates)
+  // OPTIMISTICKÁ FUNKCE PRO CLICK HISTORY  
   const addToClickHistory = (product: {
     id: string
     name: string
@@ -817,28 +817,41 @@ function UserAreaContent() {
     price?: number
     externalUrl?: string
   }): void => {
-    // Čekáme na reálné ukládání přes /api/redirect a pak refreshujeme data
-    console.log('🎯 Click will be tracked via /api/redirect for:', product.name)
+    // Rychlá kontrola zda už není v historii (posledních 10 položek pro výkon)
+    const recentHistory = clickHistory.slice(0, 10)
+    if (recentHistory.some(item => item.productId === product.id)) {
+      console.log('Product recently clicked:', product.name)
+      return
+    }
     
-    // Po kliknutí refreshneme click history za krátkou chvíli
-    setTimeout(() => {
-      if (session?.user?.email) {
-        fetch('/api/users/click-history')
-          .then(response => response.json())
-          .then(data => {
-            setClickHistory(data || [])
-            // Aktualizujeme cache s reálnými daty z databáze
-            if (typeof window !== 'undefined' && session?.user?.email) {
-              const clickHistoryCacheKey = `clickHistory_${session.user.email}`
-              localStorage.setItem(clickHistoryCacheKey, JSON.stringify(data || []))
-            }
-            console.log('✅ Click history refreshed after click:', data?.length || 0)
-          })
-          .catch(error => {
-            console.error('Error refreshing click history:', error)
-          })
-      }
-    }, 1000) // Refresh za 1 sekundu po kliknutí
+    // OPTIMISTIC UPDATE - okamžitě přidáme do UI na začátek seznamu
+    const newClickHistoryItem: ClickHistoryItem = {
+      id: `temp-${Date.now()}`, // Temporary ID
+      productId: product.id,
+      productName: product.name,
+      category: product.category || null,
+      imageUrl: product.imageUrl || null,
+      price: product.price || null,
+      externalUrl: product.externalUrl || null,
+      clickedAt: new Date().toISOString()
+    }
+    
+    // Okamžitě aktualizujeme UI (přidáme na začátek)
+    const updatedHistory = [newClickHistoryItem, ...clickHistory]
+    setClickHistory(updatedHistory)
+    
+    // Okamžitě aktualizujeme cache pro rychlé zobrazení při příštím refresh
+    if (typeof window !== 'undefined' && session?.user?.email) {
+      const cacheKey = `clickHistory_${session.user.email}`
+      localStorage.setItem(cacheKey, JSON.stringify(updatedHistory))
+      console.log('💾 Click history cache updated optimistically')
+    }
+    
+    console.log('🎯 Optimistic: Added product to click history:', product.name)
+    
+    // API volání v pozadí - /api/redirect se volá automaticky z ProductCard
+    // Tady jen pro jistotu zalogujeme že se bude volat redirect
+    console.log('🔗 API: /api/redirect will be called automatically for:', product.name)
   }
 
   // Nastavení globálních funkcí pro ProductCard komponenty
