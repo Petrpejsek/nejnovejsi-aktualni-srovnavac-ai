@@ -205,6 +205,9 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
     const newBookmarkedState = !localBookmarked
     setLocalBookmarked(newBookmarkedState)
     
+    // Okamžitě zobrazíme toast bez čekání na API
+    showToast(newBookmarkedState ? 'Saved!' : 'Removed!', 'success')
+    
     // Call parent callback immediately for UI consistency
     if (onBookmarkChange) {
       onBookmarkChange(id, newBookmarkedState)
@@ -239,7 +242,7 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
               onBookmarkChange(id, false)
             }
           } else {
-            showToast('Saved!', 'success')
+            // Úspěch - toast už byl zobrazen okamžitě
             
             // OPTIMISTIC: Přidej do my account bez čekání
             if (typeof window !== 'undefined' && window.addToSavedProducts) {
@@ -283,7 +286,7 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
               onBookmarkChange(id, true)
             }
           } else {
-            showToast('Removed!', 'success')
+            // Úspěch - toast už byl zobrazen okamžitě
           }
         }).catch(error => {
           // Revert on network errors

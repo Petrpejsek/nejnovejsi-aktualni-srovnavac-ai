@@ -908,7 +908,7 @@ function UserAreaContent() {
         delete window.addToClickHistory
       }
     }
-  }, [savedProducts, userData, session, clickHistory]) // Přidáváme dependency pro aktuální states
+  }, [addToSavedProducts, addToClickHistory]) // Používáme referenční dependency na funkce
 
   if (loading) {
     return (
