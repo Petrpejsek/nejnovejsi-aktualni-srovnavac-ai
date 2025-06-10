@@ -228,21 +228,44 @@ function UserAreaContent() {
 
   // Funkce pro odstranění produktu
   const handleRemoveProduct = async (productId: string) => {
+    // OPTIMISTIC UPDATE - okamžitě odstraníme z UI
+    const productToRemove = savedProducts.find(p => p.productId === productId)
+    
+    if (!productToRemove) return
+    
+    // Uložíme backup pro případ chyby
+    const backupProducts = [...savedProducts]
+    const backupUserData = { ...userData }
+    
+    // Okamžitě aktualizujeme UI
+    setSavedProducts(prev => prev.filter(p => p.productId !== productId))
+    setUserData(prev => ({
+      ...prev,
+      savedProducts: prev.savedProducts - 1
+    }))
+    
+    // API volání v pozadí - bez await
     try {
-      const response = await fetch(`/api/users/saved-products?productId=${productId}`, {
+      fetch(`/api/users/saved-products?productId=${productId}`, {
         method: 'DELETE',
+      }).then(response => {
+        if (!response.ok) {
+          // Chyba - vrátíme původní stav
+          console.error('Error removing product, reverting UI')
+          setSavedProducts(backupProducts)
+          setUserData(backupUserData)
+          // Zobrazíme chybovou zprávu (můžeme použít toast notification)
+          alert('Error removing product. Please try again.')
+        }
+      }).catch(error => {
+        // Síťová chyba - vrátíme původní stav
+        console.error('Network error removing product, reverting UI:', error)
+        setSavedProducts(backupProducts)
+        setUserData(backupUserData)
+        alert('Network error. Please check your connection and try again.')
       })
-
-      if (response.ok) {
-        setSavedProducts(prev => prev.filter(p => p.productId !== productId))
-        // Update userData
-        setUserData(prev => ({
-          ...prev,
-          savedProducts: prev.savedProducts - 1
-        }))
-      }
     } catch (error) {
-      console.error('Error removing product:', error)
+      console.error('Unexpected error with remove operation:', error)
     }
   }
 

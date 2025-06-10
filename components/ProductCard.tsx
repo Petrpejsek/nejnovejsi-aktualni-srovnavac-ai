@@ -183,16 +183,29 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
       return
     }
     
-    // Start animation
+    // Start animation immediately
     setIsAnimating(true)
     
-    // Toggle bookmark
+    // OPTIMISTIC UPDATE - update UI immediately
     const newBookmarkedState = !localBookmarked
+    setLocalBookmarked(newBookmarkedState)
     
+    // Show immediate visual feedback
+    showToast(newBookmarkedState ? 'Saved' : 'Removed')
+    
+    // Call parent callback immediately for UI consistency
+    if (onBookmarkChange) {
+      onBookmarkChange(id, newBookmarkedState)
+    }
+    
+    // End animation quickly
+    setTimeout(() => setIsAnimating(false), 300)
+    
+    // API call in background - no await, non-blocking
     try {
       if (newBookmarkedState) {
-        // Save product
-        const response = await fetch('/api/users/saved-products', {
+        // Save product in background
+        fetch('/api/users/saved-products', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -204,45 +217,52 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
             imageUrl: imageUrl,
             price: hasTrial ? 0 : price
           }),
-        })
-        
-        if (response.ok) {
-          setLocalBookmarked(true)
-          showToast('Saved')
-          console.log('Product saved successfully!')
-        } else if (response.status === 409) {
-          console.log('Product already saved')
-          setLocalBookmarked(true)
-          showToast('Saved')
-        } else {
-          console.error('Error saving product')
-          return
-        }
-      } else {
-        // Remove product
-        const response = await fetch(`/api/users/saved-products?productId=${id}`, {
-          method: 'DELETE'
-        })
-        
-        if (response.ok) {
+        }).then(response => {
+          if (!response.ok && response.status !== 409) {
+            // Only revert on real errors (not 409 which means already saved)
+            console.error('Error saving product, reverting UI')
+            setLocalBookmarked(false)
+            showToast('Error saving', 'error')
+            if (onBookmarkChange) {
+              onBookmarkChange(id, false)
+            }
+          }
+        }).catch(error => {
+          // Revert on network errors
+          console.error('Network error saving product, reverting UI:', error)
           setLocalBookmarked(false)
-          console.log('Product removed successfully!')
-        } else {
-          console.error('Error removing product')
-          return
-        }
+          showToast('Error saving', 'error')
+          if (onBookmarkChange) {
+            onBookmarkChange(id, false)
+          }
+        })
+      } else {
+        // Remove product in background
+        fetch(`/api/users/saved-products?productId=${id}`, {
+          method: 'DELETE'
+        }).then(response => {
+          if (!response.ok) {
+            // Revert on error
+            console.error('Error removing product, reverting UI')
+            setLocalBookmarked(true)
+            showToast('Error removing', 'error')
+            if (onBookmarkChange) {
+              onBookmarkChange(id, true)
+            }
+          }
+        }).catch(error => {
+          // Revert on network errors
+          console.error('Network error removing product, reverting UI:', error)
+          setLocalBookmarked(true)
+          showToast('Error removing', 'error')
+          if (onBookmarkChange) {
+            onBookmarkChange(id, true)
+          }
+        })
       }
-      
-      // Call parent callback if provided
-      if (onBookmarkChange) {
-        onBookmarkChange(id, newBookmarkedState)
-      }
-      
     } catch (error) {
-      console.error('Error with bookmark operation:', error)
-    } finally {
-      // End animation
-      setTimeout(() => setIsAnimating(false), 300)
+      // This should not happen since we're not awaiting, but just in case
+      console.error('Unexpected error with bookmark operation:', error)
     }
   }
 

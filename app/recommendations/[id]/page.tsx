@@ -96,17 +96,31 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
       return
     }
 
-    // Start animation
+    // Start animation immediately
     setIsAnimating(true)
 
-    try {
-      // Toggle save state
+    // OPTIMISTIC UPDATE - okamžitě aktualizujeme UI
     const newSaved = new Set(savedItems)
-      const isCurrentlySaved = newSaved.has(id)
-      
+    const isCurrentlySaved = newSaved.has(id)
+    
+    if (!isCurrentlySaved) {
+      newSaved.add(id)
+      setSavedItems(newSaved)
+      showToast('Saved')
+    } else {
+      newSaved.delete(id)
+      setSavedItems(newSaved)
+      showToast('Removed')
+    }
+    
+    // End animation quickly
+    setTimeout(() => setIsAnimating(false), 300)
+
+    // API call in background - no await, non-blocking
+    try {
       if (!isCurrentlySaved) {
-        // Save product
-        const response = await fetch('/api/users/saved-products', {
+        // Save product in background
+        fetch('/api/users/saved-products', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -118,37 +132,47 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
             imageUrl: product?.imageUrl,
             price: product?.hasTrial ? 0 : product?.price || 0
           }),
+        }).then(response => {
+          if (!response.ok && response.status !== 409) {
+            // Only revert on real errors (not 409 which means already saved)
+            console.error('Error saving product, reverting UI')
+            const revertedSaved = new Set(savedItems)
+            revertedSaved.delete(id)
+            setSavedItems(revertedSaved)
+            showToast('Error saving', 'error')
+          }
+        }).catch(error => {
+          // Revert on network errors
+          console.error('Network error saving product, reverting UI:', error)
+          const revertedSaved = new Set(savedItems)
+          revertedSaved.delete(id)
+          setSavedItems(revertedSaved)
+          showToast('Error saving', 'error')
         })
-        
-        if (response.ok) {
-          newSaved.add(id)
-          setSavedItems(newSaved)
-          showToast('Saved')
-        } else if (response.status === 409) {
-          newSaved.add(id)
-          setSavedItems(newSaved)
-          showToast('Saved')
-        } else {
-          console.error('Error saving product')
-        }
       } else {
-        // Remove product
-        const response = await fetch(`/api/users/saved-products?productId=${id}`, {
+        // Remove product in background
+        fetch(`/api/users/saved-products?productId=${id}`, {
           method: 'DELETE'
+        }).then(response => {
+          if (!response.ok) {
+            // Revert on error
+            console.error('Error removing product, reverting UI')
+            const revertedSaved = new Set(savedItems)
+            revertedSaved.add(id)
+            setSavedItems(revertedSaved)
+            showToast('Error removing', 'error')
+          }
+        }).catch(error => {
+          // Revert on network errors
+          console.error('Network error removing product, reverting UI:', error)
+          const revertedSaved = new Set(savedItems)
+          revertedSaved.add(id)
+          setSavedItems(revertedSaved)
+          showToast('Error removing', 'error')
         })
-        
-        if (response.ok) {
-      newSaved.delete(id)
-          setSavedItems(newSaved)
-    } else {
-          console.error('Error removing product')
-        }
       }
     } catch (error) {
-      console.error('Error with save operation:', error)
-    } finally {
-      // End animation
-      setTimeout(() => setIsAnimating(false), 300)
+      console.error('Unexpected error with save operation:', error)
     }
   }
 
