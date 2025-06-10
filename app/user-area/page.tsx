@@ -210,6 +210,14 @@ function UserAreaContent() {
   // Načtení dat z local storage při mount (rychlé zobrazení před API voláním)
   useEffect(() => {
     if (typeof window !== 'undefined' && session?.user?.email) {
+      // Cache pro avatar
+      const avatarCacheKey = `avatar_${session.user.email}`
+      const cachedAvatar = localStorage.getItem(avatarCacheKey)
+      if (cachedAvatar) {
+        setAvatarUrl(cachedAvatar)
+        console.log('🔄 Loaded avatar from cache')
+      }
+      
       // Cache pro saved products
       const savedProductsCacheKey = `savedProducts_${session.user.email}`
       const cachedProducts = localStorage.getItem(savedProductsCacheKey)
@@ -299,9 +307,16 @@ function UserAreaContent() {
           rewards: 0
         })
         
-        // Nastavíme avatar URL pokud existuje
+        // Nastavíme avatar URL pokud existuje a uložíme do cache
         if (profile.avatar) {
           setAvatarUrl(profile.avatar)
+          
+          // Uložíme avatar do cache pro rychlé načtení při příštím refresh
+          if (typeof window !== 'undefined' && session?.user?.email) {
+            const avatarCacheKey = `avatar_${session.user.email}`
+            localStorage.setItem(avatarCacheKey, profile.avatar)
+            console.log('💾 Avatar cached for user:', session.user.email)
+          }
         }
 
         // Nastavíme display name do local state
@@ -710,6 +725,13 @@ function UserAreaContent() {
         setAvatarUrl(data.avatarUrl)
         setShowAvatarModal(false) // Zavřeme modal
         
+        // Okamžitě aktualizujeme cache
+        if (typeof window !== 'undefined' && session?.user?.email) {
+          const avatarCacheKey = `avatar_${session.user.email}`
+          localStorage.setItem(avatarCacheKey, data.avatarUrl)
+          console.log('💾 New avatar cached after upload')
+        }
+        
         // Refresh profil pro aktualizaci dat v databázi
         await fetchUserProfile()
         
@@ -761,6 +783,13 @@ function UserAreaContent() {
 
       if (response.ok) {
         setAvatarUrl(null)
+        
+        // Vymažeme avatar z cache
+        if (typeof window !== 'undefined' && session?.user?.email) {
+          const avatarCacheKey = `avatar_${session.user.email}`
+          localStorage.removeItem(avatarCacheKey)
+          console.log('💾 Avatar cache cleared after removal')
+        }
         
         // Refresh profil pro aktualizaci dat v databázi
         await fetchUserProfile()

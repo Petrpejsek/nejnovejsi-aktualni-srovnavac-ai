@@ -25,8 +25,19 @@ export default function Header() {
 
   // Fetch user avatar when user is authenticated
   useEffect(() => {
-    const fetchUserProfile = async () => {
-      if (session?.user?.email) {
+    if (status === 'authenticated' && session?.user?.email) {
+      // Nejdřív zkusíme načíst z cache pro okamžité zobrazení
+      const avatarCacheKey = `avatar_${session.user.email}`
+      const cachedAvatar = localStorage.getItem(avatarCacheKey)
+      
+      if (cachedAvatar) {
+        setAvatarUrl(cachedAvatar)
+        setIsLoadingAvatar(false)
+        console.log('🔄 Header: Loaded avatar from cache')
+      }
+      
+      // Pak načteme z API pro aktualizaci
+      const fetchUserProfile = async () => {
         setIsLoadingAvatar(true)
         try {
           const response = await fetch('/api/users/profile')
@@ -34,6 +45,13 @@ export default function Header() {
             const profile = await response.json()
             if (profile.avatar) {
               setAvatarUrl(profile.avatar)
+              
+              // Uložíme do cache
+              localStorage.setItem(avatarCacheKey, profile.avatar)
+              console.log('💾 Header: Avatar cached')
+            } else if (!cachedAvatar) {
+              // Žádný avatar ani v cache ani v databázi
+              setAvatarUrl(null)
             }
           }
         } catch (error) {
@@ -42,9 +60,7 @@ export default function Header() {
           setIsLoadingAvatar(false)
         }
       }
-    }
 
-    if (status === 'authenticated') {
       fetchUserProfile()
     } else {
       setAvatarUrl(null)
