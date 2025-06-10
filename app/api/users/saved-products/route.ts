@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
 import { PrismaClient } from '@prisma/client'
+import { v4 as uuidv4 } from 'uuid'
 
 // Force dynamic rendering to fix Vercel build error with headers()
 export const dynamic = 'force-dynamic'
@@ -122,6 +123,7 @@ export async function POST(request: NextRequest) {
     // Uložíme produkt
     const savedProduct = await prisma.savedProduct.create({
       data: {
+        id: uuidv4(),
         userId: user.id,
         productId,
         productName,
