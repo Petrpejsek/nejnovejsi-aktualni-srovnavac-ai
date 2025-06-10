@@ -462,10 +462,12 @@ function UserAreaContent() {
     }))
     
     // API volání v pozadí - ZJEDNODUŠENÁ logika bez race conditions
+    console.log('🗑️ Attempting to delete product:', productId)
     try {
       const response = await fetch(`/api/users/saved-products?productId=${productId}`, {
         method: 'DELETE',
       })
+      console.log('🗑️ Delete response status:', response.status)
       
       if (response.ok) {
         // Úspěch - aktualizujeme cache s novým stavem (bez smazaného produktu)

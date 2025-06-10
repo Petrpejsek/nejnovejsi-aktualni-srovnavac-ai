@@ -147,13 +147,16 @@ export async function DELETE(request: NextRequest) {
     const session = await getServerSession(authOptions)
     
     if (!session?.user?.email) {
+      console.log('🚨 DELETE: Unauthorized - no session')
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const { searchParams } = new URL(request.url)
     const productId = searchParams.get('productId')
+    console.log('🗑️ DELETE: Attempting to delete productId:', productId)
 
     if (!productId) {
+      console.log('🚨 DELETE: Missing productId')
       return NextResponse.json({ error: 'Product ID is required' }, { status: 400 })
     }
 
@@ -163,11 +166,14 @@ export async function DELETE(request: NextRequest) {
     })
 
     if (!user) {
+      console.log('🚨 DELETE: User not found for email:', session.user.email)
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
+    console.log('🗑️ DELETE: Found user:', user.id, 'deleting product:', productId)
+
     // Odstraníme produkt
-    await prisma.savedProduct.delete({
+    const deleteResult = await prisma.savedProduct.delete({
       where: {
         userId_productId: {
           userId: user.id,
@@ -176,10 +182,11 @@ export async function DELETE(request: NextRequest) {
       }
     })
 
+    console.log('✅ DELETE: Successfully deleted product:', deleteResult)
     return NextResponse.json({ message: 'Product removed successfully' })
     
   } catch (error) {
-    console.error('Error removing product:', error)
+    console.error('🚨 DELETE: Error removing product:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   } finally {
     await prisma.$disconnect()
