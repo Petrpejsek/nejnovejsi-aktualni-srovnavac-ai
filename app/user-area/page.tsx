@@ -101,6 +101,7 @@ function UserAreaContent() {
   const [showClearAllModal, setShowClearAllModal] = useState(false)
   const [clearAllStep, setClearAllStep] = useState(1)
   const [clearingAll, setClearingAll] = useState(false)
+  const [removingProducts, setRemovingProducts] = useState<Set<string>>(new Set()) // Loading state pro jednotlivé produkty
   
   const [rewards, setRewards] = useState<Reward[]>([])
 
@@ -228,10 +229,20 @@ function UserAreaContent() {
 
   // Funkce pro odstranění produktu
   const handleRemoveProduct = async (productId: string) => {
+    // Přidáme loading state pro tento produkt
+    setRemovingProducts(prev => new Set(prev).add(productId))
+    
     // OPTIMISTIC UPDATE - okamžitě odstraníme z UI
     const productToRemove = savedProducts.find(p => p.productId === productId)
     
-    if (!productToRemove) return
+    if (!productToRemove) {
+      setRemovingProducts(prev => {
+        const newSet = new Set(prev)
+        newSet.delete(productId)
+        return newSet
+      })
+      return
+    }
     
     // Uložíme backup pro případ chyby
     const backupProducts = [...savedProducts]
@@ -249,22 +260,38 @@ function UserAreaContent() {
       fetch(`/api/users/saved-products?productId=${productId}`, {
         method: 'DELETE',
       }).then(response => {
+        setRemovingProducts(prev => {
+          const newSet = new Set(prev)
+          newSet.delete(productId)
+          return newSet
+        })
+        
         if (!response.ok) {
           // Chyba - vrátíme původní stav
           console.error('Error removing product, reverting UI')
           setSavedProducts(backupProducts)
           setUserData(backupUserData)
-          // Zobrazíme chybovou zprávu (můžeme použít toast notification)
+          // Zobrazíme chybovou zprávu
           alert('Error removing product. Please try again.')
         }
       }).catch(error => {
         // Síťová chyba - vrátíme původní stav
+        setRemovingProducts(prev => {
+          const newSet = new Set(prev)
+          newSet.delete(productId)
+          return newSet
+        })
         console.error('Network error removing product, reverting UI:', error)
         setSavedProducts(backupProducts)
         setUserData(backupUserData)
         alert('Network error. Please check your connection and try again.')
       })
     } catch (error) {
+      setRemovingProducts(prev => {
+        const newSet = new Set(prev)
+        newSet.delete(productId)
+        return newSet
+      })
       console.error('Unexpected error with remove operation:', error)
     }
   }
@@ -917,18 +944,27 @@ function UserAreaContent() {
                                 {(!product.price || product.price === 0) ? 'Try for Free' : 'Try it'}
                               </button>
                               
-                              {/* Tlačítko pro smazání */}
+                              {/* Tlačítko pro smazání s loading stavem */}
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation()
                                   handleRemoveProduct(product.productId)
                                 }}
-                                className="p-1.5 text-gray-400 hover:text-red-500 transition-colors"
-                                title="Remove from saved"
+                                disabled={removingProducts.has(product.productId)}
+                                className={`p-1.5 transition-colors ${
+                                  removingProducts.has(product.productId) 
+                                    ? 'text-gray-300 cursor-not-allowed' 
+                                    : 'text-gray-400 hover:text-red-500'
+                                }`}
+                                title={removingProducts.has(product.productId) ? "Removing..." : "Remove from saved"}
                               >
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                </svg>
+                                {removingProducts.has(product.productId) ? (
+                                  <div className="w-4 h-4 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin"></div>
+                                ) : (
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                  </svg>
+                                )}
                               </button>
                             </div>
                           </div>
@@ -1210,17 +1246,27 @@ function UserAreaContent() {
                             {(!product.price || product.price === 0) ? 'Try for Free' : 'Try it'}
                           </button>
                           
-                          {/* Tlačítko pro smazání */}
+                          {/* Tlačítko pro smazání s loading stavem */}
                           <button
                             onClick={(e) => {
                               e.stopPropagation()
                               handleRemoveProduct(product.productId)
                             }}
-                            className="p-1.5 text-gray-400 hover:text-red-500 transition-colors"
+                            disabled={removingProducts.has(product.productId)}
+                            className={`p-1.5 transition-colors ${
+                              removingProducts.has(product.productId) 
+                                ? 'text-gray-300 cursor-not-allowed' 
+                                : 'text-gray-400 hover:text-red-500'
+                            }`}
+                            title={removingProducts.has(product.productId) ? "Removing..." : "Remove from saved"}
                           >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
+                            {removingProducts.has(product.productId) ? (
+                              <div className="w-4 h-4 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin"></div>
+                            ) : (
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                              </svg>
+                            )}
                           </button>
                         </div>
                       </div>
