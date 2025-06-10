@@ -314,30 +314,74 @@ function UserAreaContent() {
       const savedProductsResponse = await fetch('/api/users/saved-products')
       if (savedProductsResponse.ok) {
         const savedProductsData = await savedProductsResponse.json()
-        setSavedProducts(savedProductsData || [])
-        setIsLoadingProducts(false)
         
-        // Uložení do local storage pro rychlé načtení při příští návštěvě
-        if (typeof window !== 'undefined' && session?.user?.email) {
-          const cacheKey = `savedProducts_${session.user.email}`
-          localStorage.setItem(cacheKey, JSON.stringify(savedProductsData || []))
-          console.log('💾 Saved products cached for user:', session.user.email)
+        // NOVÉ: Zachovej optimistické aktualizace z cache 
+        // Pokud máme v state nějaké temporary items (začínající "temp-"), zachovejme je
+        const tempItems = savedProducts.filter(item => item.id.startsWith('temp-'))
+        if (tempItems.length > 0) {
+          console.log('🔄 Preserving optimistic saved products items:', tempItems.length)
+          // Kombinuj temporary items + data z databáze (bez duplicit)
+          const dbProductIds = (savedProductsData || []).map((item: SavedProduct) => item.productId)
+          const uniqueTempItems = tempItems.filter(temp => !dbProductIds.includes(temp.productId))
+          const mergedSaved = [...uniqueTempItems, ...(savedProductsData || [])]
+          setSavedProducts(mergedSaved)
+          
+          // Uložíme sloučené data do cache
+          if (typeof window !== 'undefined' && session?.user?.email) {
+            const cacheKey = `savedProducts_${session.user.email}`
+            localStorage.setItem(cacheKey, JSON.stringify(mergedSaved))
+            console.log('💾 Merged saved products cached for user:', session.user.email)
+          }
+        } else {
+          // Žádné temporary items, použij jen data z databáze
+          setSavedProducts(savedProductsData || [])
+          
+          // Uložení do local storage pro rychlé načtení při příští návštěvě
+          if (typeof window !== 'undefined' && session?.user?.email) {
+            const cacheKey = `savedProducts_${session.user.email}`
+            localStorage.setItem(cacheKey, JSON.stringify(savedProductsData || []))
+            console.log('💾 Saved products cached for user:', session.user.email)
+          }
         }
+        
+        setIsLoadingProducts(false)
       }
 
       // Načteme historii kliků
       const clickHistoryResponse = await fetch('/api/users/click-history')
       if (clickHistoryResponse.ok) {
         const clickHistoryData = await clickHistoryResponse.json()
-        setClickHistory(clickHistoryData || [])
-        setIsLoadingHistory(false)
         
-        // Uložení do local storage pro rychlé načtení při příští návštěvě
-        if (typeof window !== 'undefined' && session?.user?.email) {
-          const clickHistoryCacheKey = `clickHistory_${session.user.email}`
-          localStorage.setItem(clickHistoryCacheKey, JSON.stringify(clickHistoryData || []))
-          console.log('💾 Click history cached for user:', session.user.email)
+        // NOVÉ: Zachovej optimistické aktualizace z cache 
+        // Pokud máme v state nějaké temporary items (začínající "temp-"), zachovejme je
+        const tempItems = clickHistory.filter(item => item.id.startsWith('temp-'))
+        if (tempItems.length > 0) {
+          console.log('🔄 Preserving optimistic click history items:', tempItems.length)
+          // Kombinuj temporary items + data z databáze (bez duplicit)
+          const dbProductIds = (clickHistoryData || []).map((item: ClickHistoryItem) => item.productId)
+          const uniqueTempItems = tempItems.filter(temp => !dbProductIds.includes(temp.productId))
+          const mergedHistory = [...uniqueTempItems, ...(clickHistoryData || [])]
+          setClickHistory(mergedHistory)
+          
+          // Uložíme sloučené data do cache
+          if (typeof window !== 'undefined' && session?.user?.email) {
+            const clickHistoryCacheKey = `clickHistory_${session.user.email}`
+            localStorage.setItem(clickHistoryCacheKey, JSON.stringify(mergedHistory))
+            console.log('💾 Merged click history cached for user:', session.user.email)
+          }
+        } else {
+          // Žádné temporary items, použij jen data z databáze
+          setClickHistory(clickHistoryData || [])
+          
+          // Uložení do local storage pro rychlé načtení při příští návštěvě
+          if (typeof window !== 'undefined' && session?.user?.email) {
+            const clickHistoryCacheKey = `clickHistory_${session.user.email}`
+            localStorage.setItem(clickHistoryCacheKey, JSON.stringify(clickHistoryData || []))
+            console.log('💾 Click history cached for user:', session.user.email)
+          }
         }
+        
+        setIsLoadingHistory(false)
       }
     } catch (error) {
       console.error('Error fetching profile:', error)
@@ -390,8 +434,24 @@ function UserAreaContent() {
           console.error('Error removing product, reverting UI')
           setSavedProducts(backupProducts)
           setUserData(backupUserData)
+          
+          // Vrátíme cache do původního stavu
+          if (typeof window !== 'undefined' && session?.user?.email) {
+            const cacheKey = `savedProducts_${session.user.email}`
+            localStorage.setItem(cacheKey, JSON.stringify(backupProducts))
+            console.log('💾 Reverted saved products cache after error')
+          }
+          
           // Zobrazíme chybovou zprávu
           alert('Error removing product. Please try again.')
+        } else {
+          // Úspěch - aktualizujeme cache s novým stavem
+          const currentProducts = savedProducts.filter(p => p.productId !== productId)
+          if (typeof window !== 'undefined' && session?.user?.email) {
+            const cacheKey = `savedProducts_${session.user.email}`
+            localStorage.setItem(cacheKey, JSON.stringify(currentProducts))
+            console.log('💾 Updated saved products cache after removal')
+          }
         }
       }).catch(error => {
         // Síťová chyba - vrátíme původní stav
@@ -403,6 +463,14 @@ function UserAreaContent() {
         console.error('Network error removing product, reverting UI:', error)
         setSavedProducts(backupProducts)
         setUserData(backupUserData)
+        
+        // Vrátíme cache do původního stavu
+        if (typeof window !== 'undefined' && session?.user?.email) {
+          const cacheKey = `savedProducts_${session.user.email}`
+          localStorage.setItem(cacheKey, JSON.stringify(backupProducts))
+          console.log('💾 Reverted saved products cache after network error')
+        }
+        
         alert('Network error. Please check your connection and try again.')
       })
     } catch (error) {
@@ -435,6 +503,13 @@ function UserAreaContent() {
           savedProducts: 0
         }))
         setShowClearAllModal(false)
+        
+        // Aktualizujeme cache
+        if (typeof window !== 'undefined' && session?.user?.email) {
+          const cacheKey = `savedProducts_${session.user.email}`
+          localStorage.setItem(cacheKey, JSON.stringify([]))
+          console.log('💾 Saved products cache cleared for user:', session.user.email)
+        }
       }
     } catch (error) {
       console.error('Error clearing all products:', error)
@@ -824,10 +899,11 @@ function UserAreaContent() {
           savedProducts: Math.max(0, prev.savedProducts - 1)
         }))
         
-        // Aktualizujeme cache
+        // Aktualizujeme cache s revertem
         if (typeof window !== 'undefined' && session?.user?.email) {
           const cacheKey = `savedProducts_${session.user.email}`
           localStorage.setItem(cacheKey, JSON.stringify(updatedProducts))
+          console.log('💾 Reverted saved products cache after error')
         }
       }
     }).catch(error => {
@@ -840,10 +916,11 @@ function UserAreaContent() {
         savedProducts: Math.max(0, prev.savedProducts - 1)
       }))
       
-      // Aktualizujeme cache
+      // Aktualizujeme cache s revertem
       if (typeof window !== 'undefined' && session?.user?.email) {
         const cacheKey = `savedProducts_${session.user.email}`
         localStorage.setItem(cacheKey, JSON.stringify(updatedProducts))
+        console.log('💾 Reverted saved products cache after network error')
       }
     })
   }
