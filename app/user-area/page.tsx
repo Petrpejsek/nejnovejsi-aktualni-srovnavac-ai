@@ -770,14 +770,10 @@ function UserAreaContent() {
         price: product.price || 0
       }),
     }).then(response => {
-      if (response.ok) {
-        // Úspěch - obnovíme data z API pro správné ID
-        console.log('✅ Sync success: Product saved to database')
-        fetchUserProfile() // Refresh pro získání správných dat
-      } else if (response.status === 409) {
-        // Produkt už existuje - to je OK, jen refreshneme
-        console.log('ℹ️  Product already exists in database')
-        fetchUserProfile()
+      if (response.ok || response.status === 409) {
+        // Úspěch nebo už existuje - oba stavy jsou OK
+        console.log(response.status === 409 ? 'ℹ️  Product already exists in database' : '✅ Sync success: Product saved to database')
+        // Zachováme optimistic update - nepřepisujeme UI
       } else {
         // Chyba - odstraníme temporary item a aktualizujeme cache
         console.error('❌ Sync failed: Removing optimistic item')
