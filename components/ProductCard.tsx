@@ -39,6 +39,24 @@ interface ProductCardProps {
 declare global {
   interface Window {
     open(url?: string, target?: string, features?: string): Window | null;
+    addToSavedProducts?: (product: {
+      id: string;
+      name: string;
+      category?: string;
+      imageUrl?: string;
+      price?: number;
+      tags?: string[];
+      externalUrl?: string;
+      description?: string;
+    }) => void;
+    addToClickHistory?: (product: {
+      id: string;
+      name: string;
+      category?: string;
+      imageUrl?: string;
+      price?: number;
+      externalUrl?: string;
+    }) => void;
   }
 }
 
@@ -126,6 +144,18 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
       return
     }
 
+    // Optimistic update pro click history
+    if (typeof window !== 'undefined' && window.addToClickHistory) {
+      window.addToClickHistory({
+        id,
+        name,
+        category: (tags && tags.length > 0) ? tags[0] : undefined,
+        imageUrl,
+        price,
+        externalUrl
+      })
+    }
+
     console.log('🚀 Přímé přesměrování přes tracking endpoint na:', externalUrl)
     
     // Místo async fetch + window.open (které prohlížeče blokují),
@@ -150,28 +180,12 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
     }
   }
 
+  // Funkce pro zaznamenání kliku - už se nepoužívá, protože tracking 
+  // se děje automaticky přes /api/redirect endpoint
   const recordClickHistory = async () => {
-    // Only record if user is logged in
-    if (!session) return
-
-    try {
-      await fetch('/api/users/click-history', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          productId: id,
-          productName: name,
-          category: tags?.[0] || 'AI Tool',
-          imageUrl: imageUrl,
-          price: hasTrial ? 0 : price,
-          externalUrl: externalUrl
-        }),
-      })
-    } catch (error) {
-      console.error('Error recording click history:', error)
-    }
+    // Tato funkce je deaktivována - tracking se děje v /api/redirect
+    // aby se předešlo duplikátům v historii
+    return
   }
 
   const handleBookmark = async (e: React.MouseEvent) => {
@@ -192,8 +206,7 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
     const newBookmarkedState = !localBookmarked
     setLocalBookmarked(newBookmarkedState)
     
-    // Show immediate visual feedback
-    showToast(newBookmarkedState ? 'Saving...' : 'Removing...')
+    // Bez zbytečného "Saving..." toast - ukážeme pouze finální stav
     
     // Call parent callback immediately for UI consistency
     if (onBookmarkChange) {
@@ -231,6 +244,25 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
             }
           } else {
             showToast('Saved!', 'success')
+            
+            // OPTIMISTIC: Přidej do my account bez čekání
+            if (typeof window !== 'undefined' && window.addToSavedProducts) {
+              try {
+                                 window.addToSavedProducts({
+                   id: id,
+                   name: name,
+                   category: tags?.[0] || 'AI Tool',
+                   imageUrl: imageUrl || '',
+                   price: hasTrial ? 0 : price,
+                   tags: tags,
+                   externalUrl: externalUrl || '',
+                   description: description || ''
+                 })
+                console.log('🚀 Optimistic: Product added to my account:', name)
+              } catch (error) {
+                console.error('Error calling global addToSavedProducts:', error)
+              }
+            }
           }
         }).catch(error => {
           // Revert on network errors
@@ -345,7 +377,7 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
           const target = e.target as HTMLElement;
           if (!target.closest('button')) {
             console.log('🎯 Klik na product card:', name)
-            recordClickHistory()
+            // recordClickHistory() - odstraněno, tracking se děje v /api/redirect
             handleVisit(e);
             handleClick(id);
           }
@@ -426,7 +458,7 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
             onClick={(e) => {
               e.stopPropagation()
               console.log('🎯 Klik na Try it button:', name)
-              recordClickHistory()
+              // recordClickHistory() - odstraněno, tracking se děje v /api/redirect
               handleVisit(e)
               handleClick(id)
             }}

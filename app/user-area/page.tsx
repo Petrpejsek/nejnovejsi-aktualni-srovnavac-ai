@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { FiUser, FiStar, FiSettings, FiHeart, FiZap, FiCalendar, FiMail, FiClock, FiBookmark } from 'react-icons/fi'
@@ -65,6 +65,29 @@ interface ClickHistoryItem {
   price: number | null
   externalUrl: string | null
   clickedAt: string
+}
+
+declare global {
+  interface Window {
+    addToSavedProducts?: (product: {
+      id: string
+      name: string
+      category?: string
+      imageUrl?: string
+      price?: number
+      tags?: string[]
+      externalUrl?: string
+      description?: string
+    }) => void;
+    addToClickHistory?: (product: {
+      id: string
+      name: string
+      category?: string
+      imageUrl?: string
+      price?: number
+      externalUrl?: string
+    }) => void;
+  }
 }
 
 // Komponenta s useSearchParams
@@ -169,6 +192,9 @@ function UserAreaContent() {
   const [clickHistory, setClickHistory] = useState<ClickHistoryItem[]>([])
   const [isClearingHistory, setIsClearingHistory] = useState(false)
   const [showClearHistoryModal, setShowClearHistoryModal] = useState(false)
+  // Loading states pro lepší UX
+  const [isLoadingProducts, setIsLoadingProducts] = useState(true)
+  const [isLoadingHistory, setIsLoadingHistory] = useState(true)
 
   // Nastavení aktivní záložky podle URL parametru
   useEffect(() => {
@@ -180,6 +206,41 @@ function UserAreaContent() {
       setActiveTab('overview')
     }
   }, [searchParams])
+
+  // Načtení dat z local storage při mount (rychlé zobrazení před API voláním)
+  useEffect(() => {
+    if (typeof window !== 'undefined' && session?.user?.email) {
+      // Cache pro saved products
+      const savedProductsCacheKey = `savedProducts_${session.user.email}`
+      const cachedProducts = localStorage.getItem(savedProductsCacheKey)
+      
+      if (cachedProducts) {
+        try {
+          const parsedProducts = JSON.parse(cachedProducts)
+          setSavedProducts(parsedProducts)
+          setIsLoadingProducts(false) // Cache data are ready immediately
+          console.log('🔄 Loaded saved products from cache:', parsedProducts.length)
+        } catch (error) {
+          console.error('Error parsing cached products:', error)
+        }
+      }
+
+      // Cache pro click history
+      const clickHistoryCacheKey = `clickHistory_${session.user.email}`
+      const cachedHistory = localStorage.getItem(clickHistoryCacheKey)
+      
+      if (cachedHistory) {
+        try {
+          const parsedHistory = JSON.parse(cachedHistory)
+          setClickHistory(parsedHistory)
+          setIsLoadingHistory(false) // Cache data are ready immediately
+          console.log('🔄 Loaded click history from cache:', parsedHistory.length)
+        } catch (error) {
+          console.error('Error parsing cached click history:', error)
+        }
+      }
+    }
+  }, [session?.user?.email])
 
   // Funkce pro načítání dat z API
   const fetchUserProfile = async () => {
@@ -214,6 +275,14 @@ function UserAreaContent() {
       if (savedProductsResponse.ok) {
         const savedProductsData = await savedProductsResponse.json()
         setSavedProducts(savedProductsData || [])
+        setIsLoadingProducts(false)
+        
+        // Uložení do local storage pro rychlé načtení při příští návštěvě
+        if (typeof window !== 'undefined' && session?.user?.email) {
+          const cacheKey = `savedProducts_${session.user.email}`
+          localStorage.setItem(cacheKey, JSON.stringify(savedProductsData || []))
+          console.log('💾 Saved products cached for user:', session.user.email)
+        }
       }
 
       // Načteme historii kliků
@@ -221,9 +290,19 @@ function UserAreaContent() {
       if (clickHistoryResponse.ok) {
         const clickHistoryData = await clickHistoryResponse.json()
         setClickHistory(clickHistoryData || [])
+        setIsLoadingHistory(false)
+        
+        // Uložení do local storage pro rychlé načtení při příští návštěvě
+        if (typeof window !== 'undefined' && session?.user?.email) {
+          const clickHistoryCacheKey = `clickHistory_${session.user.email}`
+          localStorage.setItem(clickHistoryCacheKey, JSON.stringify(clickHistoryData || []))
+          console.log('💾 Click history cached for user:', session.user.email)
+        }
       }
     } catch (error) {
       console.error('Error fetching profile:', error)
+      setIsLoadingProducts(false)
+      setIsLoadingHistory(false)
     }
   }
 
@@ -343,6 +422,13 @@ function UserAreaContent() {
       if (response.ok) {
         setClickHistory([])
         setShowClearHistoryModal(false)
+        
+        // Aktualizujeme cache
+        if (typeof window !== 'undefined' && session?.user?.email) {
+          const clickHistoryCacheKey = `clickHistory_${session.user.email}`
+          localStorage.setItem(clickHistoryCacheKey, JSON.stringify([]))
+          console.log('💾 Click history cache cleared for user:', session.user.email)
+        }
       }
     } catch (error) {
       console.error('Error clearing history:', error)
@@ -354,6 +440,8 @@ function UserAreaContent() {
   const cancelClearHistory = () => {
     setShowClearHistoryModal(false)
   }
+
+
 
   const handleLoginSuccess = () => {
     setIsLoginOpen(false)
@@ -619,6 +707,212 @@ function UserAreaContent() {
       setIsUpdatingProfile(false)
     }
   }
+
+  // OPTIMISTICKÁ FUNKCE PRO UKLÁDÁNÍ PRODUKTŮ
+  const addToSavedProducts = (product: {
+    id: string
+    name: string
+    category?: string
+    imageUrl?: string
+    price?: number
+    tags?: string[]
+    externalUrl?: string
+    description?: string
+  }): void => {
+    // Rychlá kontrola zda už není uložený
+    if (savedProducts.some(p => p.productId === product.id)) {
+      console.log('Product already saved:', product.name)
+      return
+    }
+    
+    // OPTIMISTIC UPDATE - okamžitě přidáme do UI
+    const newSavedProduct: SavedProduct = {
+      id: `temp-${Date.now()}`, // Temporary ID
+      productId: product.id,
+      productName: product.name,
+      category: product.category || 'Uncategorized',
+      savedAt: new Date().toISOString(),
+      imageUrl: product.imageUrl || '',
+      price: product.price || 0,
+      tags: product.tags || [],
+      externalUrl: product.externalUrl || '',
+      description: product.description || ''
+    }
+    
+    // Okamžitě aktualizujeme UI
+    const updatedProducts = [newSavedProduct, ...savedProducts]
+    setSavedProducts(updatedProducts)
+    setUserData(prev => ({
+      ...prev,
+      savedProducts: prev.savedProducts + 1
+    }))
+    
+    // Okamžitě aktualizujeme cache pro rychlé zobrazení při příštím refresh
+    if (typeof window !== 'undefined' && session?.user?.email) {
+      const cacheKey = `savedProducts_${session.user.email}`
+      localStorage.setItem(cacheKey, JSON.stringify(updatedProducts))
+      console.log('💾 Cache updated optimistically')
+    }
+    
+    console.log('🎯 Optimistic: Added product to saved products:', product.name)
+    
+    // API volání v pozadí - BEZ await aby neblokoval UI
+    fetch('/api/users/saved-products', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        productId: product.id,
+        productName: product.name,
+        category: product.category || 'AI Tool',
+        imageUrl: product.imageUrl,
+        price: product.price || 0
+      }),
+    }).then(response => {
+      if (response.ok) {
+        // Úspěch - obnovíme data z API pro správné ID
+        console.log('✅ Sync success: Product saved to database')
+        fetchUserProfile() // Refresh pro získání správných dat
+      } else if (response.status === 409) {
+        // Produkt už existuje - to je OK, jen refreshneme
+        console.log('ℹ️  Product already exists in database')
+        fetchUserProfile()
+      } else {
+        // Chyba - odstraníme temporary item a aktualizujeme cache
+        console.error('❌ Sync failed: Removing optimistic item')
+        const updatedProducts = savedProducts.filter(p => p.id !== newSavedProduct.id)
+        setSavedProducts(updatedProducts)
+        setUserData(prev => ({
+          ...prev,
+          savedProducts: Math.max(0, prev.savedProducts - 1)
+        }))
+        
+        // Aktualizujeme cache
+        if (typeof window !== 'undefined' && session?.user?.email) {
+          const cacheKey = `savedProducts_${session.user.email}`
+          localStorage.setItem(cacheKey, JSON.stringify(updatedProducts))
+        }
+      }
+    }).catch(error => {
+      // Síťová chyba - odstraníme temporary item a aktualizujeme cache
+      console.error('🌐 Network error: Removing optimistic item:', error)
+      const updatedProducts = savedProducts.filter(p => p.id !== newSavedProduct.id)
+      setSavedProducts(updatedProducts)
+      setUserData(prev => ({
+        ...prev,
+        savedProducts: Math.max(0, prev.savedProducts - 1)
+      }))
+      
+      // Aktualizujeme cache
+      if (typeof window !== 'undefined' && session?.user?.email) {
+        const cacheKey = `savedProducts_${session.user.email}`
+        localStorage.setItem(cacheKey, JSON.stringify(updatedProducts))
+      }
+    })
+  }
+
+  // OPTIMISTICKÁ FUNKCE PRO PŘIDÁNÍ DO CLICK HISTORY
+  const addToClickHistory = (product: {
+    id: string
+    name: string
+    category?: string
+    imageUrl?: string
+    price?: number
+    externalUrl?: string
+  }): void => {
+    // Rychlá kontrola zda už není v historii (podle productId)
+    if (clickHistory.some(h => h.productId === product.id)) {
+      // Produkt už je v historii - pouze aktualizujeme časové razítko (přesuneme nahoru)
+      const updatedHistory = clickHistory.filter(h => h.productId !== product.id)
+      const newItem: ClickHistoryItem = {
+        id: `temp-${Date.now()}`,
+        productId: product.id,
+        productName: product.name,
+        category: product.category || null,
+        imageUrl: product.imageUrl || null,
+        price: product.price || null,
+        externalUrl: product.externalUrl || null,
+        clickedAt: new Date().toISOString()
+      }
+      const newHistory = [newItem, ...updatedHistory]
+      setClickHistory(newHistory)
+      
+      // Aktualizujeme cache
+      if (typeof window !== 'undefined' && session?.user?.email) {
+        const clickHistoryCacheKey = `clickHistory_${session.user.email}`
+        localStorage.setItem(clickHistoryCacheKey, JSON.stringify(newHistory))
+      }
+      
+      console.log('🎯 Optimistic: Updated click history position for:', product.name)
+      return
+    }
+    
+    // OPTIMISTIC UPDATE - okamžitě přidáme do UI
+    const newHistoryItem: ClickHistoryItem = {
+      id: `temp-${Date.now()}`, // Temporary ID
+      productId: product.id,
+      productName: product.name,
+      category: product.category || null,
+      imageUrl: product.imageUrl || null,
+      price: product.price || null,
+      externalUrl: product.externalUrl || null,
+      clickedAt: new Date().toISOString()
+    }
+    
+    // Okamžitě aktualizujeme UI - přidáme na začátek
+    const updatedHistory = [newHistoryItem, ...clickHistory]
+    setClickHistory(updatedHistory)
+    
+    // Okamžitě aktualizujeme cache pro rychlé zobrazení při příštím refresh
+    if (typeof window !== 'undefined' && session?.user?.email) {
+      const clickHistoryCacheKey = `clickHistory_${session.user.email}`
+      localStorage.setItem(clickHistoryCacheKey, JSON.stringify(updatedHistory))
+      console.log('💾 Click history cache updated optimistically')
+    }
+    
+    console.log('🎯 Optimistic: Added product to click history:', product.name)
+    
+    // Nepotřebujeme extra API volání - historie se již ukládá automaticky přes /api/redirect endpoint
+    // Pouze obnovíme data z API po chvíli pro synchronizaci
+         setTimeout(() => {
+       if (session?.user?.email) {
+         fetch('/api/users/click-history')
+           .then(response => response.json())
+           .then(data => {
+             setClickHistory(data || [])
+             // Aktualizujeme cache s reálnými daty
+             if (typeof window !== 'undefined' && session?.user?.email) {
+               const clickHistoryCacheKey = `clickHistory_${session.user.email}`
+               localStorage.setItem(clickHistoryCacheKey, JSON.stringify(data || []))
+             }
+             console.log('✅ Click history synced with server')
+           })
+           .catch(error => {
+             console.error('Error syncing click history:', error)
+           })
+       }
+     }, 2000) // Synchronizace za 2 sekundy
+  }
+
+  // Nastavení globálních funkcí pro ProductCard komponenty
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      // @ts-ignore
+      window.addToSavedProducts = addToSavedProducts
+      // @ts-ignore
+      window.addToClickHistory = addToClickHistory
+    }
+    
+    return () => {
+      if (typeof window !== 'undefined') {
+        // @ts-ignore
+        delete window.addToSavedProducts
+        // @ts-ignore
+        delete window.addToClickHistory
+      }
+    }
+  }, [savedProducts, userData, session, clickHistory]) // Přidáváme dependency pro aktuální states
 
   if (loading) {
     return (
@@ -970,6 +1264,21 @@ function UserAreaContent() {
                           </div>
                         )
                       })
+                    ) : isLoadingProducts ? (
+                      // Loading skeleton pro overview
+                      <div className="space-y-3">
+                        {[...Array(2)].map((_, i) => (
+                          <div key={i} className="animate-pulse">
+                            <div className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg">
+                              <div className="w-10 h-10 bg-gray-300 rounded flex-shrink-0"></div>
+                              <div className="flex-1 space-y-2">
+                                <div className="h-3 bg-gray-300 rounded w-3/4"></div>
+                                <div className="h-2 bg-gray-300 rounded w-1/2"></div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     ) : (
                       <div className="text-center py-8">
                         <FiBookmark className="w-10 h-10 text-gray-300 mx-auto mb-4" />
@@ -1271,6 +1580,25 @@ function UserAreaContent() {
                         </div>
                       </div>
                     ))
+                  ) : isLoadingProducts ? (
+                    // Loading skeleton místo "0 produktů"
+                    <div className="space-y-4">
+                      {[...Array(3)].map((_, i) => (
+                        <div key={i} className="animate-pulse">
+                          <div className="flex items-start space-x-4 p-4 border border-gray-200 rounded-lg">
+                            <div className="w-12 h-12 bg-gray-300 rounded-lg flex-shrink-0"></div>
+                            <div className="flex-1 space-y-2">
+                              <div className="h-4 bg-gray-300 rounded w-3/4"></div>
+                              <div className="h-3 bg-gray-300 rounded w-1/2"></div>
+                              <div className="flex space-x-2">
+                                <div className="h-6 bg-gray-300 rounded w-16"></div>
+                                <div className="h-6 bg-gray-300 rounded w-16"></div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   ) : (
                     <div className="text-center py-12">
                       <FiBookmark className="w-12 h-12 text-gray-300 mx-auto mb-4" />
