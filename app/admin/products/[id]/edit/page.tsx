@@ -397,30 +397,45 @@ export default function AdminProductEditPage({ params }: { params: { id: string 
   }
 
   const handleRegenerateScreenshot = async () => {
+    console.log('🔄 Spouštím regeneraci screenshotu...')
+    
     if (!product.externalUrl) {
       setErrorMessage('❌ Pro regeneraci screenshotu je vyžadována externí URL')
+      console.error('❌ Chybí external URL')
       return
     }
 
     // Kontrola prostředí
     if (process.env.NODE_ENV !== 'development') {
       setErrorMessage('❌ Regenerace screenshotu je dostupná pouze v development prostředí')
+      console.error('❌ Nesprávné prostředí:', process.env.NODE_ENV)
       return
     }
 
-    const confirmed = window.confirm(`Opravdu chcete regenerovat screenshot pro "${product.name}"?\n\nNový screenshot bude vytvořen z URL: ${product.externalUrl}`)
-    if (!confirmed) return
+    console.log('📋 Produkt:', product.name)
+    console.log('🌐 External URL:', product.externalUrl)
 
+    const confirmed = window.confirm(`Opravdu chcete regenerovat screenshot pro "${product.name}"?\n\nNový screenshot bude vytvořen z URL: ${product.externalUrl}`)
+    if (!confirmed) {
+      console.log('❌ Uživatel zrušil regeneraci')
+      return
+    }
+
+    console.log('⏳ Nastavuji loading state...')
     setIsRegeneratingScreenshot(true)
     setErrorMessage(null)
+    setSuccessMessage(null)
 
     try {
       // Nejdříve zkontroluj jestli screenshot server běží
+      console.log('🏥 Kontroluji health screenshot serveru...')
       const healthResponse = await fetch('http://localhost:5000/health')
       if (!healthResponse.ok) {
         throw new Error('Screenshot server není dostupný')
       }
+      console.log('✅ Screenshot server je zdravý')
 
+      console.log('📸 Posílám request na regeneraci...')
       const response = await fetch('/api/screenshot/regenerate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -431,8 +446,11 @@ export default function AdminProductEditPage({ params }: { params: { id: string 
       })
 
       const data = await response.json()
+      console.log('📊 Response z API:', data)
 
       if (data.success && data.screenshotUrl) {
+        console.log('🎉 Screenshot úspěšně regenerován:', data.screenshotUrl)
+        
         // Aktualizovat produkt s novým screenshotem
         setProduct(prev => ({
           ...prev,
@@ -443,6 +461,7 @@ export default function AdminProductEditPage({ params }: { params: { id: string 
         
         setSuccessMessage(`✅ Screenshot byl úspěšně regenerován! Nová cesta: ${data.screenshotUrl}`)
         
+        console.log('💾 Automaticky ukládám změny...')
         // Automaticky uložit změny
         setTimeout(() => {
           const syntheticEvent = new Event('submit') as any
@@ -450,16 +469,18 @@ export default function AdminProductEditPage({ params }: { params: { id: string 
         }, 500)
         
       } else {
+        console.error('❌ API vrátilo chybu:', data)
         setErrorMessage(`❌ Chyba při regeneraci screenshotu: ${data.error || 'Neznámá chyba'}`)
       }
     } catch (error) {
-      console.error('Chyba při regeneraci screenshotu:', error)
+      console.error('💥 Chyba při regeneraci screenshotu:', error)
       if (error instanceof Error && error.message.includes('Screenshot server není dostupný')) {
         setErrorMessage('❌ Screenshot server není spuštěný. Spusťte ho příkazem: source venv/bin/activate && python screenshot-server.py')
       } else {
         setErrorMessage('❌ Chyba při regeneraci screenshotu. Zkontrolujte konzoli pro více detailů.')
       }
     } finally {
+      console.log('🏁 Ukončuji loading state...')
       setIsRegeneratingScreenshot(false)
     }
   }
@@ -810,7 +831,25 @@ export default function AdminProductEditPage({ params }: { params: { id: string 
 
               {/* Regenerace screenshotu */}
               {process.env.NODE_ENV === 'development' && (
-                <div className="border border-blue-200 rounded-lg p-4 bg-blue-50">
+                <div className={`border rounded-lg p-4 transition-all ${
+                  isRegeneratingScreenshot 
+                    ? 'border-blue-400 bg-blue-100 shadow-lg' 
+                    : 'border-blue-200 bg-blue-50'
+                }`}>
+                  {isRegeneratingScreenshot && (
+                    <div className="mb-4 p-3 bg-blue-200 rounded-lg border border-blue-300">
+                      <div className="flex items-center">
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600 mr-3"></div>
+                        <div>
+                          <div className="text-sm font-medium text-blue-900">🚀 Regeneruji screenshot...</div>
+                          <div className="text-xs text-blue-700 mt-1">
+                            Vytváří se nový screenshot z: {product.externalUrl}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="text-sm font-medium text-blue-900 mb-1">
