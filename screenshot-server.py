@@ -37,6 +37,30 @@ class ScreenshotService:
         self.chrome_options.add_argument('--disable-extensions')
         self.chrome_options.add_argument('--disable-plugins')
         
+        # 🍪 COOKIES & PRIVACY nastavení pro potlačení bannerů
+        self.chrome_options.add_argument('--disable-features=VizDisplayCompositor')
+        self.chrome_options.add_argument('--disable-background-timer-throttling')
+        self.chrome_options.add_argument('--disable-renderer-backgrounding')
+        self.chrome_options.add_argument('--disable-backgrounding-occluded-windows')
+        
+        # Přednastavené cookies preference
+        prefs = {
+            "profile.default_content_setting_values": {
+                "cookies": 1,
+                "notifications": 2,
+                "geolocation": 2,
+                "media_stream": 2,
+            },
+            "profile.managed_default_content_settings": {
+                "images": 1
+            },
+            "profile.cookie_controls_mode": 0  # Allow all cookies
+        }
+        self.chrome_options.add_experimental_option("prefs", prefs)
+        
+        # User agent pro lepší kompatibilitu
+        self.chrome_options.add_argument('--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36')
+        
         # Vytvořit screenshots složku
         self.screenshots_dir = os.path.join(os.getcwd(), 'public', 'screenshots')
         os.makedirs(self.screenshots_dir, exist_ok=True)
@@ -44,44 +68,146 @@ class ScreenshotService:
         logger.info(f"✅ ScreenshotService inicializován. Screenshots dir: {self.screenshots_dir}")
 
     def handle_cookies(self, driver):
-        """Pokusí se odkliknout cookies banner"""
-        cookies_selectors = [
+        """Pokusí se odkliknout cookies banner s pokročilými strategiemi"""
+        
+        # 1. FÁZE: Základní selektory pro Accept tlačítka
+        basic_selectors = [
+            # Nejčastější accept tlačítka
             'button[data-testid="accept-all"]',
+            'button[data-testid="cookie-banner-accept"]',
+            'button[data-cy="accept-all"]',
             'button[id*="accept"]',
             'button[class*="accept"]',
             'button[class*="consent"]',
-            'button:contains("Accept")',
-            'button:contains("Accept all")',
-            'button:contains("I agree")',
-            'button:contains("OK")',
-            'button:contains("Agree")',
-            '[data-cy="accept-all"]',
-            '[data-testid="cookie-banner-accept"]',
-            '.cookie-accept',
-            '.consent-accept',
             '#cookie-accept',
             '#accept-cookies',
+            '.cookie-accept',
+            '.consent-accept',
             '.cookies-accept-all',
+            
+            # Attribute based
+            '[data-testid*="accept"]',
+            '[data-cy*="accept"]',
             '[aria-label*="accept"]',
-            '[title*="accept"]'
+            '[title*="accept"]',
+            '[data-role="accept"]',
+            
+            # Text based (musíme použít XPath)
         ]
         
-        for selector in cookies_selectors:
+        # 2. FÁZE: Text-based selektory (XPath)
+        text_selectors = [
+            "//button[contains(text(), 'Accept')]",
+            "//button[contains(text(), 'Accept all')]",
+            "//button[contains(text(), 'Accept All')]",
+            "//button[contains(text(), 'I agree')]",
+            "//button[contains(text(), 'Agree')]",
+            "//button[contains(text(), 'OK')]",
+            "//button[contains(text(), 'Souhlasím')]",
+            "//button[contains(text(), 'Přijmout')]",
+            "//button[contains(text(), 'Akzeptieren')]",
+            "//button[contains(text(), 'Accepter')]",
+            "//button[contains(text(), 'Aceptar')]",
+            "//a[contains(text(), 'Accept')]",
+            "//span[contains(text(), 'Accept')]/parent::button",
+            "//div[contains(text(), 'Accept') and contains(@class, 'button')]",
+        ]
+        
+        # 3. FÁZE: Dismiss/Close tlačítka jako fallback
+        dismiss_selectors = [
+            'button[aria-label*="close"]',
+            'button[aria-label*="dismiss"]',
+            '.cookie-close',
+            '.cookie-dismiss',
+            '[data-testid*="close"]',
+            '[data-testid*="dismiss"]',
+            "//button[contains(text(), 'Close')]",
+            "//button[contains(text(), '×')]",
+            "//span[contains(text(), '×')]/parent::button",
+        ]
+        
+        logger.info("   🍪 Hledám cookies banner...")
+        
+        # Strategické čekání - nechme cookies banner se načíst
+        time.sleep(2)
+        
+        # FÁZE 1: Základní CSS selektory
+        for selector in basic_selectors:
             try:
                 element = driver.find_element(By.CSS_SELECTOR, selector)
-                if element.is_displayed():
-                    element.click()
-                    logger.info(f"   🍪 Cookies banner kliknuto: {selector}")
-                    time.sleep(2)  # Počkat na zmizení banneru
+                if element.is_displayed() and element.is_enabled():
+                    driver.execute_script("arguments[0].click();", element)
+                    logger.info(f"   ✅ Cookies přijaty (CSS): {selector}")
+                    time.sleep(3)  # Delší čekání na zmizení banneru
                     return True
             except:
                 continue
-                
-        logger.info("   ℹ️ Cookies banner nenalezen")
+        
+        # FÁZE 2: Text-based selektory (XPath)
+        for xpath in text_selectors:
+            try:
+                element = driver.find_element(By.XPATH, xpath)
+                if element.is_displayed() and element.is_enabled():
+                    driver.execute_script("arguments[0].click();", element)
+                    logger.info(f"   ✅ Cookies přijaty (XPath): {xpath}")
+                    time.sleep(3)
+                    return True
+            except:
+                continue
+        
+        # FÁZE 3: Dismiss/Close jako poslední možnost
+        for selector in dismiss_selectors:
+            try:
+                if selector.startswith('//'):
+                    element = driver.find_element(By.XPATH, selector)
+                else:
+                    element = driver.find_element(By.CSS_SELECTOR, selector)
+                    
+                if element.is_displayed() and element.is_enabled():
+                    driver.execute_script("arguments[0].click();", element)
+                    logger.info(f"   ⚠️ Cookies zavřeny (dismiss): {selector}")
+                    time.sleep(3)
+                    return True
+            except:
+                continue
+        
+        # FÁZE 4: Pokročilá detekce - hledej jakékoliv tlačítko v cookies kontejneru
+        try:
+            # Najdi cookies kontejner
+            cookie_containers = [
+                '[id*="cookie"]',
+                '[class*="cookie"]',
+                '[id*="consent"]', 
+                '[class*="consent"]',
+                '[data-testid*="cookie"]',
+                '[data-cy*="cookie"]'
+            ]
+            
+            for container_selector in cookie_containers:
+                try:
+                    container = driver.find_element(By.CSS_SELECTOR, container_selector)
+                    if container.is_displayed():
+                        # Najdi první klikatelné tlačítko v kontejneru
+                        buttons = container.find_elements(By.TAG_NAME, 'button')
+                        for button in buttons:
+                            if button.is_displayed() and button.is_enabled():
+                                button_text = button.text.lower()
+                                # Preferuj accept nad reject
+                                if any(word in button_text for word in ['accept', 'agree', 'ok', 'souhlasím']):
+                                    driver.execute_script("arguments[0].click();", button)
+                                    logger.info(f"   ✅ Cookies přijaty (kontejner): {button_text}")
+                                    time.sleep(3)
+                                    return True
+                except:
+                    continue
+        except:
+            pass
+        
+        logger.info("   ℹ️ Cookies banner nenalezen nebo neodkliknutelný")
         return False
 
     def create_screenshot(self, url, filename=None):
-        """Vytvoří screenshot webové stránky"""
+        """Vytvoří screenshot webové stránky s optimalizovaným cookies handling"""
         driver = None
         
         try:
@@ -90,27 +216,51 @@ class ScreenshotService:
             # Automatické pojmenování souboru pokud není zadáno
             if not filename:
                 domain = url.replace('https://', '').replace('http://', '').replace('www.', '').split('/')[0]
-                timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-                filename = f"{domain}_{timestamp}.png"
+                timestamp = int(time.time() * 1000)  # Milisekundy pro unique timestamp
+                filename = f"{domain}-{timestamp}.png"
             
             # Spustit Chrome driver
             driver = webdriver.Chrome(options=self.chrome_options)
+            
+            # Nastavit stránku timeout
+            driver.set_page_load_timeout(30)
+            
+            logger.info(f"   🌐 Načítám stránku...")
             driver.get(url)
             
-            # Počkat na načtení stránky
-            WebDriverWait(driver, 10).until(
+            # Počkat na základní načtení stránky
+            WebDriverWait(driver, 15).until(
                 EC.presence_of_element_located((By.TAG_NAME, "body"))
             )
-            time.sleep(3)
             
-            # Pokusit se odkliknout cookies
+            # Strategické čekání na kompletní načtení
+            logger.info(f"   ⏳ Čekám na kompletní načtení (5s)...")
+            time.sleep(5)
+            
+            # PRVNÍ pokus o cookies handling
+            logger.info(f"   🍪 Pokus 1/2 o cookies handling...")
             cookies_handled = self.handle_cookies(driver)
             
-            # Počkat chvíli po kliknutí na cookies
+            # Pokud se cookies nepovedlo odkliknout napoprvé, zkus to znovu po chvíli
+            if not cookies_handled:
+                logger.info(f"   🍪 Pokus 2/2 o cookies handling (po 3s)...")
+                time.sleep(3)
+                cookies_handled = self.handle_cookies(driver)
+            
+            # Finální čekání pro ustálení stránky
             if cookies_handled:
+                logger.info(f"   ⏳ Čekám na ustálení po cookies (4s)...")
+                time.sleep(4)
+            else:
+                logger.info(f"   ⏳ Finální čekání (2s)...")
                 time.sleep(2)
             
+            # Scroll nahoru pro jistotu (někdy se stránka posune)
+            driver.execute_script("window.scrollTo(0, 0);")
+            time.sleep(1)
+            
             # Udělat screenshot
+            logger.info(f"   📷 Vytváím screenshot...")
             filepath = os.path.join(self.screenshots_dir, filename)
             success = driver.save_screenshot(filepath)
             
@@ -125,11 +275,13 @@ class ScreenshotService:
                     'filename': filename,
                     'filepath': filepath,
                     'screenshotUrl': relative_url,
-                    'cookies_handled': cookies_handled
+                    'cookies_handled': cookies_handled,
+                    'url': url,
+                    'timestamp': int(time.time())
                 }
             else:
                 logger.error(f"   ❌ Screenshot se nepodařilo uložit")
-                return {'success': False, 'error': 'Screenshot failed'}
+                return {'success': False, 'error': 'Screenshot save failed'}
                 
         except Exception as e:
             logger.error(f"   ❌ Chyba při screenshot: {e}")
@@ -137,7 +289,10 @@ class ScreenshotService:
             
         finally:
             if driver:
-                driver.quit()
+                try:
+                    driver.quit()
+                except:
+                    pass
 
 # Inicializace služby
 screenshot_service = ScreenshotService()
