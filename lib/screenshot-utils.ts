@@ -119,16 +119,15 @@ function generateSVGPlaceholder(productName: string): string {
  * Rozšiřuje produkt o screenshot URL
  */
 export function enhanceProductWithScreenshot<T extends { name: string; imageUrl?: string }>(product: T): T & { imageUrl: string } {
-  // Pokud už má imageUrl a je to skutečný screenshot (ne starý neexistující)
-  if (product.imageUrl && !product.imageUrl.includes('/screenshots/')) {
-    // Ponech externí URL (CDN, atd.)
+  // Pokud už má imageUrl, ponech ho (ať už je to z databáze nebo CDN)
+  if (product.imageUrl) {
     return {
       ...product,
       imageUrl: product.imageUrl
     };
   }
   
-  // Pro screenshots/ cesty nebo null/undefined, vygeneruj novou URL
+  // Pouze pokud nemá žádné imageUrl, vygeneruj nové
   return {
     ...product,
     imageUrl: getScreenshotUrl(product.name)
