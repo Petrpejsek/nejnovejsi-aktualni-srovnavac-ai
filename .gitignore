@@ -37,12 +37,7 @@ next-env.d.ts
 .idea
 .vscode
 
-# Screenshots - prevent large files in Vercel deployment
-public/screenshots/*.png
-public/screenshots/*.jpg
-public/screenshots/*.jpeg
-public/screenshots/*.gif
-public/screenshots/*.webp
+# Screenshots moved to external storage if needed
 
 # AI Recommendations - dočasně schováno
 app/api/users/ai-recommendations/
