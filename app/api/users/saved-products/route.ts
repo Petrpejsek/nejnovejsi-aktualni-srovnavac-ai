@@ -61,6 +61,7 @@ export async function GET(request: NextRequest) {
         
         console.log('🔍 Saved product data:', {
           name: result.productName,
+          productId: result.productId, // ← PŘIDÁME DEBUG PRO PRODUCT ID
           price: result.price,
           description: result.description?.substring(0, 50) + '...',
           tags: result.tags,
@@ -84,13 +85,16 @@ export async function GET(request: NextRequest) {
 // POST - uložení produktu
 export async function POST(request: NextRequest) {
   try {
+    console.log('🔧 SAVE PRODUCT API CALLED')
     const session = await getServerSession(authOptions)
     
     if (!session?.user?.email) {
+      console.log('❌ SAVE API: Unauthorized - no session')
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const { productId, productName, category, imageUrl, price } = await request.json()
+    console.log('🔧 SAVE API: Received data:', { productId, productName, category, price, userEmail: session.user.email })
 
     if (!productId || !productName) {
       return NextResponse.json({ error: 'Product ID and name are required' }, { status: 400 })

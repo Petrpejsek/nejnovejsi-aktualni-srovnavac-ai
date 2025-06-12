@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { FiUser, FiStar, FiSettings, FiHeart, FiZap, FiCalendar, FiMail, FiClock, FiBookmark } from 'react-icons/fi'
+import { FiUser, FiStar, FiSettings, FiHeart, FiZap, FiCalendar, FiMail, FiClock, FiBookmark, FiRefreshCw, FiTrash2 } from 'react-icons/fi'
 import Modal from '@/components/Modal'
 import LoginForm from '@/components/LoginForm'
 import RegisterForm from '@/components/RegisterForm'
@@ -143,45 +143,13 @@ function UserAreaContent() {
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false)
   const [profileUpdateMessage, setProfileUpdateMessage] = useState('')
 
-  // Mock data pro AI doporučení
-  const [recommendedProducts, setRecommendedProducts] = useState<RecommendedProduct[]>([
-    {
-      id: '1',
-      productName: 'ChatGPT Plus',
-      category: 'Language Model',
-      imageUrl: 'https://placehold.co/48x48/10b981/ffffff?text=GPT',
-      price: 20,
-      tags: ['AI Assistant', 'Writing', 'Coding'],
-      externalUrl: 'https://openai.com/chatgpt',
-      description: 'Advanced AI language model with enhanced capabilities and faster response times.',
-      recommendationReason: 'Based on your interest in AI writing tools',
-      confidenceScore: 95
-    },
-    {
-      id: '2',
-      productName: 'Midjourney',
-      category: 'Image Generation',
-      imageUrl: 'https://placehold.co/48x48/8b5cf6/ffffff?text=MJ',
-      price: 10,
-      tags: ['AI Art', 'Images', 'Creative'],
-      externalUrl: 'https://midjourney.com',
-      description: 'Create stunning AI-generated artwork and images from text descriptions.',
-      recommendationReason: 'Popular among users who like creative AI tools',
-      confidenceScore: 87
-    },
-    {
-      id: '3',
-      productName: 'Notion AI',
-      category: 'Productivity',
-      imageUrl: 'https://placehold.co/48x48/f59e0b/ffffff?text=NA',
-      price: 8,
-      tags: ['Productivity', 'Writing', 'Organization'],
-      externalUrl: 'https://notion.so/ai',
-      description: 'AI-powered writing assistant integrated into your Notion workspace.',
-      recommendationReason: 'Matches your productivity tool preferences',
-      confidenceScore: 78
-    }
-  ])
+  // AI doporučení stav
+  /* AI RECOMMENDATIONS STATE - Dočasně schováno
+  const [recommendedProducts, setRecommendedProducts] = useState<RecommendedProduct[]>([])
+  const [isLoadingRecommendations, setIsLoadingRecommendations] = useState(false)
+  const [recommendationsLastUpdated, setRecommendationsLastUpdated] = useState<Date | null>(null)
+  const [isRefreshingRecommendations, setIsRefreshingRecommendations] = useState(false)
+  */
 
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false)
@@ -205,12 +173,12 @@ function UserAreaContent() {
       // Pokud není žádný tab parametr, explicitně nastavíme overview jako výchozí
       setActiveTab('overview')
     }
-  }, [searchParams])
+  }, [searchParams, session?.user?.email])
 
-  // Načtení dat z local storage při mount (rychlé zobrazení před API voláním)
+  // ✅ JEDNODUCHÉ ŘEŠENÍ: Cache používáme jen pro rychlé zobrazení, potom se přepíše fresh data
   useEffect(() => {
     if (typeof window !== 'undefined' && session?.user?.email) {
-      // Cache pro avatar
+      // Avatar cache
       const avatarCacheKey = `avatar_${session.user.email}`
       const cachedAvatar = localStorage.getItem(avatarCacheKey)
       if (cachedAvatar) {
@@ -218,72 +186,30 @@ function UserAreaContent() {
         console.log('🔄 Loaded avatar from cache')
       }
       
-      // Cache pro saved products
+      // Saved products cache (rychlé zobrazení)
       const savedProductsCacheKey = `savedProducts_${session.user.email}`
       const cachedProducts = localStorage.getItem(savedProductsCacheKey)
-      
-      // NOVÉ: Načti temporary cache z hlavní stránky
-      const tempSavedProducts = localStorage.getItem('tempSavedProducts')
-      let tempSaved = []
-      if (tempSavedProducts) {
-        try {
-          tempSaved = JSON.parse(tempSavedProducts)
-          // NEMAZEJ temporary cache hned - zachovej pro další refresh!
-          console.log('🔄 Loaded temp saved products from home page:', tempSaved.length)
-        } catch (error) {
-          console.error('Error parsing temp saved products:', error)
-        }
-      }
-      
       if (cachedProducts) {
         try {
           const parsedProducts = JSON.parse(cachedProducts)
-          // Slož regular cache + temporary cache
-          const combinedProducts = [...tempSaved, ...parsedProducts]
-          setSavedProducts(combinedProducts)
-          setIsLoadingProducts(false) // Cache data are ready immediately
-          console.log('🔄 Loaded saved products from cache:', combinedProducts.length)
+          setSavedProducts(parsedProducts)
+          console.log('🔄 Loaded saved products from cache:', parsedProducts.length)
         } catch (error) {
           console.error('Error parsing cached products:', error)
         }
-      } else if (tempSaved.length > 0) {
-        // Jen temporary cache
-        setSavedProducts(tempSaved)
-        setIsLoadingProducts(false)
       }
 
-      // Cache pro click history
+      // Click history cache (rychlé zobrazení)
       const clickHistoryCacheKey = `clickHistory_${session.user.email}`
       const cachedHistory = localStorage.getItem(clickHistoryCacheKey)
-      
-      // NOVÉ: Načti temporary click history z hlavní stránky
-      const tempClickHistory = localStorage.getItem('tempClickHistory')
-      let tempClicks = []
-      if (tempClickHistory) {
-        try {
-          tempClicks = JSON.parse(tempClickHistory)
-          // NEMAZEJ temporary cache hned - zachovej pro další refresh!
-          console.log('🔄 Loaded temp click history from home page:', tempClicks.length)
-        } catch (error) {
-          console.error('Error parsing temp click history:', error)
-        }
-      }
-      
       if (cachedHistory) {
         try {
           const parsedHistory = JSON.parse(cachedHistory)
-          // Slož regular cache + temporary cache
-          const combinedHistory = [...tempClicks, ...parsedHistory]
-          setClickHistory(combinedHistory)
-          setIsLoadingHistory(false) // Cache data are ready immediately
-          console.log('🔄 Loaded click history from cache:', combinedHistory.length)
+          setClickHistory(parsedHistory)
+          console.log('🔄 Loaded click history from cache:', parsedHistory.length)
         } catch (error) {
-          console.error('Error parsing cached click history:', error)
+          console.error('Error parsing cached history:', error)
         }
-      } else if (tempClicks.length > 0) {
-        // Jen temporary cache
-        setClickHistory(tempClicks)
-        setIsLoadingHistory(false)
       }
     }
   }, [session?.user?.email])
@@ -311,9 +237,10 @@ function UserAreaContent() {
   }
 
   // Funkce pro načítání dat z API
+  // ✅ JEDNODUCHÁ funkce pro základní profil (JEN profil, NE saved products!)
   const fetchUserProfile = async () => {
     try {
-      // Načteme profil uživatele
+      // Načteme JEN profil uživatele 
       const profileResponse = await fetch('/api/users/profile')
       if (profileResponse.ok) {
         const profile = await profileResponse.json()
@@ -329,11 +256,9 @@ function UserAreaContent() {
           rewards: 0
         })
         
-        // Nastavíme avatar URL pokud existuje a uložíme do cache
+        // Avatar
         if (profile.avatar) {
           setAvatarUrl(profile.avatar)
-          
-          // Uložíme avatar do cache pro rychlé načtení při příštím refresh
           if (typeof window !== 'undefined' && session?.user?.email) {
             const avatarCacheKey = `avatar_${session.user.email}`
             localStorage.setItem(avatarCacheKey, profile.avatar)
@@ -341,175 +266,124 @@ function UserAreaContent() {
           }
         }
 
-        // Nastavíme display name do local state
         setDisplayName(profile.name || '')
       }
 
-      // Načteme uložené produkty z dedikovaného endpointu (má správné ceny)
-      const savedProductsResponse = await fetch('/api/users/saved-products')
-      if (savedProductsResponse.ok) {
-        const savedProductsData = await savedProductsResponse.json()
-        
-        // NOVÉ: Zachovej optimistické aktualizace z cache 
-        // Pokud máme v state nějaké temporary items (začínající "temp-"), zachovejme je
-        const tempItems = savedProducts.filter(item => item.id.startsWith('temp-'))
-        if (tempItems.length > 0) {
-          console.log('🔄 Preserving optimistic saved products items:', tempItems.length)
-          // Kombinuj temporary items + data z databáze (bez duplicit)
-          const dbProductIds = (savedProductsData || []).map((item: SavedProduct) => item.productId)
-          const uniqueTempItems = tempItems.filter(temp => !dbProductIds.includes(temp.productId))
-          const mergedSaved = [...uniqueTempItems, ...(savedProductsData || [])]
-          setSavedProducts(mergedSaved)
-          
-          // Uložíme sloučené data do cache
-          if (typeof window !== 'undefined' && session?.user?.email) {
-            const cacheKey = `savedProducts_${session.user.email}`
-            localStorage.setItem(cacheKey, JSON.stringify(mergedSaved))
-            console.log('💾 Merged saved products cached for user:', session.user.email)
-            
-            // Teď můžeme vymazat temporary cache - data jsou synchronizovaná
-            localStorage.removeItem('tempSavedProducts')
-            console.log('🧹 Cleaned temp saved products after successful sync')
-          }
-        } else {
-          // Žádné temporary items, použij jen data z databáze
-          setSavedProducts(savedProductsData || [])
-          
-          // Uložení do local storage pro rychlé načtení při příští návštěvě
-          if (typeof window !== 'undefined' && session?.user?.email) {
-            const cacheKey = `savedProducts_${session.user.email}`
-            localStorage.setItem(cacheKey, JSON.stringify(savedProductsData || []))
-            console.log('💾 Saved products cached for user:', session.user.email)
-          }
-        }
-        
-        setIsLoadingProducts(false)
-      }
-
-      // Načteme historii kliků
+      // Načteme historii kliků SAMOSTATNĚ
       const clickHistoryResponse = await fetch('/api/users/click-history')
       if (clickHistoryResponse.ok) {
         const clickHistoryData = await clickHistoryResponse.json()
-        
-        // NOVÉ: Zachovej optimistické aktualizace z cache 
-        // Pokud máme v state nějaké temporary items (začínající "temp-"), zachovejme je
-        const tempItems = clickHistory.filter(item => item.id.startsWith('temp-'))
-        if (tempItems.length > 0) {
-          console.log('🔄 Preserving optimistic click history items:', tempItems.length)
-          // Kombinuj temporary items + data z databáze (bez duplicit)
-          const dbProductIds = (clickHistoryData || []).map((item: ClickHistoryItem) => item.productId)
-          const uniqueTempItems = tempItems.filter(temp => !dbProductIds.includes(temp.productId))
-          const mergedHistory = [...uniqueTempItems, ...(clickHistoryData || [])]
-          setClickHistory(mergedHistory)
-          
-          // Uložíme sloučené data do cache
-          if (typeof window !== 'undefined' && session?.user?.email) {
-            const clickHistoryCacheKey = `clickHistory_${session.user.email}`
-            localStorage.setItem(clickHistoryCacheKey, JSON.stringify(mergedHistory))
-            console.log('💾 Merged click history cached for user:', session.user.email)
-            
-            // Teď můžeme vymazat temporary cache - data jsou synchronizovaná
-            localStorage.removeItem('tempClickHistory')
-            console.log('🧹 Cleaned temp click history after successful sync')
-          }
-        } else {
-          // Žádné temporary items, použij jen data z databáze
-          setClickHistory(clickHistoryData || [])
-          
-          // Uložení do local storage pro rychlé načtení při příští návštěvě
-          if (typeof window !== 'undefined' && session?.user?.email) {
-            const clickHistoryCacheKey = `clickHistory_${session.user.email}`
-            localStorage.setItem(clickHistoryCacheKey, JSON.stringify(clickHistoryData || []))
-            console.log('💾 Click history cached for user:', session.user.email)
-          }
-        }
-        
+        setClickHistory(clickHistoryData || [])
         setIsLoadingHistory(false)
+        
+        // Cache pro click history
+        if (typeof window !== 'undefined' && session?.user?.email) {
+          const clickHistoryCacheKey = `clickHistory_${session.user.email}`
+          localStorage.setItem(clickHistoryCacheKey, JSON.stringify(clickHistoryData || []))
+          console.log('💾 Click history cached for user:', session.user.email)
+        }
       }
     } catch (error) {
       console.error('Error fetching profile:', error)
-      setIsLoadingProducts(false)
       setIsLoadingHistory(false)
     }
   }
 
-  // Funkce pro odstranění produktu
+  // ✅ JEDNODUCHÁ funkce POUZE pro saved products 
+  const fetchSavedProducts = async () => {
+    console.log('🔄 Fetching saved products...')
+    if (!session?.user?.email) {
+      setIsLoadingProducts(false)
+      return
+    }
+
+    try {
+      const response = await fetch('/api/users/saved-products')
+      console.log('📡 API Response status:', response.status)
+      
+      if (response.ok) {
+        const data = await response.json()
+        console.log('📊 Raw API data:', data)
+        console.log('✅ Saved products loaded successfully:', Array.isArray(data) ? data.length : 0)
+        
+        // API vrací přímo array, ne objekt s products property
+        const products = Array.isArray(data) ? data : []
+        setSavedProducts(products)
+        
+        // Aktualizujeme user data count
+        setUserData(prev => ({
+          ...prev,
+          savedProducts: products.length
+        }))
+        
+        // Uložení do cache
+        if (typeof window !== 'undefined') {
+          const cacheKey = `savedProducts_${session.user.email}`
+          localStorage.setItem(cacheKey, JSON.stringify(products))
+          console.log('💾 Saved products cached for user:', session.user.email)
+        }
+      } else {
+        console.error('❌ Failed to load saved products, status:', response.status)
+        setSavedProducts([])
+      }
+      
+      setIsLoadingProducts(false)
+    } catch (error) {
+      console.error('❌ Error fetching saved products:', error)
+      setSavedProducts([])
+      setIsLoadingProducts(false)
+    }
+  }
+
+  // Funkce pro odstranění produktu - ZJEDNODUŠENÁ VERZE
   const handleRemoveProduct = async (productId: string) => {
-    // Přidáme loading state pro tento produkt
-    setRemovingProducts(prev => new Set(prev).add(productId))
+    console.log('🗑️ Removing product:', productId)
     
-    // OPTIMISTIC UPDATE - okamžitě odstraníme z UI
+    // Najdeme produkt k odstranění
     const productToRemove = savedProducts.find(p => p.productId === productId)
-    
     if (!productToRemove) {
-      setRemovingProducts(prev => {
-        const newSet = new Set(prev)
-        newSet.delete(productId)
-        return newSet
-      })
+      console.log('❌ Product not found in saved products')
       return
     }
     
-    // Uložíme backup pro případ chyby
-    const backupProducts = [...savedProducts]
-    const backupUserData = { ...userData }
+    // Přidáme loading state
+    setRemovingProducts(prev => new Set(prev).add(productId))
     
-    // Okamžitě aktualizujeme UI
-    setSavedProducts(prev => prev.filter(p => p.productId !== productId))
+    // 1. OPTIMISTIC UPDATE - okamžitě odstraníme z UI
+    const newProducts = savedProducts.filter(p => p.productId !== productId)
+    setSavedProducts(newProducts)
     setUserData(prev => ({
       ...prev,
-      savedProducts: prev.savedProducts - 1
+      savedProducts: Math.max(0, prev.savedProducts - 1)
     }))
     
-    // API volání v pozadí - ZJEDNODUŠENÁ logika bez race conditions
-    console.log('🗑️ Attempting to delete product:', productId)
+    // 2. OKAMŽITĚ aktualizujeme cache
+    if (typeof window !== 'undefined' && session?.user?.email) {
+      const cacheKey = `savedProducts_${session.user.email}`
+      localStorage.setItem(cacheKey, JSON.stringify(newProducts))
+      console.log('💾 Cache updated after removal')
+    }
+    
+    // 3. Zobrazíme success toast okamžitě
+    showToast(`Produkt "${productToRemove.productName}" byl odstraněn`, 'success')
+    
+    // 4. API volání v pozadí - jednoduchá logika
     try {
       const response = await fetch(`/api/users/saved-products?productId=${productId}`, {
         method: 'DELETE',
       })
-      console.log('🗑️ Delete response status:', response.status)
       
       if (response.ok) {
-        // Úspěch - aktualizujeme cache s novým stavem (bez smazaného produktu)
-        const newProducts = backupProducts.filter(p => p.productId !== productId)
-        if (typeof window !== 'undefined' && session?.user?.email) {
-          const cacheKey = `savedProducts_${session.user.email}`
-          localStorage.setItem(cacheKey, JSON.stringify(newProducts))
-          console.log('💾 Updated saved products cache after successful removal')
-        }
-        
-        // Success notifikace
-        showToast(`✅ Produkt "${productToRemove.productName}" byl odstraněn`, 'success')
+        console.log('✅ Product successfully deleted from database')
       } else {
-        // API chyba - vrátíme původní stav
-        console.error('API error removing product, reverting UI')
-        setSavedProducts(backupProducts)
-        setUserData(backupUserData)
-        
-        // Vrátíme cache do původního stavu
-        if (typeof window !== 'undefined' && session?.user?.email) {
-          const cacheKey = `savedProducts_${session.user.email}`
-          localStorage.setItem(cacheKey, JSON.stringify(backupProducts))
-          console.log('💾 Reverted saved products cache after API error')
-        }
-        
-        // Zobrazíme chybovou zprávu pomocí toast místo alert
-        showToast('❌ Nepodařilo se odstranit produkt. Zkuste to znovu.', 'error')
+        // Při jakékoli API chybě - prostě refresh ze serveru
+        console.log('⚠️ API error, refreshing from server...')
+        await fetchSavedProducts()
       }
     } catch (error) {
-      // Síťová chyba - vrátíme původní stav
-      console.error('Network error removing product, reverting UI:', error)
-      setSavedProducts(backupProducts)
-      setUserData(backupUserData)
-      
-      // Vrátíme cache do původního stavu
-      if (typeof window !== 'undefined' && session?.user?.email) {
-        const cacheKey = `savedProducts_${session.user.email}`
-        localStorage.setItem(cacheKey, JSON.stringify(backupProducts))
-        console.log('💾 Reverted saved products cache after network error')
-      }
-      
-      showToast('🌐 Síťová chyba. Zkontrolujte připojení k internetu.', 'error')
+      // Při síťové chybě - prostě refresh ze serveru
+      console.log('🌐 Network error, refreshing from server...', error)
+      await fetchSavedProducts()
     } finally {
       // Vždy ukončíme loading state
       setRemovingProducts(prev => {
@@ -558,6 +432,113 @@ function UserAreaContent() {
   const cancelClearAll = () => {
     setShowClearAllModal(false)
   }
+
+  // Funkce pro odstranění jednotlivého produktu z historie - SMOOTH VERZE
+  const handleRemoveHistoryItem = async (historyItemId: string) => {
+    console.log('🗑️ Removing history item:', historyItemId)
+    
+    // Najdeme item k odstranění
+    const itemToRemove = clickHistory.find(item => item.id === historyItemId)
+    if (!itemToRemove) {
+      console.log('❌ History item not found')
+      return
+    }
+    
+    // 1. OPTIMISTIC UPDATE - okamžitě odstraníme z UI
+    const newHistory = clickHistory.filter(item => item.id !== historyItemId)
+    setClickHistory(newHistory)
+    
+    // 2. OKAMŽITĚ AKTUALIZUJEME CACHE
+    if (typeof window !== 'undefined' && session?.user?.email) {
+      const cacheKey = `clickHistory_${session.user.email}`
+      localStorage.setItem(cacheKey, JSON.stringify(newHistory))
+      console.log('💾 History cache updated after removal')
+    }
+    
+    // 3. Zobrazíme success toast okamžitě
+    showToast(`"${itemToRemove.productName}" byl odstraněn z historie`, 'success')
+    
+    // 4. API VOLÁNÍ V POZADÍ - není blokující 
+    try {
+      const response = await fetch(`/api/users/click-history/${historyItemId}`, {
+        method: 'DELETE'
+      })
+      
+      if (!response.ok) {
+        console.error('❌ API Error removing history item - refreshing from server')
+        // Při chybě načteme fresh data ze serveru
+        await fetchUserProfile()
+      } else {
+        console.log('✅ History item removed from server successfully')
+      }
+    } catch (error) {
+      console.error('🌐 Network error removing history item - refreshing from server:', error)
+      // Při síťové chybě načteme fresh data ze serveru
+      await fetchUserProfile()
+    }
+  }
+
+  // Funkce pro načtení AI doporučení
+  /* AI RECOMMENDATIONS - Dočasně schováno pro pozdější implementaci
+  const fetchAIRecommendations = async () => {
+    if (!session?.user?.email) {
+      setIsLoadingRecommendations(false)
+      return
+    }
+
+    try {
+      setIsLoadingRecommendations(true)
+      console.log('🤖 Fetching AI recommendations...')
+      
+      const response = await fetch('/api/users/ai-recommendations')
+      
+      if (response.ok) {
+        const data = await response.json()
+        console.log('✅ AI recommendations loaded:', data.recommendations?.length || 0)
+        setRecommendedProducts(data.recommendations || [])
+        setRecommendationsLastUpdated(new Date(data.lastUpdated))
+      } else {
+        console.error('❌ Failed to load AI recommendations')
+        setRecommendedProducts([])
+      }
+    } catch (error) {
+      console.error('🌐 Network error loading AI recommendations:', error)
+      setRecommendedProducts([])
+    } finally {
+      setIsLoadingRecommendations(false)
+    }
+  }
+
+  // Funkce pro manuální refresh AI doporučení
+  const handleRefreshRecommendations = async () => {
+    if (!session?.user?.email || isRefreshingRecommendations) return
+
+    try {
+      setIsRefreshingRecommendations(true)
+      console.log('🔄 Refreshing AI recommendations...')
+      
+      const response = await fetch('/api/users/ai-recommendations', {
+        method: 'POST'
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        console.log('✅ AI recommendations refreshed:', data.recommendations?.length || 0)
+        setRecommendedProducts(data.recommendations || [])
+        setRecommendationsLastUpdated(new Date(data.lastUpdated))
+        showToast('AI doporučení byla aktualizována!', 'success')
+      } else {
+        console.error('❌ Failed to refresh AI recommendations')
+        showToast('Chyba při aktualizaci doporučení', 'error')
+      }
+    } catch (error) {
+      console.error('🌐 Network error refreshing AI recommendations:', error)
+      showToast('Síťová chyba při aktualizaci', 'error')
+    } finally {
+      setIsRefreshingRecommendations(false)
+    }
+  }
+  */
 
   // Funkce pro vymazání celé historie kliků
   const handleClearHistory = () => {
@@ -707,13 +688,11 @@ function UserAreaContent() {
       const hasSavedCache = localStorage.getItem(savedProductsCacheKey)
       const hasHistoryCache = localStorage.getItem(clickHistoryCacheKey)
       
-      // Pokud nemáme žádnou cache, načteme z API
-      if (!hasAvatarCache && !hasSavedCache && !hasHistoryCache) {
-        console.log('🔄 No cache found, loading from API...')
-        fetchUserProfile()
-      } else {
-        console.log('✅ Cache found, skipping API call')
-      }
+      // ✅ JEDNODUCHÉ ŘEŠENÍ: Vždy načteme fresh data z API  
+      console.log('🔄 Loading fresh data from API...')
+      fetchUserProfile()
+      fetchSavedProducts()
+      // fetchAIRecommendations() // Dočasně schováno
       
       setLoading(false)
     } else if (status === 'unauthenticated') {
@@ -1103,40 +1082,41 @@ function UserAreaContent() {
     )
   }
 
+  // Helper functions
+  const getLevelColor = (level: string) => {
+    switch(level) {
+      case 'Beginner': return 'text-green-600 bg-green-100'
+      case 'Pro': return 'text-blue-600 bg-blue-100'
+      case 'Expert': return 'text-purple-600 bg-purple-100'
+      default: return 'text-gray-600 bg-gray-100'
+    }
+  }
+
+  // Funkce pro vytvoření iniciál ze jména
+  const getInitials = (name: string, email: string) => {
+    console.log('🔍 getInitials called with name:', name)
+    console.log('🔍 userData.email:', email)
+    
+    if (!name || name.trim() === '') {
+      const result = email.charAt(0).toUpperCase()
+      console.log('🔍 Using email initial:', result)
+      return result
+    }
+    
+    const parts = name.trim().split(' ')
+    if (parts.length === 1) {
+      const result = parts[0].charAt(0).toUpperCase()
+      console.log('🔍 Using single name initial:', result)
+      return result
+    } else {
+      const result = (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase()
+      console.log('🔍 Using full name initials:', result)
+      return result
+    }
+  }
+
   // Dashboard pro přihlášené uživatele
   if (userData) {
-    const getLevelColor = (level: string) => {
-      switch(level) {
-        case 'Beginner': return 'text-green-600 bg-green-100'
-        case 'Pro': return 'text-blue-600 bg-blue-100'
-        case 'Expert': return 'text-purple-600 bg-purple-100'
-        default: return 'text-gray-600 bg-gray-100'
-      }
-    }
-
-    // Funkce pro vytvoření iniciál ze jména
-    const getInitials = (name: string) => {
-      console.log('🔍 getInitials called with name:', name)
-      console.log('🔍 userData.email:', userData.email)
-      
-      if (!name || name.trim() === '') {
-        const result = userData.email.charAt(0).toUpperCase()
-        console.log('🔍 Using email initial:', result)
-        return result
-      }
-      
-      const parts = name.trim().split(' ')
-      if (parts.length === 1) {
-        const result = parts[0].charAt(0).toUpperCase()
-        console.log('🔍 Using single name initial:', result)
-        return result
-      } else {
-        const result = (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase()
-        console.log('🔍 Using full name initials:', result)
-        return result
-      }
-    }
-
     console.log('🎨 Avatar rendering with userData:', { name: userData.name, email: userData.email })
 
     return (
@@ -1188,6 +1168,7 @@ function UserAreaContent() {
               >
                 Saved Products ({savedProducts.length})
               </button>
+{/* AI Recommendations - Dočasně schováno pro pozdější implementaci
               <button
                 onClick={() => setActiveTab('recommendations')}
                 className={`py-4 px-1 border-b-2 font-medium text-sm ${
@@ -1198,6 +1179,7 @@ function UserAreaContent() {
               >
                 AI Recommendations ({recommendedProducts.length})
               </button>
+              */}
               <button
                 onClick={() => setActiveTab('history')}
                 className={`py-4 px-1 border-b-2 font-medium text-sm ${
@@ -1462,7 +1444,7 @@ function UserAreaContent() {
                         />
                       ) : (
                         <div className="w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center text-white font-bold text-xl group-hover:opacity-75 transition-opacity">
-                          {getInitials(userData.name)}
+                          {getInitials(userData.name, userData.email)}
                         </div>
                       )}
                       
@@ -1760,17 +1742,52 @@ function UserAreaContent() {
             </div>
           )}
 
-          {/* AI Recommendations Tab */}
+          {/* AI Recommendations Tab - Dočasně schováno pro pozdější implementaci
           {activeTab === 'recommendations' && (
             <div className="max-w-4xl">
               <div className="bg-white rounded-lg shadow-sm p-6">
-                <div className="mb-6">
-                  <h2 className="text-xl font-semibold text-gray-900 mb-2">AI Recommendations for You</h2>
-                  <p className="text-gray-600">Personalized tool suggestions based on your interests and activity.</p>
+                <div className="mb-6 flex items-center justify-between">
+                  <div>
+                    <h2 className="text-xl font-semibold text-gray-900 mb-2">AI Recommendations for You</h2>
+                    <p className="text-gray-600">Personalizovaná doporučení AI nástrojů na základě vaší aktivity.</p>
+                    {recommendationsLastUpdated && (
+                      <p className="text-xs text-gray-500 mt-1">
+                        Naposledy aktualizováno: {new Date(recommendationsLastUpdated).toLocaleString('cs-CZ')}
+                      </p>
+                    )}
+                  </div>
+                  <button
+                    onClick={handleRefreshRecommendations}
+                    disabled={isRefreshingRecommendations}
+                    className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+                  >
+                    <FiRefreshCw className={`w-4 h-4 ${isRefreshingRecommendations ? 'animate-spin' : ''}`} />
+                    <span>{isRefreshingRecommendations ? 'Aktualizuje...' : 'Obnovit'}</span>
+                  </button>
                 </div>
                 
-                <div className="space-y-4">
-                  {recommendedProducts.map((product) => (
+                {isLoadingRecommendations ? (
+                  // Loading skeleton
+                  <div className="space-y-4">
+                    {[...Array(3)].map((_, i) => (
+                      <div key={i} className="animate-pulse">
+                        <div className="flex items-start space-x-4 p-4 border border-gray-200 rounded-lg">
+                          <div className="w-12 h-12 bg-gray-300 rounded-lg flex-shrink-0"></div>
+                          <div className="flex-1 space-y-2">
+                            <div className="h-4 bg-gray-300 rounded w-3/4"></div>
+                            <div className="h-3 bg-gray-300 rounded w-1/2"></div>
+                            <div className="flex space-x-2">
+                              <div className="h-6 bg-gray-300 rounded w-20"></div>
+                              <div className="h-6 bg-gray-300 rounded w-16"></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : recommendedProducts.length > 0 ? (
+                  <div className="space-y-4">
+                    {recommendedProducts.map((product) => (
                     <div 
                       key={product.id} 
                       className="flex items-start space-x-4 p-4 border border-gray-200 rounded-lg hover:border-purple-300 transition-colors cursor-pointer bg-gradient-to-r from-purple-50/50 to-blue-50/50"
@@ -1827,22 +1844,40 @@ function UserAreaContent() {
                       </div>
                     </div>
                   ))}
-                </div>
+                  </div>
+                ) : (
+                  // Žádná doporučení
+                  <div className="text-center py-12">
+                    <FiZap className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">Žádná AI doporučení</h3>
+                    <p className="text-gray-600 mb-6">Začněte používat naše nástroje a uložte si své oblíbené, abychom vám mohli doporučit další.</p>
+                    <button
+                      onClick={handleRefreshRecommendations}
+                      disabled={isRefreshingRecommendations}
+                      className="px-6 py-3 bg-gradient-primary text-white rounded-lg hover-gradient-primary transition-all disabled:opacity-50"
+                    >
+                      {isRefreshingRecommendations ? 'Generuje...' : 'Generovat doporučení'}
+                    </button>
+                  </div>
+                )}
                 
-                <div className="mt-8 p-4 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border border-purple-100">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-gradient-primary rounded-full flex items-center justify-center">
-                      <FiZap className="w-5 h-5 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="font-medium text-gray-900">Get Better Recommendations</h3>
-                      <p className="text-sm text-gray-600">Save more products and explore different categories to improve your AI recommendations.</p>
+                {recommendedProducts.length > 0 && (
+                  <div className="mt-8 p-4 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border border-purple-100">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 bg-gradient-primary rounded-full flex items-center justify-center">
+                        <FiZap className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="font-medium text-gray-900">Získejte lepší doporučení</h3>
+                        <p className="text-sm text-gray-600">Uložte si více produktů a prozkoumejte různé kategorie pro zlepšení AI doporučení.</p>
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
               </div>
             </div>
           )}
+          */}
 
           {/* Settings Tab */}
           {activeTab === 'settings' && (
@@ -2264,12 +2299,19 @@ function UserAreaContent() {
                               Visit Again
                             </button>
                             
-                            {/* Ikona odkazu */}
-                            <div className="text-gray-400">
+                            {/* Ikona koše pro mazání */}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleRemoveHistoryItem(item.id)
+                              }}
+                              className="p-1.5 text-gray-400 hover:text-red-500 transition-colors"
+                              title="Remove from history"
+                            >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                               </svg>
-                            </div>
+                            </button>
                           </div>
                         </div>
                       )

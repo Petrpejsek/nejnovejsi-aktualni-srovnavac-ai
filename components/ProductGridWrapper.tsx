@@ -31,19 +31,11 @@ export default function ProductGridWrapper() {
   // Globální optimistické funkce pro stránky s ProductCards
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      // Optimistická funkce pro saved products
+      // Optimistická funkce pro saved products - ZJEDNODUŠENÁ
       window.addToSavedProducts = (product) => {
         console.log('🎯 Optimistic (Grid): Product will be saved:', product.name)
-        // Uložíme do localStorage cache pro quick access
-        const cacheKey = 'tempSavedProducts'
-        try {
-          const existing = JSON.parse(localStorage.getItem(cacheKey) || '[]')
-          const updated = [product, ...existing]
-          localStorage.setItem(cacheKey, JSON.stringify(updated))
-          console.log('💾 Saved to temp cache for My Account')
-        } catch (error) {
-          console.error('Cache error:', error)
-        }
+        // Už se nepoužívá temp cache - vše se řeší přímo v user-area
+        // Tato funkce existuje pouze pro konzistenci s historií
       }
       
       // Optimistická funkce pro click history  

@@ -192,8 +192,11 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
     e.preventDefault()
     e.stopPropagation()
     
+    console.log('🔖 BOOKMARK CLICK:', { productId: id, productName: name, sessionExists: !!session })
+    
     // Check if user is authenticated
     if (!session) {
+      console.log('❌ User not authenticated, showing signup modal')
       setShowSignUpModal(true)
       return
     }
@@ -204,6 +207,8 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
     // OPTIMISTIC UPDATE - update UI immediately
     const newBookmarkedState = !localBookmarked
     setLocalBookmarked(newBookmarkedState)
+    
+    console.log('🔄 OPTIMISTIC UPDATE:', { newBookmarkedState, productId: id })
     
     // Okamžitě zobrazíme toast bez čekání na API
     showToast(newBookmarkedState ? 'Saved!' : 'Removed!', 'success')
@@ -219,6 +224,7 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
     // API call in background - no await, non-blocking
     try {
       if (newBookmarkedState) {
+        console.log('💾 SAVING PRODUCT:', { productId: id, productName: name, price: hasTrial ? 0 : price })
         // Save product in background
         fetch('/api/users/saved-products', {
           method: 'POST',
@@ -233,6 +239,7 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
             price: hasTrial ? 0 : price
           }),
         }).then(response => {
+          console.log('📝 SAVE API RESPONSE:', { status: response.status, ok: response.ok })
           if (!response.ok && response.status !== 409) {
             // Only revert on real errors (not 409 which means already saved)
             console.error('Error saving product, reverting UI')
@@ -273,29 +280,19 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
           }
         })
       } else {
-        // Remove product in background
+        // Remove product in background - ZJEDNODUŠENÁ LOGIKA
         fetch(`/api/users/saved-products?productId=${id}`, {
           method: 'DELETE'
         }).then(response => {
-          if (!response.ok) {
-            // Revert on error
-            console.error('Error removing product, reverting UI')
-            setLocalBookmarked(true)
-            showToast('Error removing', 'error')
-            if (onBookmarkChange) {
-              onBookmarkChange(id, true)
-            }
+          if (response.ok) {
+            console.log('✅ Product successfully removed from database')
           } else {
-            // Úspěch - toast už byl zobrazen okamžitě
+            // Při jakékoli API chybě - log ale nereverts UI (už bylo ukázáno jako smazané)
+            console.log('⚠️ API error during removal, but UI already updated')
           }
         }).catch(error => {
-          // Revert on network errors
-          console.error('Network error removing product, reverting UI:', error)
-          setLocalBookmarked(true)
-          showToast('Error removing', 'error')
-          if (onBookmarkChange) {
-            onBookmarkChange(id, true)
-          }
+          // Při síťové chybě - log ale nereverts UI (už bylo ukázáno jako smazané)
+          console.log('🌐 Network error during removal, but UI already updated:', error)
         })
       }
     } catch (error) {

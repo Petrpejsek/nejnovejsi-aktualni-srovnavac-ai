@@ -21,7 +21,9 @@
     "export-products": "node --loader ts-node/esm scripts/export-products.js",
     "assistant-setup": "node --loader ts-node/esm scripts/export-products.js",
     "upload-screenshots": "node scripts/upload-screenshots.js",
-    "fix-imageurl": "node --loader ts-node/esm scripts/fix-imageUrl-database.js"
+    "fix-imageurl": "node --loader ts-node/esm scripts/fix-imageUrl-database.js",
+    "check-screenshots": "node --loader ts-node/esm scripts/check-screenshot-status.js",
+    "fix-screenshots": "node --loader ts-node/esm scripts/fix-missing-screenshots.js"
   },
   "prisma": {
     "seed": "node --loader ts-node/esm prisma/seed.ts"

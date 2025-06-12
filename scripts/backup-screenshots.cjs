@@ -2,7 +2,6 @@
 
 const fs = require('fs')
 const path = require('path')
-const { execSync } = require('child_process')
 
 console.log('🔄 Creating screenshots backup...')
 
@@ -119,12 +118,12 @@ manifest.screenshots.forEach(({ filename }) => {
 console.log(\`✅ Restore completed! Restored \${restoredCount}/\${manifest.totalScreenshots} screenshots\`)
 `
 
-  fs.writeFileSync(path.join(backupDir, 'restore-screenshots.js'), restoreScript)
-  fs.chmodSync(path.join(backupDir, 'restore-screenshots.js'), '755')
+  fs.writeFileSync(path.join(backupDir, 'restore-screenshots.cjs'), restoreScript)
+  fs.chmodSync(path.join(backupDir, 'restore-screenshots.cjs'), '755')
 
-  console.log(`🔧 Restore script created: ${backupDir}/restore-screenshots.js`)
+  console.log(`🔧 Restore script created: ${backupDir}/restore-screenshots.cjs`)
   console.log(`\n📋 Usage:`)
-  console.log(`   To restore: node ${backupDir}/restore-screenshots.js`)
+  console.log(`   To restore: node ${backupDir}/restore-screenshots.cjs`)
 
 } catch (error) {
   console.error('❌ Backup failed:', error.message)
