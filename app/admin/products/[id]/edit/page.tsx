@@ -427,14 +427,6 @@ export default function AdminProductEditPage({ params }: { params: { id: string 
     setSuccessMessage(null)
 
     try {
-      // Nejdříve zkontroluj jestli screenshot server běží
-      console.log('🏥 Kontroluji health screenshot serveru...')
-      const healthResponse = await fetch('http://localhost:5000/health')
-      if (!healthResponse.ok) {
-        throw new Error('Screenshot server není dostupný')
-      }
-      console.log('✅ Screenshot server je zdravý')
-
       console.log('📸 Posílám request na regeneraci...')
       const response = await fetch('/api/screenshot/regenerate', {
         method: 'POST',
@@ -474,11 +466,7 @@ export default function AdminProductEditPage({ params }: { params: { id: string 
       }
     } catch (error) {
       console.error('💥 Chyba při regeneraci screenshotu:', error)
-      if (error instanceof Error && error.message.includes('Screenshot server není dostupný')) {
-        setErrorMessage('❌ Screenshot server není spuštěný. Spusťte ho příkazem: source venv/bin/activate && python screenshot-server.py')
-      } else {
-        setErrorMessage('❌ Chyba při regeneraci screenshotu. Zkontrolujte konzoli pro více detailů.')
-      }
+      setErrorMessage('❌ Chyba při regeneraci screenshotu. Zkontrolujte zda je screenshot server spuštěný a zkuste to znovu.')
     } finally {
       console.log('🏁 Ukončuji loading state...')
       setIsRegeneratingScreenshot(false)
