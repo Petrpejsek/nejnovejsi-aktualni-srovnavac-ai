@@ -1,0 +1,10 @@
+# Screenshots - too large for Vercel serverless functions
+public/screenshots/
+
+# Other large files
+*.tar.gz
+backups/
+
+# Development files
+.env.local
+.env.*.local 
