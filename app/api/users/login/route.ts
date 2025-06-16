@@ -33,6 +33,17 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Check if user has hashed password (for Google auth users)
+    if (!user.hashedPassword) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'Please use Google login for this account' 
+        },
+        { status: 401 }
+      )
+    }
+
     // Verify password
     const isValidPassword = await bcrypt.compare(password, user.hashedPassword)
 

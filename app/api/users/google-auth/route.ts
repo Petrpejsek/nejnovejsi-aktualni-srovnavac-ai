@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
+import { v4 as uuidv4 } from 'uuid';
 
 const prisma = new PrismaClient();
 
@@ -32,6 +33,7 @@ export async function POST(request: NextRequest) {
       // Vytvoříme nového uživatele
       user = await prisma.user.create({
         data: {
+          id: uuidv4(), // Přidáváme UUID pro id
           email,
           name: name || email.split('@')[0], // Použijeme jméno nebo část emailu
           googleId,
