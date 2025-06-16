@@ -10,13 +10,11 @@
     }
   },
   "regions": ["iad1"],
-  "routes": [
-    {
-      "src": "/screenshots/(.*)",
-      "dest": "/static/screenshots/$1"
-    }
-  ],
   "rewrites": [
+    {
+      "source": "/screenshots/(.*)",
+      "destination": "/static/screenshots/$1"
+    },
     {
       "source": "/admin/:path*",
       "destination": "/admin/:path*"
