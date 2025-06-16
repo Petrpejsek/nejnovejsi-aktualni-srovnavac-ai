@@ -10,6 +10,12 @@
     }
   },
   "regions": ["iad1"],
+  "routes": [
+    {
+      "src": "/screenshots/(.*)",
+      "continue": true
+    }
+  ],
   "rewrites": [
     {
       "source": "/admin/:path*",
@@ -19,5 +25,19 @@
       "source": "/company-admin/:path*", 
       "destination": "/company-admin/:path*"
     }
-  ]
+  ],
+  "static": {
+    "directoryListing": false,
+    "headers": [
+      {
+        "source": "/screenshots/**",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=31536000, immutable"
+          }
+        ]
+      }
+    ]
+  }
 } 
