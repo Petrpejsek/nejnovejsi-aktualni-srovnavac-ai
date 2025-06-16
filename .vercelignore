@@ -1,0 +1,36 @@
+# Vyloučit screenshoty ze serverless funkcí
+public/screenshots/
+
+# Vyloučit další velké soubory
+*.gz
+*.tar
+*.zip
+backups/
+
+# Development soubory
+venv/
+venv_new/
+venv_working/
+backend/venv/
+backend/venv_new/
+backend/venv_working/
+
+# Dokumentace a návody
+*.md
+docs/
+DEPLOYMENT.md
+FUNKCIONALITA_SEZNAM.md
+REKLAMNI-SYSTEM-DOKUMENTACE.md
+TECHNICKA_PRIRUCKA.md
+
+# Skripty a testy
+scripts/
+test-*.js
+test-*.mjs
+test-*.py
+
+# Backup soubory
+*.sql
+*.json.backup
+temp_products.json
+products_backup.json 
