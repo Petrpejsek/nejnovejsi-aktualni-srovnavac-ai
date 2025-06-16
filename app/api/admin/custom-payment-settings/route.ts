@@ -19,16 +19,16 @@ interface CustomPaymentSettings {
 // Simulace uložení nastavení (v produkci by se ukládalo do databáze)
 let customPaymentSettings: CustomPaymentSettings = {
   enabled: true,
-  title: 'Vlastní částka',
+  title: 'Custom Amount',
   minAmount: 10,
   defaultAmount: 100,
   couponsEnabled: true,
   targetGroups: ['all'],
   availableCoupons: [
-    { code: 'WELCOME20', type: 'percent', value: 20, description: '20% sleva', active: true },
-    { code: 'SAVE50', type: 'amount', value: 50, description: '$50 sleva', active: true },
-    { code: 'PREMIUM30', type: 'percent', value: 30, description: '30% sleva', active: true },
-    { code: 'FIRST100', type: 'amount', value: 100, description: '$100 sleva', active: true }
+    { code: 'WELCOME20', type: 'percent', value: 20, description: '20% discount', active: true },
+    { code: 'SAVE50', type: 'amount', value: 50, description: '$50 discount', active: true },
+    { code: 'PREMIUM30', type: 'percent', value: 30, description: '30% discount', active: true },
+    { code: 'FIRST100', type: 'amount', value: 100, description: '$100 discount', active: true }
   ]
 }
 

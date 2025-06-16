@@ -56,10 +56,10 @@ interface AssignedCompany {
 
 export default function AdminProductEditPage({ params }: { params: { id: string } }) {
   const router = useRouter()
-  const [isLoading, setIsLoading] = useState(false)
   const [isLoadingProduct, setIsLoadingProduct] = useState(true)
   const [assignedCompany, setAssignedCompany] = useState<AssignedCompany | null>(null)
   const [isLoadingCompany, setIsLoadingCompany] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
   const [dragActive, setDragActive] = useState(false)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [newTag, setNewTag] = useState('')
@@ -172,7 +172,13 @@ export default function AdminProductEditPage({ params }: { params: { id: string 
   const handleSubmit = async (e: React.FormEvent, showMessage: boolean = true) => {
     e.preventDefault()
     
+    console.log('🔧 DEBUG: handleSubmit called, showMessage:', showMessage)
+    console.log('🔧 DEBUG: Current product data:', product)
+    
     setIsLoading(true)
+    setErrorMessage(null)
+    setSuccessMessage(null)
+    
     try {
       // Připravit data pro odeslání
       const dataToSave = {
@@ -185,6 +191,9 @@ export default function AdminProductEditPage({ params }: { params: { id: string 
         pricingInfo: JSON.stringify(product.pricingInfo)
       }
 
+      console.log('🔧 DEBUG: Data to save:', dataToSave)
+      console.log('🔧 DEBUG: Sending PUT request to:', `/api/products/${params.id}`)
+
       const response = await fetch(`/api/products/${params.id}`, {
         method: 'PUT',
         headers: {
@@ -193,8 +202,13 @@ export default function AdminProductEditPage({ params }: { params: { id: string 
         body: JSON.stringify(dataToSave),
       })
 
+      console.log('🔧 DEBUG: Response status:', response.status)
+      console.log('🔧 DEBUG: Response ok:', response.ok)
+
       if (response.ok) {
         const result = await response.json()
+        console.log('🔧 DEBUG: Response data:', result)
+        
         if (showMessage) {
           setSuccessMessage('✅ Produkt byl úspěšně uložen!')
           setErrorMessage(null)
@@ -202,15 +216,19 @@ export default function AdminProductEditPage({ params }: { params: { id: string 
           // Zpráva se zobrazí na 5 sekund
           setTimeout(() => setSuccessMessage(null), 5000)
         }
+        console.log('✅ DEBUG: Product saved successfully')
       } else {
-        setErrorMessage('❌ Chyba při ukládání produktu')
+        const errorData = await response.text()
+        console.error('❌ DEBUG: Server error response:', errorData)
+        setErrorMessage('❌ Chyba při ukládání produktu: ' + response.status)
         setSuccessMessage(null)
       }
     } catch (error) {
-      console.error('Error saving product:', error)
-      setErrorMessage('Chyba při ukládání produktu')
+      console.error('💥 DEBUG: Exception in handleSubmit:', error)
+      setErrorMessage('Chyba při ukládání produktu: ' + (error instanceof Error ? error.message : String(error)))
       setSuccessMessage(null)
     } finally {
+      console.log('🏁 DEBUG: handleSubmit finished, setting isLoading to false')
       setIsLoading(false)
     }
   }

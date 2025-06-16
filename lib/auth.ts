@@ -1,8 +1,13 @@
 import CredentialsProvider from 'next-auth/providers/credentials';
+import GoogleProvider from 'next-auth/providers/google';
 import type { NextAuthOptions } from 'next-auth';
 
 export const authOptions: NextAuthOptions = {
   providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
     CredentialsProvider({
       name: 'Credentials',
       credentials: {
@@ -64,9 +69,14 @@ export const authOptions: NextAuthOptions = {
     signIn: '/',
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, account }) {
       if (user) {
-        token.userType = (user as any).userType;
+        token.userType = (user as any).userType || 'regular';
+        
+        // Pro Google OAuth uživatele nastavíme userType na 'regular'
+        if (account?.provider === 'google') {
+          token.userType = 'regular';
+        }
       }
       return token;
     },
@@ -76,5 +86,14 @@ export const authOptions: NextAuthOptions = {
       }
       return session;
     },
+    async signIn({ user, account, profile }) {
+      // Pro Google OAuth jednoduše povolíme přihlášení
+      if (account?.provider === 'google' && user.email) {
+        console.log('Google OAuth přihlášení pro:', user.email);
+        return true;
+      }
+      
+      return true;
+    }
   },
 }; 

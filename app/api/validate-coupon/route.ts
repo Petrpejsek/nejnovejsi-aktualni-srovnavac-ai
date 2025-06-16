@@ -7,7 +7,7 @@ export async function POST(request: NextRequest) {
     if (!code || typeof code !== 'string') {
       return NextResponse.json({ 
         valid: false, 
-        error: 'Kód je povinný' 
+        error: 'Code is required' 
       }, { status: 400 })
     }
 
@@ -37,8 +37,8 @@ export async function POST(request: NextRequest) {
       settings = {
         couponsEnabled: true,
         availableCoupons: [
-          { code: 'WELCOME20', type: 'percent', value: 20, description: '20% sleva', active: true },
-          { code: 'SAVE50', type: 'amount', value: 50, description: '$50 sleva', active: true }
+          { code: 'WELCOME20', type: 'percent', value: 20, description: '20% discount', active: true },
+          { code: 'SAVE50', type: 'amount', value: 50, description: '$50 discount', active: true }
         ]
       }
     }
@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
     if (!settings.couponsEnabled) {
       return NextResponse.json({ 
         valid: false, 
-        error: 'Slevové kódy jsou momentálně vypnuté' 
+        error: 'Coupon codes are currently disabled' 
       })
     }
 
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
     if (!coupon) {
       return NextResponse.json({ 
         valid: false, 
-        error: 'Neplatný slevový kód' 
+        error: 'Invalid coupon code' 
       })
     }
 
@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
     console.error('Error validating coupon:', error)
     return NextResponse.json({ 
       valid: false, 
-      error: 'Chyba při ověřování kupónu' 
+      error: 'Error validating coupon' 
     }, { status: 500 })
   }
 } 

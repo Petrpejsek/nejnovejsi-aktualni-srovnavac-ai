@@ -48,7 +48,9 @@ interface DashboardStats {
     rejected: number
   }
   pendingProductChanges?: {
-    count: number
+    total: number
+    newProducts: number
+    productEdits: number
   }
 }
 
@@ -249,34 +251,34 @@ export default function AdminDashboard() {
           className="group"
         >
           <div className={`bg-white p-6 rounded-lg shadow-sm border transition-all duration-200 cursor-pointer ${
-            dashboardStats.pendingProductChanges && dashboardStats.pendingProductChanges.count > 0 
+            dashboardStats.pendingProductChanges && dashboardStats.pendingProductChanges.total > 0 
               ? 'border-red-300 hover:border-red-400 hover:shadow-md bg-red-50' 
               : 'border-gray-200 hover:border-purple-300 hover:shadow-md'
           }`}>
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 <span className="text-2xl">
-                  {dashboardStats.pendingProductChanges && dashboardStats.pendingProductChanges.count > 0 ? '🔄' : '✅'}
+                  {dashboardStats.pendingProductChanges && dashboardStats.pendingProductChanges.total > 0 ? '🔄' : '✅'}
                 </span>
               </div>
               <div className="ml-5 w-0 flex-1">
                 <dl>
                   <dt className={`text-sm font-medium truncate transition-colors ${
-                    dashboardStats.pendingProductChanges && dashboardStats.pendingProductChanges.count > 0 
+                    dashboardStats.pendingProductChanges && dashboardStats.pendingProductChanges.total > 0 
                       ? 'text-red-700 group-hover:text-red-800' 
                       : 'text-gray-500 group-hover:text-purple-600'
                   }`}>
-                    {dashboardStats.pendingProductChanges && dashboardStats.pendingProductChanges.count > 0 
+                    {dashboardStats.pendingProductChanges && dashboardStats.pendingProductChanges.total > 0 
                       ? 'Čeká na schválení' 
                       : 'Pending Changes'}
                   </dt>
                   <dd className={`text-lg font-medium transition-colors ${
-                    dashboardStats.pendingProductChanges && dashboardStats.pendingProductChanges.count > 0 
+                    dashboardStats.pendingProductChanges && dashboardStats.pendingProductChanges.total > 0 
                       ? 'text-red-900 group-hover:text-red-900' 
                       : 'text-gray-900 group-hover:text-purple-700'
                   }`}>
-                    {dashboardStats.pendingProductChanges ? dashboardStats.pendingProductChanges.count : 0}
-                    {dashboardStats.pendingProductChanges && dashboardStats.pendingProductChanges.count > 0 && (
+                    {dashboardStats.pendingProductChanges ? dashboardStats.pendingProductChanges.total : 0}
+                    {dashboardStats.pendingProductChanges && dashboardStats.pendingProductChanges.total > 0 && (
                       <span className="ml-2 text-sm">produktů</span>
                     )}
                   </dd>

@@ -37,80 +37,17 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Pro teď vrátíme mock data, později připojíme k databázi
-    const mockPackages = [
-      {
-        id: '1',
-        title: 'Welcome Bonus',
-        description: 'Perfect to get started! Double your first deposit.',
-        amount: 100,
-        bonus: 100,
-        savings: 100,
-        firstTime: true,
-        active: true,
-        order: 1,
-        targetStatus: 'new', // Pouze pro nové uživatele
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      },
-      {
-        id: '2',
-        title: 'Growth Package',
-        description: 'Scale your campaigns with extra budget.',
-        amount: 500,
-        bonus: 100,
-        savings: 100,
-        active: true,
-        order: 2,
-        targetStatus: 'all', // Pro všechny
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      },
-      {
-        id: '3',
-        title: 'Premium Package',
-        description: 'Maximum impact for serious advertisers.',
-        amount: 1000,
-        bonus: 200,
-        savings: 200,
-        popular: true,
-        active: true,
-        order: 3,
-        targetStatus: 'active', // Pro aktivní uživatele
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      },
-      {
-        id: '4',
-        title: 'Enterprise Package',
-        description: 'For high-volume campaigns and maximum reach.',
-        amount: 2500,
-        bonus: 750,
-        savings: 750,
-        active: true,
-        order: 4,
-        targetStatus: 'high_spender', // Pro uživatele s vysokými výdaji
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      },
-      {
-        id: '5',
-        title: 'Low Balance Boost',
-        description: 'Quick top-up for users running low on funds.',
-        amount: 50,
-        bonus: 25,
-        savings: 25,
-        active: true,
-        order: 5,
-        targetStatus: 'low_balance', // Pro uživatele s nízkým zůstatkem
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      }
-    ]
+    // Načtení skutečných dat z databáze
+    const packages = await prisma.promotionalPackage.findMany({
+      orderBy: [
+        { order: 'asc' },
+        { createdAt: 'desc' }
+      ]
+    })
 
     return NextResponse.json({
       success: true,
-      packages: mockPackages
+      packages: packages
     })
 
   } catch (error) {
@@ -145,23 +82,24 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Pro teď jen simulujeme vytvoření
-    const newPackage = {
-      id: Date.now().toString(),
-      title,
-      description,
-      amount,
-      bonus,
-      savings: bonus,
-      popular: popular || false,
-      firstTime: firstTime || false,
-      minimumSpend: minimumSpend || 0,
-      active: active !== false,
-      order: order || 1,
-      targetStatus: targetStatus || 'all',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    }
+    // Vytvoření v databázi
+    const newPackage = await prisma.promotionalPackage.create({
+      data: {
+        title,
+        description,
+        amount,
+        bonus,
+        savings: bonus, // Auto-calculate savings as bonus amount
+        popular: popular || false,
+        firstTime: firstTime || false,
+        minimumSpend: minimumSpend || 0,
+        active: active !== false,
+        order: order || 1,
+        targetStatus: targetStatus || 'all'
+      }
+    })
+
+    console.log('✅ Created promotional package:', newPackage.title, `(${newPackage.id})`)
 
     return NextResponse.json({
       success: true,
@@ -170,7 +108,7 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error creating package:', error)
+    console.error('❌ Error creating package:', error)
     return NextResponse.json(
       { success: false, error: 'Failed to create package' },
       { status: 500 }

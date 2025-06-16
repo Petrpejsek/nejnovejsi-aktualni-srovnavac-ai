@@ -37,9 +37,24 @@ export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormPr
     }
   }
 
-  const handleGoogleLogin = () => {
-    // TODO: Implement Google login
-    console.log('Google login')
+  const handleGoogleLogin = async () => {
+    try {
+      const result = await signIn('google', {
+        redirect: false,
+        callbackUrl: window.location.origin
+      })
+      
+      if (result?.ok) {
+        onSuccess?.()
+        window.location.reload()
+      } else if (result?.error) {
+        console.error('Google sign in error:', result.error)
+        alert('Google sign in failed. Please try again.')
+      }
+    } catch (error) {
+      console.error('Google sign in error:', error)
+      alert('Google sign in failed. Please try again.')
+    }
   }
 
   return (

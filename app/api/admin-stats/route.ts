@@ -25,18 +25,36 @@ export async function GET(request: NextRequest) {
       })
     ])
 
-    // TODO: Až bude Prisma klient aktualizován, přidáme dotaz na pending changes
-    // Pro nyní používáme raw SQL query
-    // const pendingProductChangesResult = await prisma.$queryRaw`
-    //   SELECT COUNT(*) as count 
-    //   FROM Product 
-    //   WHERE hasPendingChanges = true 
-    //   AND changesStatus = 'pending'
-    //   AND deletedAt IS NULL
-    // ` as [{count: bigint}]
+    // Statistiky pro pending changes - rozlišíme nové produkty a úpravy
+    const pendingChangesResult = await prisma.$queryRaw`
+      SELECT 
+        "imageApprovalStatus",
+        "adminNotes",
+        COUNT(*) as count 
+      FROM "Product" 
+      WHERE "hasPendingChanges" = true 
+      AND "changesStatus" = 'pending'
+      AND "deletedAt" IS NULL
+      GROUP BY "imageApprovalStatus", "adminNotes"
+    ` as Array<{imageApprovalStatus: string | null, adminNotes: string | null, count: bigint}>
     
-    // Dočasně hardcoded pro testování - vím že firma udělala úpravu
-    const pendingProductChanges = 1 // Number(pendingProductChangesResult[0]?.count || 0)
+    // Rozděl podle typu (nové produkty vs úpravy)
+    let newProductsPending = 0
+    let productEditsPending = 0
+    
+    pendingChangesResult.forEach((item) => {
+      const count = Number(item.count)
+      const isNewProduct = item.imageApprovalStatus === 'NEW_PRODUCT' || 
+                          (item.adminNotes && item.adminNotes.includes('NEW PRODUCT'))
+      
+      if (isNewProduct) {
+        newProductsPending += count
+      } else {
+        productEditsPending += count
+      }
+    })
+    
+    const totalPendingChanges = newProductsPending + productEditsPending
 
     // Spočítáme statistiky pro firemní aplikace s explicitními typy
     const companyStats: Record<string, number> = companyApplicationsStats.reduce((acc: Record<string, number>, item: { status: string; _count: number }) => {
@@ -86,9 +104,11 @@ export async function GET(request: NextRequest) {
         approved: companyStats.approved,
         rejected: companyStats.rejected
       },
-      // Nové: Pending product changes
+      // Nové: Pending product changes - rozlišené podle typu
       pendingProductChanges: {
-        count: pendingProductChanges
+        total: totalPendingChanges,
+        newProducts: newProductsPending,
+        productEdits: productEditsPending
       }
     }
 

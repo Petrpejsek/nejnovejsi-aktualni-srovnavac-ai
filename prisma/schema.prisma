@@ -259,6 +259,27 @@ model ClickHistory {
   @@index([productId])
 }
 
+model PromotionalPackage {
+  id            String   @id @default(uuid())
+  title         String
+  description   String
+  amount        Float
+  bonus         Float
+  savings       Float?
+  popular       Boolean  @default(false)
+  firstTime     Boolean  @default(false)
+  minimumSpend  Float    @default(0)
+  active        Boolean  @default(true)
+  order         Int      @default(1)
+  targetStatus  String   @default("all")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([active])
+  @@index([order])
+  @@index([targetStatus])
+}
+
 // AiRecommendation model dočasně schován pro commit
 // model AiRecommendation {
 //   id                   String   @id @default(uuid())
@@ -287,7 +308,8 @@ model User {
   id               String             @id
   name             String
   email            String             @unique
-  hashedPassword   String
+  hashedPassword   String?
+  googleId         String?            @unique
   avatar           String?
   premium          Boolean            @default(false)
   points           Int                @default(0)

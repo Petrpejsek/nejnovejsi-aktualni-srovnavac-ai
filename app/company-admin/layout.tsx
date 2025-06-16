@@ -27,7 +27,7 @@ const navigation = [
   { name: 'Company Profile', href: '/company-admin/profile', icon: BuildingOfficeIcon },
   { name: 'Products', href: '/company-admin/products', icon: CubeIcon },
   { name: 'Billing', href: '/company-admin/billing', icon: CreditCardIcon },
-  { name: 'Affiliate', href: '/company-admin/affiliate', icon: WalletIcon },
+  // { name: 'Affiliate', href: '/company-admin/affiliate', icon: WalletIcon }, // Dočasně skryto - pouze PPC zatím
   { name: 'Promotions', href: '/company-admin/promotions', icon: MegaphoneIcon },
   { name: 'Reels', href: '/company-admin/reels', icon: FilmIcon },
   { name: 'Courses', href: '/company-admin/courses', icon: AcademicCapIcon },

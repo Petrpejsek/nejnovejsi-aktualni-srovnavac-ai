@@ -78,16 +78,16 @@ export default function PromotionalPackagesAdmin() {
   const [showCustomPaymentModal, setShowCustomPaymentModal] = useState(false)
   const [customPaymentSettings, setCustomPaymentSettings] = useState<CustomPaymentSettings>({
     enabled: true,
-    title: 'Vlastní částka',
+    title: 'Custom Amount',
     minAmount: 10,
     defaultAmount: 100,
     couponsEnabled: true,
     targetGroups: ['all'],
     availableCoupons: [
-      { code: 'WELCOME20', type: 'percent', value: 20, description: '20% sleva', active: true },
-      { code: 'SAVE50', type: 'amount', value: 50, description: '$50 sleva', active: true },
-      { code: 'PREMIUM30', type: 'percent', value: 30, description: '30% sleva', active: true },
-      { code: 'FIRST100', type: 'amount', value: 100, description: '$100 sleva', active: true }
+      { code: 'WELCOME20', type: 'percent', value: 20, description: '20% discount', active: true },
+      { code: 'SAVE50', type: 'amount', value: 50, description: '$50 discount', active: true },
+      { code: 'PREMIUM30', type: 'percent', value: 30, description: '30% discount', active: true },
+      { code: 'FIRST100', type: 'amount', value: 100, description: '$100 discount', active: true }
     ]
   })
 
@@ -151,14 +151,14 @@ export default function PromotionalPackagesAdmin() {
       if (response.ok) {
         await fetchPackages()
         handleCloseModal()
-        alert(editingPackage ? 'Balíček byl úspěšně upraven!' : 'Balíček byl úspěšně vytvořen!')
+        alert(editingPackage ? 'Package updated successfully!' : 'Package created successfully!')
       } else {
         const error = await response.json()
-        alert(`Chyba: ${error.error || 'Neočekávaná chyba'}`)
+        alert(`Error: ${error.error || 'Unexpected error'}`)
       }
     } catch (error) {
       console.error('Error saving package:', error)
-      alert('Chyba při ukládání balíčku')
+      alert('Error saving package')
     }
   }
 
@@ -180,7 +180,7 @@ export default function PromotionalPackagesAdmin() {
   }
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Opravdu chcete smazat tento balíček?')) return
+    if (!confirm('Are you sure you want to delete this package?')) return
 
     try {
       const response = await fetch(`/api/admin/promotional-packages/${id}`, {
@@ -189,13 +189,13 @@ export default function PromotionalPackagesAdmin() {
 
       if (response.ok) {
         await fetchPackages()
-        alert('Balíček byl úspěšně smazán!')
+        alert('Package deleted successfully!')
       } else {
-        alert('Chyba při mazání balíčku')
+        alert('Error deleting package')
       }
     } catch (error) {
       console.error('Error deleting package:', error)
-      alert('Chyba při mazání balíčku')
+      alert('Error deleting package')
     }
   }
 
@@ -239,13 +239,13 @@ export default function PromotionalPackagesAdmin() {
 
       if (response.ok) {
         setShowCustomPaymentModal(false)
-        alert('Nastavení vlastní částky bylo úspěšně uloženo!')
+        alert('Custom amount settings saved successfully!')
       } else {
-        alert('Chyba při ukládání nastavení')
+        alert('Error saving settings')
       }
     } catch (error) {
       console.error('Error saving custom payment settings:', error)
-      alert('Chyba při ukládání nastavení')
+      alert('Error saving settings')
     }
   }
 
@@ -350,14 +350,14 @@ export default function PromotionalPackagesAdmin() {
             className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center hover:bg-blue-700 transition-colors"
           >
             <PencilIcon className="h-5 w-5 mr-2" />
-            Vlastní částka
+            Custom Amount
           </button>
           <button
             onClick={() => setShowModal(true)}
             className="bg-purple-600 text-white px-4 py-2 rounded-lg flex items-center hover:bg-purple-700 transition-colors"
           >
             <PlusIcon className="h-5 w-5 mr-2" />
-            Nový balíček
+            New Package
           </button>
         </div>
       </div>
@@ -366,19 +366,19 @@ export default function PromotionalPackagesAdmin() {
       <div className="bg-white shadow-sm rounded-lg overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-200">
           <h3 className="text-lg font-medium text-gray-900">
-            Aktivní balíčky ({packages.filter(p => p.active).length})
+            Active Packages ({packages.filter(p => p.active).length})
           </h3>
         </div>
         
         {packages.length === 0 ? (
           <div className="text-center py-12">
             <GiftIcon className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-500">Zatím nejsou vytvořeny žádné promocní balíčky</p>
+            <p className="text-gray-500">No promotional packages created yet</p>
             <button
               onClick={() => setShowModal(true)}
               className="mt-4 text-purple-600 hover:text-purple-800"
             >
-              Vytvořit první balíček →
+              Create first package →
             </button>
           </div>
         ) : (
@@ -408,7 +408,7 @@ export default function PromotionalPackagesAdmin() {
                       
                       {!pkg.active && (
                         <span className="bg-red-100 text-red-800 text-xs font-medium px-2 py-1 rounded-full">
-                          Neaktivní
+                          Inactive
                         </span>
                       )}
                     </div>
@@ -417,7 +417,7 @@ export default function PromotionalPackagesAdmin() {
                     
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                       <div>
-                        <span className="text-gray-500">Základní částka:</span>
+                        <span className="text-gray-500">Base amount:</span>
                         <p className="font-semibold">${pkg.amount}</p>
                       </div>
                       <div>
@@ -425,31 +425,31 @@ export default function PromotionalPackagesAdmin() {
                         <p className="font-semibold text-green-600">+${pkg.bonus}</p>
                       </div>
                       <div>
-                        <span className="text-gray-500">Celkem:</span>
+                        <span className="text-gray-500">Total:</span>
                         <p className="font-semibold">${pkg.amount + pkg.bonus}</p>
                       </div>
                       <div>
-                        <span className="text-gray-500">Pořadí:</span>
+                        <span className="text-gray-500">Order:</span>
                         <p className="font-semibold">#{pkg.order}</p>
                       </div>
                     </div>
                     
                     <div className="mt-2 text-sm">
-                      <span className="text-gray-500">Cílová skupina:</span>
+                      <span className="text-gray-500">Target group:</span>
                       <span className="ml-1 px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
-                        {pkg.targetStatus === 'all' && 'Všichni uživatelé'}
-                        {pkg.targetStatus === 'new' && 'Noví uživatelé'}
-                        {pkg.targetStatus === 'active' && 'Aktivní uživatelé'}
-                        {pkg.targetStatus === 'low_balance' && 'Nízký zůstatek'}
-                        {pkg.targetStatus === 'high_spender' && 'Vysoké výdaje'}
-                        {pkg.targetStatus === 'trial' && 'Trial uživatelé'}
+                        {pkg.targetStatus === 'all' && 'All users'}
+                        {pkg.targetStatus === 'new' && 'New users'}
+                        {pkg.targetStatus === 'active' && 'Active users'}
+                        {pkg.targetStatus === 'low_balance' && 'Low balance'}
+                        {pkg.targetStatus === 'high_spender' && 'High spenders'}
+                        {pkg.targetStatus === 'trial' && 'Trial users'}
                         {pkg.targetStatus === 'enterprise' && 'Enterprise'}
                       </span>
                     </div>
                     
                     <div className="mt-3 text-xs text-gray-500">
-                      Vytvořeno: {formatDate(pkg.createdAt)} | 
-                      Upraveno: {formatDate(pkg.updatedAt)}
+                      Created: {formatDate(pkg.createdAt)} | 
+                      Updated: {formatDate(pkg.updatedAt)}
                     </div>
                   </div>
                   
@@ -457,14 +457,14 @@ export default function PromotionalPackagesAdmin() {
                     <button
                       onClick={() => handleEdit(pkg)}
                       className="text-blue-600 hover:text-blue-800 p-2 rounded-lg hover:bg-blue-50"
-                      title="Upravit"
+                      title="Edit"
                     >
                       <PencilIcon className="h-5 w-5" />
                     </button>
                     <button
                       onClick={() => handleDelete(pkg.id)}
                       className="text-red-600 hover:text-red-800 p-2 rounded-lg hover:bg-red-50"
-                      title="Smazat"
+                      title="Delete"
                     >
                       <TrashIcon className="h-5 w-5" />
                     </button>
@@ -483,7 +483,7 @@ export default function PromotionalPackagesAdmin() {
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-xl font-semibold text-gray-900">
-                  {editingPackage ? 'Upravit balíček' : 'Nový promocní balíček'}
+                  {editingPackage ? 'Edit Package' : 'New Promotional Package'}
                 </h3>
                 <button
                   onClick={handleCloseModal}
@@ -497,7 +497,7 @@ export default function PromotionalPackagesAdmin() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Název balíčku *
+                      Package Name *
                     </label>
                     <input
                       type="text"
@@ -505,13 +505,13 @@ export default function PromotionalPackagesAdmin() {
                       value={formData.title}
                       onChange={(e) => setFormData({...formData, title: e.target.value})}
                       className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                      placeholder="např. Welcome Bonus"
+                      placeholder="e.g. Welcome Bonus"
                     />
                   </div>
 
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Popis *
+                      Description *
                     </label>
                     <textarea
                       required
@@ -519,13 +519,13 @@ export default function PromotionalPackagesAdmin() {
                       onChange={(e) => setFormData({...formData, description: e.target.value})}
                       className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
                       rows={3}
-                      placeholder="např. Perfect to get started! Double your first deposit."
+                      placeholder="e.g. Perfect to get started! Double your first deposit."
                     />
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Základní částka ($) *
+                      Base Amount ($) *
                     </label>
                     <input
                       type="number"
@@ -553,7 +553,7 @@ export default function PromotionalPackagesAdmin() {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Minimální výdaj ($)
+                      Minimum Spend ($)
                     </label>
                     <input
                       type="number"
@@ -566,7 +566,7 @@ export default function PromotionalPackagesAdmin() {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Pořadí zobrazení
+                      Display Order
                     </label>
                     <input
                       type="number"
@@ -579,7 +579,7 @@ export default function PromotionalPackagesAdmin() {
 
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Cílová skupina *
+                      Target Group *
                     </label>
                     <select
                       value={formData.targetStatus}
@@ -587,16 +587,16 @@ export default function PromotionalPackagesAdmin() {
                       className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
                       required
                     >
-                      <option value="all">Všichni uživatelé</option>
-                      <option value="new">Noví uživatelé (méně než 7 dní)</option>
-                      <option value="active">Aktivní uživatelé (s běžícími kampaněmi)</option>
-                      <option value="low_balance">Uživatelé s nízkým zůstatkem (&lt; $20)</option>
-                      <option value="high_spender">Uživatelé s vysokými výdaji (&gt; $500/měsíc)</option>
-                      <option value="trial">Trial uživatelé</option>
-                      <option value="enterprise">Enterprise klienti</option>
+                      <option value="all">All users</option>
+                      <option value="new">New users (less than 7 days)</option>
+                      <option value="active">Active users (with running campaigns)</option>
+                      <option value="low_balance">Users with low balance (&lt; $20)</option>
+                      <option value="high_spender">Users with high spending (&gt; $500/month)</option>
+                      <option value="trial">Trial users</option>
+                      <option value="enterprise">Enterprise clients</option>
                     </select>
                     <p className="text-xs text-gray-500 mt-1">
-                      Balíček se zobrazí pouze uživatelům odpovídajícím vybrané skupině
+                      Package will only be shown to users matching the selected group
                     </p>
                   </div>
 
@@ -611,7 +611,7 @@ export default function PromotionalPackagesAdmin() {
                           className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
                         />
                         <label htmlFor="popular" className="ml-2 text-sm text-gray-700">
-                          Most Popular (zobrazí purple badge)
+                          Most Popular (shows purple badge)
                         </label>
                       </div>
 
@@ -624,7 +624,7 @@ export default function PromotionalPackagesAdmin() {
                           className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
                         />
                         <label htmlFor="firstTime" className="ml-2 text-sm text-gray-700">
-                          Welcome Bonus (zobrazí green badge)
+                          Welcome Bonus (shows green badge)
                         </label>
                       </div>
 
@@ -637,7 +637,7 @@ export default function PromotionalPackagesAdmin() {
                           className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
                         />
                         <label htmlFor="active" className="ml-2 text-sm text-gray-700">
-                          Aktivní (zobrazit na billing stránce)
+                          Active (show on billing page)
                         </label>
                       </div>
                     </div>
@@ -647,7 +647,7 @@ export default function PromotionalPackagesAdmin() {
                 {/* Preview */}
                 {formData.title && (
                   <div className="bg-gray-50 p-4 rounded-lg">
-                    <h4 className="text-sm font-medium text-gray-700 mb-2">Náhled:</h4>
+                    <h4 className="text-sm font-medium text-gray-700 mb-2">Preview:</h4>
                     <div className={`p-4 rounded-lg border-2 ${
                       formData.popular ? 'border-purple-500 bg-purple-50' :
                       formData.firstTime ? 'border-green-500 bg-green-50' :
@@ -674,13 +674,13 @@ export default function PromotionalPackagesAdmin() {
                     onClick={handleCloseModal}
                     className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
                   >
-                    Zrušit
+                    Cancel
                   </button>
                   <button
                     type="submit"
                     className="px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-lg hover:bg-purple-700"
                   >
-                    {editingPackage ? 'Uložit změny' : 'Vytvořit balíček'}
+                    {editingPackage ? 'Save Changes' : 'Create Package'}
                   </button>
                 </div>
               </form>
@@ -696,7 +696,7 @@ export default function PromotionalPackagesAdmin() {
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-xl font-semibold text-gray-900">
-                  Nastavení vlastní částky
+                  Custom Amount Settings
                 </h3>
                 <button
                   onClick={() => setShowCustomPaymentModal(false)}
@@ -844,7 +844,7 @@ export default function PromotionalPackagesAdmin() {
                         ))}
                       </select>
                       <p className="text-xs text-gray-500 mt-1">
-                        Vlastní částka se zobrazí pouze vybraným skupinám uživatelů
+                        Custom amount will only be shown to selected user groups
                       </p>
                     </div>
                   )}
@@ -854,13 +854,13 @@ export default function PromotionalPackagesAdmin() {
                 {customPaymentSettings.couponsEnabled && (
                   <div>
                     <div className="flex justify-between items-center mb-4">
-                      <h4 className="text-lg font-medium text-gray-900">Slevové kódy</h4>
+                      <h4 className="text-lg font-medium text-gray-900">Coupon Codes</h4>
                       <button
                         onClick={addCoupon}
                         className="bg-green-600 text-white px-3 py-1 rounded-lg text-sm flex items-center hover:bg-green-700"
                       >
                         <PlusIcon className="h-4 w-4 mr-1" />
-                        Přidat kód
+                        Add Code
                       </button>
                     </div>
 
@@ -870,7 +870,7 @@ export default function PromotionalPackagesAdmin() {
                           <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
                             <div>
                               <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Kód
+                                Code
                               </label>
                               <input
                                 type="text"
@@ -883,21 +883,21 @@ export default function PromotionalPackagesAdmin() {
 
                             <div>
                               <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Typ
+                                Type
                               </label>
                               <select
                                 value={coupon.type}
                                 onChange={(e) => updateCoupon(index, 'type', e.target.value)}
                                 className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
                               >
-                                <option value="percent">Procenta (%)</option>
-                                <option value="amount">Částka ($)</option>
+                                <option value="percent">Percentage (%)</option>
+                                <option value="amount">Amount ($)</option>
                               </select>
                             </div>
 
                             <div>
                               <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Hodnota
+                                Value
                               </label>
                               <input
                                 type="number"
@@ -911,14 +911,14 @@ export default function PromotionalPackagesAdmin() {
 
                             <div>
                               <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Popis
+                                Description
                               </label>
                               <input
                                 type="text"
                                 value={coupon.description}
                                 onChange={(e) => updateCoupon(index, 'description', e.target.value)}
                                 className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
-                                placeholder="20% sleva"
+                                placeholder="20% discount"
                               />
                             </div>
 
@@ -930,12 +930,12 @@ export default function PromotionalPackagesAdmin() {
                                   onChange={(e) => updateCoupon(index, 'active', e.target.checked)}
                                   className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                                 />
-                                <label className="ml-1 text-xs text-gray-700">Aktivní</label>
+                                <label className="ml-1 text-xs text-gray-700">Active</label>
                               </div>
                               <button
                                 onClick={() => removeCoupon(index)}
                                 className="text-red-600 hover:text-red-800 p-1"
-                                title="Smazat"
+                                title="Delete"
                               >
                                 <TrashIcon className="h-4 w-4" />
                               </button>
@@ -949,7 +949,7 @@ export default function PromotionalPackagesAdmin() {
 
                 {/* Preview */}
                 <div className="bg-gray-50 p-4 rounded-lg">
-                  <h4 className="text-sm font-medium text-gray-700 mb-4">Náhled sekce vlastní částky:</h4>
+                  <h4 className="text-sm font-medium text-gray-700 mb-4">Custom amount section preview:</h4>
                   
                   <div className="bg-white shadow rounded-lg max-w-md">
                     <div className="px-6 py-4 border-b border-gray-200">
@@ -964,7 +964,7 @@ export default function PromotionalPackagesAdmin() {
                     <div className="p-6 space-y-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Částka ($)
+                          Amount ($)
                         </label>
                         <input
                           type="number"
@@ -972,23 +972,23 @@ export default function PromotionalPackagesAdmin() {
                           disabled
                           className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-50"
                         />
-                        <p className="text-xs text-gray-500 mt-1">Minimální částka je ${customPaymentSettings.minAmount}</p>
+                                                  <p className="text-xs text-gray-500 mt-1">Minimum amount is ${customPaymentSettings.minAmount}</p>
                       </div>
 
                       {customPaymentSettings.couponsEnabled && (
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Slevový kód (volitelné)
+                            Coupon Code (optional)
                           </label>
                           <input
                             type="text"
                             disabled
                             className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-50"
-                            placeholder="např. WELCOME20"
+                            placeholder="e.g. WELCOME20"
                           />
                           
                           <div className="text-xs text-gray-500 mt-2">
-                            <p className="font-medium mb-1">Dostupné kódy:</p>
+                            <p className="font-medium mb-1">Available codes:</p>
                             <div className="space-y-1">
                               {customPaymentSettings.availableCoupons
                                 .filter(c => c.active && c.code)
@@ -1010,7 +1010,7 @@ export default function PromotionalPackagesAdmin() {
                           <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
                           <line x1="1" y1="10" x2="23" y2="10"/>
                         </svg>
-                        Zaplatit ${customPaymentSettings.defaultAmount}
+                        Pay ${customPaymentSettings.defaultAmount}
                       </button>
                     </div>
                   </div>
@@ -1021,13 +1021,13 @@ export default function PromotionalPackagesAdmin() {
                     onClick={() => setShowCustomPaymentModal(false)}
                     className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
                   >
-                    Zrušit
+                    Cancel
                   </button>
                   <button
                     onClick={handleCustomPaymentSave}
                     className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700"
                   >
-                    Uložit nastavení
+                    Save Settings
                   </button>
                 </div>
               </div>

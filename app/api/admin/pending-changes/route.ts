@@ -48,6 +48,10 @@ export async function GET(request: NextRequest) {
           console.error('Error parsing pending changes:', e)
         }
 
+        // Determine if this is a new product or edit
+        const isNewProduct = product.imageApprovalStatus === 'NEW_PRODUCT' || 
+                           (product.adminNotes && product.adminNotes.includes('NEW PRODUCT'))
+        
         return {
           id: product.id,
           name: product.name,
@@ -55,6 +59,7 @@ export async function GET(request: NextRequest) {
           currentImageUrl: product.imageUrl,
           pendingImageUrl: product.pendingImageUrl || null,
           imageApprovalStatus: product.imageApprovalStatus,
+          isNewProduct: isNewProduct,
           hasPendingChanges: product.hasPendingChanges || false,
           pendingChanges: pendingChanges,
           changesStatus: product.changesStatus,

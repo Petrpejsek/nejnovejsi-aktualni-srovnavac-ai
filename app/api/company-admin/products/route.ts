@@ -41,14 +41,19 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Company not found' }, { status: 404 })
     }
 
-    // Najdi produkty přiřazené k této firmě
+    // Najdi produkty přiřazené k této firmě + produkty které vytvořila a čekají na schválení
+    const whereCondition = {
+      OR: [
+        // Přiřazené produkty
+        ...(company.assignedProductId ? [{ id: company.assignedProductId }] : []),
+        // Produkty vytvořené touto firmou (čekající na schválení)
+        { changesSubmittedBy: company.id }
+      ],
+      deletedAt: null
+    }
+
     const products = await prisma.product.findMany({
-      where: {
-        ...(company.assignedProductId && {
-          id: company.assignedProductId
-        }),
-        deletedAt: null // Pouze nesmazané produkty (ale můžou být neaktivní)
-      },
+      where: whereCondition,
       select: {
         id: true,
         name: true,
@@ -65,7 +70,13 @@ export async function GET(request: NextRequest) {
         deletedAt: true,
         // Keep only image approval fields for now
         pendingImageUrl: true,
-        imageApprovalStatus: true
+        imageApprovalStatus: true,
+        // Add pending changes fields
+        changesStatus: true,
+        changesSubmittedAt: true,
+        changesSubmittedBy: true,
+        hasPendingChanges: true,
+        adminNotes: true
       }
     })
 
@@ -74,7 +85,12 @@ export async function GET(request: NextRequest) {
       // Determine product status based on existing fields
       let status: 'active' | 'pending' | 'rejected' | 'draft' = 'active'
       
-      if (!product.isActive) {
+      // Check if this is a new product pending approval
+      if (product.changesStatus === 'pending' && product.changesSubmittedBy === company.id) {
+        status = 'pending'
+      } else if (product.changesStatus === 'rejected') {
+        status = 'rejected'
+      } else if (!product.isActive) {
         status = 'draft'
       } else if (product.imageApprovalStatus === 'pending') {
         status = 'pending'
@@ -101,8 +117,17 @@ export async function GET(request: NextRequest) {
         createdAt: product.createdAt.toISOString(),
         externalUrl: product.externalUrl || '',
         hasTrial: product.hasTrial || false,
-        // Add pending image approval info if available
-        pendingImageApproval: product.imageApprovalStatus === 'pending'
+        // Add pending approval info
+        hasPendingChanges: product.hasPendingChanges || false,
+        changesStatus: product.changesStatus,
+        changesSubmittedAt: product.changesSubmittedAt?.toISOString(),
+        adminNotes: product.adminNotes,
+        pendingImageApproval: product.imageApprovalStatus === 'pending',
+        // Check if this is a new product awaiting approval
+        isNewProductPending: product.changesStatus === 'pending' && 
+                           product.changesSubmittedBy === company.id &&
+                           (product.imageApprovalStatus === 'NEW_PRODUCT' || 
+                            (product.adminNotes && product.adminNotes.includes('NEW PRODUCT')))
       }
     })
 

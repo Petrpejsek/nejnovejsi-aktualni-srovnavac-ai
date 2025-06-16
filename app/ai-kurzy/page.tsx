@@ -570,7 +570,7 @@ export default function AiKurzyPage() {
         <Modal
           isOpen={showSignUpModal}
           onClose={() => setShowSignUpModal(false)}
-          title="Sign Up to Bookmark"
+          title="Sign Up"
         >
           <RegisterForm
             onSuccess={() => {

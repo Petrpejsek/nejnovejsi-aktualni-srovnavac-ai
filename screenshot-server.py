@@ -206,6 +206,79 @@ class ScreenshotService:
         logger.info("   ℹ️ Cookies banner nenalezen nebo neodkliknutelný")
         return False
 
+    def hide_remaining_cookies(self, driver):
+        """Agresivní schování všech zbývajících cookies bannerů pomocí CSS"""
+        try:
+            # CSS selektory pro nejčastější cookies bannery
+            hide_selectors = [
+                '[id*="cookie"]',
+                '[class*="cookie"]',
+                '[id*="consent"]',
+                '[class*="consent"]',
+                '[data-testid*="cookie"]',
+                '[data-cy*="cookie"]',
+                '[id*="banner"]',
+                '[class*="banner"]',
+                '[id*="notice"]',
+                '[class*="notice"]',
+                '[class*="gdpr"]',
+                '[id*="gdpr"]',
+                '[class*="privacy"]',
+                '[id*="privacy"]',
+                '.CookieConsent',
+                '.cookie-consent',
+                '.cookieConsent',
+                '.cc-window',
+                '.cc-banner',
+                '.onetrust-banner-sdk',
+                '.ot-sdk-container',
+                '.cookiescript_injected',
+                '[data-cookiebanner]',
+                '[data-cookie-banner]'
+            ]
+            
+            # JavaScript pro schování elementů
+            js_hide_code = """
+            // Najdi a schovej všechny potenciální cookies bannery
+            const selectors = arguments[0];
+            let hiddenCount = 0;
+            
+            selectors.forEach(selector => {
+                try {
+                    const elements = document.querySelectorAll(selector);
+                    elements.forEach(element => {
+                        if (element && element.style) {
+                            element.style.display = 'none';
+                            element.style.visibility = 'hidden';
+                            element.style.opacity = '0';
+                            element.style.height = '0';
+                            element.style.overflow = 'hidden';
+                            hiddenCount++;
+                        }
+                    });
+                } catch (e) {}
+            });
+            
+            // Také zkus najít overlay/modal pozadí
+            const overlays = document.querySelectorAll('[class*="overlay"], [class*="backdrop"], [class*="modal-backdrop"]');
+            overlays.forEach(overlay => {
+                if (overlay && overlay.style) {
+                    overlay.style.display = 'none';
+                    hiddenCount++;
+                }
+            });
+            
+            return hiddenCount;
+            """
+            
+            hidden_count = driver.execute_script(js_hide_code, hide_selectors)
+            if hidden_count > 0:
+                logger.info(f"   🧹 Skryto {hidden_count} potenciálních cookies bannerů")
+                time.sleep(1)  # Krátké čekání na aplikování CSS
+            
+        except Exception as e:
+            logger.warning(f"   ⚠️ Chyba při skrývání cookies: {e}")
+
     def create_screenshot(self, url, filename=None):
         """Vytvoří screenshot webové stránky s optimalizovaným cookies handling"""
         driver = None
@@ -254,6 +327,10 @@ class ScreenshotService:
             else:
                 logger.info(f"   ⏳ Finální čekání (2s)...")
                 time.sleep(2)
+            
+            # AGRESIVNÍ CLEANUP - schovat všechny zbytkové cookies bannery
+            logger.info(f"   🧹 Finální cleanup cookies bannerů...")
+            self.hide_remaining_cookies(driver)
             
             # Scroll nahoru pro jistotu (někdy se stránka posune)
             driver.execute_script("window.scrollTo(0, 0);")

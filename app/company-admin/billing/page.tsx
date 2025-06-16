@@ -84,6 +84,7 @@ export default function BillingPage() {
   const [error, setError] = useState<string | null>(null)
   const [showDailyLimitModal, setShowDailyLimitModal] = useState(false)
   const [newDailyLimit, setNewDailyLimit] = useState<number>(0)
+  const [noLimitSelected, setNoLimitSelected] = useState(false)
   const [showAutoRechargeModal, setShowAutoRechargeModal] = useState(false)
   const [autoRechargeSettings, setAutoRechargeSettings] = useState({
     enabled: false,
@@ -244,7 +245,7 @@ export default function BillingPage() {
 
   const handleDailyLimitUpdate = async () => {
     try {
-      if (newDailyLimit < 10) {
+      if (!noLimitSelected && newDailyLimit < 10) {
         alert('Minimum daily limit is $10')
         return
       }
@@ -256,7 +257,7 @@ export default function BillingPage() {
         },
         body: JSON.stringify({
           action: 'update-daily-limit',
-          dailyLimit: newDailyLimit
+          dailyLimit: noLimitSelected ? null : newDailyLimit
         })
       })
 
@@ -265,7 +266,8 @@ export default function BillingPage() {
       if (response.ok && result.success) {
         await fetchBillingData()
         setShowDailyLimitModal(false)
-        alert('Daily spend limit updated successfully!')
+        setNoLimitSelected(false)
+        alert(result.message || 'Daily spend limit updated successfully!')
       } else {
         alert(`Error: ${result.error || 'Failed to update daily limit'}`)
       }
@@ -455,7 +457,7 @@ export default function BillingPage() {
         setCouponError(null)
       } else {
         setCouponDiscount(null)
-        setCouponError(result.error || 'Neplatný slevový kód')
+                        setCouponError(result.error || 'Invalid coupon code')
       }
     } catch (error) {
       setCouponError('Chyba při ověřování kódu')
@@ -475,7 +477,7 @@ export default function BillingPage() {
 
   const handleCustomPayment = async () => {
     if (customAmount < 10) {
-      alert('Minimální částka je $10')
+      alert('Minimum amount is $10')
       return
     }
 
@@ -486,11 +488,11 @@ export default function BillingPage() {
       setLoading(true)
       
       const confirmed = confirm(
-        `Dobití účtu se slevovým kódem\n\n` +
-        `Původní částka: $${customAmount}\n` +
-        (discount > 0 ? `Sleva: $${discount}\n` : '') +
-        `Konečná částka: $${finalAmount}\n\n` +
-        `Pokračovat s platbou?`
+        `Account top-up with coupon code\n\n` +
+        `Original amount: $${customAmount}\n` +
+        (discount > 0 ? `Discount: $${discount}\n` : '') +
+        `Final amount: $${finalAmount}\n\n` +
+        `Continue with payment?`
       )
       
       if (!confirmed) {
@@ -516,8 +518,8 @@ export default function BillingPage() {
 
       if (response.ok && result.success) {
         const message = discount > 0 
-          ? `Úspěšně přidáno $${finalAmount} na váš účet!\n\nPůvodní: $${customAmount}\nSleva: $${discount}\nNový zůstatek: $${result.data.newBalance.toFixed(2)}`
-          : `Úspěšně přidáno $${finalAmount} na váš účet!\n\nNový zůstatek: $${result.data.newBalance.toFixed(2)}`
+          ? `Successfully added $${finalAmount} to your account!\n\nOriginal: $${customAmount}\nDiscount: $${discount}\nNew balance: $${result.data.newBalance.toFixed(2)}`
+          : `Successfully added $${finalAmount} to your account!\n\nNew balance: $${result.data.newBalance.toFixed(2)}`
         
         alert(message)
         await fetchBillingData()
@@ -525,11 +527,11 @@ export default function BillingPage() {
         setCouponDiscount(null)
         setCustomAmount(100)
       } else {
-        alert(`Chyba: ${result.error || 'Platba se nezdařila'}`)
+        alert(`Error: ${result.error || 'Payment failed'}`)
       }
     } catch (error) {
       console.error('Payment error:', error)
-      alert('Chyba při zpracování platby')
+      alert('Error processing payment')
     } finally {
       setLoading(false)
     }
@@ -758,7 +760,17 @@ export default function BillingPage() {
             <h3 className="text-lg font-medium text-gray-900">Daily Spend Control</h3>
           </div>
           <button
-            onClick={() => setShowDailyLimitModal(true)}
+            onClick={() => {
+              // Inicializace stavu podle aktuálního daily limitu
+              if (billingData.company.dailySpendLimit) {
+                setNewDailyLimit(billingData.company.dailySpendLimit)
+                setNoLimitSelected(false)
+              } else {
+                setNewDailyLimit(100)
+                setNoLimitSelected(true)
+              }
+              setShowDailyLimitModal(true)
+            }}
             className="text-sm text-blue-600 hover:text-blue-800 flex items-center"
           >
             <Cog6ToothIcon className="h-4 w-4 mr-1" />
@@ -841,21 +853,47 @@ export default function BillingPage() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md">
             <h3 className="text-lg font-medium text-gray-900 mb-4">Set Daily Spend Limit</h3>
+            
+            {/* No Limit Option */}
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Daily Limit (USD)
-              </label>
-              <input
-                type="number"
-                min="10"
-                step="10"
-                value={newDailyLimit}
-                onChange={(e) => setNewDailyLimit(Number(e.target.value))}
-                className="w-full border border-gray-300 rounded-md px-3 py-2"
-                placeholder="e.g., 100"
-              />
-              <p className="text-xs text-gray-500 mt-1">Minimum: $10</p>
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="noLimit"
+                  checked={noLimitSelected}
+                  onChange={(e) => {
+                    setNoLimitSelected(e.target.checked)
+                    if (e.target.checked) {
+                      setNewDailyLimit(0)
+                    }
+                  }}
+                  className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                />
+                <label htmlFor="noLimit" className="ml-2 text-sm font-medium text-gray-700">
+                  No limit (unlimited spending)
+                </label>
+              </div>
+              <p className="text-xs text-gray-500 mt-1">Check this to remove daily spending limits</p>
             </div>
+
+            {/* Daily Limit Input */}
+            {!noLimitSelected && (
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Daily Limit (USD)
+                </label>
+                <input
+                  type="number"
+                  min="10"
+                  step="10"
+                  value={newDailyLimit}
+                  onChange={(e) => setNewDailyLimit(Number(e.target.value))}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2"
+                  placeholder="e.g., 100"
+                />
+                <p className="text-xs text-gray-500 mt-1">Minimum: $10</p>
+              </div>
+            )}
             <div className="flex justify-end space-x-3">
               <button
                 onClick={() => setShowDailyLimitModal(false)}
@@ -867,7 +905,7 @@ export default function BillingPage() {
                 onClick={handleDailyLimitUpdate}
                 className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
               >
-                Save Limit
+                {noLimitSelected ? 'Remove Limit' : 'Save Limit'}
               </button>
             </div>
           </div>
@@ -1112,14 +1150,14 @@ export default function BillingPage() {
             <div className="px-6 py-4 border-b border-gray-200">
               <div className="flex items-center space-x-2">
                 <CreditCardIcon className="h-5 w-5 text-blue-600" />
-                <h3 className="text-lg font-medium text-gray-900">Vlastní částka</h3>
+                <h3 className="text-lg font-medium text-gray-900">Custom Amount</h3>
               </div>
             </div>
             <div className="p-6 space-y-4">
               {/* Amount Input */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Částka ($)
+                  Amount ($)
                 </label>
                 <input
                   type="number"
@@ -1129,13 +1167,13 @@ export default function BillingPage() {
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="100"
                 />
-                <p className="text-xs text-gray-500 mt-1">Minimální částka je $10</p>
+                <p className="text-xs text-gray-500 mt-1">Minimum amount is $10</p>
               </div>
 
               {/* Coupon Code Input */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Slevový kód (volitelné)
+                  Coupon Code (optional)
                 </label>
                 <input
                   type="text"
@@ -1145,7 +1183,7 @@ export default function BillingPage() {
                     validateCouponCode(e.target.value)
                   }}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="např. WELCOME20"
+                  placeholder="e.g. WELCOME20"
                 />
                 
                 {/* Coupon validation feedback */}
@@ -1160,8 +1198,8 @@ export default function BillingPage() {
                   <p className="text-xs text-green-600 mt-1 flex items-center">
                     <CheckCircleIcon className="h-3 w-3 mr-1" />
                     {couponDiscount.type === 'percent' 
-                      ? `${couponDiscount.value}% sleva aplikována!`
-                      : `$${couponDiscount.value} sleva aplikována!`
+                      ? `${couponDiscount.value}% discount applied!`
+                      : `$${couponDiscount.value} discount applied!`
                     }
                   </p>
                 )}
@@ -1170,13 +1208,13 @@ export default function BillingPage() {
               {/* Price Summary */}
               <div className="bg-gray-50 rounded-lg p-3 space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Původní částka:</span>
+                  <span className="text-gray-600">Original amount:</span>
                   <span className="font-medium">${customAmount}</span>
                 </div>
                 
                 {couponDiscount && (
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Sleva:</span>
+                    <span className="text-gray-600">Discount:</span>
                     <span className="font-medium text-green-600">
                       -{couponDiscount.type === 'percent' 
                         ? `$${(customAmount * couponDiscount.value / 100).toFixed(2)}` 
@@ -1188,7 +1226,7 @@ export default function BillingPage() {
                 
                 <hr className="border-gray-200" />
                 <div className="flex justify-between text-sm font-semibold">
-                  <span className="text-gray-900">Celkem k platbě:</span>
+                  <span className="text-gray-900">Total to pay:</span>
                   <span className="text-blue-600">${calculateDiscountedAmount().toFixed(2)}</span>
                 </div>
               </div>
@@ -1196,7 +1234,7 @@ export default function BillingPage() {
               {/* Example Coupon Codes */}
               {availableCoupons.length > 0 && (
                 <div className="text-xs text-gray-500">
-                  <p className="font-medium mb-1">Zkuste tyto kódy:</p>
+                  <p className="font-medium mb-1">Try these codes:</p>
                   <div className="space-y-1">
                     {availableCoupons.slice(0, 4).map((coupon, index) => (
                       <p key={index}>
@@ -1218,7 +1256,7 @@ export default function BillingPage() {
                 ) : (
                   <CreditCardIcon className="h-4 w-4 mr-2" />
                 )}
-                Zaplatit ${calculateDiscountedAmount().toFixed(2)}
+                Pay ${calculateDiscountedAmount().toFixed(2)}
               </button>
             </div>
           </div>

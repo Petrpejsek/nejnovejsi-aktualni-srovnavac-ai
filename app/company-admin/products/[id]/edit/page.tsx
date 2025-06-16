@@ -243,7 +243,7 @@ export default function ProductEditPage({ params }: { params: { id: string } }) 
         pricingInfo: JSON.stringify(product.pricingInfo)
       }
 
-      const response = await fetch(`/api/products/${params.id}`, {
+      const response = await fetch(`/api/company-admin/products/${params.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -256,19 +256,23 @@ export default function ProductEditPage({ params }: { params: { id: string } }) 
         
         if (result.isPending) {
           // Changes submitted for approval
-          setSuccessMessage('Changes submitted for approval! They will be reviewed by our admin team.')
+          setSuccessMessage('Changes submitted for approval! Redirecting to products page...')
           setProduct(prev => ({
             ...prev,
             hasPendingChanges: true,
             changesStatus: 'pending'
           }))
+          
+          // Redirect to products page after 2 seconds
+          setTimeout(() => {
+            router.push('/company-admin/products')
+          }, 2000)
         } else {
           // Direct save (shouldn't happen for company admin, but handle it)
           setSuccessMessage(result.message || 'Product saved successfully!')
         }
         
         setErrorMessage(null)
-        setTimeout(() => setSuccessMessage(null), 5000)
       } else {
         const errorData = await response.json()
         setErrorMessage(errorData.error || 'Error saving product')
@@ -861,7 +865,7 @@ export default function ProductEditPage({ params }: { params: { id: string } }) 
 
               {/* Video URLs */}
               <div>
-                <h4 className="text-lg font-medium text-gray-900 mb-4">Demo Videos</h4>
+                <h4 className="text-lg font-medium text-gray-900 mb-4">Reels and videos</h4>
                 <div className="space-y-2 mb-2">
                   {product.videoUrls.map((videoUrl, index) => (
                     <div
@@ -888,7 +892,7 @@ export default function ProductEditPage({ params }: { params: { id: string } }) 
                     value={newVideoUrl}
                     onChange={(e) => setNewVideoUrl(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addVideoUrl())}
-                    placeholder="Add video URL (YouTube, Vimeo...)"
+                    placeholder="Add video URL (YouTube, Vimeo, TikTok...)"
                     className="flex-1 rounded-md border-gray-300 shadow-sm focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
                   />
                   <button

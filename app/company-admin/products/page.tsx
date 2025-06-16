@@ -39,6 +39,7 @@ interface Product {
   changesSubmittedAt?: string
   adminNotes?: string | null
   pendingImageApproval?: boolean
+  isNewProductPending?: boolean
 }
 
 interface CompanyInfo {
@@ -168,13 +169,57 @@ export default function ProductsPage() {
           <p className="text-sm text-gray-600">
             {company ? `Product management for ${company.name}` : 'Manage your products and their performance'}
           </p>
+          {products.length === 0 && (
+            <div className="text-sm text-gray-500 bg-blue-50 px-3 py-2 rounded-md mt-2">
+              <p>You don't have any assigned product yet.</p>
+              <p>You can add a new product for approval.</p>
+            </div>
+          )}
+          
+          {/* Pending products notification */}
+          {products.some(p => p.isNewProductPending) && (
+            <div className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg p-4 mt-3">
+              <div className="flex items-start space-x-3">
+                <div className="flex-shrink-0">
+                  <ClockIcon className="w-6 h-6 text-purple-600" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-sm font-medium text-purple-900">
+                    🎉 Product Submitted Successfully!
+                  </h3>
+                  <div className="mt-2 text-sm text-purple-700">
+                    <p>Your new product has been submitted and is waiting for approval from our team.</p>
+                    <p className="mt-1">
+                      <strong>What happens next:</strong>
+                    </p>
+                    <ul className="mt-1 space-y-1 list-disc list-inside text-sm">
+                      <li>Our team will review your product within <strong>48 hours</strong></li>
+                      <li>You'll receive an email notification with the approval decision</li>
+                      <li>Once approved, your product will become active and visible to users</li>
+                    </ul>
+                  </div>
+                  <div className="mt-3 flex items-center space-x-4 text-xs text-purple-600">
+                    <div className="flex items-center space-x-1">
+                      <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
+                      <span>Pending Review</span>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      <ClockIcon className="w-3 h-3" />
+                      <span>Expected response: 24-48 hours</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
-        {products.length === 0 && (
-          <div className="text-sm text-gray-500 bg-blue-50 px-3 py-2 rounded-md">
-            <p>You don't have any assigned product yet.</p>
-            <p>Contact administrator for product assignment.</p>
-          </div>
-        )}
+        <button 
+          onClick={() => router.push('/company-admin/products/add')}
+          className="flex items-center px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
+        >
+                      <PlusIcon className="w-4 h-4 mr-2" />
+            Add Product
+        </button>
       </div>
 
       {products.length > 0 && (
@@ -312,7 +357,12 @@ export default function ProductsPage() {
                                 {product.status === 'draft' && 'Draft'}
                               </span>
                             </span>
-                            {product.hasPendingChanges && product.changesStatus === 'pending' && (
+                            {product.isNewProductPending && (
+                              <div className="text-xs text-purple-600 bg-purple-50 px-2 py-1 rounded">
+                                ✨ New product awaiting approval
+                              </div>
+                            )}
+                            {product.hasPendingChanges && product.changesStatus === 'pending' && !product.isNewProductPending && (
                               <div className="text-xs text-yellow-600">
                                 Changes submitted {product.changesSubmittedAt && new Date(product.changesSubmittedAt).toLocaleDateString()}
                               </div>
@@ -322,7 +372,9 @@ export default function ProductsPage() {
                                 New image pending approval
                               </div>
                             )}
-                            {product.adminNotes && (
+                            {product.adminNotes && 
+                             !product.adminNotes.includes('New product submitted by company') && 
+                             !product.adminNotes.includes('for approval') && (
                               <div className="text-xs text-red-600" title={product.adminNotes}>
                                 Admin notes available
                               </div>

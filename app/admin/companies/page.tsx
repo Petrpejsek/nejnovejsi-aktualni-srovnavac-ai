@@ -222,8 +222,12 @@ export default function CompaniesAdmin() {
     setActionLoading(applicationId)
     
     try {
+      // Zjistíme, jestli je to PPC inzerent podle toho, jestli existuje v advertisers
+      const isPPCAdvertiser = advertisers.some(adv => adv.id === applicationId);
+      console.log('🔍 Debug handleAction:', { applicationId, action, isPPCAdvertiser, selectedApp: selectedApp });
+      
       // Pokud je to PPC inzerent
-      if (selectedApp?.isPPCAdvertiser) {
+      if (isPPCAdvertiser) {
         if (action === 'delete') {
           // Skutečné smazání PPC inzerenta
           const response = await fetch(`/api/admin/advertisers?id=${applicationId}`, {
@@ -289,7 +293,7 @@ export default function CompaniesAdmin() {
 
       // Standardní logika pro company applications
       const updateData: any = {
-        status: action === 'approve' ? 'approved' : 'rejected',
+        action: action,  // Pošleme 'approve' nebo 'reject'
         adminNotes: notes || ''
       }
 
@@ -725,6 +729,7 @@ export default function CompaniesAdmin() {
                           <button
                             onClick={(e) => {
                               e.stopPropagation()
+                              // Jen schválíme bez otevírání detailu
                               handleAction(application.id, 'approve')
                             }}
                             disabled={actionLoading === application.id}
@@ -736,6 +741,7 @@ export default function CompaniesAdmin() {
                           <button
                             onClick={(e) => {
                               e.stopPropagation()
+                              // Jen zamítneme bez otevírání detailu
                               handleAction(application.id, 'reject')
                             }}
                             disabled={actionLoading === application.id}
@@ -854,7 +860,23 @@ export default function CompaniesAdmin() {
                         </div>
                         <div className="flex items-center space-x-2" onClick={(e) => e.stopPropagation()}>
                           <button
-                            onClick={() => handleAction(advertiser.id, 'approve')}
+                            onClick={() => {
+                              // Nastavíme selectedApp před voláním handleAction
+                              const appData = {
+                                id: advertiser.id,
+                                companyName: advertiser.name,
+                                contactPerson: advertiser.contactPerson,
+                                businessEmail: advertiser.email,
+                                website: advertiser.website,
+                                description: advertiser.description,
+                                status: advertiser.status,
+                                submittedAt: advertiser.createdAt,
+                                isPPCAdvertiser: true,
+                                assignedProductId: advertiser.assignedProductId
+                              } as any;
+                              setSelectedApp(appData);
+                              handleAction(advertiser.id, 'approve');
+                            }}
                             disabled={actionLoading === advertiser.id}
                             className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
                           >
@@ -862,7 +884,23 @@ export default function CompaniesAdmin() {
                             Schválit
                           </button>
                           <button
-                            onClick={() => handleAction(advertiser.id, 'reject')}
+                            onClick={() => {
+                              // Nastavíme selectedApp před voláním handleAction
+                              const appData = {
+                                id: advertiser.id,
+                                companyName: advertiser.name,
+                                contactPerson: advertiser.contactPerson,
+                                businessEmail: advertiser.email,
+                                website: advertiser.website,
+                                description: advertiser.description,
+                                status: advertiser.status,
+                                submittedAt: advertiser.createdAt,
+                                isPPCAdvertiser: true,
+                                assignedProductId: advertiser.assignedProductId
+                              } as any;
+                              setSelectedApp(appData);
+                              handleAction(advertiser.id, 'reject');
+                            }}
                             disabled={actionLoading === advertiser.id}
                             className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
                           >
@@ -1388,7 +1426,23 @@ export default function CompaniesAdmin() {
                         </div>
                         <div className="flex items-center space-x-2" onClick={(e) => e.stopPropagation()}>
                           <button
-                            onClick={() => handleAction(advertiser.id, 'approve')}
+                            onClick={() => {
+                              // Nastavíme selectedApp před voláním handleAction
+                              const appData = {
+                                id: advertiser.id,
+                                companyName: advertiser.name,
+                                contactPerson: advertiser.contactPerson,
+                                businessEmail: advertiser.email,
+                                website: advertiser.website,
+                                description: advertiser.description,
+                                status: advertiser.status,
+                                submittedAt: advertiser.createdAt,
+                                isPPCAdvertiser: true,
+                                assignedProductId: advertiser.assignedProductId
+                              } as any;
+                              setSelectedApp(appData);
+                              handleAction(advertiser.id, 'approve');
+                            }}
                             disabled={actionLoading === advertiser.id}
                             className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
                           >
@@ -1398,6 +1452,20 @@ export default function CompaniesAdmin() {
                           <button
                             onClick={() => {
                               if (window.confirm('Opravdu chcete trvale smazat tuto firmu? Tato akce je nevratná.')) {
+                                // Nastavíme selectedApp před voláním handleAction
+                                const appData = {
+                                  id: advertiser.id,
+                                  companyName: advertiser.name,
+                                  contactPerson: advertiser.contactPerson,
+                                  businessEmail: advertiser.email,
+                                  website: advertiser.website,
+                                  description: advertiser.description,
+                                  status: advertiser.status,
+                                  submittedAt: advertiser.createdAt,
+                                  isPPCAdvertiser: true,
+                                  assignedProductId: advertiser.assignedProductId
+                                } as any;
+                                setSelectedApp(appData);
                                 handleAction(advertiser.id, 'delete');
                               }
                             }}

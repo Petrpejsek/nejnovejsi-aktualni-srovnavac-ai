@@ -50,19 +50,33 @@ const productsWithRealScreenshots = new Set([
  * Generuje URL pro screenshot produktu
  */
 export function getScreenshotUrl(productName: string): string {
-  const filename = productToScreenshotMap[productName];
+  // Nejdřív zkusíme najít screenshot pomocí různých variant názvu
+  const possibleFilenames = [
+    `${productName.toLowerCase().replace(/[^a-z0-9]/g, '_')}_homepage.png`,
+    `${productName.toLowerCase().replace(/[^a-z0-9]/g, '-')}_homepage.png`,
+    `${productName.toLowerCase().replace(/\s+/g, '_')}_homepage.png`,
+    `${productName.toLowerCase().replace(/\s+/g, '-')}_homepage.png`,
+    `${productName.toLowerCase().replace(/[^a-z0-9]/g, '')}_homepage.png`,
+    productToScreenshotMap[productName]
+  ].filter(Boolean);
+
+  // Zkusíme každou variantu
+  for (const filename of possibleFilenames) {
+    if (filename) {
+      // Pro lokální development vždy zkusíme použít screenshot z public/screenshots
+      const localPath = `/screenshots/${filename}`;
+      // Vrátíme lokální cestu - browser si sám ověří zda existuje
+      return localPath;
+    }
+  }
   
   // Pokud máme skutečný screenshot na CDN
+  const filename = productToScreenshotMap[productName];
   if (filename && productsWithRealScreenshots.has(productName) && SCREENSHOTS_CDN_BASE) {
     return `${SCREENSHOTS_CDN_BASE}/${filename}`;
   }
   
-  // Fallback na lokální SVG placeholder
-  if (filename) {
-    return `/screenshots/${filename.replace('.png', '.svg')}`;
-  }
-  
-  // Univerzální fallback placeholder
+  // Univerzální fallback placeholder jen pokud nic nenajdeme
   return generateSVGPlaceholder(productName);
 }
 

@@ -5,6 +5,22 @@ import { v4 as uuidv4 } from 'uuid'
 
 const prisma = new PrismaClient()
 
+// Extrakce daily limit z description pole
+function extractDailyLimitFromDescription(description: string | null): number | null {
+  if (!description) return null
+  
+  try {
+    const match = description.match(/"dailySpendLimit":\s*(\d+(?:\.\d+)?)/);
+    if (match) {
+      return parseFloat(match[1])
+    }
+  } catch (error) {
+    console.error('Error extracting daily limit from description:', error)
+  }
+  
+  return null
+}
+
 // Ověření JWT tokenu
 function verifyToken(request: NextRequest) {
   const token = request.cookies.get('advertiser-token')?.value
@@ -145,7 +161,7 @@ export async function GET(request: NextRequest) {
           autoRechargeAmount: company.autoRechargeAmount,
           autoRechargeThreshold: company.autoRechargeThreshold,
           currentDailySpend: todaySpend._sum.amount || 0,
-          dailySpendLimit: null // Dočasně null, protože pole není v databázi
+          dailySpendLimit: extractDailyLimitFromDescription(company.description) // Načteme z description pole
         },
         transactions,
         invoices,
@@ -287,10 +303,68 @@ export async function POST(request: NextRequest) {
       }
 
       case 'update-daily-limit': {
-        // Dočasně vypnuto - pole dailySpendLimit není v Prisma schématu
+        const { dailyLimit } = data
+        
+        if (dailyLimit !== null && dailyLimit < 10) {
+          return NextResponse.json(
+            { success: false, error: 'Minimum daily limit is $10' },
+            { status: 400 }
+          )
+        }
+
+        // Uložíme do pole description jako dočasné řešení
+        const company = await prisma.company.findUnique({
+          where: { id: user.companyId }
+        })
+        
+        if (!company) {
+          return NextResponse.json(
+            { success: false, error: 'Company not found' },
+            { status: 404 }
+          )
+        }
+
+        // Uložíme daily limit do description pole jako JSON
+        const currentDescription = company.description || ''
+        
+        let newDescription = currentDescription
+        if (dailyLimit === null) {
+          // Odstraníme daily limit z description
+          if (currentDescription.includes('dailySpendLimit')) {
+            newDescription = currentDescription.replace(
+              /\s*\{"dailySpendLimit":\s*\d+(\.\d+)?\}/,
+              ''
+            ).replace(
+              /"dailySpendLimit":\s*\d+(\.\d+)?,?\s*/,
+              ''
+            ).trim()
+          }
+        } else {
+          // Nastavíme daily limit
+          if (currentDescription.includes('dailySpendLimit')) {
+            // Nahradíme existující daily limit
+            newDescription = currentDescription.replace(
+              /"dailySpendLimit":\s*\d+(\.\d+)?/,
+              `"dailySpendLimit":${dailyLimit}`
+            )
+          } else {
+            // Přidáme daily limit na konec description
+            newDescription = currentDescription + ` {"dailySpendLimit":${dailyLimit}}`
+          }
+        }
+
+        await prisma.company.update({
+          where: { id: user.companyId },
+          data: {
+            description: newDescription
+          }
+        })
+        
+        console.log(`Daily limit ${dailyLimit === null ? 'removed' : dailyLimit} for company ${user.companyId}`)
+        
         return NextResponse.json({
           success: true,
-          message: 'Daily limit feature temporarily disabled'
+          message: dailyLimit === null ? 'Daily spend limit removed successfully' : 'Daily spend limit updated successfully'
         })
       }
 

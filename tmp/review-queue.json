@@ -1,1 +1,53 @@
-[]
+[
+  {
+    "name": "Babyscripts",
+    "description": "AI-powered risk detection program that uses machine learning algorithms to drive better clinical decision-making and access to care for pregnant and postpartum patients.",
+    "price": 0,
+    "advantages": [
+      "AI-powered risk detection algorithms",
+      "Machine learning for clinical insights",
+      "Predictive analytics for patient care",
+      "Evidence-based AI healthcare solutions"
+    ],
+    "disadvantages": [
+      "Requires healthcare provider integration",
+      "May need training for medical staff",
+      "Regulatory compliance requirements"
+    ],
+    "hasTrial": true,
+    "tags": [
+      "AI Healthcare",
+      "Medical AI",
+      "Predictive Analytics",
+      "Clinical AI",
+      "Machine Learning"
+    ],
+    "detailInfo": "Babyscripts leverages artificial intelligence and machine learning to provide advanced risk detection and predictive analytics for maternal healthcare, helping healthcare providers make better clinical decisions.",
+    "pricingInfo": {
+      "plans": [
+        {
+          "name": "Basic",
+          "price": 0,
+          "features": [
+            "Basic AI risk assessment",
+            "Limited patient monitoring"
+          ]
+        },
+        {
+          "name": "Professional",
+          "price": 199,
+          "features": [
+            "Advanced AI risk detection",
+            "Full AI-powered monitoring",
+            "AI clinical decision support"
+          ]
+        }
+      ]
+    },
+    "category": "AI Healthcare",
+    "externalUrl": "https://babyscripts.com",
+    "screenshotUrl": "/screenshots/babyscripts_homepage.png",
+    "scrapedAt": "2025-06-15T20:01:51.973Z",
+    "reviewId": "review_1750017711973_6mse3va6x"
+  }
+]

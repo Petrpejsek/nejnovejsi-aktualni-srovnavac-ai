@@ -203,7 +203,7 @@ export default function CampaignsPage() {
               <ChartBarIcon className="h-6 w-6 text-blue-600" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Celkem kampaní</p>
+                              <p className="text-sm font-medium text-gray-500">Total Campaigns</p>
               <p className="text-2xl font-semibold text-gray-900">{campaigns.length}</p>
             </div>
           </div>
@@ -229,7 +229,7 @@ export default function CampaignsPage() {
               <CursorArrowRaysIcon className="h-6 w-6 text-purple-600" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Celkem kliků</p>
+                              <p className="text-sm font-medium text-gray-500">Total Clicks</p>
               <p className="text-2xl font-semibold text-gray-900">
                 {campaigns.reduce((sum, c) => sum + c.totalClicks, 0)}
               </p>
@@ -243,7 +243,7 @@ export default function CampaignsPage() {
               <BanknotesIcon className="h-6 w-6 text-red-600" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Celkem utraceno</p>
+                              <p className="text-sm font-medium text-gray-500">Total Spent</p>
               <p className="text-2xl font-semibold text-gray-900">
                 ${campaigns.reduce((sum, c) => sum + c.totalSpent, 0).toFixed(2)}
               </p>
@@ -307,7 +307,7 @@ export default function CampaignsPage() {
                       Denní: ${campaign.dailyBudget}
                     </div>
                     <div className="text-sm text-gray-500">
-                      Celkem: ${campaign.totalBudget}
+                      Total: ${campaign.totalBudget}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">

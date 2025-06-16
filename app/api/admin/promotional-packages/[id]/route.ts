@@ -6,7 +6,6 @@ const prisma = new PrismaClient()
 
 // Ověření admin tokenu - pro teď dočasně vypneme auth pro testování
 function verifyAdminToken(request: NextRequest) {
-  // Dočasně vrátíme mock admin pro testování
   return { admin: true, id: 'admin-1' }
 }
 
@@ -36,23 +35,25 @@ export async function PUT(
       )
     }
 
-    // Pro teď jen simulujeme úpravu
-    const updatedPackage = {
-      id: params.id,
-      title,
-      description,
-      amount,
-      bonus,
-      savings: bonus,
-      popular: popular || false,
-      firstTime: firstTime || false,
-      minimumSpend: minimumSpend || 0,
-      active: active !== false,
-      order: order || 1,
-      targetStatus: targetStatus || 'all',
-      createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), // Mock old date
-      updatedAt: new Date().toISOString()
-    }
+    // Úprava v databázi
+    const updatedPackage = await prisma.promotionalPackage.update({
+      where: { id: params.id },
+      data: {
+        title,
+        description,
+        amount,
+        bonus,
+        savings: bonus, // Auto-calculate savings as bonus amount
+        popular: popular || false,
+        firstTime: firstTime || false,
+        minimumSpend: minimumSpend || 0,
+        active: active !== false,
+        order: order || 1,
+        targetStatus: targetStatus || 'all'
+      }
+    })
+
+    console.log('✅ Updated promotional package:', updatedPackage.title, `(${updatedPackage.id})`)
 
     return NextResponse.json({
       success: true,
@@ -61,7 +62,15 @@ export async function PUT(
     })
 
   } catch (error) {
-    console.error('Error updating package:', error)
+    console.error('❌ Error updating package:', error)
+    
+    if ((error as any).code === 'P2025') {
+      return NextResponse.json(
+        { success: false, error: 'Package not found' },
+        { status: 404 }
+      )
+    }
+    
     return NextResponse.json(
       { success: false, error: 'Failed to update package' },
       { status: 500 }
@@ -84,14 +93,28 @@ export async function DELETE(
       )
     }
 
-    // Pro teď jen simulujeme smazání
+    // Smazání z databáze
+    const deletedPackage = await prisma.promotionalPackage.delete({
+      where: { id: params.id }
+    })
+
+    console.log('✅ Deleted promotional package:', deletedPackage.title, `(${deletedPackage.id})`)
+
     return NextResponse.json({
       success: true,
       message: 'Package deleted successfully'
     })
 
   } catch (error) {
-    console.error('Error deleting package:', error)
+    console.error('❌ Error deleting package:', error)
+    
+    if ((error as any).code === 'P2025') {
+      return NextResponse.json(
+        { success: false, error: 'Package not found' },
+        { status: 404 }
+      )
+    }
+    
     return NextResponse.json(
       { success: false, error: 'Failed to delete package' },
       { status: 500 }

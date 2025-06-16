@@ -1,0 +1,95 @@
+{
+  "timestamp": "2025-06-15T20:39:40.550Z",
+  "deletedProducts": [
+    {
+      "id": "b7626905-902f-4bf6-86c8-2a04bae9a131",
+      "name": "Bookipi",
+      "description": "Bookipi is a free invoicing and accounting software designed for small businesses and entrepreneurs to manage finances, create professional invoices, track expenses, and generate financial reports.",
+      "category": "Accounting Software"
+    },
+    {
+      "id": "63aea06d-fd11-47cd-a4a1-e9a12dc0858b",
+      "name": "Mobirise",
+      "description": "Mobirise is a free offline website builder software for Windows and Mac that allows users to create small/medium websites, landing pages, and online stores without coding.",
+      "category": "Offline Website Builder"
+    },
+    {
+      "id": "0f3be3fa-5099-47f8-9664-c24c6f6bf205",
+      "name": "Trello",
+      "description": "Visual work management tool with AI capabilities that automates workflows using cards, lists, and boards to organize projects and collaboration.",
+      "category": "automation"
+    },
+    {
+      "id": "ad269a85-9a87-425d-a07e-b56e5dd84e3d",
+      "name": "Cocos - The world&#x27;s top 2D&amp;3D engine, game / smart cockpit /AR/VR/ virtual character / e...",
+      "description": "The world&#x27;s top lightweight, efficient, cross-platform digital content development platform can meet different development needs for 3D, 2D, AR&amp;VR and other unique content creation, and can provide complete solutions in frontier fields such as smart cockpit, digital twin, virtual character, and smart education industry solutions.",
+      "category": "Business"
+    },
+    {
+      "id": "151fc0f1-7b79-49be-933c-f50358e49d6f",
+      "name": "CRYENGINE | The complete solution for next generation game development by Crytek",
+      "description": "The&#x20;complete&#x20;solution&#x20;for&#x20;next&#x20;generation&#x20;game&#x20;development&#x20;by&#x20;Crytek",
+      "category": "Business"
+    },
+    {
+      "id": "fb5666c1-3222-434b-aa8d-00c75fe90ffd",
+      "name": "Defold - Official Homepage - Cross platform game engine",
+      "description": "Defold is a free and open game engine used for development of console, desktop, mobile and web games.",
+      "category": "Business"
+    },
+    {
+      "id": "3ddcb1bb-a0db-4c77-a2ae-2bfa8a77ed72",
+      "name": "PlayCanvas WebGL Game Engine",
+      "description": "The open source PlayCanvas HTML5 game engine, built on WebGL and glTF, for building games, playable ads, visualizations, VR and AR.",
+      "category": "Business"
+    },
+    {
+      "id": "82f7dc79-baf0-4f57-a7e8-45af53a99cce",
+      "name": "Game Making Software - Construct 3",
+      "description": "Construct 3 is the worlds best game making software. Make your own game in your browser without coding or with Javascript. Building games has never been easier!",
+      "category": "Business"
+    },
+    {
+      "id": "8f52c499-d62c-4535-b9f2-82ef4755aad6",
+      "name": "GameMaker | Make 2D Games With The Free Engine",
+      "description": "Make a game with GameMaker, the best free video game engine. Perfect for beginners and professionals. Learn to build your own 2D indie games with our simple tutorials.",
+      "category": "Business"
+    },
+    {
+      "id": "1030ec2e-b966-4223-b81a-1caccf7843a0",
+      "name": "Stencyl: Make iPhone, iPad, Android & Flash Games without code",
+      "description": "Make iOS (iPhone/iPad), Android, HTML5, Windows & Mac games without code using Stencyl.",
+      "category": "Business"
+    },
+    {
+      "id": "417a5a03-9471-48eb-9a6b-0685375cf142",
+      "name": "Ucraft",
+      "description": "Ucraft is a website and online store builder that offers no-code solutions for creating professional websites, landing pages, and e-commerce stores with customizable templates and drag-and-drop functionality.",
+      "category": "Website Builder"
+    },
+    {
+      "id": "d19a7a05-fcc3-46da-aa2b-0b5e45b511b9",
+      "name": "Home | Manticore Games",
+      "description": "Manticore Games™ is the developer and operator of Core™, a digital playground and community designed to unleash imagination and explore new play experiences.",
+      "category": "Business"
+    },
+    {
+      "id": "e2b37f48-0ba5-433b-9741-7d4d1e110135",
+      "name": "Overwolf | The guild of in-game creators",
+      "description": "We empower players, developers and creators to make the best games even better through UGC",
+      "category": "Business"
+    },
+    {
+      "id": "440d8918-57e3-4c21-91fc-c4bec1859c1d",
+      "name": "GetResponse",
+      "description": "GetResponse is an all-in-one marketing platform that combines email marketing, automation, landing pages, webinars, and e-commerce tools to help businesses grow their online presence and revenue.",
+      "category": "Email Marketing Platform"
+    },
+    {
+      "id": "47fe8e98-6c5b-4831-9765-c2d382d0c437",
+      "name": "Clipchamp",
+      "description": "Clipchamp is a free video editing tool that allows users to create videos directly in their browser, download a Windows app, or edit on the go with mobile devices. It offers smart tools and royalty-free content to help users create videos in minutes and export them in 4K resolution.",
+      "category": "Video Editing Tools"
+    }
+  ]
+}

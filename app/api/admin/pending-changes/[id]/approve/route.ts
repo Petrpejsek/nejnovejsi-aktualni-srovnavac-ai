@@ -38,8 +38,34 @@ export async function POST(
       )
     }
 
-    // Aplikovat pending změny
-    if ((product as any).pendingChanges) {
+    // Check if this is a new product or existing product edit
+    const isNewProduct = (product as any).imageApprovalStatus === 'NEW_PRODUCT' || 
+                        ((product as any).adminNotes && (product as any).adminNotes.includes('NEW PRODUCT'))
+
+    if (isNewProduct) {
+      // For new products, just activate them and clear pending status
+      await prisma.$executeRaw`
+        UPDATE "Product" 
+        SET 
+          "isActive" = true,
+          "changesStatus" = 'approved',
+          "changesApprovedAt" = NOW(),
+          "changesApprovedBy" = 'admin@admin.com',
+          "hasPendingChanges" = false,
+          "imageApprovalStatus" = 'approved',
+          "updatedAt" = NOW()
+        WHERE "id" = ${productId}
+      `
+      
+      console.log(`✅ Admin approved new product: ${(product as any).name} (${productId})`)
+      
+      return NextResponse.json({ 
+        success: true,
+        message: 'New product approved and activated successfully'
+      })
+      
+    } else if ((product as any).pendingChanges) {
+      // For existing product edits, apply the pending changes
       try {
         const pendingData = JSON.parse((product as any).pendingChanges)
         
@@ -66,6 +92,7 @@ export async function POST(
             "disadvantages" = ${JSON.stringify(parsedDisadvantages)}::JSONB,
             "videoUrls" = ${JSON.stringify(parsedVideoUrls)}::JSONB,
             "pricingInfo" = ${JSON.stringify(parsedPricingInfo)}::JSONB,
+            "isActive" = true,
             "changesStatus" = 'approved',
             "changesApprovedAt" = NOW(),
             "changesApprovedBy" = 'admin@admin.com',
@@ -91,7 +118,7 @@ export async function POST(
       }
     } else {
       return NextResponse.json(
-        { error: 'No pending changes found' },
+        { error: 'No pending changes found and not a new product' },
         { status: 400 }
       )
     }
