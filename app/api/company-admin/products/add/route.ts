@@ -29,11 +29,16 @@ function verifyToken(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('🔍 API: Starting product creation...')
+    
     const user = verifyToken(request)
     
     if (!user) {
+      console.log('❌ API: Unauthorized - no valid token')
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+
+    console.log('✅ API: User authenticated:', user.companyId)
 
     // Najdi firmu podle ID z JWT tokenu
     const company = await prisma.company.findUnique({
@@ -41,25 +46,53 @@ export async function POST(request: NextRequest) {
     })
 
     if (!company) {
+      console.log('❌ API: Company not found for ID:', user.companyId)
       return NextResponse.json({ error: 'Company not found' }, { status: 404 })
     }
 
+    console.log('✅ API: Company found:', company.name)
+
     // Parse FormData
-    const formData = await request.formData()
+    let formData
+    try {
+      formData = await request.formData()
+      console.log('✅ API: FormData parsed successfully')
+    } catch (error) {
+      console.error('❌ API: Error parsing FormData:', error)
+      return NextResponse.json({ error: 'Invalid form data' }, { status: 400 })
+    }
     
     const name = formData.get('name') as string
     const description = formData.get('description') as string
     const price = parseFloat(formData.get('price') as string)
     const category = formData.get('category') as string
-    const tags = JSON.parse(formData.get('tags') as string)
+    
+    console.log('📝 API: Basic fields parsed:', { name, category, price })
+    
+    let tags, advantages, disadvantages
+    try {
+      tags = JSON.parse(formData.get('tags') as string)
+      advantages = JSON.parse(formData.get('advantages') as string || '[]')
+      disadvantages = JSON.parse(formData.get('disadvantages') as string || '[]')
+      console.log('✅ API: JSON fields parsed successfully')
+    } catch (error) {
+      console.error('❌ API: Error parsing JSON fields:', error)
+      return NextResponse.json({ error: 'Invalid JSON data in form' }, { status: 400 })
+    }
+    
     const externalUrl = formData.get('externalUrl') as string
     const hasTrial = formData.get('hasTrial') === 'true'
-    const advantages = JSON.parse(formData.get('advantages') as string || '[]')
-    const disadvantages = JSON.parse(formData.get('disadvantages') as string || '[]')
     const imageFile = formData.get('image') as File
+
+    console.log('📋 API: All form data parsed:', { 
+      name, category, tagsCount: tags.length, 
+      advantagesCount: advantages.length, 
+      hasImage: imageFile && imageFile.size > 0 
+    })
 
     // Validace
     if (!name || !description || !category || !externalUrl) {
+      console.log('❌ API: Validation failed - missing required fields')
       return NextResponse.json({ 
         error: 'All required fields must be filled' 
       }, { status: 400 })
@@ -84,6 +117,8 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
+    console.log('✅ API: Validation passed')
+
     // Validace URL - normalize by adding https:// if missing
     let normalizedUrl = externalUrl.trim()
     
@@ -94,7 +129,9 @@ export async function POST(request: NextRequest) {
       }
       
       new URL(normalizedUrl)
-    } catch {
+      console.log('✅ API: URL validation passed:', normalizedUrl)
+    } catch (error) {
+      console.log('❌ API: URL validation failed:', externalUrl)
       return NextResponse.json({ 
         error: 'Product URL must be in correct format (e.g., example.com or www.example.com)' 
       }, { status: 400 })
@@ -104,6 +141,8 @@ export async function POST(request: NextRequest) {
 
     // Zpracování obrázku pokud je nahraný
     if (imageFile && imageFile.size > 0) {
+      console.log('📷 API: Processing image upload...')
+      
       // Kontrola velikosti souboru (max 5MB)
       if (imageFile.size > 5 * 1024 * 1024) {
         return NextResponse.json({ 
@@ -118,73 +157,102 @@ export async function POST(request: NextRequest) {
         }, { status: 400 })
       }
 
-      // Vytvoř unikátní název souboru
-      const timestamp = Date.now()
-      const randomString = Math.random().toString(36).substring(2, 15)
-      const extension = imageFile.name.split('.').pop()
-      const fileName = `company-${company.id}-${timestamp}-${randomString}.${extension}`
-
-      // Cesta k uložení
-      const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'company-products')
-      const filePath = path.join(uploadDir, fileName)
-
-      // Vytvoř adresář pokud neexistuje
       try {
-        await mkdir(uploadDir, { recursive: true })
+        // Vytvoř unikátní název souboru
+        const timestamp = Date.now()
+        const randomString = Math.random().toString(36).substring(2, 15)
+        const extension = imageFile.name.split('.').pop()
+        const fileName = `company-${company.id}-${timestamp}-${randomString}.${extension}`
+
+        // Cesta k uložení
+        const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'company-products')
+        const filePath = path.join(uploadDir, fileName)
+
+        console.log('📁 API: Creating upload directory:', uploadDir)
+
+        // Vytvoř adresář pokud neexistuje
+        try {
+          await mkdir(uploadDir, { recursive: true })
+          console.log('✅ API: Upload directory ready')
+        } catch (error) {
+          console.log('📁 API: Directory already exists')
+        }
+
+        // Ulož soubor
+        const bytes = await imageFile.arrayBuffer()
+        const buffer = Buffer.from(bytes)
+        await writeFile(filePath, buffer)
+
+        imageUrl = `/uploads/company-products/${fileName}`
+        console.log('✅ API: Image saved successfully:', imageUrl)
       } catch (error) {
-        // Adresář už existuje
+        console.error('❌ API: Error saving image:', error)
+        return NextResponse.json({ 
+          error: 'Failed to save image file' 
+        }, { status: 500 })
       }
-
-      // Ulož soubor
-      const bytes = await imageFile.arrayBuffer()
-      const buffer = Buffer.from(bytes)
-      await writeFile(filePath, buffer)
-
-      imageUrl = `/uploads/company-products/${fileName}`
     }
 
+    console.log('💾 API: Creating product in database...')
+
     // Vytvoř nový produkt s statusem "pending"
-    const newProduct = await prisma.product.create({
-      data: {
-        id: uuidv4(),
-        name,
-        description,
-        price,
-        category,
-        tags: JSON.stringify(tags),
-        externalUrl: normalizedUrl,
-        hasTrial,
-        imageUrl,
-        advantages: JSON.stringify(advantages),
-        disadvantages: JSON.stringify(disadvantages),
-        isActive: false, // Neaktivní dokud není schválen
-        updatedAt: new Date(),
-        // Použij existující sloupce pro tracking
-        changesStatus: 'pending',
-        changesSubmittedAt: new Date(),
-        changesSubmittedBy: company.id,
-        hasPendingChanges: true,
-        // Označení typu - NEW_PRODUCT pro nové produkty vs EDIT_PRODUCT pro úpravy
-        imageApprovalStatus: 'NEW_PRODUCT', // Použijeme toto pole pro označení typu
-        // Poznámka, že toto je nový produkt od firmy
-        adminNotes: `NEW PRODUCT: Submitted by company ${company.name} (${company.email}) for approval`
-      }
-    })
+    try {
+      const newProduct = await prisma.product.create({
+        data: {
+          id: uuidv4(),
+          name,
+          description,
+          price,
+          category,
+          tags: JSON.stringify(tags),
+          externalUrl: normalizedUrl,
+          hasTrial,
+          imageUrl,
+          advantages: JSON.stringify(advantages),
+          disadvantages: JSON.stringify(disadvantages),
+          isActive: false, // Neaktivní dokud není schválen
+          updatedAt: new Date(),
+          // Použij existující sloupce pro tracking
+          changesStatus: 'pending',
+          changesSubmittedAt: new Date(),
+          changesSubmittedBy: company.id,
+          hasPendingChanges: true,
+          // Označení typu - NEW_PRODUCT pro nové produkty vs EDIT_PRODUCT pro úpravy
+          imageApprovalStatus: 'NEW_PRODUCT', // Použijeme toto pole pro označení typu
+          // Poznámka, že toto je nový produkt od firmy
+          adminNotes: `NEW PRODUCT: Submitted by company ${company.name} (${company.email}) for approval`
+        }
+      })
 
-    // TODO: Pošli notifikaci super adminovi o novém produktu ke schválení
-    // Můžeš přidat email notifikaci nebo webhook
+      console.log('✅ API: Product created successfully:', newProduct.id)
 
-    return NextResponse.json({
-      success: true,
-      productId: newProduct.id,
-      message: 'Product successfully submitted for approval'
-    })
+      // TODO: Pošli notifikaci super adminovi o novém produktu ke schválení
+      // Můžeš přidat email notifikaci nebo webhook
+
+      return NextResponse.json({
+        success: true,
+        productId: newProduct.id,
+        message: 'Product successfully submitted for approval'
+      })
+    } catch (dbError) {
+      console.error('❌ API: Database error creating product:', dbError)
+      return NextResponse.json({ 
+        error: 'Database error - failed to create product' 
+      }, { status: 500 })
+    }
 
   } catch (error) {
-    console.error('Error adding product:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    console.error('❌ API: Unexpected error in add product:', error)
+    
+    // Return more detailed error information
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    const errorStack = error instanceof Error ? error.stack : 'No stack trace'
+    
+    console.error('Error details:', { message: errorMessage, stack: errorStack })
+    
+    return NextResponse.json({
+      error: 'Internal server error',
+      details: process.env.NODE_ENV === 'development' ? errorMessage : undefined
+    }, { status: 500 })
   }
 } 
