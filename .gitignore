@@ -37,7 +37,8 @@ next-env.d.ts
 .idea
 .vscode
 
-# Screenshots moved to external storage if needed
+# Screenshots - too large for Vercel deployment
+public/screenshots/
 
 # AI Recommendations - dočasně schováno
 app/api/users/ai-recommendations/
