@@ -10,6 +10,7 @@ import {
   CreditCardIcon,
   WalletIcon,
   MegaphoneIcon,
+  ChartBarIcon,
   FilmIcon,
   AcademicCapIcon,
   EnvelopeIcon,
@@ -26,6 +27,8 @@ const navigation = [
   { name: 'Dashboard', href: '/company-admin', icon: HomeIcon },
   { name: 'Company Profile', href: '/company-admin/profile', icon: BuildingOfficeIcon },
   { name: 'Products', href: '/company-admin/products', icon: CubeIcon },
+  { name: 'PPC Campaigns', href: '/company-admin/campaigns', icon: ChartBarIcon },
+  { name: 'Analytics', href: '/company-admin/analytics', icon: ChartBarIcon },
   { name: 'Billing', href: '/company-admin/billing', icon: CreditCardIcon },
   // { name: 'Affiliate', href: '/company-admin/affiliate', icon: WalletIcon }, // Dočasně skryto - pouze PPC zatím
   { name: 'Promotions', href: '/company-admin/promotions', icon: MegaphoneIcon },
@@ -87,7 +90,7 @@ export default function CompanyAdminLayout({
   }
 
   return (
-    <div className="min-h-screen flex bg-gray-50">
+    <div className="min-h-screen flex bg-gray-50 pt-12">
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div className="fixed inset-0 z-40 lg:hidden">
@@ -126,7 +129,10 @@ export default function CompanyAdminLayout({
               </div>
               <nav className="space-y-1 px-2">
                 {navigation.map((item) => {
-                  const isActive = pathname === item.href
+                  // Special case for Dashboard - only exact match
+                  const isActive = item.href === '/company-admin' 
+                    ? pathname === item.href 
+                    : pathname === item.href || pathname.startsWith(item.href + '/')
                   return (
                     <Link
                       key={item.name}
@@ -148,11 +154,11 @@ export default function CompanyAdminLayout({
         </div>
       )}
 
-      {/* Desktop sidebar - optimized for single screen */}
+      {/* Desktop sidebar - FIXED POSITION FOR STICKY BEHAVIOR */}
       <div className="hidden lg:flex lg:flex-shrink-0">
-        <div className="flex flex-col w-60 bg-white border-r border-gray-200 pt-12">
+        <div className="fixed top-0 left-0 h-screen w-60 bg-white border-r border-gray-200 z-30 overflow-y-auto">
           {/* Company info - compact */}
-          <div className="flex-shrink-0 flex items-center px-3 py-2">
+          <div className="flex-shrink-0 flex items-center px-3 py-4 pt-16">
             <WalletIcon className="h-5 w-5 text-purple-600 mr-2" />
             <div className="min-w-0 flex-1">
               {loading ? (
@@ -175,9 +181,12 @@ export default function CompanyAdminLayout({
           </div>
 
           {/* Navigation - compact spacing */}
-          <nav className="mt-2 flex-1 px-2 space-y-1 overflow-y-auto">
+          <nav className="mt-2 flex-1 px-2 space-y-1 pb-4">
             {navigation.map((item) => {
-              const isActive = pathname === item.href
+              // Special case for Dashboard - only exact match
+              const isActive = item.href === '/company-admin' 
+                ? pathname === item.href 
+                : pathname === item.href || pathname.startsWith(item.href + '/')
               return (
                 <Link
                   key={item.name}
@@ -196,7 +205,7 @@ export default function CompanyAdminLayout({
           </nav>
 
           {/* User menu at bottom - compact */}
-          <div className="flex-shrink-0 border-t border-gray-200 p-2">
+          <div className="absolute bottom-0 left-0 right-0 border-t border-gray-200 p-2 bg-white">
             <div className="relative">
               <button
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
@@ -235,8 +244,8 @@ export default function CompanyAdminLayout({
         </div>
       </div>
 
-      {/* Main content area - optimized height */}
-      <div className="flex-1 min-w-0 pt-12">
+      {/* Main content area - WITH LEFT MARGIN TO COMPENSATE FOR FIXED SIDEBAR */}
+      <div className="flex-1 min-w-0 lg:ml-60">
         {/* Mobile menu button - only visible on mobile */}
         <div className="lg:hidden fixed top-14 left-4 z-30">
           <button
@@ -248,9 +257,9 @@ export default function CompanyAdminLayout({
           </button>
         </div>
 
-        {/* Main content - compact padding for single screen view */}
-        <main className="flex-1 px-4 py-3 lg:px-6 lg:py-4 h-[calc(100vh-3rem)]">
-          <div className="max-w-7xl mx-auto h-full">
+        {/* Main content - now scrollable independently */}
+        <main className="flex-1 px-4 py-3 lg:px-6 lg:py-4 pt-16 min-h-screen overflow-y-auto">
+          <div className="max-w-7xl mx-auto">
             {children}
           </div>
         </main>
@@ -264,6 +273,7 @@ function getPageTitle(pathname: string): string {
     '/company-admin': 'Dashboard',
     '/company-admin/profile': 'Company Profile',
     '/company-admin/products': 'Products',
+    '/company-admin/campaigns': 'PPC Campaigns',
     '/company-admin/billing': 'Credits & Billing',
     '/company-admin/promotions': 'Promotions',
     '/company-admin/reels': 'Reels',
