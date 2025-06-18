@@ -22,6 +22,7 @@ interface Product {
   description: string
   imageUrl?: string
   price?: number
+  externalUrl?: string
 }
 
 export default function CreateCampaignPage() {
