@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
 import jwt from 'jsonwebtoken'
-import { writeFile, mkdir } from 'fs/promises'
-import path from 'path'
 import { v4 as uuidv4 } from 'uuid'
 
 const prisma = new PrismaClient()
@@ -143,10 +141,10 @@ export async function POST(request: NextRequest) {
     if (imageFile && imageFile.size > 0) {
       console.log('📷 API: Processing image upload...')
       
-      // Kontrola velikosti souboru (max 5MB)
-      if (imageFile.size > 5 * 1024 * 1024) {
+      // Kontrola velikosti souboru (max 2MB pro base64)
+      if (imageFile.size > 2 * 1024 * 1024) {
         return NextResponse.json({ 
-          error: 'Image is too large. Maximum size is 5MB.' 
+          error: 'Image is too large. Maximum size is 2MB for Vercel deployment.' 
         }, { status: 400 })
       }
 
@@ -158,37 +156,17 @@ export async function POST(request: NextRequest) {
       }
 
       try {
-        // Vytvoř unikátní název souboru
-        const timestamp = Date.now()
-        const randomString = Math.random().toString(36).substring(2, 15)
-        const extension = imageFile.name.split('.').pop()
-        const fileName = `company-${company.id}-${timestamp}-${randomString}.${extension}`
-
-        // Cesta k uložení
-        const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'company-products')
-        const filePath = path.join(uploadDir, fileName)
-
-        console.log('📁 API: Creating upload directory:', uploadDir)
-
-        // Vytvoř adresář pokud neexistuje
-        try {
-          await mkdir(uploadDir, { recursive: true })
-          console.log('✅ API: Upload directory ready')
-        } catch (error) {
-          console.log('📁 API: Directory already exists')
-        }
-
-        // Ulož soubor
+        // Convert image to base64 data URL for Vercel compatibility
         const bytes = await imageFile.arrayBuffer()
         const buffer = Buffer.from(bytes)
-        await writeFile(filePath, buffer)
-
-        imageUrl = `/uploads/company-products/${fileName}`
-        console.log('✅ API: Image saved successfully:', imageUrl)
+        const base64 = buffer.toString('base64')
+        imageUrl = `data:${imageFile.type};base64,${base64}`
+        
+        console.log('✅ API: Image converted to base64 successfully')
       } catch (error) {
-        console.error('❌ API: Error saving image:', error)
+        console.error('❌ API: Error processing image:', error)
         return NextResponse.json({ 
-          error: 'Failed to save image file' 
+          error: 'Failed to process image file' 
         }, { status: 500 })
       }
     }

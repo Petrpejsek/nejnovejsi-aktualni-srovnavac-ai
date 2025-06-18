@@ -92,6 +92,19 @@ export default function AddProductPage() {
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (file) {
+      // Check file size (2MB limit for Vercel)
+      if (file.size > 2 * 1024 * 1024) {
+        setError('Image is too large. Maximum size is 2MB for Vercel deployment.')
+        return
+      }
+      
+      // Check file type
+      if (!file.type.startsWith('image/')) {
+        setError('Please select a valid image file.')
+        return
+      }
+      
+      setError(null)
       setForm(prev => ({ ...prev, imageFile: file }))
       // Create preview URL
       const reader = new FileReader()
@@ -620,7 +633,7 @@ export default function AddProductPage() {
                       <p className="mb-2 text-sm text-gray-500">
                         <span className="font-semibold">Click to upload</span> or drag and drop
                       </p>
-                      <p className="text-xs text-gray-500">PNG, JPG, JPEG (MAX. 5MB)</p>
+                      <p className="text-xs text-gray-500">PNG, JPG, JPEG (MAX. 2MB for Vercel)</p>
                     </div>
                   )}
                   <input
