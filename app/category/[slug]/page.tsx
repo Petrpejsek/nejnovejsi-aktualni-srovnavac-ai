@@ -64,7 +64,14 @@ export default function CategoryPage() {
 
   const handleVisit = (url: string | null) => {
     if (url) {
-      window.open(url, '_blank', 'noopener,noreferrer')
+      // Použijeme dočasný HTML link místo window.open() pro lepší kompatibilitu
+      const tempLink = document.createElement('a')
+      tempLink.href = url
+      tempLink.target = '_blank'
+      tempLink.rel = 'noopener,noreferrer'
+      document.body.appendChild(tempLink)
+      tempLink.click()
+      document.body.removeChild(tempLink)
     }
   }
 

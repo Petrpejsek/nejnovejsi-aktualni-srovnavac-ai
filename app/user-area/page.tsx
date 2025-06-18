@@ -7,6 +7,7 @@ import { FiUser, FiStar, FiSettings, FiHeart, FiZap, FiCalendar, FiMail, FiClock
 import Modal from '@/components/Modal'
 import LoginForm from '@/components/LoginForm'
 import RegisterForm from '@/components/RegisterForm'
+import { safeOpenInNewTab } from '../../lib/utils'
 
 interface UserData {
   id: string
@@ -1296,7 +1297,7 @@ function UserAreaContent() {
                           <div 
                             key={product.id} 
                             className="flex items-center space-x-4 p-3 border border-gray-200 rounded-lg hover:border-gray-300 transition-colors cursor-pointer"
-                            onClick={() => product.externalUrl && window.open(product.externalUrl, '_blank')}
+                            onClick={() => safeOpenInNewTab(product.externalUrl)}
                           >
                             <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
                               <img
@@ -1354,9 +1355,7 @@ function UserAreaContent() {
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation()
-                                  if (product.externalUrl) {
-                                    window.open(product.externalUrl, '_blank')
-                                  }
+                                  safeOpenInNewTab(product.externalUrl)
                                 }}
                                 className="px-3 py-1.5 text-xs bg-purple-600 text-white rounded-full hover:bg-purple-700 transition-colors mr-2"
                               >
@@ -1616,7 +1615,7 @@ function UserAreaContent() {
                       <div 
                         key={product.id} 
                         className="flex items-center space-x-4 p-3 border border-gray-200 rounded-lg hover:border-gray-300 transition-colors cursor-pointer"
-                        onClick={() => product.externalUrl && window.open(product.externalUrl, '_blank')}
+                        onClick={() => safeOpenInNewTab(product.externalUrl)}
                       >
                         <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
                           <img
@@ -2259,7 +2258,7 @@ function UserAreaContent() {
                         <div 
                           key={item.id} 
                           className="flex items-center space-x-4 p-4 border border-gray-200 rounded-lg hover:border-gray-300 transition-colors cursor-pointer"
-                          onClick={() => item.externalUrl && window.open(item.externalUrl, '_blank')}
+                          onClick={() => safeOpenInNewTab(item.externalUrl)}
                         >
                           <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
                             <img

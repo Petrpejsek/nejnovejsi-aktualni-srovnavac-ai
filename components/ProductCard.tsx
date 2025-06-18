@@ -13,6 +13,7 @@ import { StarIcon as StarFilledIcon, BookmarkIcon as BookmarkFilledIcon } from '
 import { useSession } from 'next-auth/react'
 import Modal from './Modal'
 import RegisterForm from './RegisterForm'
+import { openInNewTab } from '../lib/utils'
 
 interface Review {
   id: number
@@ -178,8 +179,8 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
           })
         }
 
-        // Přesměrujeme na external URL
-        window.open(externalUrl, '_blank', 'noopener,noreferrer')
+        // Přesměrujeme na external URL - bez blokování popupu
+        openInNewTab(externalUrl)
         return
       } else {
         console.log('⚠️ PPC click failed, falling back to free tracking:', ppcResponse.status)
@@ -206,8 +207,8 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
     // Původní redirect API pro bezplatné tracking
     const trackingUrl = `/api/redirect?productId=${encodeURIComponent(id)}&externalUrl=${encodeURIComponent(externalUrl)}`
     
-    // Toto prohlížeče NEblokují - je to přímé uživatelské kliknutí
-    window.open(trackingUrl, '_blank', 'noopener,noreferrer')
+    // Použijeme utility funkci pro otevření v novém okně
+    openInNewTab(trackingUrl)
   }
 
   const handleClick = async (productId: string) => {

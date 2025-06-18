@@ -183,7 +183,14 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
     }
 
     try {
-      window.open(product.externalUrl, '_blank', 'noopener,noreferrer')
+      // Použijeme dočasný HTML link místo window.open() pro lepší kompatibilitu
+      const tempLink = document.createElement('a')
+      tempLink.href = product.externalUrl
+      tempLink.target = '_blank'
+      tempLink.rel = 'noopener,noreferrer'
+      document.body.appendChild(tempLink)
+      tempLink.click()
+      document.body.removeChild(tempLink)
     } catch (error) {
       console.error('Chyba při otevírání URL:', error)
     }
