@@ -179,7 +179,7 @@ export async function GET(request: NextRequest) {
       });
       
       // NEW ALGORITHM: Get products sorted by company credit balance AND active campaign
-      // Only products with credit + active campaign get priority, others are random
+      // Only products with sufficient credit for bid amount + active campaign get priority
       const rawProducts = await prisma.$queryRaw`
         SELECT 
           p.*,
@@ -187,12 +187,13 @@ export async function GET(request: NextRequest) {
           c."id" as company_id,
           c."name" as company_name,
           CASE 
-            WHEN c."balance" > 0 AND EXISTS (
+            WHEN EXISTS (
               SELECT 1 FROM "Campaign" camp 
               WHERE camp."productId" = p."id"::text
               AND camp."companyId" = c."id" 
               AND camp."status" = 'active' 
               AND camp."isApproved" = true
+              AND c."balance" >= camp."bidAmount"  -- Dostatek kreditu na bid
             ) THEN c."balance"
             ELSE 0
           END as effective_balance
@@ -201,7 +202,7 @@ export async function GET(request: NextRequest) {
         WHERE p."isActive" = true
         ${categoryParam ? Prisma.sql`AND p."category" = ${categoryParam}` : Prisma.empty}
         ORDER BY 
-          effective_balance DESC,  -- Nejvyšší kredit + aktivní kampaň první
+          effective_balance DESC,  -- Nejvyšší kredit + aktivní kampaň s dostatečným kreditem první
           RANDOM()                 -- Náhodně v rámci stejného kreditu/bez kreditu
         LIMIT ${validPageSize}
         OFFSET ${skip}
@@ -216,6 +217,24 @@ export async function GET(request: NextRequest) {
       const totalPages = Math.ceil(totalProducts / validPageSize);
       
       console.log(`API: Successfully loaded ${products.length} products (page ${validPage}, pageSize ${validPageSize}, total ${totalProducts}) - SORTED BY CREDIT + ACTIVE CAMPAIGNS`);
+      
+      // PREVENTIVNÍ KONTROLA: Pauzni kampaně bez dostatečného kreditu
+      try {
+        await prisma.$executeRaw`
+          UPDATE "Campaign" 
+          SET "status" = 'paused'
+          WHERE "status" = 'active' 
+          AND "isApproved" = true
+          AND EXISTS (
+            SELECT 1 FROM "Company" c 
+            WHERE c."id" = "Campaign"."companyId" 
+            AND c."balance" < "Campaign"."bidAmount"
+          )
+        `;
+        console.log('🔧 Preventive check: Auto-paused campaigns with insufficient credit');
+      } catch (pauseError) {
+        console.log('⚠️ Error during preventive campaign pausing:', pauseError);
+      }
       
       // Cache systém byl odstraněn - již se neukládá do cache
       
