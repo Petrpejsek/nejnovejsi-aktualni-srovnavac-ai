@@ -135,7 +135,7 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
     setLocalBookmarked(isBookmarked || false)
   }, [isBookmarked])
 
-  const handleVisit = (e: React.MouseEvent) => {
+  const handleVisit = async (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
     
@@ -144,6 +144,51 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
       return
     }
 
+    console.log('🚀 Attempting PPC click for product:', id)
+
+    // Nejdříve zkusíme placený klik (pokud má produkt aktivní kampaň)
+    try {
+      const ppcResponse = await fetch('/api/ads/click', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ productId: id })
+      })
+
+      if (ppcResponse.ok) {
+        const ppcResult = await ppcResponse.json()
+        console.log('💰 PPC click successful:', ppcResult)
+        
+        // Logujeme upozornění o budgetu do konzole (bez toast notifikace)
+        if (ppcResult.budgetWarning) {
+          const warning = ppcResult.budgetWarning
+          console.log('⚠️ Budget warning:', warning)
+        }
+        
+        // Record in click history too
+        if (typeof window !== 'undefined' && window.addToClickHistory) {
+          window.addToClickHistory({
+            id,
+            name,
+            category: (tags && tags.length > 0) ? tags[0] : undefined,
+            imageUrl,
+            price,
+            externalUrl
+          })
+        }
+
+        // Přesměrujeme na external URL
+        window.open(externalUrl, '_blank', 'noopener,noreferrer')
+        return
+      } else {
+        console.log('⚠️ PPC click failed, falling back to free tracking:', ppcResponse.status)
+      }
+    } catch (error) {
+      console.log('⚠️ PPC click error, falling back to free tracking:', error)
+    }
+
+    // Fallback na původní logiku (bezplatný tracking)
     // Optimistic update pro click history
     if (typeof window !== 'undefined' && window.addToClickHistory) {
       window.addToClickHistory({
@@ -156,10 +201,9 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
       })
     }
 
-    console.log('🚀 Přímé přesměrování přes tracking endpoint na:', externalUrl)
+    console.log('🚀 Free redirect via tracking endpoint to:', externalUrl)
     
-    // Místo async fetch + window.open (které prohlížeče blokují),
-    // přesměrujeme přímo na náš GET endpoint který udělá tracking a redirect
+    // Původní redirect API pro bezplatné tracking
     const trackingUrl = `/api/redirect?productId=${encodeURIComponent(id)}&externalUrl=${encodeURIComponent(externalUrl)}`
     
     // Toto prohlížeče NEblokují - je to přímé uživatelské kliknutí

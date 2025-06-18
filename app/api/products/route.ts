@@ -178,22 +178,44 @@ export async function GET(request: NextRequest) {
         where: whereClause
       });
       
-      // Get paginated products (with filter) - random order for homepage, only active products
+      // NEW ALGORITHM: Get products sorted by company credit balance AND active campaign
+      // Only products with credit + active campaign get priority, others are random
       const rawProducts = await prisma.$queryRaw`
-        SELECT * FROM "Product" 
-        WHERE "isActive" = true
-        ${categoryParam ? Prisma.sql`AND "category" = ${categoryParam}` : Prisma.empty}
-        ORDER BY RANDOM()
+        SELECT 
+          p.*,
+          COALESCE(c."balance", 0) as company_balance,
+          c."id" as company_id,
+          c."name" as company_name,
+          CASE 
+            WHEN c."balance" > 0 AND EXISTS (
+              SELECT 1 FROM "Campaign" camp 
+              WHERE camp."productId" = p."id"::text
+              AND camp."companyId" = c."id" 
+              AND camp."status" = 'active' 
+              AND camp."isApproved" = true
+            ) THEN c."balance"
+            ELSE 0
+          END as effective_balance
+        FROM "Product" p
+        LEFT JOIN "Company" c ON p."changesSubmittedBy" = c."id"
+        WHERE p."isActive" = true
+        ${categoryParam ? Prisma.sql`AND p."category" = ${categoryParam}` : Prisma.empty}
+        ORDER BY 
+          effective_balance DESC,  -- Nejvyšší kredit + aktivní kampaň první
+          RANDOM()                 -- Náhodně v rámci stejného kreditu/bez kreditu
         LIMIT ${validPageSize}
         OFFSET ${skip}
-      ` as Product[];
+      ` as (Product & { company_balance: number; company_id: string | null; company_name: string | null; effective_balance: number })[];
       
       // Clean products and enhance with screenshots before sending
-      const products = rawProducts.map(product => enhanceProductWithScreenshot(cleanProduct(product)));
+      const products = rawProducts.map(product => {
+        const cleanedProduct = enhanceProductWithScreenshot(cleanProduct(product));
+        return cleanedProduct;
+      });
       
       const totalPages = Math.ceil(totalProducts / validPageSize);
       
-      console.log(`API: Successfully loaded ${products.length} products (page ${validPage}, pageSize ${validPageSize}, total ${totalProducts})`);
+      console.log(`API: Successfully loaded ${products.length} products (page ${validPage}, pageSize ${validPageSize}, total ${totalProducts}) - SORTED BY CREDIT + ACTIVE CAMPAIGNS`);
       
       // Cache systém byl odstraněn - již se neukládá do cache
       

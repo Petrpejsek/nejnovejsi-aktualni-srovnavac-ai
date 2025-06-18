@@ -10,6 +10,7 @@ import {
   ClockIcon,
   CheckCircleIcon,
   XCircleIcon,
+  XMarkIcon,
   ExclamationTriangleIcon,
   BanknotesIcon,
   GiftIcon,
@@ -74,17 +75,24 @@ interface PromotionalOffer {
   minimumSpend?: number
 }
 
+interface Campaign {
+  id: string
+  name: string
+  dailyBudget: number
+  todaySpent: number
+  status: string
+}
+
 type SpendPeriod = 'today' | 'week' | 'month'
 
 export default function BillingPage() {
   const [selectedPeriod, setSelectedPeriod] = useState<'7d' | '30d' | '90d' | '1y'>('30d')
   const [spendPeriod, setSpendPeriod] = useState<SpendPeriod>('today')
   const [billingData, setBillingData] = useState<BillingData | null>(null)
+  const [campaigns, setCampaigns] = useState<Campaign[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [showDailyLimitModal, setShowDailyLimitModal] = useState(false)
-  const [newDailyLimit, setNewDailyLimit] = useState<number>(0)
-  const [noLimitSelected, setNoLimitSelected] = useState(false)
+
   const [showAutoRechargeModal, setShowAutoRechargeModal] = useState(false)
   const [autoRechargeSettings, setAutoRechargeSettings] = useState({
     enabled: false,
@@ -103,12 +111,17 @@ export default function BillingPage() {
     active: boolean
   }>>([])
   const [customPaymentEnabled, setCustomPaymentEnabled] = useState(true)
+  const [showPaymentModal, setShowPaymentModal] = useState(false)
+  const [paymentProcessing, setPaymentProcessing] = useState(false)
+  const [paymentSuccess, setPaymentSuccess] = useState(false)
 
   // Načtení promocních balíčků s targeting
   const fetchPromotionalOffers = async () => {
     try {
       // Používáme nový endpoint s target status logikou
-      const response = await fetch('/api/promotional-packages')
+      const response = await fetch('/api/promotional-packages', {
+      credentials: 'include'
+    })
       if (response.ok) {
         const data = await response.json()
         setPromotionalOffers(data.packages || [])
@@ -157,13 +170,16 @@ export default function BillingPage() {
 
   useEffect(() => {
     fetchBillingData()
+    fetchCampaigns()
     fetchPromotionalOffers()
     fetchCustomPaymentSettings()
   }, [])
 
   const fetchCustomPaymentSettings = async () => {
     try {
-      const response = await fetch('/api/admin/custom-payment-settings')
+      const response = await fetch('/api/admin/custom-payment-settings', {
+      credentials: 'include'
+    })
       if (response.ok) {
         const data = await response.json()
         if (data.success && data.settings) {
@@ -209,12 +225,6 @@ export default function BillingPage() {
   }
 
   useEffect(() => {
-    // Dočasně vypnuto kvůli missing dailySpendLimit v databázi
-    /*
-    if (billingData?.company.dailySpendLimit) {
-      setNewDailyLimit(billingData.company.dailySpendLimit)
-    }
-    */
     if (billingData?.company) {
       setAutoRechargeSettings({
         enabled: billingData.company.autoRecharge,
@@ -227,7 +237,9 @@ export default function BillingPage() {
   const fetchBillingData = async () => {
     try {
       setLoading(true)
-      const response = await fetch('/api/advertiser/billing')
+      const response = await fetch('/api/advertiser/billing', {
+        credentials: 'include'
+      })
       const result = await response.json()
 
       if (response.ok && result.success) {
@@ -243,39 +255,26 @@ export default function BillingPage() {
     }
   }
 
-  const handleDailyLimitUpdate = async () => {
+  const fetchCampaigns = async () => {
     try {
-      if (!noLimitSelected && newDailyLimit < 10) {
-        alert('Minimum daily limit is $10')
-        return
-      }
-
-      const response = await fetch('/api/advertiser/billing', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          action: 'update-daily-limit',
-          dailyLimit: noLimitSelected ? null : newDailyLimit
-        })
+      const response = await fetch('/api/advertiser/campaigns', {
+        credentials: 'include'
       })
-
       const result = await response.json()
 
       if (response.ok && result.success) {
-        await fetchBillingData()
-        setShowDailyLimitModal(false)
-        setNoLimitSelected(false)
-        alert(result.message || 'Daily spend limit updated successfully!')
+        // Filtrovat pouze aktivní kampaně
+        const activeCampaigns = result.data.filter((campaign: Campaign) => campaign.status === 'active')
+        setCampaigns(activeCampaigns)
       } else {
-        alert(`Error: ${result.error || 'Failed to update daily limit'}`)
+        console.error('Failed to fetch campaigns:', result.error)
       }
-    } catch (error) {
-      console.error('Daily limit update error:', error)
-      alert('Network error occurred. Please try again.')
+    } catch (err) {
+      console.error('Campaigns fetch error:', err)
     }
   }
+
+
 
   const handleAutoRechargeUpdate = async () => {
     try {
@@ -295,6 +294,7 @@ export default function BillingPage() {
         headers: {
           'Content-Type': 'application/json'
         },
+        credentials: 'include',
         body: JSON.stringify({
           action: 'auto-recharge',
           autoRecharge: autoRechargeSettings.enabled,
@@ -320,7 +320,9 @@ export default function BillingPage() {
 
   const downloadInvoice = async (invoice: Invoice) => {
     try {
-      const response = await fetch(`/api/advertiser/billing/invoice/${invoice.id}`)
+      const response = await fetch(`/api/advertiser/billing/invoice/${invoice.id}`, {
+        credentials: 'include'
+      })
       if (response.ok) {
         const blob = await response.blob()
         const url = window.URL.createObjectURL(blob)
@@ -405,6 +407,7 @@ export default function BillingPage() {
         headers: {
           'Content-Type': 'application/json'
         },
+        credentials: 'include',
         body: JSON.stringify({
           action: 'add-funds',
           offerId: offer.id,
@@ -439,13 +442,14 @@ export default function BillingPage() {
 
     try {
       // Zavolá API endpoint pro validaci kupónu
-      const response = await fetch('/api/validate-coupon', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ code })
-      })
+          const response = await fetch('/api/validate-coupon', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      credentials: 'include',
+      body: JSON.stringify({ code })
+    })
 
       const result = await response.json()
       
@@ -480,60 +484,60 @@ export default function BillingPage() {
       alert('Minimum amount is $10')
       return
     }
+    setShowPaymentModal(true)
+  }
 
-    const finalAmount = calculateDiscountedAmount()
-    const discount = customAmount - finalAmount
-
+  const handleMockPayment = async () => {
+    setPaymentProcessing(true)
+    setPaymentSuccess(false)
+    
     try {
-      setLoading(true)
+      // Simulate payment processing delay
+      await new Promise(resolve => setTimeout(resolve, 2000))
       
-      const confirmed = confirm(
-        `Account top-up with coupon code\n\n` +
-        `Original amount: $${customAmount}\n` +
-        (discount > 0 ? `Discount: $${discount}\n` : '') +
-        `Final amount: $${finalAmount}\n\n` +
-        `Continue with payment?`
-      )
+      // Simulate payment with final amount
+      const finalAmount = calculateDiscountedAmount()
+      const discount = customAmount - finalAmount
       
-      if (!confirmed) {
-        setLoading(false)
-        return
-      }
-
       const response = await fetch('/api/advertiser/billing', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
-          action: 'add-funds-with-coupon',
+          action: 'add-mock-funds',
           amount: finalAmount,
-          couponCode: couponCode || null,
           originalAmount: customAmount,
-          discount: discount
+          discount: discount,
+          couponCode: couponCode || null,
+          cardLastFour: '4242',
+          paymentMethod: 'test-card',
+          companyId: billingData?.company.id
         })
       })
-
+      
       const result = await response.json()
-
-      if (response.ok && result.success) {
-        const message = discount > 0 
-          ? `Successfully added $${finalAmount} to your account!\n\nOriginal: $${customAmount}\nDiscount: $${discount}\nNew balance: $${result.data.newBalance.toFixed(2)}`
-          : `Successfully added $${finalAmount} to your account!\n\nNew balance: $${result.data.newBalance.toFixed(2)}`
-        
-        alert(message)
-        await fetchBillingData()
-        setCouponCode('')
-        setCouponDiscount(null)
-        setCustomAmount(100)
+      
+      if (result.success) {
+        setPaymentSuccess(true)
+        // Refresh billing data after short delay
+        setTimeout(() => {
+          fetchBillingData()
+          setShowPaymentModal(false)
+          setPaymentSuccess(false)
+          setCustomAmount(100)
+          setCouponCode('')
+          setCouponDiscount(null)
+        }, 1500)
       } else {
-        alert(`Error: ${result.error || 'Payment failed'}`)
+        throw new Error(result.error || 'Payment failed')
       }
+      
     } catch (error) {
       console.error('Payment error:', error)
-      alert('Error processing payment')
+      alert('Payment failed. Please try again.')
+      setShowPaymentModal(false)
     } finally {
-      setLoading(false)
+      setPaymentProcessing(false)
     }
   }
 
@@ -573,19 +577,26 @@ export default function BillingPage() {
     return billingData?.periodSpend?.[spendPeriod] || 0
   }
 
+  const getOverallCampaignBudget = () => {
+    return campaigns.reduce((total, campaign) => total + campaign.dailyBudget, 0)
+  }
+
+  const getOverallTodaySpent = () => {
+    return campaigns.reduce((total, campaign) => total + campaign.todaySpent, 0)
+  }
+
   const getDailySpendStatus = () => {
-    // Dočasně vrácíme null, protože dailySpendLimit není v databázi
-    return null
+    const totalBudget = getOverallCampaignBudget()
+    const totalSpent = getOverallTodaySpent()
     
-    /* Původní kód pro později:
-    if (!billingData?.company?.dailySpendLimit) return null
+    if (campaigns.length === 0) return { status: 'no-campaigns', percentage: 0 }
+    if (totalBudget === 0) return { status: 'no-budget', percentage: 0 }
     
-    const percentage = (billingData.company.currentDailySpend / billingData.company.dailySpendLimit) * 100
+    const percentage = (totalSpent / totalBudget) * 100
     
-    if (percentage >= 90) return 'danger'
-    if (percentage >= 70) return 'warning'
-    return 'safe'
-    */
+    if (percentage >= 90) return { status: 'critical', percentage }
+    if (percentage >= 75) return { status: 'warning', percentage }
+    return { status: 'normal', percentage }
   }
 
   // Loading state
@@ -651,7 +662,7 @@ export default function BillingPage() {
           </p>
         </div>
         <button 
-          onClick={() => handleOfferSelect(promotionalOffers[0])}
+          onClick={() => setShowPaymentModal(true)}
           className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 transition-all"
         >
           <PlusIcon className="h-4 w-4 mr-2" />
@@ -754,163 +765,89 @@ export default function BillingPage() {
 
       {/* Daily Spend Control */}
       <div className="bg-white shadow rounded-lg p-6">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center">
-            <ShieldCheckIcon className="h-5 w-5 text-blue-600 mr-2" />
-            <h3 className="text-lg font-medium text-gray-900">Daily Spend Control</h3>
-          </div>
-          <button
-            onClick={() => {
-              // Inicializace stavu podle aktuálního daily limitu
-              if (billingData.company.dailySpendLimit) {
-                setNewDailyLimit(billingData.company.dailySpendLimit)
-                setNoLimitSelected(false)
-              } else {
-                setNewDailyLimit(100)
-                setNoLimitSelected(true)
-              }
-              setShowDailyLimitModal(true)
-            }}
-            className="text-sm text-blue-600 hover:text-blue-800 flex items-center"
-          >
-            <Cog6ToothIcon className="h-4 w-4 mr-1" />
-            Configure
-          </button>
+        <div className="flex items-center mb-4">
+          <ShieldCheckIcon className="h-5 w-5 text-blue-600 mr-2" />
+          <h3 className="text-lg font-medium text-gray-900">Daily Spend Control</h3>
         </div>
         
-        {/* Today's Spending Display */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-900">Today's Spending</p>
-              <p className="text-2xl font-bold text-gray-900">${billingData.company.currentDailySpend.toFixed(2)}</p>
-            </div>
-            <div className="text-right">
-              <p className="text-sm text-gray-500">Daily Budget</p>
-              <p className="text-lg font-semibold text-gray-900">
-                {billingData.company.dailySpendLimit ? 
-                  `$${billingData.company.dailySpendLimit.toFixed(2)}` : 
-                  'Unlimited'
-                }
-              </p>
-            </div>
+        {campaigns.length === 0 ? (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <p className="text-sm text-blue-800">
+              <strong>No active campaigns</strong> found. Create campaigns to set daily budgets and start advertising.
+            </p>
           </div>
+        ) : (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-900">Today's Spending</p>
+                <p className="text-2xl font-bold text-gray-900">${getOverallTodaySpent().toFixed(2)}</p>
+              </div>
+              <div className="text-right">
+                <p className="text-sm text-gray-500">Daily Budget</p>
+                <p className="text-lg font-semibold text-gray-900">
+                  ${getOverallCampaignBudget().toFixed(2)}
+                </p>
+              </div>
+            </div>
 
-          {billingData.company.dailySpendLimit ? (
-            <div className="space-y-2">
-              <div className="flex justify-between text-xs text-gray-500">
-                <span>Progress</span>
-                <span>{Math.round((billingData.company.currentDailySpend / billingData.company.dailySpendLimit) * 100)}%</span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-3">
-                <div 
-                  className={`h-3 rounded-full transition-all ${
-                    getDailySpendStatus() === 'danger' ? 'bg-red-500' :
-                    getDailySpendStatus() === 'warning' ? 'bg-yellow-500' : 'bg-green-500'
-                  }`}
-                  style={{ 
-                    width: `${Math.min(100, (billingData.company.currentDailySpend / billingData.company.dailySpendLimit) * 100)}%` 
-                  }}
-                ></div>
-              </div>
-              <div className="flex justify-between text-xs">
-                <span className="text-gray-500">$0</span>
-                <span className="text-gray-500">${billingData.company.dailySpendLimit.toFixed(0)}</span>
-              </div>
-              {getDailySpendStatus() === 'danger' && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-2 mt-3">
-                  <p className="text-xs text-red-700 flex items-center">
-                    <ExclamationTriangleIcon className="h-4 w-4 mr-1" />
-                    Warning: You're approaching your daily spend limit (90%+)
-                  </p>
+            {getOverallCampaignBudget() > 0 && (
+              <div className="space-y-2">
+                <div className="flex justify-between text-xs text-gray-500">
+                  <span>Progress</span>
+                  <span>{getDailySpendStatus().percentage.toFixed(0)}%</span>
                 </div>
-              )}
-              {getDailySpendStatus() === 'warning' && (
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-2 mt-3">
-                  <p className="text-xs text-yellow-700 flex items-center">
-                    <ExclamationTriangleIcon className="h-4 w-4 mr-1" />
-                    Notice: You've used 70%+ of your daily budget
-                  </p>
+                <div className="w-full bg-gray-200 rounded-full h-3">
+                  <div 
+                    className={`h-3 rounded-full transition-all ${
+                      getDailySpendStatus().status === 'critical' ? 'bg-red-500' :
+                      getDailySpendStatus().status === 'warning' ? 'bg-yellow-500' : 'bg-green-500'
+                    }`}
+                    style={{ 
+                      width: `${Math.min(100, getDailySpendStatus().percentage)}%` 
+                    }}
+                  ></div>
                 </div>
-              )}
-            </div>
-          ) : (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-              <p className="text-sm text-blue-800">
-                <strong>No daily limit set.</strong> Consider setting a spending limit for better budget control and campaign optimization.
-              </p>
-              <div className="mt-2 flex items-center text-xs text-blue-600">
-                <ShieldCheckIcon className="h-4 w-4 mr-1" />
-                Recommended: Set daily budget based on your monthly advertising goals
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Daily Limit Modal */}
-      {showDailyLimitModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Set Daily Spend Limit</h3>
-            
-            {/* No Limit Option */}
-            <div className="mb-4">
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="noLimit"
-                  checked={noLimitSelected}
-                  onChange={(e) => {
-                    setNoLimitSelected(e.target.checked)
-                    if (e.target.checked) {
-                      setNewDailyLimit(0)
-                    }
-                  }}
-                  className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                />
-                <label htmlFor="noLimit" className="ml-2 text-sm font-medium text-gray-700">
-                  No limit (unlimited spending)
-                </label>
-              </div>
-              <p className="text-xs text-gray-500 mt-1">Check this to remove daily spending limits</p>
-            </div>
-
-            {/* Daily Limit Input */}
-            {!noLimitSelected && (
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Daily Limit (USD)
-                </label>
-                <input
-                  type="number"
-                  min="10"
-                  step="10"
-                  value={newDailyLimit}
-                  onChange={(e) => setNewDailyLimit(Number(e.target.value))}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2"
-                  placeholder="e.g., 100"
-                />
-                <p className="text-xs text-gray-500 mt-1">Minimum: $10</p>
+                <div className="flex justify-between text-xs">
+                  <span className="text-gray-500">$0</span>
+                  <span className="text-gray-500">${getOverallCampaignBudget().toFixed(0)}</span>
+                </div>
+                
+                {/* Info about budget source */}
+                <div className="mt-2 text-xs text-gray-500">
+                  Combined daily budget from all active campaigns. To modify budgets, go to{' '}
+                  <a 
+                    href="/company-admin/campaigns" 
+                    className="text-blue-600 hover:text-blue-800 underline"
+                  >
+                    Campaigns
+                  </a>
+                  .
+                </div>
+                
+                {getDailySpendStatus().status === 'critical' && (
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-2 mt-3">
+                    <p className="text-xs text-red-700 flex items-center">
+                      <ExclamationTriangleIcon className="h-4 w-4 mr-1" />
+                      Warning: You're approaching your daily budget limit (90%+)
+                    </p>
+                  </div>
+                )}
+                {getDailySpendStatus().status === 'warning' && (
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-2 mt-3">
+                    <p className="text-xs text-yellow-700 flex items-center">
+                      <ExclamationTriangleIcon className="h-4 w-4 mr-1" />
+                      Notice: You've used 75%+ of your daily budget
+                    </p>
+                  </div>
+                )}
               </div>
             )}
-            <div className="flex justify-end space-x-3">
-              <button
-                onClick={() => setShowDailyLimitModal(false)}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleDailyLimitUpdate}
-                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
-              >
-                {noLimitSelected ? 'Remove Limit' : 'Save Limit'}
-              </button>
-            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
+
+
 
       {/* Auto-Recharge Modal */}
       {showAutoRechargeModal && (
@@ -1260,7 +1197,7 @@ export default function BillingPage() {
               </button>
             </div>
           </div>
-        )}
+)}
 
           {/* Promotional Packages */}
           <div className="bg-white shadow rounded-lg">
@@ -1361,6 +1298,106 @@ export default function BillingPage() {
           )}
         </div>
       </div>
+
+      {/* Mock Payment Modal */}
+      {showPaymentModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">Test Payment</h3>
+                <button 
+                  onClick={() => setShowPaymentModal(false)}
+                  disabled={paymentProcessing}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <XMarkIcon className="h-6 w-6" />
+                </button>
+              </div>
+
+              {paymentSuccess ? (
+                <div className="text-center py-6">
+                  <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
+                    <CheckCircleIcon className="h-6 w-6 text-green-600" />
+                  </div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">Payment Successful!</h3>
+                  <p className="text-sm text-gray-600">
+                    ${calculateDiscountedAmount().toFixed(2)} has been added to your account
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <div className="space-y-4">
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                      <h4 className="text-sm font-medium text-blue-900 mb-2">Test Credit Card</h4>
+                      <div className="space-y-2 text-sm text-blue-800">
+                        <p><strong>Card Number:</strong> 4242 4242 4242 4242</p>
+                        <p><strong>Expiry:</strong> 12/28</p>
+                        <p><strong>CVC:</strong> 123</p>
+                        <p><strong>Name:</strong> Test User</p>
+                      </div>
+                      <div className="mt-3 text-xs text-blue-700">
+                        <p>✓ This is a test card that always succeeds</p>
+                        <p>✓ No real money will be charged</p>
+                      </div>
+                    </div>
+
+                    <div className="bg-gray-50 rounded-lg p-4">
+                      <h4 className="text-sm font-medium text-gray-900 mb-2">Payment Summary</h4>
+                      <div className="space-y-1 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Amount:</span>
+                          <span>${customAmount}</span>
+                        </div>
+                        {couponDiscount && (
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">Discount:</span>
+                            <span className="text-green-600">
+                              -${(customAmount - calculateDiscountedAmount()).toFixed(2)}
+                            </span>
+                          </div>
+                        )}
+                        <hr className="border-gray-200" />
+                        <div className="flex justify-between font-semibold">
+                          <span>Total:</span>
+                          <span>${calculateDiscountedAmount().toFixed(2)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex space-x-3 mt-6">
+                    <button
+                      onClick={() => setShowPaymentModal(false)}
+                      disabled={paymentProcessing}
+                      className="flex-1 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleMockPayment}
+                      disabled={paymentProcessing}
+                      className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center"
+                    >
+                      {paymentProcessing ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                          Processing...
+                        </>
+                      ) : (
+                        <>
+                          <CreditCardIcon className="h-4 w-4 mr-2" />
+                          Pay Now
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 } 

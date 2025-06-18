@@ -9,14 +9,19 @@ const prisma = new PrismaClient()
 function verifyToken(request: NextRequest) {
   const token = request.cookies.get('advertiser-token')?.value
   
+  console.log('🔐 [Campaigns] Token verification:', { hasToken: !!token, tokenStart: token?.substring(0, 20) })
+  
   if (!token) {
+    console.log('❌ [Campaigns] No token found')
     return null
   }
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret') as any
+    console.log('✅ [Campaigns] Token verified:', { companyId: decoded.companyId })
     return decoded
   } catch (error) {
+    console.log('❌ [Campaigns] Token verification failed:', error)
     return null
   }
 }
@@ -157,7 +162,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Vytvořit kampaň
+    // Vytvořit kampaň - HNED AKTIVNÍ BEZ SCHVALOVÁNÍ
     const newCampaign = await prisma.campaign.create({
       data: {
         id: uuidv4(),
@@ -168,18 +173,18 @@ export async function POST(request: NextRequest) {
         bidAmount: parseFloat(data.bidAmount),
         dailyBudget: parseFloat(data.dailyBudget),
         totalBudget: parseFloat(data.totalBudget),
-        status: 'pending',
-        isApproved: false,
+        status: 'active',
+        isApproved: true,
         startDate: new Date(),
         updatedAt: new Date()
       }
     })
 
-    console.log(`🎯 New campaign created: ${newCampaign.id} for company ${user.companyId}`)
+    console.log(`🚀 New campaign ACTIVE: ${newCampaign.id} for company ${user.companyId}`)
 
     return NextResponse.json({
       success: true,
-      message: 'Campaign created successfully! It will be reviewed by our team before going live.',
+      message: 'Campaign created and activated successfully! Your ads are now live.',
       data: {
         id: newCampaign.id,
         name: newCampaign.name,

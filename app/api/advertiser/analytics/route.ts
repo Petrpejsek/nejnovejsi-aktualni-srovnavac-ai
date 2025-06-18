@@ -37,52 +37,34 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url)
-    const campaignId = searchParams.get('campaignId')
-    const period = searchParams.get('period') || '7days' // 1day, 7days, 30days, all
+    const period = searchParams.get('period') || '30d' // 7d, 30d, 90d
 
-    // Načtení základních informací o kampani
-    let campaigns
-    if (campaignId) {
-      campaigns = await prisma.campaign.findMany({
-        where: { 
-          id: campaignId,
-          companyId: user.companyId 
-        }
-      })
-    } else {
-      campaigns = await prisma.campaign.findMany({
-        where: { companyId: user.companyId }
-      })
-    }
-
-    if (campaigns.length === 0) {
-      return NextResponse.json(
-        { success: false, error: 'No campaigns found' },
-        { status: 404 }
-      )
-    }
+    // Načtení kampaní firmy
+    const campaigns = await prisma.campaign.findMany({
+      where: { companyId: user.companyId }
+    })
 
     const campaignIds = campaigns.map(c => c.id)
 
     // Výpočet dat pro období
-    let startDate = new Date()
+    let days = 30
     switch (period) {
-      case '1day':
-        startDate.setDate(startDate.getDate() - 1)
+      case '7d':
+        days = 7
         break
-      case '7days':
-        startDate.setDate(startDate.getDate() - 7)
+      case '30d':
+        days = 30
         break
-      case '30days':
-        startDate.setDate(startDate.getDate() - 30)
-        break
-      case 'all':
-        startDate = new Date('2020-01-01') // Velmi staré datum
+      case '90d':
+        days = 90
         break
     }
 
+    const startDate = new Date()
+    startDate.setDate(startDate.getDate() - days)
+
     // Aggregate statistiky pro období
-    const [clickStats, impressionStats, spendStats] = await Promise.all([
+    const [clickStats, impressionStats] = await Promise.all([
       // Clicks
       prisma.adClick.aggregate({
         where: {
@@ -101,17 +83,6 @@ export async function GET(request: NextRequest) {
           displayedAt: { gte: startDate }
         },
         _count: { id: true }
-      }),
-      
-      // Spend per day (pro graf)
-      prisma.billingRecord.groupBy({
-        by: ['createdAt'],
-        where: {
-          companyId: user.companyId,
-          type: 'spend',
-          createdAt: { gte: startDate }
-        },
-        _sum: { amount: true }
       })
     ])
 
@@ -134,6 +105,18 @@ export async function GET(request: NextRequest) {
         displayedAt: { gte: startDate }
       },
       _count: { id: true }
+    })
+
+    // Spend per day z billing records
+    const spendPerDay = await prisma.billingRecord.groupBy({
+      by: ['createdAt'],
+      where: {
+        companyId: user.companyId,
+        type: 'charge',
+        amount: { lt: 0 }, // Negative amounts are charges
+        createdAt: { gte: startDate }
+      },
+      _sum: { amount: true }
     })
 
     // Performance by campaign
@@ -183,36 +166,43 @@ export async function GET(request: NextRequest) {
     // Aggregate totals
     const totalClicks = clickStats._count.id || 0
     const totalImpressions = impressionStats._count.id || 0
-    const totalSpend = clickStats._sum.costPerClick || 0
-    const totalCtr = totalImpressions > 0 ? (totalClicks / totalImpressions) * 100 : 0
-    const avgCpc = totalClicks > 0 ? totalSpend / totalClicks : 0
+    const totalSpend = Math.abs(clickStats._sum.costPerClick || 0)
+    const averageCTR = totalImpressions > 0 ? (totalClicks / totalImpressions) * 100 : 0
+    const averageCPC = totalClicks > 0 ? totalSpend / totalClicks : 0
+    const activeCampaigns = campaigns.filter(c => c.status === 'active' && c.isApproved).length
+
+    // Transform chart data to expected format
+    const transformedClicksPerDay = clicksPerDay.map(item => ({
+      date: item.clickedAt.toISOString().split('T')[0],
+      clicks: item._count.id
+    }))
+
+    const transformedImpressionsPerDay = impressionsPerDay.map(item => ({
+      date: item.displayedAt.toISOString().split('T')[0],
+      impressions: item._count.id
+    }))
+
+    const transformedSpendPerDay = spendPerDay.map(item => ({
+      date: item.createdAt.toISOString().split('T')[0],
+      spend: Math.abs(item._sum.amount || 0)
+    }))
 
     return NextResponse.json({
       success: true,
       data: {
-        period,
         summary: {
-          totalImpressions,
+          totalSpend,
           totalClicks,
-          totalSpend: Math.round(totalSpend * 100) / 100,
-          ctr: Math.round(totalCtr * 100) / 100,
-          avgCpc: Math.round(avgCpc * 100) / 100,
-          campaigns: campaigns.length
+          totalImpressions,
+          averageCPC,
+          averageCTR,
+          activeCampaigns
         },
-        campaigns: campaignPerformance,
-        charts: {
-          dailySpend: spendStats.map(item => ({
-            date: item.createdAt.toISOString().split('T')[0],
-            amount: item._sum.amount || 0
-          })),
-          dailyClicks: clicksPerDay.map(item => ({
-            date: item.clickedAt.toISOString().split('T')[0],
-            count: item._count.id
-          })),
-          dailyImpressions: impressionsPerDay.map(item => ({
-            date: item.displayedAt.toISOString().split('T')[0],
-            count: item._count.id
-          }))
+        campaignPerformance,
+        chartData: {
+          clicksPerDay: transformedClicksPerDay,
+          impressionsPerDay: transformedImpressionsPerDay,
+          spendPerDay: transformedSpendPerDay
         }
       }
     })
