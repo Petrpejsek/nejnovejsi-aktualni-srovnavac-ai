@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import TagFilter from '../../components/TagFilter'
 import CompareBar from '../../components/CompareBar'
+import { openInNewTab } from '../../lib/utils'
 
 // Constants for enabling/disabling features 
 const COMPARE_FEATURE_ENABLED = false;
@@ -400,7 +401,8 @@ function RecommendationsPageContent() {
     }
 
     try {
-      window.open(url, '_blank', 'noopener,noreferrer')
+      // Použijeme utility funkci pro otevření v novém okně
+      openInNewTab(url)
     } catch (error) {
       console.error('Error opening URL:', error)
     }

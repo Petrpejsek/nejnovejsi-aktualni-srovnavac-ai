@@ -136,7 +136,7 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
     setLocalBookmarked(isBookmarked || false)
   }, [isBookmarked])
 
-  const handleVisit = async (e: React.MouseEvent) => {
+  const handleVisit = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
     
@@ -145,52 +145,12 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
       return
     }
 
-    console.log('🚀 Attempting PPC click for product:', id)
+    console.log('🚀 Opening product:', id)
 
-    // Nejdříve zkusíme placený klik (pokud má produkt aktivní kampaň)
-    try {
-      const ppcResponse = await fetch('/api/ads/click', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ productId: id })
-      })
+    // OKAMŽITĚ otevřeme nové okno - bez čekání na API
+    openInNewTab(externalUrl)
 
-      if (ppcResponse.ok) {
-        const ppcResult = await ppcResponse.json()
-        console.log('💰 PPC click successful:', ppcResult)
-        
-        // Logujeme upozornění o budgetu do konzole (bez toast notifikace)
-        if (ppcResult.budgetWarning) {
-          const warning = ppcResult.budgetWarning
-          console.log('⚠️ Budget warning:', warning)
-        }
-        
-        // Record in click history too
-        if (typeof window !== 'undefined' && window.addToClickHistory) {
-          window.addToClickHistory({
-            id,
-            name,
-            category: (tags && tags.length > 0) ? tags[0] : undefined,
-            imageUrl,
-            price,
-            externalUrl
-          })
-        }
-
-        // Přesměrujeme na external URL - bez blokování popupu
-        openInNewTab(externalUrl)
-        return
-      } else {
-        console.log('⚠️ PPC click failed, falling back to free tracking:', ppcResponse.status)
-      }
-    } catch (error) {
-      console.log('⚠️ PPC click error, falling back to free tracking:', error)
-    }
-
-    // Fallback na původní logiku (bezplatný tracking)
-    // Optimistic update pro click history
+    // Optimistic update pro click history - okamžitě
     if (typeof window !== 'undefined' && window.addToClickHistory) {
       window.addToClickHistory({
         id,
@@ -202,13 +162,37 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
       })
     }
 
-    console.log('🚀 Free redirect via tracking endpoint to:', externalUrl)
-    
-    // Původní redirect API pro bezplatné tracking
-    const trackingUrl = `/api/redirect?productId=${encodeURIComponent(id)}&externalUrl=${encodeURIComponent(externalUrl)}`
-    
-    // Použijeme utility funkci pro otevření v novém okně
-    openInNewTab(trackingUrl)
+    // Tracking na pozadí - bez čekání (fire-and-forget)
+    // Nejdříve zkusíme placený klik (PPC)
+    fetch('/api/ads/click', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ productId: id })
+    }).then(async ppcResponse => {
+      if (ppcResponse.ok) {
+        const ppcResult = await ppcResponse.json()
+        console.log('💰 PPC click successful (background):', ppcResult)
+        
+        // Logujeme upozornění o budgetu do konzole
+        if (ppcResult.budgetWarning) {
+          const warning = ppcResult.budgetWarning
+          console.log('⚠️ Budget warning:', warning)
+        }
+      } else {
+        console.log('⚠️ PPC click failed, logging free tracking (background):', ppcResponse.status)
+        
+        // Fallback na bezplatný tracking
+        return fetch(`/api/redirect?productId=${encodeURIComponent(id)}&externalUrl=${encodeURIComponent(externalUrl)}`)
+      }
+    }).catch(error => {
+      console.log('⚠️ PPC click error, logging free tracking (background):', error)
+      
+      // Fallback na bezplatný tracking při chybě
+      fetch(`/api/redirect?productId=${encodeURIComponent(id)}&externalUrl=${encodeURIComponent(externalUrl)}`)
+        .catch(fallbackError => console.log('⚠️ Fallback tracking also failed:', fallbackError))
+    })
   }
 
   const handleClick = async (productId: string) => {
