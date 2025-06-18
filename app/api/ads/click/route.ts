@@ -64,8 +64,28 @@ export async function POST(request: NextRequest) {
     // 2. Check company credit
     const company = activeCampaign.Company
     if (company.balance < activeCampaign.bidAmount) {
-      console.log('💸 Insufficient balance:', { balance: company.balance, cpc: activeCampaign.bidAmount })
-      return NextResponse.json({ error: 'Insufficient company balance' }, { status: 402 })
+      console.log('💸 Insufficient balance - PAUSING CAMPAIGN:', { 
+        balance: company.balance, 
+        cpc: activeCampaign.bidAmount,
+        campaignId: activeCampaign.id,
+        campaignName: activeCampaign.name
+      })
+      
+      // AUTOMATICKY PAUZUJEME KAMPAŇ když dojde kredit
+      await prisma.campaign.update({
+        where: { id: activeCampaign.id },
+        data: { 
+          status: 'paused'
+        }
+      })
+      
+      console.log('⏸️ Campaign automatically paused due to insufficient balance:', activeCampaign.id)
+      
+      return NextResponse.json({ 
+        error: 'Insufficient company balance', 
+        campaignPaused: true,
+        campaignId: activeCampaign.id 
+      }, { status: 402 })
     }
 
     // 3. Check campaign daily budget (with 20% reserve)
