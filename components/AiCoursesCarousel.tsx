@@ -343,23 +343,7 @@ export default function AiCoursesCarousel() {
     )
   }
 
-  // Kompaktní recenze preview
-  const renderCompactReview = (review: Review) => {
-    return (
-      <div className="mb-3 p-2 bg-gray-50 rounded-lg border-l-2 border-yellow-400">
-        <div className="flex items-center gap-2 mb-1">
-          <div className="flex">{renderStars(review.rating, 'sm')}</div>
-          <span className="text-xs font-medium text-gray-900">{review.userName}</span>
-          {review.verified && (
-            <CheckBadgeIcon className="w-3 h-3 text-green-500" />
-          )}
-        </div>
-        <p className="text-xs text-gray-600 line-clamp-1 italic">
-          "{review.comment}"
-        </p>
-      </div>
-    )
-  }
+
 
   return (
     <div className="mt-16 mb-8">
@@ -480,26 +464,10 @@ export default function AiCoursesCarousel() {
                 {/* Clean rating */}
                 {renderCleanRating(course.rating, course.reviewsCount)}
 
-                {/* Course description - VRÁCENO */}
+                {/* Course description */}
                 <p className="text-gray-600 text-sm mb-3 line-clamp-2">
                   {course.description}
                 </p>
-
-                {/* Compact review for top courses - menší */}
-                {course.rating >= 4.7 && course.reviews.length > 0 && (
-                  <div className="mb-3 p-2 bg-gray-50 rounded-lg border-l-2 border-yellow-400">
-                    <div className="flex items-center gap-1 mb-1">
-                      <div className="flex">{renderStars(course.reviews[0].rating, 'sm')}</div>
-                      <span className="text-xs font-medium text-gray-900">{course.reviews[0].userName}</span>
-                      {course.reviews[0].verified && (
-                        <CheckBadgeIcon className="w-3 h-3 text-green-500" />
-                      )}
-                    </div>
-                    <p className="text-xs text-gray-600 line-clamp-1 italic">
-                      "{course.reviews[0].comment}"
-                    </p>
-                  </div>
-                )}
 
                 {/* Price and button - always at bottom */}
                 <div className="space-y-3 mt-auto pt-3 border-t border-gray-100">

@@ -32,9 +32,11 @@ export default function AiAdvisor() {
 
   // Typing animation messages
   const typingMessages = [
-    'I need an AI that helps me edit my videos faster...',
-    'Looking for a tool to generate blog posts automatically...',
-    'Which AI can help me boost my sales with smarter emails?'
+    'I need to create stunning videos for my business in minutes...',
+    'Help me write viral social media content that converts...',
+    'Find an AI that automates my customer support 24/7...',
+    'I want to generate professional presentations instantly...',
+    'Show me tools that turn my voice into any language...'
   ]
 
   // Single unified animation that can update target mid-flight
@@ -262,18 +264,19 @@ export default function AiAdvisor() {
   return (
     <div className="mb-[58px] mt-[50px]">
       <div className="text-center mb-10">
-        <h1 className="text-4xl font-semibold mb-4 text-gradient-primary">
-          Find the Perfect AI Tool
+        <h1 className="text-4xl md:text-5xl font-bold mb-4 text-gradient-primary leading-tight">
+          Stop Wasting Hours Searching.<br />
+          <span className="text-3xl md:text-4xl">Get Your Perfect AI Tool in 30 Seconds!</span>
         </h1>
-        <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-          Choose from our{' '}
-          <span className="inline-flex items-center bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text text-transparent font-semibold animate-pulse">
-            <span className="inline-block w-12 text-center font-semibold tabular-nums">
+        <p className="text-gray-700 text-xl font-medium max-w-3xl mx-auto mb-3">
+          <span className="bg-yellow-100 px-2 py-1 rounded-md font-semibold text-gray-800">⚡ NEW:</span> Our AI instantly matches you with the best tool from{' '}
+          <span className="inline-flex items-center bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text text-transparent font-bold">
+            <span className="inline-block w-12 text-center font-bold tabular-nums">
               {totalProducts}
-            </span> AI solutions
+            </span>+ verified solutions
           </span>
-          {' '}and find the best one for your needs. Just describe your project or problem and we'll help you choose.
         </p>
+
       </div>
 
       <form onSubmit={handleSubmit} className="flex flex-col items-center px-4">
@@ -292,7 +295,7 @@ export default function AiAdvisor() {
             />
             <button
               type="submit"
-              className={`px-10 py-5 text-white rounded-[38px] transition-all font-medium bg-gradient-primary hover-gradient-primary shadow-sm text-base w-full sm:w-auto ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
+              className={`px-8 py-5 text-white rounded-[38px] transition-all font-bold bg-gradient-primary hover-gradient-primary shadow-lg text-base w-full sm:w-auto transform hover:scale-105 ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
               disabled={loading}
             >
               {loading ? (
@@ -305,7 +308,11 @@ export default function AiAdvisor() {
                     {loadingMessages[loadingMessageIndex]}
                   </span>
                 </span>
-              ) : 'Advise'}
+              ) : (
+                <span className="flex items-center justify-center gap-2">
+                  🚀 Find My Tool Now
+                </span>
+              )}
             </button>
           </div>
         </div>
@@ -319,13 +326,25 @@ export default function AiAdvisor() {
           </div>
         )}
 
-        {/* Quick suggestions */}
+        {/* Social Proof & Quick suggestions */}
         {!loading && (
-          <PopularCategories
-            onCategorySelect={(category) => {
-              router.push(`/category/${encodeURIComponent(category)}`)
-            }}
-          />
+          <>
+            <div className="mt-6 text-center">
+              <p className="text-sm text-gray-500 mb-4">
+                <span className="font-medium text-gray-700">🔥 Join 50,000+ users</span> who saved time with our AI recommendations
+                <span className="mx-2">•</span>
+                <span className="text-green-600 font-medium">⭐ 4.9/5 rating</span>
+                <span className="mx-2">•</span>
+                <span className="text-blue-600 font-medium">💯 100% Free</span>
+              </p>
+            </div>
+            
+            <PopularCategories
+              onCategorySelect={(category) => {
+                router.push(`/category/${encodeURIComponent(category)}`)
+              }}
+            />
+          </>
         )}
       </form>
     </div>

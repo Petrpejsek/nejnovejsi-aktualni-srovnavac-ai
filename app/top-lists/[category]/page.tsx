@@ -225,76 +225,78 @@ export default function CategoryListPage() {
                 key={tool.rank}
                 className="bg-white rounded-lg sm:rounded-xl border border-gray-200 p-4 sm:p-6 hover:shadow-lg transition-all duration-300"
               >
-                {/* Mobilní layout - stack vertikálně */}
+                {/* Redesigned layout - better use of left space */}
                 <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
                   
-                  {/* Horní řádek na mobilu - rank, image, základní info */}
-                  <div className="flex gap-3 sm:gap-4">
-                    {/* Rank */}
-                    <div className="flex-shrink-0">
-                      <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-gradient-to-r ${category.color} text-white flex items-center justify-center font-bold text-sm sm:text-lg`}>
+                  {/* Left section - rank, image and key info */}
+                  <div className="flex flex-col sm:flex-col sm:items-center gap-3 sm:gap-4 sm:w-48 flex-shrink-0">
+                    {/* Rank badge - larger */}
+                    <div className="flex items-center justify-center sm:justify-center">
+                      <div className={`w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-r ${category.color} text-white flex items-center justify-center font-bold text-xl sm:text-2xl shadow-lg`}>
                         #{tool.rank}
                       </div>
                     </div>
 
-                    {/* Image */}
-                    <div className="flex-shrink-0">
+                    {/* Image - larger */}
+                    <div className="flex justify-center sm:justify-center">
                       <img
                         src={tool.image}
                         alt={tool.name}
-                        className="w-16 h-16 sm:w-20 sm:h-20 rounded-lg object-cover"
+                        className="w-24 h-24 sm:w-28 sm:h-28 rounded-xl object-cover shadow-md"
                       />
                     </div>
 
-                    {/* Základní info na mobilu */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 mb-1 sm:mb-2">
-                            <h3 className="text-lg sm:text-xl font-bold text-gray-900 leading-tight">{tool.name}</h3>
-                            <div className="flex items-center gap-1 sm:gap-2">
-                              {tool.badge && (
-                                <span className={`px-2 py-1 rounded-full text-xs font-bold text-white bg-gradient-to-r ${category.color}`}>
-                                  {tool.badge}
-                                </span>
-                              )}
-                              {tool.verified && (
-                                <CheckIcon className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" />
-                              )}
-                            </div>
-                          </div>
-                          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 mb-2">
-                            <div className="flex items-center gap-1">
-                              {renderStars(tool.rating)}
-                              <span className="ml-1 sm:ml-2 text-xs sm:text-sm font-medium text-gray-900">{tool.rating}</span>
-                              <span className="text-xs sm:text-sm text-gray-500">({tool.reviewsCount})</span>
-                            </div>
-                            <span className="text-xs sm:text-sm font-medium text-purple-600">{tool.pricing}</span>
-                          </div>
-                        </div>
-                        
-                        {/* Action buttons */}
-                        <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
-                          <button
-                            onClick={() => toggleFavorite(tool.rank)}
-                            className="p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 transition-colors"
-                          >
-                            {favorites.includes(tool.rank) ? (
-                              <HeartFilledIcon className="w-4 h-4 sm:w-5 sm:h-5 text-red-500" />
-                            ) : (
-                              <HeartIcon className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
-                            )}
-                          </button>
-                          <button className="p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 transition-colors">
-                            <ShareIcon className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
-                          </button>
-                        </div>
+                    {/* Quick stats in left column */}
+                    <div className="flex flex-col items-center sm:items-center text-center space-y-2">
+                      <div className="flex items-center gap-1">
+                        {renderStars(tool.rating)}
+                        <span className="ml-1 text-sm font-bold text-gray-900">{tool.rating}</span>
                       </div>
+                      <span className="text-xs text-gray-500">({tool.reviewsCount} reviews)</span>
+                      <span className="text-sm font-bold text-purple-600 bg-purple-50 px-3 py-1 rounded-full">{tool.pricing}</span>
                     </div>
                   </div>
 
-                  {/* Detailní obsah - plná šířka na mobilu */}
-                  <div className="sm:flex-1 sm:min-w-0">
+                  {/* Right section - main content */}
+                  <div className="flex-1 min-w-0">
+                    {/* Header with title and action buttons */}
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex-1">
+                        <h3 className="text-xl sm:text-2xl font-bold text-gray-900 leading-tight mb-2">{tool.name}</h3>
+                        <div className="flex items-center gap-3 mb-3">
+                          {tool.badge && (
+                            <span className={`px-3 py-1 rounded-full text-xs font-bold text-white bg-gradient-to-r ${category.color}`}>
+                              {tool.badge}
+                            </span>
+                          )}
+                          {tool.verified && (
+                            <div className="flex items-center gap-1 text-green-600">
+                              <CheckIcon className="w-4 h-4" />
+                              <span className="text-xs font-medium">Verified</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      
+                      {/* Action buttons */}
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <button
+                          onClick={() => toggleFavorite(tool.rank)}
+                          className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                        >
+                          {favorites.includes(tool.rank) ? (
+                            <HeartFilledIcon className="w-5 h-5 text-red-500" />
+                          ) : (
+                            <HeartIcon className="w-5 h-5 text-gray-400" />
+                          )}
+                        </button>
+                        <button className="p-2 rounded-lg hover:bg-gray-100 transition-colors">
+                          <ShareIcon className="w-5 h-5 text-gray-400" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Content sections */}
                     <p className="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4 leading-relaxed">
                       {tool.description}
                     </p>

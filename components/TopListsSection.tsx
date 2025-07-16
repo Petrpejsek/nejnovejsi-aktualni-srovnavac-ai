@@ -240,7 +240,7 @@ export default function TopListsSection() {
 
                 {/* Header */}
                 <div className="relative z-10 flex items-start gap-5 mb-6">
-                  <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${category.iconBg} text-white flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-all duration-300`}>
+                  <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${category.iconBg} text-white flex items-center justify-center shadow-lg`}>
                     {category.icon}
                   </div>
                   <div className="flex-1">
@@ -268,7 +268,7 @@ export default function TopListsSection() {
                   <div className="space-y-2">
                     {category.topTools.map((tool, index) => (
                       <div key={index} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors duration-200 group/item">
-                        <div className={`w-8 h-8 rounded-lg bg-gradient-to-r ${category.gradient} text-white flex items-center justify-center text-xs font-bold shadow-md group-hover/item:scale-110 transition-transform duration-200`}>
+                        <div className={`w-8 h-8 rounded-lg bg-gradient-to-r ${category.gradient} text-white flex items-center justify-center text-xs font-bold shadow-md`}>
                           {tool.position}
                         </div>
                         <div className="flex-1 min-w-0">
