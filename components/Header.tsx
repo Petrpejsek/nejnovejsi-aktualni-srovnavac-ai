@@ -149,12 +149,6 @@ export default function Header() {
                   TOP Lists
                 </Link>
                 <Link 
-                  href="/ai-kurzy" 
-                  className="text-gray-700 hover:text-gradient-primary font-medium transition-colors duration-200"
-                >
-                  AI Courses
-                </Link>
-                <Link 
                   href="/reels" 
                   className="text-gray-700 hover:text-gradient-primary font-medium transition-colors duration-200"
                 >
@@ -341,13 +335,6 @@ export default function Header() {
                   className="text-gray-700 hover:text-gradient-primary font-medium transition-colors duration-200 py-2"
                 >
                   TOP Lists
-                </Link>
-                <Link 
-                  href="/ai-kurzy"
-                  onClick={closeMobileMenu}
-                  className="text-gray-700 hover:text-gradient-primary font-medium transition-colors duration-200 py-2"
-                >
-                  AI Courses
                 </Link>
                 <Link 
                   href="/reels"

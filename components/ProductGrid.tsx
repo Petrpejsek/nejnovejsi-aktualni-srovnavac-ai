@@ -31,7 +31,7 @@ export default function ProductGrid({ selectedTags }: ProductGridProps = {}) {
   const [hasMore, setHasMore] = useState(true)
   const [totalProducts, setTotalProducts] = useState(0)
   const [savedProducts, setSavedProducts] = useState<Set<string>>(new Set())
-  const PAGE_SIZE = 6
+  const PAGE_SIZE = 12
 
   const handleBookmarkChange = (productId: string, isBookmarked: boolean) => {
     setProducts(prev => prev.map(product => 
@@ -243,7 +243,7 @@ export default function ProductGrid({ selectedTags }: ProductGridProps = {}) {
   return (
     <div className="space-y-4 md:space-y-6 pb-20">
       {/* Použití CSS Grid s align-items-stretch pro rovnoměrné výšky */}
-      <div className="grid gap-4 md:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 items-stretch">
+      <div className="grid gap-4 md:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 items-stretch">
         {filteredProducts.map((product) => (
           <ProductCard
             key={product.id}

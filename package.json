@@ -23,7 +23,8 @@
     "upload-screenshots": "node scripts/upload-screenshots.js",
     "fix-imageurl": "node --loader ts-node/esm scripts/fix-imageUrl-database.js",
     "check-screenshots": "node --loader ts-node/esm scripts/check-screenshot-status.js",
-    "fix-screenshots": "node --loader ts-node/esm scripts/fix-missing-screenshots.js"
+    "fix-screenshots": "node --loader ts-node/esm scripts/fix-missing-screenshots.js",
+    "prepare": "husky install"
   },
   "prisma": {
     "seed": "node --loader ts-node/esm prisma/seed.ts"
@@ -80,6 +81,7 @@
     "tailwindcss": "^3.4.1",
     "ts-node": "^10.9.2",
     "tsx": "^4.19.4",
-    "typescript": "^5.7.3"
+    "typescript": "^5.7.3",
+    "husky": "^8.0.0"
   }
 }

@@ -67,7 +67,7 @@ const newsletterCategories: NewsletterCategory[] = [
 
 export default function NewsletterSignup() {
   const [email, setEmail] = useState('')
-  const [selectedCategories, setSelectedCategories] = useState<string[]>(['news', 'rankings', 'deals'])
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(['news', 'reviews', 'rankings', 'tutorials', 'launches', 'deals', 'courses', 'digest'])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [agreedToTerms, setAgreedToTerms] = useState(false)
@@ -96,7 +96,7 @@ export default function NewsletterSignup() {
       setTimeout(() => {
         setSubmitted(false)
         setEmail('')
-        setSelectedCategories(['news', 'rankings', 'deals'])
+        setSelectedCategories(['news', 'reviews', 'rankings', 'tutorials', 'launches', 'deals', 'courses', 'digest'])
         setAgreedToTerms(false)
         setHasTriedSubmit(false)
       }, 3000)

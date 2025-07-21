@@ -4,12 +4,12 @@ import ProductGridWrapper from '../components/ProductGridWrapper'
 import ReelsCarousel from '../components/ReelsCarousel'
 import TopListsSection from '../components/TopListsSection'
 import NewsletterSignup from '../components/NewsletterSignup'
-import AiCoursesCarousel from '../components/AiCoursesCarousel'
+// import AiCoursesCarousel from '../components/AiCoursesCarousel' // Dočasně skryto - pro budoucí použití
 
 export default function Home() {
   return (
     <main className="container mx-auto px-4 py-8">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         <AiAdvisor />
         <div className="mt-2">
           <ProductGridWrapper />
@@ -20,9 +20,10 @@ export default function Home() {
         <div className="mt-2">
           <TopListsSection />
         </div>
-        <div className="mt-2">
+        {/* Dočasně skryto - AI kurzy pro budoucí použití */}
+        {/* <div className="mt-2">
           <AiCoursesCarousel />
-        </div>
+        </div> */}
         <div className="mt-2">
           <NewsletterSignup />
         </div>

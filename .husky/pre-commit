@@ -1,0 +1,5 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+echo "🔥 SPOUŠTÍM PRE-COMMIT KONTROLY..."
+bash scripts/precommit-check.sh
