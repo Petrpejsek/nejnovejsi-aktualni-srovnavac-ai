@@ -59,12 +59,16 @@ function RecommendationsPageContent() {
   const [savedItems, setSavedItems] = useState<Set<string>>(new Set())
   const [products, setProducts] = useState<Product[]>([])
   const [recommendations, setRecommendations] = useState<Recommendation[]>([])
+  const [initialRecommendations, setInitialRecommendations] = useState<Recommendation[]>([]) // AI doporučené
+  const [moreRecommendations, setMoreRecommendations] = useState<Recommendation[]>([]) // Category-based
   const [loading, setLoading] = useState(true)
   const [recommending, setRecommending] = useState(false)
   const [hasLoadedRecs, setHasLoadedRecs] = useState(false)
   const [isLoadingRecs, setIsLoadingRecs] = useState(false)
   const [currentLoadingMessage, setCurrentLoadingMessage] = useState(0)
   const [animatedPercentage, setAnimatedPercentage] = useState(0)
+  const [offset, setOffset] = useState(0)
+  const [loadingMore, setLoadingMore] = useState(false)
 
   const prevQueryRef = useRef<string | null>(null);
   const isLoadingRef = useRef(false);
@@ -225,9 +229,13 @@ function RecommendationsPageContent() {
         prevQueryRef.current = null;
         isLoadingRef.current = false;
         setRecommendations([]);
+        setInitialRecommendations([]);
+        setMoreRecommendations([]);
         setHasLoadedRecs(false);
         setRecommending(false);
         setIsLoadingRecs(false);
+        setOffset(0);
+        console.log("🗑️ Reset state při mazání query");
       }
       return;
     }
@@ -248,10 +256,14 @@ function RecommendationsPageContent() {
     
           // Reset state for new query
       setRecommendations([]);
+      setInitialRecommendations([]);
+      setMoreRecommendations([]);
       setHasLoadedRecs(false);
       setRecommending(false);
       setIsLoadingRecs(false);
       setCurrentLoadingMessage(0);
+      setOffset(0);
+      console.log("🔄 Reset state pro nový dotaz");
     
     // Start loading recommendations
     const fetchRecommendations = async () => {
@@ -301,6 +313,8 @@ function RecommendationsPageContent() {
         }
         
         setRecommendations(recommendationsWithProducts);
+        setInitialRecommendations(recommendationsWithProducts); // Uložit AI doporučení
+        console.log(`🤖 Nastaveno ${recommendationsWithProducts.length} AI doporučených produktů`);
       } catch (err) {
         console.error('Error loading recommendations:', err);
       } finally {
@@ -332,21 +346,102 @@ function RecommendationsPageContent() {
     setSelectedItems(newSelected)
   }
 
+  // Získáme unikátní kategorie z aktuálních AI doporučených produktů
+  const getSelectedCategories = () => {
+    if (!initialRecommendations || initialRecommendations.length === 0) return [];
+    
+    const categories = new Set<string>();
+    initialRecommendations.forEach(rec => {
+      if (rec.product.category) {
+        categories.add(rec.product.category);
+      }
+    });
+    
+    return Array.from(categories);
+  }
+
+  const loadMore = async () => {
+    if (!query || initialRecommendations.length === 0) return;
+    
+    setLoadingMore(true);
+    const selectedCategories = getSelectedCategories();
+    
+    // nasbíráme ID všech už zobrazených (AI + podobné)
+    const excludeIds = [
+      ...initialRecommendations.map(rec => rec.product.id),
+      ...moreRecommendations.map(rec => rec.product.id)
+    ];
+    
+    console.log("🔍 DIAGNOSTIKA SHOW MORE:");
+    console.log("Selected categories:", selectedCategories);
+    console.log("Offset (moreRecommendations.length):", moreRecommendations.length);
+    console.log("Initial products count:", initialRecommendations.length);
+    console.log("Exclude IDs:", excludeIds);
+    
+    if (selectedCategories.length === 0) {
+      console.log("❌ Žádné kategorie k načtení");
+      setLoadingMore(false);
+      return;
+    }
+
+    try {
+      const queryParams = new URLSearchParams({
+        categories: selectedCategories.join(','),
+        offset: moreRecommendations.length.toString(),
+        limit: '5',
+        exclude: excludeIds.join(',')
+      });
+      
+      console.log("📡 Volám API:", `/api/recommendations?${queryParams}`);
+      
+      const response = await fetch(`/api/recommendations?${queryParams}`);
+      
+      if (!response.ok) {
+        console.error('❌ API Error:', response.status);
+        return;
+      }
+      
+      const data = await response.json();
+      console.log("📦 API Response:", data);
+      
+      if (data.products && data.products.length > 0) {
+        console.log(`✅ Načteno ${data.products.length} nových produktů`);
+        
+        // Převedeme produkty na doporučení s 0% match (jelikož nejsou z AI)
+        const newRecommendations = data.products.map((product: any) => ({
+          id: `similar-${product.id}`,
+          matchPercentage: 0, // Podobné produkty nemají AI match percentage
+          recommendation: "Similar product based on category",
+          product: product
+        }));
+        
+        setMoreRecommendations(prev => [...prev, ...newRecommendations]);
+        console.log("🎯 Nový stav moreRecommendations:", moreRecommendations.length + newRecommendations.length);
+      } else {
+        console.log("⚠️ API vrátilo prázdné pole nebo žádné produkty");
+      }
+    } catch (error) {
+      console.error('❌ Network error loading more products:', error);
+    } finally {
+      setLoadingMore(false);
+    }
+  }
+
   // Get products for display - either all or just recommended
-  const getDisplayProducts = (): DisplayProduct[] => {
+  const getDisplayProducts = () => {
     if (!query) {
-      return products;
+      return { products, initialProducts: [], moreProducts: [] };
     }
     
     if (recommending) {
-      return [];
+      return { products: [], initialProducts: [], moreProducts: [] };
     }
     
-    if (!recommendations || recommendations.length === 0) {
-      return [];
+    if (!initialRecommendations || initialRecommendations.length === 0) {
+      return { products: [], initialProducts: [], moreProducts: [] };
     }
     
-    const displayProducts = recommendations.map(rec => {
+    const initialProducts = initialRecommendations.map(rec => {
       return {
         ...rec.product,
         matchPercentage: rec.matchPercentage,
@@ -354,10 +449,22 @@ function RecommendationsPageContent() {
       };
     });
     
-    return displayProducts;
+    const moreProducts = moreRecommendations.map(rec => {
+      return {
+        ...rec.product,
+        matchPercentage: rec.matchPercentage,
+        recommendation: rec.recommendation
+      };
+    });
+    
+    return {
+      products: [...initialProducts, ...moreProducts],
+      initialProducts,
+      moreProducts
+    };
   }
 
-  const displayProducts = getDisplayProducts();
+  const { products: displayProducts, initialProducts, moreProducts } = getDisplayProducts();
 
   const toggleExpand = (id: string) => {
     setExpandedProductId(expandedProductId === id ? null : id)
@@ -494,15 +601,16 @@ function RecommendationsPageContent() {
 
       {/* Product list */}
       <div className="space-y-4 mb-12">
-        {displayProducts.map((product) => (
+        {/* AI doporučené produkty - s % Match a Personalized Recommendation */}
+        {initialProducts.map((product) => (
           <div
             key={product.id}
             className="bg-white rounded-[20px] p-6 border border-gray-100 shadow-sm hover:shadow-md transition-all group relative"
           >
             <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
               <div className="w-full md:max-w-[240px] flex flex-col gap-3">
-                {/* Display percentage match */}
-                {product.matchPercentage !== undefined && (
+                {/* Display percentage match - pouze pro AI doporučené */}
+                {product.matchPercentage !== undefined && product.matchPercentage > 0 && (
                   <div className="bg-gradient-to-r from-purple-600 to-pink-500 text-white text-center py-2 px-4 rounded-t-[14px] font-medium">
                     {product.matchPercentage}% Match
                   </div>
@@ -558,7 +666,7 @@ function RecommendationsPageContent() {
                   </div>
                 </div>
                 
-                {/* Personalized recommendation */}
+                {/* Personalized recommendation - pouze pro AI doporučené */}
                 {product.recommendation && (
                   <div className="mb-4 p-4 bg-purple-50 rounded-[14px] border border-purple-100">
                     <h4 className="text-purple-800 font-medium mb-1">Personalized Recommendation</h4>
@@ -869,7 +977,152 @@ function RecommendationsPageContent() {
             </div>
           </div>
         ))}
+        
+        {/* Podobné produkty z Show More - bez % Match a s Similar product label */}
+        {moreProducts.map((product) => (
+          <div
+            key={product.id}
+            className="bg-white rounded-[20px] p-6 border border-gray-100 shadow-sm hover:shadow-md transition-all group relative"
+          >
+            <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
+              <div className="w-full md:max-w-[240px] flex flex-col gap-3">
+                {/* Žádný % Match badge pro podobné produkty */}
+                <div 
+                  className="w-full aspect-video relative rounded-[14px] overflow-hidden bg-gray-50 cursor-pointer hover:opacity-90 transition-opacity"
+                  onClick={() => handleVisit(product.externalUrl)}
+                >
+                  <Image
+                    src={product.imageUrl || 'https://placehold.co/800x450/f3f4f6/94a3b8?text=No+Image'}
+                    alt={product.name}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                {/* Checkbox for comparison - hidden */}
+                {COMPARE_FEATURE_ENABLED && (
+                  <label className="flex items-center justify-center md:justify-start gap-2">
+                    <input
+                      type="checkbox"
+                      checked={selectedItems.has(product.id)}
+                      onChange={() => toggleItem(product.id)}
+                      className="w-4 h-4 text-purple-600/90 rounded-[6px] border-gray-300 focus:ring-purple-500"
+                    />
+                    <span className="text-sm text-gray-600 group-hover:text-gray-800 transition-colors">
+                      Compare
+                    </span>
+                  </label>
+                )}
+              </div>
+              
+              <div className="flex-1">
+                <div className="flex items-start justify-between mb-2">
+                  <div>
+                    <h3 className="text-xl font-medium text-gray-800">
+                      {product.name}
+                    </h3>
+                    {product.category && (
+                      <span className="text-sm text-gray-500">{product.category}</span>
+                    )}
+                  </div>
+                  <div className="text-right">
+                    <div>
+                      <p className="text-gradient-primary font-medium">
+                        {product.hasTrial ? '$0' : (typeof product.price === 'number' ? `$${product.price.toFixed(2)}` : 'N/A')}
+                      </p>
+                      {product.hasTrial && (
+                        <span className="text-xs text-purple-600/90 bg-purple-50/80 px-2 py-1 rounded-full">
+                          Free Trial
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Similar product label - pro category-based produkty */}
+                <div className="mb-4 p-4 bg-gray-50 rounded-[14px] border border-gray-200">
+                  <h4 className="text-gray-700 font-medium mb-1">Similar product based on category</h4>
+                </div>
+                
+                <p className="text-gray-600 mb-4">
+                  {product.description}
+                </p>
+                
+                <div className="space-y-4">
+                  <div className="flex flex-wrap gap-2">
+                    {(typeof product.tags === 'string' ? JSON.parse(product.tags) : product.tags || [])?.map((tag: string) => (
+                      <span
+                        key={tag}
+                        className="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-full"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                  
+                  <div className="flex flex-col sm:flex-row items-center gap-3 mt-8 mb-6">
+                    <button
+                      onClick={() => handleVisit(product.externalUrl)}
+                      className="w-full sm:w-auto px-6 py-3 text-base font-medium rounded-[14px] bg-gradient-primary text-white hover-gradient-primary transition-all"
+                    >
+                      {product.hasTrial ? 'Try for Free' : 'Try Now'}
+                    </button>
+                  </div>
+                  
+                  <div className="flex items-center justify-end w-full gap-3">                  
+                    <button 
+                      onClick={() => toggleExpand(product.id)}
+                      className="md:w-auto px-4 py-2 text-sm font-medium rounded-[14px] bg-gradient-primary text-white hover-gradient-primary transition-all flex items-center justify-center gap-2"
+                    >
+                      <span>{expandedProductId === product.id ? 'Show Less' : 'Show More'}</span>
+                      <svg 
+                        xmlns="http://www.w3.org/2000/svg" 
+                        viewBox="0 0 24 24" 
+                        fill="none" 
+                        stroke="currentColor" 
+                        className={`w-4 h-4 transition-transform ${expandedProductId === product.id ? 'rotate-180' : ''}`}
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                    {SAVE_FEATURE_ENABLED && (
+                      <button 
+                        onClick={() => handleSave(product.id)}
+                        className={`md:w-auto px-4 py-2 text-sm font-medium rounded-[14px] border transition-all duration-300 ${
+                          savedItems.has(product.id)
+                            ? 'border-green-500 text-green-600 bg-green-50 hover:bg-green-100'
+                            : 'border-gray-200 text-gray-600 hover:bg-gray-50'
+                        }`}
+                      >
+                        {savedItems.has(product.id) ? 'Saved ✓' : 'Save'}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
+
+      {/* Show More button - only for recommendations with query */}
+      {query && !recommending && initialProducts.length > 0 && (
+        <div className="flex justify-center mt-8 mb-12">
+          <button
+            onClick={loadMore}
+            disabled={loadingMore}
+            className="px-6 py-3 bg-gradient-primary text-white rounded-[14px] hover-gradient-primary transition-all disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+          >
+            {loadingMore ? (
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                Loading...
+              </div>
+            ) : (
+              'Show More Similar Products'
+            )}
+          </button>
+        </div>
+      )}
 
       {/* CompareBar */}
       {COMPARE_FEATURE_ENABLED && (

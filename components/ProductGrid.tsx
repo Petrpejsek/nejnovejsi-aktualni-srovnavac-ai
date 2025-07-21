@@ -21,6 +21,21 @@ interface ProductGridProps {
   selectedTags?: Set<string>;
 }
 
+const IconTwoColumns = () => (
+  <svg width="20" height="20" viewBox="0 0 26 24" fill="none" stroke="currentColor" strokeWidth="2">
+    {/* První sloupec vlevo */}
+    <rect x="3" y="4" width="7" height="16" rx="2" />
+    {/* Druhý sloupec posunutý víc doprava → +3px mezera */}
+    <rect x="14" y="4" width="7" height="16" rx="2" />
+  </svg>
+);
+
+const IconOneColumn = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <rect x="3" y="4" width="18" height="16" rx="2" />
+  </svg>
+);
+
 export default function ProductGrid({ selectedTags }: ProductGridProps = {}) {
   const { data: session, status } = useSession()
   const [products, setProducts] = useState<Product[]>([])
@@ -31,6 +46,7 @@ export default function ProductGrid({ selectedTags }: ProductGridProps = {}) {
   const [hasMore, setHasMore] = useState(true)
   const [totalProducts, setTotalProducts] = useState(0)
   const [savedProducts, setSavedProducts] = useState<Set<string>>(new Set())
+  const [compactView, setCompactView] = useState(true)
   const PAGE_SIZE = 12
 
   const handleBookmarkChange = (productId: string, isBookmarked: boolean) => {
@@ -242,8 +258,41 @@ export default function ProductGrid({ selectedTags }: ProductGridProps = {}) {
 
   return (
     <div className="space-y-4 md:space-y-6 pb-20">
+      {/* Header s layout toggle */}
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-lg font-semibold">Products</h2>
+        <div className="flex space-x-2 border rounded p-1 bg-white">
+          <button
+            onClick={() => setCompactView(true)}
+            className={`p-2 rounded transition ${
+              compactView
+                ? 'bg-gray-100 text-gray-800 ring-2 ring-gray-300'
+                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+            }`}
+            title="Compact View (2 products per row)"
+          >
+            <IconTwoColumns />
+          </button>
+          <button
+            onClick={() => setCompactView(false)}
+            className={`p-2 rounded transition ${
+              !compactView
+                ? 'bg-gray-100 text-gray-800 ring-2 ring-gray-300'
+                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+            }`}
+            title="Large View (1 product per row)"
+          >
+            <IconOneColumn />
+          </button>
+        </div>
+      </div>
+
       {/* Použití CSS Grid s align-items-stretch pro rovnoměrné výšky */}
-      <div className="grid gap-4 md:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 items-stretch">
+      <div className={`grid gap-4 md:gap-6 items-stretch ${
+        compactView
+          ? 'grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'
+          : 'grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
+      }`}>
         {filteredProducts.map((product) => (
           <ProductCard
             key={product.id}

@@ -91,6 +91,67 @@ async function ensureProductsLoaded(setProducts?: Function) {
 }
 
 /**
+ * GET endpoint pro lazy loading podobných produktů podle kategorií
+ */
+export async function GET(req: Request) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const categories = searchParams.get("categories")?.split(",") ?? [];
+    const offset = parseInt(searchParams.get("offset") ?? "0", 10);
+    const limit = parseInt(searchParams.get("limit") ?? "5", 10);
+    
+    // nově – získáme id produktů, které už jsou zobrazené
+    const excludeIds = searchParams.get("exclude")?.split(",") ?? [];
+
+    if (categories.length === 0) {
+      return NextResponse.json({ products: [] });
+    }
+
+    // Filtrovat pouze neprázdné kategorie
+    const validCategories = categories.filter(cat => cat.trim().length > 0);
+    
+    if (validCategories.length === 0) {
+      return NextResponse.json({ products: [] });
+    }
+
+    const products = await prisma.product.findMany({
+      where: {
+        AND: [
+          {
+            category: {
+              in: validCategories
+            }
+          },
+          {
+            id: { 
+              notIn: excludeIds 
+            }
+          }
+        ]
+      }
+      // fetch všech, seřadíme ručně
+    });
+
+    // Seřadíme produkty podle počtu shodných kategorií (nejpodobnější nahoře)
+    const sorted = products.sort((a, b) => {
+      const matchA = validCategories.includes(a.category || '') ? 1 : 0;
+      const matchB = validCategories.includes(b.category || '') ? 1 : 0;
+      return matchB - matchA;
+    });
+
+    return NextResponse.json({
+      products: sorted.slice(offset, offset + limit)
+    });
+  } catch (error) {
+    console.error('Chyba v GET /api/recommendations:', error);
+    return NextResponse.json(
+      { error: 'Interní chyba serveru' },
+      { status: 500 }
+    );
+  }
+}
+
+/**
  * API endpoint pro doporučování AI nástrojů
  */
 export async function POST(request: NextRequest) {
