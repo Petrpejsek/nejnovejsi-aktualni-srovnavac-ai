@@ -119,8 +119,8 @@ const categoryInfo = {
     description: 'Best AI tools for video creation, editing and post-production',
     detailedDescription: 'Discover the most powerful AI video editing tools that will revolutionize your video creation workflow. From automated editing to smart effects, these tools combine cutting-edge artificial intelligence with professional video editing capabilities.',
     icon: <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>,
-    color: 'from-red-500 to-pink-500',
-    gradient: 'bg-gradient-to-br from-red-50 to-pink-50'
+    color: 'bg-red-100 text-red-700',
+    gradient: 'bg-red-50'
   }
 }
 
@@ -184,7 +184,7 @@ export default function CategoryListPage() {
           {/* Header - mobilní optimalizace */}
           <div className={`${category.gradient} rounded-xl sm:rounded-2xl p-4 sm:p-8 mb-6 sm:mb-8 border border-gray-200`}>
             <div className="flex items-start gap-3 sm:gap-6">
-              <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-lg sm:rounded-xl bg-gradient-to-r ${category.color} text-white flex items-center justify-center flex-shrink-0`}>
+              <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-lg sm:rounded-xl ${category.color} flex items-center justify-center flex-shrink-0`}>
                 {category.icon}
               </div>
               <div className="flex-1 min-w-0">
@@ -232,7 +232,7 @@ export default function CategoryListPage() {
                   <div className="flex flex-col sm:flex-col sm:items-center gap-3 sm:gap-4 sm:w-48 flex-shrink-0">
                     {/* Rank badge - larger */}
                     <div className="flex items-center justify-center sm:justify-center">
-                      <div className={`w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-r ${category.color} text-white flex items-center justify-center font-bold text-xl sm:text-2xl shadow-lg`}>
+                      <div className={`w-16 h-16 sm:w-20 sm:h-20 rounded-2xl ${category.color} flex items-center justify-center font-bold text-xl sm:text-2xl shadow-sm`}>
                         #{tool.rank}
                       </div>
                     </div>
@@ -265,7 +265,7 @@ export default function CategoryListPage() {
                         <h3 className="text-xl sm:text-2xl font-bold text-gray-900 leading-tight mb-2">{tool.name}</h3>
                         <div className="flex items-center gap-3 mb-3">
                           {tool.badge && (
-                            <span className={`px-3 py-1 rounded-full text-xs font-bold text-white bg-gradient-to-r ${category.color}`}>
+                            <span className="px-3 py-1 rounded-full text-xs font-bold text-slate-700 bg-slate-100">
                               {tool.badge}
                             </span>
                           )}

@@ -1,117 +1,115 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
+import { PrismaClient } from '@prisma/client'
+import { writeFile, mkdir } from 'fs/promises'
+import path from 'path'
 
-// Force dynamic rendering
-export const dynamic = 'force-dynamic'
+const prisma = new PrismaClient()
 
-// Reálné AI reels data s embed URL
-const aiReels = [
-  {
-    id: 1,
-    title: 'AI Automation Tips',
-    description: 'Praktické ukázky, jak automatizovat procesy pomocí AI',
-    embedUrl: 'https://www.tiktok.com/@automatenation/video/7511848249511136543',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=400&h=600&fit=crop&auto=format',
-    platform: 'tiktok',
-    author: 'Automate Nation',
-    authorHandle: '@automatenation',
-    likes: 0,
-    duration: '1:00',
-    category: 'Automation',
-    tags: ['Automation','AI','Productivity'],
-    trending: true,
-    isLiked: false,
-    isBookmarked: false
-  },
-  {
-    id: 2,
-    title: 'NVIDIA ACE – realtime NPC demo',
-    description: 'Umělá inteligence dává NPC realistický hlas a reakce',
-    embedUrl: 'https://www.tiktok.com/@nvidia/video/7181377415311899950',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1527443154391-507e9dc6c5cc?w=400&h=600&fit=crop&auto=format',
-    platform: 'tiktok',
-    author: 'NVIDIA',
-    authorHandle: '@nvidia',
-    likes: 84500,
-    duration: '0:55',
-    category: 'Technology',
-    tags: ['NVIDIA', 'AI Gaming', 'Demo'],
-    trending: true,
-    isLiked: false,
-    isBookmarked: false
-  },
-  {
-    id: 3,
-    title: 'Runway Gen-3 Alpha sample',
-    description: 'Generativní video z textového promptu v RunwayML',
-    embedUrl: 'https://www.instagram.com/reel/C6XMbn9rQ5_/',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1573496799515-eebbb63815b0?w=400&h=600&fit=crop&auto=format',
-    platform: 'instagram',
-    author: 'Runway',
-    authorHandle: '@runwayml',
-    likes: 62300,
-    duration: '0:38',
-    category: 'Design',
-    tags: ['Runway', 'Gen-3', 'Video Generation'],
-    trending: true,
-    isLiked: false,
-    isBookmarked: false
-  }
-]
-
-const categories = [
-  { name: 'All', count: aiReels.length },
-  ...Array.from(new Set(aiReels.map(r => r.category))).map(cat => ({
-    name: cat,
-    count: aiReels.filter(r => r.category === cat).length
-  }))
-]
-
-export async function GET(request: Request) {
+// GET /api/reels - Get all reels
+export async function GET() {
   try {
-    const { searchParams } = new URL(request.url)
-    const category = searchParams.get('category')
-    const search = searchParams.get('search')
-    const trending = searchParams.get('trending')
-
-    let filteredReels = [...aiReels]
-
-    // Category filter
-    if (category && category !== 'All') {
-      filteredReels = filteredReels.filter(reel => reel.category === category)
-    }
-
-    // Search filter  
-    if (search) {
-      const searchLower = search.toLowerCase()
-      filteredReels = filteredReels.filter(reel => {
-        const searchWords = searchLower.split(' ').filter(word => word.length > 0)
-        const searchableText = [
-          reel.title,
-          reel.description,
-          reel.author,
-          ...reel.tags
-        ].join(' ').toLowerCase()
-        
-        return searchWords.every(word => searchableText.includes(word))
-      })
-    }
-
-    // Trending filter
-    if (trending === 'true') {
-      filteredReels = filteredReels.filter(reel => reel.trending)
-    }
-
-    return NextResponse.json({
-      reels: filteredReels,
-      categories: categories,
-      total: filteredReels.length
+    const reels = await prisma.reel.findMany({
+      orderBy: {
+        createdAt: 'desc'
+      }
     })
 
+    return NextResponse.json(reels)
   } catch (error) {
-    console.error('Error in reels API:', error)
-    return NextResponse.json(
-      { error: 'Failed to fetch reels' },
-      { status: 500 }
-    )
+    console.error('Error fetching reels:', error)
+    return NextResponse.json({ error: 'Failed to fetch reels' }, { status: 500 })
+  }
+}
+
+// POST /api/reels - Create new reel
+export async function POST(request: NextRequest) {
+  try {
+    const formData = await request.formData()
+    
+    const title = formData.get('title') as string
+    const description = formData.get('description') as string
+    const videoFile = formData.get('video') as File
+    const thumbnailFile = formData.get('thumbnail') as File
+
+    // Validation
+    if (!title || !videoFile) {
+      return NextResponse.json({ error: 'Title and video are required' }, { status: 400 })
+    }
+
+    // Validate video file type
+    if (!videoFile.type.startsWith('video/')) {
+      return NextResponse.json({ error: 'File must be a video' }, { status: 400 })
+    }
+
+    // Validate video file size (max 50MB)
+    const maxSize = 50 * 1024 * 1024 // 50MB
+    if (videoFile.size > maxSize) {
+      return NextResponse.json({ error: 'File size must be less than 50MB' }, { status: 400 })
+    }
+
+    // Validate thumbnail if provided
+    if (thumbnailFile && thumbnailFile.size > 0) {
+      if (!thumbnailFile.type.startsWith('image/')) {
+        return NextResponse.json({ error: 'Thumbnail must be an image' }, { status: 400 })
+      }
+      
+      const maxThumbSize = 5 * 1024 * 1024 // 5MB
+      if (thumbnailFile.size > maxThumbSize) {
+        return NextResponse.json({ error: 'Thumbnail size must be less than 5MB' }, { status: 400 })
+      }
+    }
+
+    // Create unique filename for video
+    const timestamp = Date.now()
+    const videoExtension = path.extname(videoFile.name)
+    const videoFileName = `reel_${timestamp}${videoExtension}`
+    
+    // Ensure uploads directories exist
+    const uploadsDir = path.join(process.cwd(), 'public', 'uploads', 'reels')
+    const thumbnailsDir = path.join(process.cwd(), 'public', 'uploads', 'thumbnails')
+    try {
+      await mkdir(uploadsDir, { recursive: true })
+      await mkdir(thumbnailsDir, { recursive: true })
+    } catch (error) {
+      // Directories might already exist
+    }
+
+    // Save video file to public/uploads/reels/
+    const videoFilePath = path.join(uploadsDir, videoFileName)
+    const videoBytes = await videoFile.arrayBuffer()
+    const videoBuffer = Buffer.from(videoBytes)
+    await writeFile(videoFilePath, videoBuffer)
+    
+    let thumbnailUrl = null
+    
+    // Handle thumbnail upload if provided
+    if (thumbnailFile && thumbnailFile.size > 0) {
+      const thumbnailExtension = path.extname(thumbnailFile.name)
+      const thumbnailFileName = `thumb_${timestamp}${thumbnailExtension}`
+      const thumbnailFilePath = path.join(thumbnailsDir, thumbnailFileName)
+      
+      // Save thumbnail file
+      const thumbnailBytes = await thumbnailFile.arrayBuffer()
+      const thumbnailBuffer = Buffer.from(thumbnailBytes)
+      await writeFile(thumbnailFilePath, thumbnailBuffer)
+      
+      thumbnailUrl = `/uploads/thumbnails/${thumbnailFileName}`
+    }
+    
+    // Save to database
+    const videoUrl = `/uploads/reels/${videoFileName}`
+    const newReel = await prisma.reel.create({
+      data: {
+        title: title.trim(),
+        description: description?.trim() || null,
+        videoUrl,
+        thumbnailUrl
+      }
+    })
+
+    return NextResponse.json(newReel, { status: 201 })
+  } catch (error) {
+    console.error('Error creating reel:', error)
+    return NextResponse.json({ error: 'Failed to create reel' }, { status: 500 })
   }
 } 

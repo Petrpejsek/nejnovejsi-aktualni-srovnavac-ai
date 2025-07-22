@@ -18,7 +18,7 @@ export default function ClientLayout({
   // Pokud jsme v admin sekci, nezobrazujeme Header ani Footer
   if (isAdmin) {
     return (
-      <div className="min-h-screen">
+      <div className="min-h-screen bg-white">
         {children}
       </div>
     )
@@ -27,8 +27,8 @@ export default function ClientLayout({
   // Na advertise stránce nezobrazujeme Header (pouze pro firmy)
   if (isAdvertisePage) {
     return (
-      <div className="min-h-screen flex flex-col">
-        <main className="flex-grow">
+      <div className="min-h-screen flex flex-col bg-white">
+        <main className="flex-grow bg-white">
           {children}
         </main>
         <Footer />
@@ -37,9 +37,9 @@ export default function ClientLayout({
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-white">
       <Header />
-      <main className="flex-grow">
+      <main className="flex-grow bg-white">
         {children}
       </main>
       {!isCompanyAdmin && <Footer />}

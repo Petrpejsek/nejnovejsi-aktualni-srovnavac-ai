@@ -8,8 +8,8 @@ import NewsletterSignup from '../components/NewsletterSignup'
 
 export default function Home() {
   return (
-    <main className="container mx-auto px-4 py-8">
-      <div className="max-w-7xl mx-auto">
+    <main className="container mx-auto px-4 py-8 bg-white">
+      <div className="max-w-7xl mx-auto bg-white">
         <AiAdvisor />
         <div className="mt-2">
           <ProductGridWrapper />

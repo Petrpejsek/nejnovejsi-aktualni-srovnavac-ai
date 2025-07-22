@@ -9,98 +9,75 @@ import { useSession } from 'next-auth/react'
 import Modal from './Modal'
 import RegisterForm from './RegisterForm'
 
-// Mockdata pro reels - později to bude z API/databáze
-const mockReels = [
-  {
-    id: 1,
-    title: 'AI Tool for Content Generation',
-    description: 'See how to create quality content quickly with AI',
-    thumbnail: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&h=600&fit=crop',
-    videoUrl: '#',
-    author: 'TechGuru',
-    likes: 1250,
-    duration: '0:45',
-    isLiked: false
-  },
-  {
-    id: 2,
-    title: 'Workflow Process Automation',
-    description: 'Save time with AI automation',
-    thumbnail: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=400&h=600&fit=crop',
-    videoUrl: '#',
-    author: 'AutomatePro',
-    likes: 987,
-    duration: '1:12',
-    isLiked: true
-  },
-  {
-    id: 3,
-    title: 'AI Assistant for Business',
-    description: 'How AI can help your business grow',
-    thumbnail: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?w=400&h=600&fit=crop',
-    videoUrl: '#',
-    author: 'BusinessAI',
-    likes: 2150,
-    duration: '0:58',
-    isLiked: false
-  },
-  {
-    id: 4,
-    title: 'Creativity with AI Tools',
-    description: 'Discover new creative possibilities',
-    thumbnail: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=400&h=600&fit=crop',
-    videoUrl: '#',
-    author: 'CreativeAI',
-    likes: 1543,
-    duration: '1:25',
-    isLiked: false
-  },
-  {
-    id: 5,
-    title: 'Data Analysis with AI',
-    description: 'Fast data analysis using artificial intelligence',
-    thumbnail: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=600&fit=crop',
-    videoUrl: '#',
-    author: 'DataExpert',
-    likes: 892,
-    duration: '0:37',
-    isLiked: true
-  },
-  {
-    id: 6,
-    title: 'AI in Marketing',
-    description: 'Revolution in digital marketing',
-    thumbnail: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=600&fit=crop',
-    videoUrl: '#',
-    author: 'MarketingAI',
-    likes: 1876,
-    duration: '1:03',
-    isLiked: false
-  }
-]
+// Toast notification helper
+const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+  const toast = document.createElement('div')
+  toast.className = `fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg transform transition-all duration-300 ${
+    type === 'success' 
+      ? 'bg-green-500 text-white' 
+      : 'bg-red-500 text-white'
+  }`
+  toast.textContent = message
+  toast.style.transform = 'translateX(100%)'
+  
+  document.body.appendChild(toast)
+  
+  // Slide in
+  setTimeout(() => {
+    toast.style.transform = 'translateX(0)'
+  }, 10)
+  
+  // Slide out and remove
+  setTimeout(() => {
+    toast.style.transform = 'translateX(100%)'
+    setTimeout(() => {
+      if (document.body.contains(toast)) {
+        document.body.removeChild(toast)
+      }
+    }, 300)
+  }, 3000)
+}
 
 interface Reel {
-  id: number
+  id: string
   title: string
-  description: string
-  thumbnail: string
+  description: string | null
   videoUrl: string
-  author: string
-  likes: number
-  duration: string
-  isLiked: boolean
-  isBookmarked?: boolean
+  thumbnailUrl: string | null
+  createdAt: string
+  updatedAt: string
 }
 
 export default function ReelsCarousel() {
   const scrollRef = useRef<HTMLDivElement>(null)
   const [canScrollLeft, setCanScrollLeft] = useState(false)
   const [canScrollRight, setCanScrollRight] = useState(true)
-  const [reels, setReels] = useState<Reel[]>(mockReels.map(reel => ({...reel, isBookmarked: false})))
-  const [playingId, setPlayingId] = useState<number | null>(null)
+  const [reels, setReels] = useState<Reel[]>([])
+  const [loading, setLoading] = useState(true)
+  const [playingId, setPlayingId] = useState<string | null>(null)
   const [currentIndex, setCurrentIndex] = useState(0)
   const [showSignUpModal, setShowSignUpModal] = useState(false)
+  const [favoriteReels, setFavoriteReels] = useState<Set<string>>(new Set())
   const { data: session } = useSession()
+
+  // Load reels from API
+  useEffect(() => {
+    const loadReels = async () => {
+      try {
+        const response = await fetch('/api/reels')
+        if (response.ok) {
+          const data = await response.json()
+          setReels(data)
+        }
+      } catch (error) {
+        console.error('Error loading reels:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    
+    loadReels()
+  }, [])
 
   // Kontrola možnosti scrollování
   const checkScrollButtons = () => {
@@ -148,41 +125,98 @@ export default function ReelsCarousel() {
     }
   }
 
-  const handleLike = (id: number) => {
-    setReels(reels.map(reel => 
-      reel.id === id 
-        ? { ...reel, isLiked: !reel.isLiked, likes: reel.isLiked ? reel.likes - 1 : reel.likes + 1 }
-        : reel
-    ))
-  }
-
-  const handlePlay = (id: number) => {
+  const handlePlay = (id: string) => {
     setPlayingId(playingId === id ? null : id)
   }
 
-  const handleBookmark = (id: number) => {
-    // Check if user is authenticated
+  const handleFavorite = async (reelId: string) => {
     if (!session) {
       setShowSignUpModal(true)
       return
     }
+
+    // Optimistic update
+    const newFavorites = new Set(favoriteReels)
+    const isCurrentlyFavorited = newFavorites.has(reelId)
     
-    setReels(reels.map(reel => 
-      reel.id === id 
-        ? { ...reel, isBookmarked: !reel.isBookmarked }
-        : reel
-    ))
+    if (isCurrentlyFavorited) {
+      newFavorites.delete(reelId)
+    } else {
+      newFavorites.add(reelId)
+    }
+    
+    setFavoriteReels(newFavorites)
+    showToast(isCurrentlyFavorited ? 'Removed!' : 'Saved!', 'success')
+
+    // Background API call to save favorite
+    try {
+      const reel = reels.find(r => r.id === reelId)
+      if (!reel) return
+      
+      if (!isCurrentlyFavorited) {
+        // Add to favorites
+        fetch('/api/users/saved-products', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            productId: reelId,
+            productName: reel.title,
+            category: 'Reel',
+            imageUrl: reel.thumbnailUrl || reel.videoUrl,
+            price: 0
+          }),
+        }).catch(error => {
+          console.error('Error saving reel:', error)
+          // Revert on error
+          const revertedFavorites = new Set(favoriteReels)
+          revertedFavorites.delete(reelId)
+          setFavoriteReels(revertedFavorites)
+          showToast('Error saving', 'error')
+        })
+      } else {
+        // Remove from favorites
+        fetch(`/api/users/saved-products?productId=${reelId}`, {
+          method: 'DELETE'
+        }).catch(error => {
+          console.error('Error removing reel:', error)
+        })
+      }
+    } catch (error) {
+      console.error('Error with favorite operation:', error)
+    }
   }
 
-  const formatLikes = (likes: number) => {
-    if (likes >= 1000) {
-      return `${(likes / 1000).toFixed(1)}k`
+  const handleShare = async (reel: Reel) => {
+    const shareUrl = `${window.location.origin}/reels/${reel.id}`
+    
+    if (navigator.share) {
+      // Native sharing on mobile
+      try {
+        await navigator.share({
+          title: reel.title,
+          url: shareUrl
+        })
+      } catch (error) {
+        console.error('Error sharing:', error)
+      }
+    } else {
+      // Copy to clipboard on desktop
+      try {
+        await navigator.clipboard.writeText(shareUrl)
+        showToast('Link copied!', 'success')
+      } catch (error) {
+        console.error('Error copying to clipboard:', error)
+        showToast('Error copying link', 'error')
+      }
     }
-    return likes.toString()
   }
+
+
 
   return (
-    <section className="py-12">
+    <section className="py-12 bg-white">
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-8">
@@ -222,132 +256,152 @@ export default function ReelsCarousel() {
             <ChevronRightIcon className="w-6 h-6 text-white" />
           </button>
 
-          {/* Reels Container - Multiple reels visible on desktop */}
+          {/* Reels Container */}
+          {loading ? (
+            <div className="flex justify-center items-center py-16">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+            </div>
+          ) : reels.length === 0 ? (
+            <div className="text-center py-16">
+              <div className="text-gray-400 text-6xl mb-4">🎬</div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No reels yet</h3>
+              <p className="text-gray-500">Check back soon for amazing AI content!</p>
+            </div>
+          ) : (
           <div
             ref={scrollRef}
             onScroll={checkScrollButtons}
-            className="flex gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-hide px-4 md:px-16"
+              className="flex gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-hide px-4 md:px-16"
             style={{ 
-              scrollbarWidth: 'none', 
-              msOverflowStyle: 'none',
-              WebkitOverflowScrolling: 'touch'
-            }}
-          >
-            {reels.map((reel, index) => (
+                scrollbarWidth: 'none', 
+                msOverflowStyle: 'none',
+                WebkitOverflowScrolling: 'touch'
+              }}
+            >
+              {reels.map((reel, index) => (
               <div
                 key={reel.id}
-                className="flex-shrink-0 snap-center snap-always"
-              >
-                {/* Single Reel Container - Fixed dimensions */}
-                <div className="relative h-96 w-54 rounded-3xl overflow-hidden bg-gray-900 shadow-2xl"
+                  className="flex-shrink-0 snap-center snap-always"
+                >
+                  {/* Single Reel Container */}
+                  <div className="relative h-96 w-54 rounded-3xl overflow-hidden bg-gray-900"
                      style={{ height: '384px', width: '216px' }}
                 >
-                  {/* Thumbnail/Video */}
-                  <img
-                    src={reel.thumbnail}
+                    {/* Video/Thumbnail Display */}
+                    {playingId === reel.id ? (
+                      <video
+                        src={reel.videoUrl}
+                        className="w-full h-full object-cover"
+                        autoPlay
+                        loop
+                        preload="metadata"
+                        controls
+                        playsInline
+                      />
+                    ) : (
+                      <div className="w-full h-full relative">
+                        {reel.thumbnailUrl ? (
+                          <img
+                            src={reel.thumbnailUrl}
                     alt={reel.title}
                     className="w-full h-full object-cover"
                   />
-                  
-                  {/* Gradient Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                  
-                  {/* Play Button */}
-                  <button
-                    onClick={() => handlePlay(reel.id)}
-                    className="absolute inset-0 flex items-center justify-center group"
-                  >
-                    <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                      {playingId === reel.id ? (
-                        <PauseIcon className="w-8 h-8 text-white" />
-                      ) : (
-                        <PlayIcon className="w-8 h-8 text-white ml-1" />
-                      )}
-                    </div>
-                  </button>
-
-                  {/* Duration Badge */}
-                  <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-sm rounded-full px-2 py-1">
-                    <span className="text-white text-xs font-medium">{reel.duration}</span>
-                  </div>
-
-                  {/* Content Overlay */}
-                  <div className="absolute bottom-0 left-0 right-0 p-6">
-                    {/* Author */}
-                    <div className="text-white/80 text-sm font-medium mb-2">
-                      @{reel.author}
-                    </div>
+                        ) : (
+                          <video
+                            src={reel.videoUrl}
+                            className="w-full h-full object-cover"
+                            muted
+                            preload="metadata"
+                          />
+                        )}
+                        
+                        {/* Play Icon Overlay */}
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div className="w-20 h-20 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center">
+                            <PlayIcon className="w-10 h-10 text-white ml-1" />
+                          </div>
+                        </div>
+                      </div>
+                    )}
                     
-                    {/* Title */}
+                    {/* Interactive Overlay */}
+                    <button
+                      onClick={() => handlePlay(reel.id)}
+                      className={`absolute inset-0 ${playingId === reel.id ? 'flex items-center justify-center group' : ''}`}
+                    >
+                      {playingId === reel.id && (
+                        <div className="w-16 h-16 rounded-full bg-black/30 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                          <PauseIcon className="w-8 h-8 text-white" />
+                        </div>
+                      )}
+                    </button>
+
+                    {/* Favorite Button */}
+                    <div className="absolute top-4 right-4">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleFavorite(reel.id)
+                        }}
+                        className="w-10 h-10 bg-black/60 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-black/80 transition-colors"
+                      >
+                        {favoriteReels.has(reel.id) ? (
+                          <HeartFilledIcon className="w-6 h-6 text-red-500" />
+                        ) : (
+                          <HeartIcon className="w-6 h-6 text-white" />
+                        )}
+                      </button>
+                    </div>
+
+                    {/* Content Overlay */}
+                    <div className="absolute bottom-0 left-0 right-0 p-6">                      
+                      {/* Title */}
                     <h3 className="text-white font-semibold text-lg mb-2 line-clamp-2">
                       {reel.title}
                     </h3>
-                    
-                    {/* Description */}
+                      
+                      {/* Description */}
+                      {reel.description && (
                     <p className="text-white/90 text-sm line-clamp-2 mb-4">
                       {reel.description}
                     </p>
-                  </div>
-
-                  {/* Side Actions */}
-                  <div className="absolute right-4 bottom-24 flex flex-col gap-4">
-                    {/* Like Button */}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        handleLike(reel.id)
-                      }}
-                      className="flex flex-col items-center gap-1 group/like"
-                    >
-                      {reel.isLiked ? (
-                        <HeartFilledIcon className="w-8 h-8 text-red-500 group-hover/like:scale-110 transition-transform" />
-                      ) : (
-                        <HeartIcon className="w-8 h-8 text-white group-hover/like:text-red-500 group-hover/like:scale-110 transition-all" />
                       )}
-                      <span className="text-white text-xs font-medium">
-                        {formatLikes(reel.likes)}
-                      </span>
-                    </button>
+                  </div>
 
                     {/* Share Button */}
-                    <button className="flex flex-col items-center gap-1 group/share">
-                      <ShareIcon className="w-8 h-8 text-white group-hover/share:text-blue-400 group-hover/share:scale-110 transition-all" />
-                    </button>
-
-                    {/* Bookmark Button */}
-                    <button 
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        handleBookmark(reel.id)
-                      }}
-                      className="flex flex-col items-center gap-1 group/bookmark"
-                    >
-                      {reel.isBookmarked ? (
-                        <BookmarkFilledIcon className="w-8 h-8 text-yellow-400 group-hover/bookmark:scale-110 transition-transform" />
-                      ) : (
-                        <BookmarkIcon className="w-8 h-8 text-white group-hover/bookmark:text-yellow-400 group-hover/bookmark:scale-110 transition-all" />
-                      )}
-                    </button>
+                    <div className="absolute right-4 bottom-24">
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleShare(reel)
+                        }}
+                        className="flex flex-col items-center gap-1 group/share"
+                      >
+                        <ShareIcon className="w-8 h-8 text-white group-hover/share:text-blue-400 group-hover/share:scale-110 transition-all" />
+                      </button>
+                    </div>
                   </div>
                 </div>
+              ))}
               </div>
-            ))}
-          </div>
+          )}
 
           {/* Progress Indicators */}
-          <div className="flex justify-center mt-4 gap-2">
-            {reels.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => scrollToIndex(index)}
-                className={`w-2 h-2 rounded-full transition-all duration-200 ${
-                  index === currentIndex 
-                    ? 'bg-purple-600 w-6' 
-                    : 'bg-gray-300 hover:bg-gray-400'
-                }`}
-              />
+          {!loading && reels.length > 0 && (
+            <div className="flex justify-center mt-4 gap-2">
+              {reels.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => scrollToIndex(index)}
+                  className={`w-2 h-2 rounded-full transition-all duration-200 ${
+                    index === currentIndex 
+                      ? 'bg-purple-600 w-6' 
+                      : 'bg-gray-300 hover:bg-gray-400'
+                  }`}
+                />
             ))}
           </div>
+          )}
         </div>
 
         {/* Mobile tip */}

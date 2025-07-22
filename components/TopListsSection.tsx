@@ -81,8 +81,8 @@ const topListCategories: TopListCategory[] = [
     icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>,
     toolsCount: 20,
     topTools: sampleToolsData['video-editing'],
-    gradient: 'from-purple-600 via-pink-600 to-red-600',
-    iconBg: 'from-purple-500 to-pink-500'
+    gradient: 'bg-red-50',
+    iconBg: 'bg-red-100 text-red-700'
   },
   {
     id: 'social-media',
@@ -91,8 +91,8 @@ const topListCategories: TopListCategory[] = [
     icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a2 2 0 01-2-2v-6a2 2 0 012-2h8z" /></svg>,
     toolsCount: 20,
     topTools: sampleToolsData['social-media'],
-    gradient: 'from-blue-600 via-cyan-600 to-teal-600',
-    iconBg: 'from-blue-500 to-cyan-500'
+    gradient: 'bg-blue-50',
+    iconBg: 'bg-blue-100 text-blue-700'
   },
   {
     id: 'writing-content',
@@ -101,8 +101,8 @@ const topListCategories: TopListCategory[] = [
     icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>,
     toolsCount: 20,
     topTools: sampleToolsData['writing-content'],
-    gradient: 'from-emerald-600 via-green-600 to-lime-600',
-    iconBg: 'from-emerald-500 to-green-500'
+    gradient: 'bg-green-50',
+    iconBg: 'bg-green-100 text-green-700'
   },
   {
     id: 'design-graphics',
@@ -111,8 +111,8 @@ const topListCategories: TopListCategory[] = [
     icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v14a2 2 0 01-2 2z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 7v10a2 2 0 01-2 2h-4a2 2 0 01-2-2V7a2 2 0 012-2h4a2 2 0 012 2z" /></svg>,
     toolsCount: 20,
     topTools: sampleToolsData['design-graphics'],
-    gradient: 'from-orange-600 via-amber-600 to-yellow-600',
-    iconBg: 'from-orange-500 to-amber-500'
+    gradient: 'bg-orange-50',
+    iconBg: 'bg-orange-100 text-orange-700'
   },
   {
     id: 'chatbots-assistants',
@@ -121,18 +121,18 @@ const topListCategories: TopListCategory[] = [
     icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>,
     toolsCount: 20,
     topTools: sampleToolsData['chatbots-assistants'],
-    gradient: 'from-indigo-600 via-purple-600 to-pink-600',
-    iconBg: 'from-indigo-500 to-purple-500'
+    gradient: 'bg-purple-50',
+    iconBg: 'bg-purple-100 text-purple-700'
   },
   {
     id: 'automation-workflow',
     title: 'Automation',
-    description: 'AI-powered automation and business process tools',
+    description: 'AI-powered automation and workflow optimization tools',
     icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>,
     toolsCount: 20,
     topTools: sampleToolsData['automation-workflow'],
-    gradient: 'from-rose-600 via-pink-600 to-fuchsia-600',
-    iconBg: 'from-rose-500 to-pink-500'
+    gradient: 'bg-teal-50',
+    iconBg: 'bg-teal-100 text-teal-700'
   }
 ]
 
@@ -228,10 +228,10 @@ export default function TopListsSection() {
               href={`/top-lists/${category.id}`}
               className="flex-none w-96 group"
             >
-              <div className="relative bg-white rounded-3xl p-8 border border-gray-100 hover:shadow-2xl transition-all duration-500 group h-[420px] overflow-hidden">
+              <div className="relative rounded-xl p-8 border border-gray-100 hover:shadow-sm hover:scale-105 transition-all duration-500 group h-[420px] overflow-hidden" style={{ backgroundColor: '#F9FAFB' }}>
                 
                 {/* Gradient background overlay */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${category.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-500 rounded-3xl`} />
+                <div className={`absolute inset-0 ${category.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl`} />
                 
                 {/* Floating sparkles effect */}
                 <div className="absolute top-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -240,14 +240,14 @@ export default function TopListsSection() {
 
                 {/* Header */}
                 <div className="relative z-10 flex items-start gap-5 mb-6">
-                  <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${category.iconBg} text-white flex items-center justify-center shadow-lg`}>
+                  <div className={`w-16 h-16 rounded-2xl ${category.iconBg} flex items-center justify-center shadow-sm`}>
                     {category.icon}
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
                       <span className="text-sm font-bold text-amber-600 uppercase tracking-wider">TOP {category.toolsCount}</span>
                     </div>
-                    <h3 className="text-2xl font-bold text-gray-900 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-gray-900 group-hover:to-purple-700 group-hover:bg-clip-text transition-all duration-300 leading-tight">
+                    <h3 className="text-2xl font-bold text-gray-900 group-hover:text-purple-600 transition-all duration-300 leading-tight">
                       {category.title}
                     </h3>
                   </div>
@@ -261,14 +261,14 @@ export default function TopListsSection() {
                 {/* Top 5 Preview - kompaktní */}
                 <div className="mb-6 flex-1">
                   <div className="flex items-center gap-2 mb-4">
-                    <div className="w-2 h-2 rounded-full bg-gradient-to-r from-purple-500 to-pink-500"></div>
+                    <div className="w-2 h-2 rounded-full bg-purple-300"></div>
                     <h4 className="text-sm font-bold text-gray-900 uppercase tracking-wider">TOP 5 PREVIEW</h4>
-                    <div className="flex-1 h-px bg-gradient-to-r from-gray-200 to-transparent"></div>
+                    <div className="flex-1 h-px bg-gray-200"></div>
                   </div>
                   <div className="space-y-2">
                     {category.topTools.map((tool, index) => (
                       <div key={index} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors duration-200 group/item">
-                        <div className={`w-8 h-8 rounded-lg bg-gradient-to-r ${category.gradient} text-white flex items-center justify-center text-xs font-bold shadow-md`}>
+                        <div className={`w-8 h-8 rounded-lg ${category.iconBg} flex items-center justify-center text-xs font-bold shadow-sm`}>
                           {tool.position}
                         </div>
                         <div className="flex-1 min-w-0">
@@ -287,13 +287,13 @@ export default function TopListsSection() {
 
                 {/* Elegant CTA - ukotven na dně */}
                 <div className="absolute bottom-6 left-8 right-8">
-                  <div className={`bg-gradient-to-r ${category.gradient} rounded-2xl p-1 shadow-lg group-hover:shadow-xl transition-shadow duration-300`}>
+                  <div className={`${category.gradient} rounded-2xl p-1 shadow-sm group-hover:shadow-md transition-shadow duration-300`}>
                     <div className="bg-white rounded-xl p-3 flex items-center justify-between">
                       <div>
                         <div className="text-sm font-bold text-gray-900">See all {category.toolsCount} tools ranked</div>
                         <div className="text-xs text-gray-600">View Complete Ranking</div>
                       </div>
-                      <ArrowRightIcon className={`w-5 h-5 text-transparent bg-gradient-to-r ${category.gradient} bg-clip-text group-hover:translate-x-1 transition-transform duration-300`} />
+                      <ArrowRightIcon className="w-5 h-5 text-purple-600 group-hover:translate-x-1 transition-transform duration-300" />
                     </div>
                   </div>
                 </div>
@@ -306,11 +306,11 @@ export default function TopListsSection() {
       {/* Decorative bottom element */}
       <div className="mt-12 flex justify-center">
         <div className="flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-purple-400"></div>
-          <div className="w-16 h-px bg-gradient-to-r from-purple-400 to-pink-400"></div>
-          <div className="w-3 h-3 rounded-full bg-gradient-to-r from-purple-500 to-pink-500"></div>
-          <div className="w-16 h-px bg-gradient-to-r from-pink-400 to-purple-400"></div>
-          <div className="w-2 h-2 rounded-full bg-pink-400"></div>
+          <div className="w-2 h-2 rounded-full bg-purple-300"></div>
+          <div className="w-16 h-px bg-purple-300"></div>
+          <div className="w-3 h-3 rounded-full bg-purple-400"></div>
+          <div className="w-16 h-px bg-purple-300"></div>
+          <div className="w-2 h-2 rounded-full bg-purple-300"></div>
         </div>
       </div>
     </div>

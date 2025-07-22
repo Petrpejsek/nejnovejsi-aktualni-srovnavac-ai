@@ -260,76 +260,61 @@ model ClickHistory {
 }
 
 model PromotionalPackage {
-  id            String   @id @default(uuid())
-  title         String
-  description   String
-  amount        Float
-  bonus         Float
-  savings       Float?
-  popular       Boolean  @default(false)
-  firstTime     Boolean  @default(false)
-  minimumSpend  Float    @default(0)
-  active        Boolean  @default(true)
-  order         Int      @default(1)
-  targetStatus  String   @default("all")
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id           String   @id @default(uuid())
+  title        String
+  description  String
+  amount       Float
+  bonus        Float
+  savings      Float?
+  popular      Boolean  @default(false)
+  firstTime    Boolean  @default(false)
+  minimumSpend Float    @default(0)
+  active       Boolean  @default(true)
+  order        Int      @default(1)
+  targetStatus String   @default("all")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   @@index([active])
   @@index([order])
   @@index([targetStatus])
 }
 
-// AiRecommendation model dočasně schován pro commit
-// model AiRecommendation {
-//   id                   String   @id @default(uuid())
-//   userId               String
-//   productId            String
-//   productName          String
-//   category             String?
-//   description          String?
-//   recommendationReason String?
-//   confidenceScore      Int      @default(85)
-//   aiInsight           String?
-//   imageUrl            String?
-//   price               Float?
-//   tags                Json?
-//   externalUrl         String?
-//   createdAt           DateTime @default(now())
-//   User                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-//
-//   @@index([userId])
-//   @@index([createdAt])
-//   @@index([confidenceScore])
-//   @@index([productId])
-// }
-
 model User {
-  id               String             @id
-  name             String
-  email            String             @unique
-  hashedPassword   String?
-  googleId         String?            @unique
-  avatar           String?
-  premium          Boolean            @default(false)
-  points           Int                @default(0)
-  level            String             @default("Beginner")
-  streak           Int                @default(0)
-  joinDate         DateTime           @default(now())
-  lastLoginAt      DateTime?
-  isActive         Boolean            @default(true)
-  createdAt        DateTime           @default(now())
-  updatedAt        DateTime           @default(now())
-  toolsUsed        Int                @default(0)
-  favoriteTools    Json?              @default("[]")
-  achievements     Json?              @default("[]")
-  preferences      Json?              @default("{}")
-  settings         Json?              @default("{}")
-  SavedProduct     SavedProduct[]
-  ClickHistory     ClickHistory[]
-  // AiRecommendation AiRecommendation[] // Dočasně schováno
+  id             String         @id
+  name           String
+  email          String         @unique
+  hashedPassword String?
+  googleId       String?        @unique
+  avatar         String?
+  premium        Boolean        @default(false)
+  points         Int            @default(0)
+  level          String         @default("Beginner")
+  streak         Int            @default(0)
+  joinDate       DateTime       @default(now())
+  lastLoginAt    DateTime?
+  isActive       Boolean        @default(true)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @default(now())
+  toolsUsed      Int            @default(0)
+  favoriteTools  Json?          @default("[]")
+  achievements   Json?          @default("[]")
+  preferences    Json?          @default("{}")
+  settings       Json?          @default("{}")
+  ClickHistory   ClickHistory[]
+  SavedProduct   SavedProduct[]
 
   @@index([createdAt])
   @@index([isActive])
   @@index([premium])
+}
+
+model Reel {
+  id           String   @id @default(cuid())
+  title        String
+  description  String?
+  videoUrl     String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  thumbnailUrl String?
 }

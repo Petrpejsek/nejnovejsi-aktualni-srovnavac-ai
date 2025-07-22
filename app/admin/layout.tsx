@@ -45,6 +45,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       current: pathname.startsWith('/admin/top-lists')
     },
     {
+      name: 'Reels',
+      href: '/admin/reels',
+      icon: '🎬',
+      current: pathname.startsWith('/admin/reels')
+    },
+    {
       name: 'Firmy',
       href: '/admin/companies',
       icon: '🏢',

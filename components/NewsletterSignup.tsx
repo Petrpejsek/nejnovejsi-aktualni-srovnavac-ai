@@ -105,10 +105,10 @@ export default function NewsletterSignup() {
 
   if (submitted) {
     return (
-      <div className="bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50 rounded-3xl p-8 border border-purple-100/50 shadow-xl">
+      <div className="bg-purple-50 rounded-3xl p-8 border border-gray-200 shadow-sm">
         <div className="text-center">
-          <div className="w-20 h-20 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-            <CheckIcon className="w-10 h-10 text-white" />
+          <div className="w-20 h-20 bg-green-100 text-green-700 rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm">
+            <CheckIcon className="w-10 h-10" />
           </div>
           <h3 className="text-3xl font-bold text-gray-900 mb-4">
             You're In! Welcome Aboard!
@@ -122,11 +122,11 @@ export default function NewsletterSignup() {
   }
 
   return (
-    <div className="bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50 rounded-3xl p-8 border border-purple-100/50 shadow-xl relative overflow-hidden">
+    <div className="bg-purple-50 rounded-3xl p-8 border border-gray-200 shadow-sm relative overflow-hidden">
       {/* Background decorative elements */}
-      <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-purple-200/40 to-pink-200/40 rounded-full blur-3xl"></div>
-      <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-orange-200/40 to-yellow-200/40 rounded-full blur-2xl"></div>
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-28 h-28 bg-gradient-to-br from-blue-200/30 to-purple-200/30 rounded-full blur-2xl"></div>
+      <div className="absolute top-0 right-0 w-40 h-40 bg-purple-100 rounded-full blur-3xl opacity-50"></div>
+      <div className="absolute bottom-0 left-0 w-32 h-32 bg-orange-100 rounded-full blur-2xl opacity-50"></div>
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-28 h-28 bg-blue-100 rounded-full blur-2xl opacity-50"></div>
       
       <div className="relative z-10">
         {/* Header */}
@@ -189,7 +189,7 @@ export default function NewsletterSignup() {
                   }`}>
                     {/* Popular badge */}
                     {category.popular && (
-                      <div className="absolute -top-2 -right-2 bg-gradient-to-r from-orange-400 to-pink-400 text-white text-xs font-bold px-2 py-1 rounded-full">
+                      <div className="absolute -top-2 -right-2 bg-slate-100 text-slate-700 text-xs font-bold px-2 py-1 rounded-full">
                         POPULAR
                       </div>
                     )}
