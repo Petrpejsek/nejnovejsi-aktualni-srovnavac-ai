@@ -2,6 +2,10 @@ import React from 'react'
 import Link from 'next/link'
 import SocialIcons from './SocialIcons'
 
+// Slugify function for converting category names to URL-friendly slugs
+const slugify = (name: string) =>
+  name.toLowerCase().replace(/&/g, 'and').replace(/\s+/g, '-');
+
 export default function Footer() {
 
   // Popular categories for footer - expandované pro SEO
@@ -65,7 +69,9 @@ export default function Footer() {
               {popularCategories.map((category) => (
                 <div key={category.slug}>
                   <Link
-                    href={`/category/${encodeURIComponent(category.slug)}`}
+                    href={`/categories/${slugify(category.name)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="text-sm text-gray-600 hover:text-purple-600 transition-colors duration-200 flex items-center group"
                   >
                     <svg className="w-3 h-3 mr-2 text-purple-400 group-hover:text-purple-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">

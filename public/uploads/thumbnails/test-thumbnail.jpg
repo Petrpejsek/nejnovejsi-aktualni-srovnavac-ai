@@ -1,0 +1,7 @@
+<svg width="216" height="384" viewBox="0 0 216 384" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="216" height="384" fill="#111827"/>
+  <rect x="43" y="152" width="130" height="80" rx="8" fill="#374151"/>
+  <circle cx="108" cy="192" r="20" fill="#6B7280"/>
+  <polygon points="102,182 102,202 118,192" fill="#F9FAFB"/>
+  <text x="108" y="260" dominant-baseline="middle" text-anchor="middle" fill="#9CA3AF" font-size="12" font-family="Arial, sans-serif">AI Reel</text>
+</svg> 

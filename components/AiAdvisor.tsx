@@ -5,6 +5,10 @@ import { useRouter } from 'next/navigation'
 import Typed from 'typed.js'
 import PopularCategories from './PopularCategories'
 
+// Slugify function for converting category names to URL-friendly slugs
+const slugify = (name: string) =>
+  name.toLowerCase().replace(/&/g, 'and').replace(/\s+/g, '-');
+
 export default function AiAdvisor() {
   const [query, setQuery] = useState('')
   const [loading, setLoading] = useState(false)
@@ -341,7 +345,7 @@ export default function AiAdvisor() {
             
             <PopularCategories
               onCategorySelect={(category) => {
-                router.push(`/category/${encodeURIComponent(category)}`)
+                router.push(`/categories/${slugify(category)}`)
               }}
             />
           </>

@@ -12,10 +12,13 @@ interface Props {
 
 export async function generateMetadata({ params }: Props) {
   try {
-    const product = await getProduct(parseInt(params.id));
+    const product = await getProduct(params.id);
     return {
       title: `${product.name} | comparee.ai`,
       description: product.description,
+      alternates: {
+        canonical: `https://comparee.ai/products/${params.id}`,
+      },
     };
   } catch (error) {
     return {
@@ -25,7 +28,7 @@ export async function generateMetadata({ params }: Props) {
   }
 }
 
-async function getProduct(id: number) {
+async function getProduct(id: string) {
   const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/${id}`, {
     cache: 'no-store'
   });
@@ -41,11 +44,42 @@ async function getProduct(id: number) {
 }
 
 export default async function ProductPage({ params }: Props) {
-  const productId = parseInt(params.id);
+  const productId = params.id;
+  let product = null;
+  
+  try {
+    product = await getProduct(productId);
+  } catch (error) {
+    // Product will be null, component will handle error
+  }
   
   return (
     <Container maxWidth="lg">
-      <ProductDetail productId={productId} />
+      {product && (
+        <script 
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Product",
+              "name": product.name,
+              "description": product.description,
+              "url": `https://comparee.ai/products/${product.id}`,
+              "brand": {
+                "@type": "Brand",
+                "name": "Comparee.ai"
+              },
+              "offers": {
+                "@type": "Offer",
+                "price": product.price || 0,
+                "priceCurrency": "USD",
+                "availability": "https://schema.org/InStock"
+              }
+            })
+          }}
+        />
+      )}
+      <ProductDetail productId={parseInt(productId) || 0} />
     </Container>
   );
 } 
