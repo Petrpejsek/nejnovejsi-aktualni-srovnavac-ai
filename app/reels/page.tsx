@@ -8,7 +8,7 @@ import { HeartIcon as HeartFilledIcon } from '@heroicons/react/24/solid'
 import { useSession } from 'next-auth/react'
 import Modal from '../../components/Modal'
 import RegisterForm from '../../components/RegisterForm'
-import { useVideoThumbnail, getReelThumbnail } from '../../lib/videoUtils'
+import { getReelThumbnail } from '../../lib/videoUtils'
 
 // Toast notification helper
 const showToast = (message: string, type: 'success' | 'error' = 'success') => {
@@ -184,10 +184,9 @@ export default function ReelsPage() {
     })
   }
 
-  // Komponenta pro jednotlivý reel item s inteligentní thumbnail logikou
+  // Komponenta pro jednotlivý reel item s thumbnail logikou
   const ReelGridItem = ({ reel }: { reel: Reel }) => {
-    const { thumbnail: generatedThumbnail, isGenerating } = useVideoThumbnail(reel.videoUrl, reel.thumbnailUrl)
-    const finalThumbnail = getReelThumbnail(reel.thumbnailUrl, generatedThumbnail)
+    const finalThumbnail = getReelThumbnail(reel.thumbnailUrl, null)
     
     return (
       <div className="flex justify-center">
@@ -206,36 +205,50 @@ export default function ReelsPage() {
               controls
               playsInline
             />
-          ) : (
-            <div className="w-full h-full relative">
-              {/* Thumbnail s loading state */}
-              {isGenerating && !reel.thumbnailUrl ? (
-                // Loading state pro generování thumbnails
-                <div className="w-full h-full bg-gray-800 flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-2"></div>
-                    <span className="text-white text-xs">Načítám náhled...</span>
-                  </div>
-                </div>
-              ) : (
-                <img
-                  src={finalThumbnail}
-                  alt={reel.title}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    e.currentTarget.src = '/img/reel-placeholder.svg'
-                  }}
-                />
-              )}
-              
-              {/* Play Icon Overlay */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-20 h-20 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center">
-                  <PlayIcon className="w-10 h-10 text-white ml-1" />
-                </div>
-              </div>
-            </div>
-          )}
+                     ) : (
+             <div className="w-full h-full relative">
+               {/* Thumbnail Display */}
+               {reel.thumbnailUrl ? (
+                 // Použij vlastní thumbnail pokud existuje
+                 <img
+                   src={finalThumbnail}
+                   alt={reel.title}
+                   className="w-full h-full object-cover"
+                   loading="lazy"
+                   onError={(e) => {
+                     // Fallback na video preview při chybě
+                     e.currentTarget.style.display = 'none'
+                     const video = e.currentTarget.parentElement?.querySelector('video')
+                     if (video) video.style.display = 'block'
+                   }}
+                 />
+               ) : null}
+               
+               {/* Video fallback preview - zobrazí se pouze pokud není thumbnail */}
+               <video
+                 src={reel.videoUrl}
+                 className={`w-full h-full object-cover ${reel.thumbnailUrl ? 'hidden' : 'block'}`}
+                 preload="metadata"
+                 muted
+                 playsInline
+                 style={{ display: reel.thumbnailUrl ? 'none' : 'block' }}
+                 onError={() => {
+                   // Ultimate fallback na placeholder
+                   const placeholder = document.createElement('img')
+                   placeholder.src = '/img/reel-placeholder.svg'
+                   placeholder.className = 'w-full h-full object-cover'
+                   placeholder.alt = reel.title
+                 }}
+               />
+               
+               {/* Play Icon Overlay */}
+               <div className="absolute inset-0 flex items-center justify-center">
+                 <div className="w-20 h-20 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center">
+                   <PlayIcon className="w-10 h-10 text-white ml-1" />
+                 </div>
+               </div>
+             </div>
+           )}
           
           {/* Gradient Overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />

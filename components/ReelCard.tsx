@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import { PlayIcon, PauseIcon } from '@heroicons/react/24/outline'
 import { HeartIcon, ShareIcon } from '@heroicons/react/24/outline'
 import { HeartIcon as HeartFilledIcon } from '@heroicons/react/24/solid'
-import { useVideoThumbnail, getReelThumbnail } from '../lib/videoUtils'
+import { getReelThumbnail } from '../lib/videoUtils'
 
 // Types
 interface ReelCardProps {
@@ -79,9 +79,8 @@ export default function ReelCard({
     return () => document.removeEventListener('fullscreenchange', handleFullscreenChange)
   }, [id, onPlay])
 
-  // Použití nové thumbnail logiky
-  const { thumbnail: generatedThumbnail, isGenerating } = useVideoThumbnail(videoUrl, thumbnailUrl || null)
-  const finalThumbnail = getReelThumbnail(thumbnailUrl || null, generatedThumbnail)
+  // Použití thumbnail logiky
+  const finalThumbnail = getReelThumbnail(thumbnailUrl || null, null)
 
   // Handle video ended
   const handleVideoEnded = () => {
@@ -198,25 +197,39 @@ export default function ReelCard({
         />
       ) : (
         <div className="w-full h-full relative">
-          {/* Thumbnail s loading state */}
-          {isGenerating && !thumbnailUrl ? (
-            // Loading state pro generování thumbnails
-            <div className="w-full h-full bg-gray-800 flex items-center justify-center">
-              <div className="text-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-2"></div>
-                <span className="text-white text-xs">Načítám náhled...</span>
-              </div>
-            </div>
-          ) : (
+          {/* Thumbnail Display */}
+          {thumbnailUrl ? (
+            // Použij vlastní thumbnail pokud existuje
             <img
               src={finalThumbnail}
               alt={title}
               className="w-full h-full object-cover"
+              loading="lazy"
               onError={(e) => {
-                e.currentTarget.src = '/img/reel-placeholder.svg'
+                // Fallback na video preview při chybě
+                e.currentTarget.style.display = 'none'
+                const video = e.currentTarget.parentElement?.querySelector('video')
+                if (video) video.style.display = 'block'
               }}
             />
-          )}
+          ) : null}
+          
+          {/* Video fallback preview - zobrazí se pouze pokud není thumbnail */}
+          <video
+            src={videoUrl}
+            className={`w-full h-full object-cover ${thumbnailUrl ? 'hidden' : 'block'}`}
+            preload="metadata"
+            muted
+            playsInline
+            style={{ display: thumbnailUrl ? 'none' : 'block' }}
+            onError={() => {
+              // Ultimate fallback na placeholder
+              const placeholder = document.createElement('img')
+              placeholder.src = '/img/reel-placeholder.svg'
+              placeholder.className = 'w-full h-full object-cover'
+              placeholder.alt = title
+            }}
+          />
           
           {/* Play Icon Overlay */}
           <div className="absolute inset-0 flex items-center justify-center">

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { FilmIcon, PlusIcon, PencilIcon, TrashIcon, EyeIcon } from '@heroicons/react/24/outline'
-import { useVideoThumbnail, getReelThumbnail } from '../../../lib/videoUtils'
+import { getReelThumbnail } from '../../../lib/videoUtils'
 
 interface Reel {
   id: string
@@ -146,47 +146,59 @@ export default function ReelsAdmin() {
 
   // Komponenta pro zobrazení thumbnails v admin rozhraní
   const AdminThumbnail = ({ reel }: { reel: Reel }) => {
-    const { thumbnail: generatedThumbnail, isGenerating } = useVideoThumbnail(reel.videoUrl, reel.thumbnailUrl)
-    const finalThumbnail = getReelThumbnail(reel.thumbnailUrl, generatedThumbnail)
+    const finalThumbnail = getReelThumbnail(reel.thumbnailUrl, null)
     
     return (
-      <div className="flex-shrink-0 relative">
-        {isGenerating && !reel.thumbnailUrl ? (
-          // Loading state pro generování thumbnails
-          <div className="w-20 h-20 bg-gray-800 rounded-lg flex items-center justify-center">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mx-auto mb-1"></div>
-              <span className="text-white text-xs">Načítám...</span>
-            </div>
-          </div>
-        ) : (
-          <img
-            src={finalThumbnail}
-            alt={reel.title}
-            className="w-20 h-20 object-cover rounded-lg bg-gray-100"
-            onError={(e) => {
-              e.currentTarget.src = '/img/reel-placeholder.svg'
-            }}
-          />
-        )}
-        
-        {/* Indikátor typu thumbnail */}
-        <div className="absolute -top-1 -right-1">
-          {reel.thumbnailUrl ? (
-            <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-blue-500 rounded-full" title="Vlastní thumbnail">
-              📷
-            </span>
-          ) : !isGenerating && generatedThumbnail ? (
-            <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-green-500 rounded-full" title="Generovaný z videa">
-              🎬
-            </span>
-          ) : (
-            <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-gray-500 rounded-full" title="Placeholder">
-              ❓
-            </span>
-          )}
-        </div>
-      </div>
+             <div className="flex-shrink-0 relative">
+         {/* Thumbnail nebo video preview */}
+         <div className="w-20 h-20 rounded-lg overflow-hidden bg-gray-100 relative">
+           {reel.thumbnailUrl ? (
+             // Použij vlastní thumbnail pokud existuje
+             <img
+               src={finalThumbnail}
+               alt={reel.title}
+               className="w-full h-full object-cover"
+               loading="lazy"
+               onError={(e) => {
+                 // Fallback na video preview při chybě
+                 e.currentTarget.style.display = 'none'
+                 const video = e.currentTarget.parentElement?.querySelector('video')
+                 if (video) video.style.display = 'block'
+               }}
+             />
+           ) : null}
+           
+           {/* Video fallback preview */}
+           <video
+             src={reel.videoUrl}
+             className={`w-full h-full object-cover ${reel.thumbnailUrl ? 'hidden' : 'block'}`}
+             preload="metadata"
+             muted
+             playsInline
+             style={{ display: reel.thumbnailUrl ? 'none' : 'block' }}
+             onError={() => {
+               // Ultimate fallback na placeholder
+               const placeholder = document.createElement('img')
+               placeholder.src = '/img/reel-placeholder.svg'
+               placeholder.className = 'w-full h-full object-cover'
+               placeholder.alt = reel.title
+             }}
+           />
+         </div>
+         
+         {/* Indikátor typu thumbnail */}
+         <div className="absolute -top-1 -right-1">
+           {reel.thumbnailUrl ? (
+             <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-blue-500 rounded-full" title="Vlastní thumbnail">
+               📷
+             </span>
+           ) : (
+             <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-green-500 rounded-full" title="Video preview">
+               🎬
+             </span>
+           )}
+         </div>
+       </div>
     )
   }
 
