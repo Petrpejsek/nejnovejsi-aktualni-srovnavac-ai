@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import { PlayIcon, PauseIcon } from '@heroicons/react/24/outline'
 import { HeartIcon, ShareIcon } from '@heroicons/react/24/outline'
 import { HeartIcon as HeartFilledIcon } from '@heroicons/react/24/solid'
+import { useVideoThumbnail, getReelThumbnail } from '../lib/videoUtils'
 
 // Types
 interface ReelCardProps {
@@ -78,20 +79,9 @@ export default function ReelCard({
     return () => document.removeEventListener('fullscreenchange', handleFullscreenChange)
   }, [id, onPlay])
 
-  // Get fallback thumbnail
-  const getFallbackThumbnail = () => {
-    if (thumbnailUrl) {
-      // Pokud už obsahuje plnou cestu, vrať ji
-      if (thumbnailUrl.startsWith('/uploads/thumbnails/') || thumbnailUrl.startsWith('http')) {
-        return thumbnailUrl
-      }
-      // Jinak přidej správnou cestu
-      return `/uploads/thumbnails/${thumbnailUrl}`
-    }
-    
-    // Fallback na placeholder obrázek
-    return '/img/reel-placeholder.svg'
-  }
+  // Použití nové thumbnail logiky
+  const { thumbnail: generatedThumbnail, isGenerating } = useVideoThumbnail(videoUrl, thumbnailUrl || null)
+  const finalThumbnail = getReelThumbnail(thumbnailUrl || null, generatedThumbnail)
 
   // Handle video ended
   const handleVideoEnded = () => {
@@ -196,7 +186,7 @@ export default function ReelCard({
         <video
           ref={videoRef}
           src={videoUrl}
-          poster={getFallbackThumbnail()}
+          poster={finalThumbnail}
           className="w-full h-full object-cover"
           autoPlay={!isMobileDevice} // Autoplay pouze na desktopu
           loop={!isMobileDevice}
@@ -208,15 +198,25 @@ export default function ReelCard({
         />
       ) : (
         <div className="w-full h-full relative">
-          {/* Always show thumbnail when not playing */}
-          <img
-            src={getFallbackThumbnail()}
-            alt={title}
-            className="w-full h-full object-cover"
-            onError={(e) => {
-              e.currentTarget.src = '/img/reel-placeholder.svg'
-            }}
-          />
+          {/* Thumbnail s loading state */}
+          {isGenerating && !thumbnailUrl ? (
+            // Loading state pro generování thumbnails
+            <div className="w-full h-full bg-gray-800 flex items-center justify-center">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-2"></div>
+                <span className="text-white text-xs">Načítám náhled...</span>
+              </div>
+            </div>
+          ) : (
+            <img
+              src={finalThumbnail}
+              alt={title}
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                e.currentTarget.src = '/img/reel-placeholder.svg'
+              }}
+            />
+          )}
           
           {/* Play Icon Overlay */}
           <div className="absolute inset-0 flex items-center justify-center">

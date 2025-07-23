@@ -8,6 +8,7 @@ import { HeartIcon as HeartFilledIcon, BookmarkIcon as BookmarkFilledIcon } from
 import { useSession } from 'next-auth/react'
 import Modal from './Modal'
 import RegisterForm from './RegisterForm'
+import { useVideoThumbnail, getReelThumbnail, isMobile } from '../lib/videoUtils'
 
 // Toast notification helper
 const showToast = (message: string, type: 'success' | 'error' = 'success') => {
@@ -46,10 +47,17 @@ interface Reel {
   thumbnailUrl: string | null
   createdAt: string
   updatedAt: string
+  adText?: string | null
+  adLink?: string | null
+  adEnabled?: boolean
 }
 
 export default function ReelsCarousel() {
   const scrollRef = useRef<HTMLDivElement>(null)
+  const videoRefs = useRef<{ [key: string]: HTMLVideoElement | null }>({})
+  const overlayTimeouts = useRef<{ [key: string]: NodeJS.Timeout | null }>({})
+  const adTimeouts = useRef<{ [key: string]: NodeJS.Timeout | null }>({})
+  
   const [canScrollLeft, setCanScrollLeft] = useState(false)
   const [canScrollRight, setCanScrollRight] = useState(true)
   const [reels, setReels] = useState<Reel[]>([])
@@ -58,7 +66,52 @@ export default function ReelsCarousel() {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [showSignUpModal, setShowSignUpModal] = useState(false)
   const [favoriteReels, setFavoriteReels] = useState<Set<string>>(new Set())
+  const [showOverlay, setShowOverlay] = useState<{ [key: string]: boolean }>({})
+  const [showAdBanner, setShowAdBanner] = useState<{ [key: string]: boolean }>({})
+  const [isMobileDevice, setIsMobileDevice] = useState(false)
+  const [isInFullscreen, setIsInFullscreen] = useState(false)
+  
   const { data: session } = useSession()
+
+  // Detect mobile on mount
+  useEffect(() => {
+    setIsMobileDevice(isMobile())
+    const handleResize = () => setIsMobileDevice(isMobile())
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
+  // Handle fullscreen change events
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      const isFullscreen = !!document.fullscreenElement
+      setIsInFullscreen(isFullscreen)
+      
+      // If exiting fullscreen, pause current video and reset state
+      if (!isFullscreen && playingId) {
+        const video = videoRefs.current[playingId]
+        if (video) {
+          video.pause()
+        }
+        setPlayingId(null)
+        setShowOverlay({ ...showOverlay, [playingId]: true })
+        setShowAdBanner({ ...showAdBanner, [playingId]: false })
+        
+        // Clear timeouts
+        if (overlayTimeouts.current[playingId]) {
+          clearTimeout(overlayTimeouts.current[playingId])
+          overlayTimeouts.current[playingId] = null
+        }
+        if (adTimeouts.current[playingId]) {
+          clearTimeout(adTimeouts.current[playingId])
+          adTimeouts.current[playingId] = null
+        }
+      }
+    }
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange)
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange)
+  }, [playingId, showOverlay, showAdBanner])
 
   // Load reels from API
   useEffect(() => {
@@ -77,6 +130,18 @@ export default function ReelsCarousel() {
     }
     
     loadReels()
+  }, [])
+
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      Object.values(overlayTimeouts.current).forEach(timeout => {
+        if (timeout) clearTimeout(timeout)
+      })
+      Object.values(adTimeouts.current).forEach(timeout => {
+        if (timeout) clearTimeout(timeout)
+      })
+    }
   }, [])
 
   // Kontrola možnosti scrollování
@@ -125,8 +190,112 @@ export default function ReelsCarousel() {
     }
   }
 
-  const handlePlay = (id: string) => {
-    setPlayingId(playingId === id ? null : id)
+  const handlePlay = async (id: string) => {
+    const video = videoRefs.current[id]
+    if (!video) return
+
+    const reel = reels.find(r => r.id === id)
+    if (!reel) return
+
+    // If currently playing, pause
+    if (playingId === id) {
+      video.pause()
+      setPlayingId(null)
+      setShowOverlay({ ...showOverlay, [id]: true })
+      setShowAdBanner({ ...showAdBanner, [id]: false })
+      
+      // Clear timeouts
+      if (overlayTimeouts.current[id]) {
+        clearTimeout(overlayTimeouts.current[id])
+        overlayTimeouts.current[id] = null
+      }
+      if (adTimeouts.current[id]) {
+        clearTimeout(adTimeouts.current[id])
+        adTimeouts.current[id] = null
+      }
+      return
+    }
+
+    // Stop any other playing video
+    if (playingId) {
+      const prevVideo = videoRefs.current[playingId]
+      if (prevVideo) {
+        prevVideo.pause()
+      }
+      setShowOverlay({ ...showOverlay, [playingId]: true })
+      setShowAdBanner({ ...showAdBanner, [playingId]: false })
+      
+      // Clear previous timeouts
+      if (overlayTimeouts.current[playingId]) {
+        clearTimeout(overlayTimeouts.current[playingId])
+        overlayTimeouts.current[playingId] = null
+      }
+      if (adTimeouts.current[playingId]) {
+        clearTimeout(adTimeouts.current[playingId])
+        adTimeouts.current[playingId] = null
+      }
+    }
+
+    // Start playing new video
+    setPlayingId(id)
+    setShowOverlay({ ...showOverlay, [id]: true })
+    setShowAdBanner({ ...showAdBanner, [id]: false })
+
+    try {
+      if (isMobileDevice) {
+        // Mobile: Enter fullscreen
+        try {
+          if (video.requestFullscreen) {
+            await video.requestFullscreen()
+          } else if ((video as any).webkitEnterFullscreen) {
+            // iOS Safari fallback
+            (video as any).webkitEnterFullscreen()
+          }
+        } catch (error) {
+          console.warn('Fullscreen failed, playing inline:', error)
+        }
+      }
+      
+      await video.play()
+      
+      // Hide overlay after 1.5 seconds (podle requirements)
+      overlayTimeouts.current[id] = setTimeout(() => {
+        setShowOverlay(prev => ({ ...prev, [id]: false }))
+      }, 1500)
+      
+      // Show ad banner after 5 seconds if enabled
+      if (reel.adEnabled && reel.adText && reel.adLink) {
+        adTimeouts.current[id] = setTimeout(() => {
+          setShowAdBanner(prev => ({ ...prev, [id]: true }))
+        }, 5000)
+      }
+      
+    } catch (error) {
+      console.error('Error playing video:', error)
+      setPlayingId(null)
+    }
+  }
+
+  const handleVideoEnded = (id: string) => {
+    // Reset state when video ends
+    setPlayingId(null)
+    setShowOverlay({ ...showOverlay, [id]: true })
+    setShowAdBanner({ ...showAdBanner, [id]: false })
+    
+    // Clear timeouts
+    if (overlayTimeouts.current[id]) {
+      clearTimeout(overlayTimeouts.current[id])
+      overlayTimeouts.current[id] = null
+    }
+    if (adTimeouts.current[id]) {
+      clearTimeout(adTimeouts.current[id])
+      adTimeouts.current[id] = null
+    }
+    
+    // Exit fullscreen if needed
+    if (isMobileDevice && document.fullscreenElement) {
+      document.exitFullscreen()
+    }
   }
 
   const handleFavorite = async (reelId: string) => {
@@ -213,7 +382,159 @@ export default function ReelsCarousel() {
     }
   }
 
+  // Komponenta pro jednotlivý reel s inteligentní thumbnail logikou
+  const ReelItem = ({ reel, index }: { reel: Reel, index: number }) => {
+    const { thumbnail: generatedThumbnail, isGenerating } = useVideoThumbnail(reel.videoUrl, reel.thumbnailUrl)
+    const finalThumbnail = getReelThumbnail(reel.thumbnailUrl, generatedThumbnail)
+    
+    return (
+      <div className="flex-shrink-0 snap-center snap-always">
+        {/* Single Reel Container */}
+        <div className="relative h-96 w-54 rounded-3xl overflow-hidden bg-gray-900"
+             style={{ height: '384px', width: '216px' }}
+        >
+          {/* Video/Thumbnail Display */}
+          {playingId === reel.id ? (
+            <>
+              <video
+                ref={(el) => {
+                  videoRefs.current[reel.id] = el
+                }}
+                src={reel.videoUrl}
+                poster={finalThumbnail}
+                className="w-full h-full object-cover"
+                autoPlay={!isMobileDevice}
+                loop={!isMobileDevice}
+                preload="metadata"
+                controls={isMobileDevice && isInFullscreen}
+                playsInline
+                muted={!isMobileDevice}
+                onEnded={() => handleVideoEnded(reel.id)}
+              />
+              
+              {/* Ad Banner - appears after 5 seconds */}
+              {showAdBanner[reel.id] && reel.adEnabled && reel.adText && reel.adLink && (
+                <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-r from-black/80 via-black/70 to-black/80 backdrop-blur-sm flex items-center justify-between px-4 z-30">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-white text-sm font-medium truncate">
+                      {reel.adText}
+                    </p>
+                  </div>
+                  <a
+                    href={reel.adLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="ml-3 px-3 py-1 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-full text-white text-xs font-semibold transition-colors duration-200 flex-shrink-0"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    Learn More
+                  </a>
+                </div>
+              )}
+            </>
+          ) : (
+            <>
+              {/* Thumbnail Image */}
+              <div className="w-full h-full relative">
+                {isGenerating && !reel.thumbnailUrl ? (
+                  // Loading state pro generování thumbnails
+                  <div className="w-full h-full bg-gray-800 flex items-center justify-center">
+                    <div className="text-center">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-2"></div>
+                      <span className="text-white text-xs">Načítám náhled...</span>
+                    </div>
+                  </div>
+                ) : (
+                  <img
+                    src={finalThumbnail}
+                    alt={reel.title}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      // Fallback na placeholder pokud se nepodaří načíst thumbnail
+                      e.currentTarget.src = '/img/reel-placeholder.svg'
+                    }}
+                  />
+                )}
+                
+                {/* Play Icon Overlay */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className={`rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center ${
+                    isMobileDevice ? 'w-24 h-24' : 'w-20 h-20'
+                  }`}>
+                    <PlayIcon className={`text-white ml-1 ${
+                      isMobileDevice ? 'w-12 h-12' : 'w-10 h-10'
+                    }`} />
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+          
+          {/* Gradient Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+          
+          {/* Interactive Overlay for Play/Pause */}
+          <button
+            onClick={() => handlePlay(reel.id)}
+            className={`absolute inset-0 ${playingId === reel.id ? 'flex items-center justify-center group' : ''}`}
+          >
+            {playingId === reel.id && showOverlay[reel.id] && (
+              <div className={`w-16 h-16 rounded-full bg-black/30 backdrop-blur-sm flex items-center justify-center transition-opacity duration-200 ${
+                isMobileDevice ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+              }`}>
+                <PauseIcon className="w-8 h-8 text-white" />
+              </div>
+            )}
+          </button>
 
+          {/* Favorite Button */}
+          <div className="absolute top-4 right-4">
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                handleFavorite(reel.id)
+              }}
+              className="w-10 h-10 bg-black/60 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-black/80 transition-colors"
+            >
+              {favoriteReels.has(reel.id) ? (
+                <HeartFilledIcon className="w-6 h-6 text-red-500" />
+              ) : (
+                <HeartIcon className="w-6 h-6 text-white" />
+              )}
+            </button>
+          </div>
+
+          {/* Content Overlay */}
+          <div className="absolute bottom-0 left-0 right-0 p-6 pointer-events-none">                      
+            {/* Title */}
+            <h3 className="text-white font-semibold text-lg mb-2 line-clamp-2">
+              {reel.title}
+            </h3>
+            
+            {/* Description */}
+            {reel.description && (
+              <p className="text-white/90 text-sm line-clamp-2 mb-4">
+                {reel.description}
+              </p>
+            )}
+          </div>
+
+          {/* Share Button */}
+          <div className="absolute right-4 bottom-24">
+            <button 
+              onClick={(e) => {
+                e.stopPropagation()
+                handleShare(reel)
+              }}
+              className="flex flex-col items-center gap-1 group/share"
+            >
+              <ShareIcon className="w-8 h-8 text-white group-hover/share:text-blue-400 group-hover/share:scale-110 transition-all" />
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <section className="py-12 bg-white">
@@ -279,109 +600,7 @@ export default function ReelsCarousel() {
               }}
             >
               {reels.map((reel, index) => (
-              <div
-                key={reel.id}
-                  className="flex-shrink-0 snap-center snap-always"
-                >
-                  {/* Single Reel Container */}
-                  <div className="relative h-96 w-54 rounded-3xl overflow-hidden bg-gray-900"
-                     style={{ height: '384px', width: '216px' }}
-                >
-                    {/* Video/Thumbnail Display */}
-                    {playingId === reel.id ? (
-                      <video
-                        src={reel.videoUrl}
-                        className="w-full h-full object-cover"
-                        autoPlay
-                        loop
-                        preload="metadata"
-                        controls
-                        playsInline
-                      />
-                    ) : (
-                      <div className="w-full h-full relative">
-                        {reel.thumbnailUrl ? (
-                          <img
-                            src={reel.thumbnailUrl}
-                    alt={reel.title}
-                    className="w-full h-full object-cover"
-                  />
-                        ) : (
-                          <video
-                            src={reel.videoUrl}
-                            className="w-full h-full object-cover"
-                            muted
-                            preload="metadata"
-                          />
-                        )}
-                        
-                        {/* Play Icon Overlay */}
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="w-20 h-20 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center">
-                            <PlayIcon className="w-10 h-10 text-white ml-1" />
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                    
-                    {/* Interactive Overlay */}
-                    <button
-                      onClick={() => handlePlay(reel.id)}
-                      className={`absolute inset-0 ${playingId === reel.id ? 'flex items-center justify-center group' : ''}`}
-                    >
-                      {playingId === reel.id && (
-                        <div className="w-16 h-16 rounded-full bg-black/30 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                          <PauseIcon className="w-8 h-8 text-white" />
-                        </div>
-                      )}
-                    </button>
-
-                    {/* Favorite Button */}
-                    <div className="absolute top-4 right-4">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          handleFavorite(reel.id)
-                        }}
-                        className="w-10 h-10 bg-black/60 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-black/80 transition-colors"
-                      >
-                        {favoriteReels.has(reel.id) ? (
-                          <HeartFilledIcon className="w-6 h-6 text-red-500" />
-                        ) : (
-                          <HeartIcon className="w-6 h-6 text-white" />
-                        )}
-                      </button>
-                    </div>
-
-                    {/* Content Overlay */}
-                    <div className="absolute bottom-0 left-0 right-0 p-6">                      
-                      {/* Title */}
-                    <h3 className="text-white font-semibold text-lg mb-2 line-clamp-2">
-                      {reel.title}
-                    </h3>
-                      
-                      {/* Description */}
-                      {reel.description && (
-                    <p className="text-white/90 text-sm line-clamp-2 mb-4">
-                      {reel.description}
-                    </p>
-                      )}
-                  </div>
-
-                    {/* Share Button */}
-                    <div className="absolute right-4 bottom-24">
-                      <button 
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          handleShare(reel)
-                        }}
-                        className="flex flex-col items-center gap-1 group/share"
-                      >
-                        <ShareIcon className="w-8 h-8 text-white group-hover/share:text-blue-400 group-hover/share:scale-110 transition-all" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
+                <ReelItem key={reel.id} reel={reel} index={index} />
               ))}
               </div>
           )}
@@ -405,30 +624,17 @@ export default function ReelsCarousel() {
         </div>
 
         {/* Mobile tip */}
-        <div className="mt-6 text-center md:hidden">
-          <p className="text-sm text-gray-500">
-            💡 Tip: Swipe left and right to browse reels
-          </p>
-        </div>
+        {isMobileDevice && (
+          <div className="text-center mt-4">
+            <p className="text-sm text-gray-500">
+              Tap to play in fullscreen
+            </p>
+          </div>
+        )}
 
-        {/* View All Button */}
-        <div className="text-center mt-8">
-          <Link 
-            href="/reels" 
-            className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold rounded-full hover:shadow-lg transition-all duration-200 hover:scale-105"
-          >
-            Explore All AI Reels
-            <ChevronRightIcon className="w-5 h-5 ml-2" />
-          </Link>
-        </div>
-        
-        {/* Sign Up Modal */}
-        <Modal
-          isOpen={showSignUpModal}
-          onClose={() => setShowSignUpModal(false)}
-          title="Sign Up"
-        >
-          <RegisterForm
+        {/* Sign up modal */}
+        <Modal isOpen={showSignUpModal} onClose={() => setShowSignUpModal(false)}>
+          <RegisterForm 
             onSuccess={() => {
               setShowSignUpModal(false)
               window.location.reload()

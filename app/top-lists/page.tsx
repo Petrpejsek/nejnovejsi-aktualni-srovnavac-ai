@@ -1,338 +1,188 @@
-'use client'
-
 import React from 'react'
-import Link from 'next/link'
-import { 
-  TrophyIcon,
-  StarIcon,
-  FireIcon,
-  SparklesIcon,
-  RocketLaunchIcon,
-  ArrowRightIcon
-} from '@heroicons/react/24/outline'
-import { TrophyIcon as TrophyFilledIcon } from '@heroicons/react/24/solid'
+import type { Metadata } from 'next'
+import TopListsClient from './TopListsClient'
 
-interface TopListCategory {
-  id: string
-  title: string
+interface CategoryWithProducts {
+  slug: string
+  name: string
   description: string
-  detailedDescription: string
-  icon: React.ReactNode
-  color: string
-  gradient: string
-  toolsCount: number
-  trending?: boolean
-  popular?: boolean
-  badge?: string
-  lastUpdated: string
+  productCount: number
+  topProducts: Array<{
+    name: string
+    description: string
+  }>
 }
 
-// Extended data pro TOP 20 kategorie
-const topListCategories: TopListCategory[] = [
-  {
-    id: 'video-editing',
-    title: 'Video Editing Tools',
-    description: 'Best AI tools for video creation, editing and post-production',
-    detailedDescription: 'Comprehensive list of the most powerful AI video editing tools that will transform your video creation workflow. From automated editing to smart effects, these tools will save you hours of work.',
-    icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>,
-    color: 'bg-red-100 text-red-700',
-    gradient: 'bg-red-50',
-    toolsCount: 20,
-    trending: true,
-    badge: 'HOT',
-    lastUpdated: 'January 2024'
-  },
-  {
-    id: 'social-media',
-    title: 'Social Media Tools',
-    description: 'AI-powered content creation and social media management',
-    detailedDescription: 'Ultimate collection of AI tools for social media managers, content creators and marketers. Automate posting, create engaging content and grow your social presence.',
-    icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a2 2 0 01-2-2v-6a2 2 0 012-2h8z" /></svg>,
-    color: 'bg-blue-100 text-blue-700',
-    gradient: 'bg-blue-50',
-    toolsCount: 20,
-    popular: true,
-    badge: 'POPULAR',
-    lastUpdated: 'January 2024'
-  },
-  {
-    id: 'writing-content',
-    title: 'Writing & Content',
-    description: 'AI writing assistants and content creation tools',
-    detailedDescription: 'Perfect collection for writers, bloggers and content creators. These AI tools will help you write better, faster and more engaging content across all formats.',
-    icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>,
-    color: 'bg-green-100 text-green-700',
-    gradient: 'bg-green-50',
-    toolsCount: 20,
-    badge: 'NEW',
-    lastUpdated: 'December 2023'
-  },
-  {
-    id: 'design-graphics',
-    title: 'Design & Graphics',
-    description: 'AI tools for graphic design, logos and visual content',
-    detailedDescription: 'Essential AI design tools for creating stunning graphics, logos, presentations and visual content. No design experience required!',
-    icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v14a2 2 0 01-2 2z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 7v10a2 2 0 01-2 2h-4a2 2 0 01-2-2V7a2 2 0 012-2h4a2 2 0 012 2z" /></svg>,
-    color: 'bg-purple-100 text-purple-700',
-    gradient: 'bg-purple-50',
-    toolsCount: 20,
-    lastUpdated: 'January 2024'
-  },
-  {
-    id: 'chatbots-assistants',
-    title: 'Chatbots & AI Assistants',
-    description: 'Conversational AI and virtual assistant platforms',
-    detailedDescription: 'Top AI chatbots and virtual assistants for customer service, productivity and personal use. Transform how you communicate and work.',
-    icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>,
-    color: 'bg-orange-100 text-orange-700',
-    gradient: 'bg-orange-50',
-    toolsCount: 20,
-    trending: true,
-    lastUpdated: 'January 2024'
-  },
-  {
-    id: 'automation-workflow',
-    title: 'Automation & Workflow',
-    description: 'AI-powered automation and business process tools',
-    detailedDescription: 'Streamline your workflows and automate repetitive tasks with these powerful AI automation tools. Boost productivity and save time.',
-    icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>,
-    color: 'bg-teal-100 text-teal-700',
-    gradient: 'bg-teal-50',
-    toolsCount: 20,
-    lastUpdated: 'December 2023'
-  },
-  {
-    id: 'data-analytics',
-    title: 'Data & Analytics',
-    description: 'AI data analysis, visualization and business intelligence',
-    detailedDescription: 'Advanced AI tools for data analysis, visualization and business intelligence. Turn your data into actionable insights.',
-    icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>,
-    color: 'bg-indigo-100 text-indigo-700',
-    gradient: 'bg-indigo-50',
-    toolsCount: 20,
-    popular: true,
-    lastUpdated: 'January 2024'
-  },
-  {
-    id: 'music-audio',
-    title: 'Music & Audio',
-    description: 'AI music generation, audio editing and voice synthesis',
-    detailedDescription: 'Revolutionary AI tools for music creation, audio editing and voice synthesis. Create professional audio content without experience.',
-    icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" /></svg>,
-    color: 'bg-pink-100 text-pink-700',
-    gradient: 'bg-pink-50',
-    toolsCount: 20,
-    badge: 'TRENDING',
-    lastUpdated: 'January 2024'
-  },
-  {
-    id: 'coding-development',
-    title: 'Coding & Development',
-    description: 'AI programming assistants and development tools',
-    detailedDescription: 'Essential AI coding assistants and development tools for programmers. Write code faster, debug smarter and build better apps.',
-    icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>,
-    color: 'bg-gray-100 text-gray-700',
-    gradient: 'bg-gray-50',
-    toolsCount: 20,
-    lastUpdated: 'December 2023'
-  },
-  {
-    id: 'education-learning',
-    title: 'Education & Learning',
-    description: 'AI-powered educational tools and learning platforms',
-    detailedDescription: 'Innovative AI tools for education, online learning and skill development. Learn faster and more effectively with AI assistance.',
-    icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>,
-    color: 'bg-amber-100 text-amber-700',
-    gradient: 'bg-amber-50',
-    toolsCount: 20,
-    lastUpdated: 'January 2024'
-  },
-  {
-    id: 'productivity-office',
-    title: 'Productivity & Office',
-    description: 'AI tools for productivity, project management and office work',
-    detailedDescription: 'Supercharge your productivity with AI-powered office tools, project management and collaboration platforms.',
-    icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg>,
-    color: 'bg-emerald-100 text-emerald-700',
-    gradient: 'bg-emerald-50',
-    toolsCount: 20,
-    lastUpdated: 'December 2023'
-  },
-  {
-    id: 'sales-marketing',
-    title: 'Sales & Marketing',
-    description: 'AI-driven sales tools, lead generation and marketing automation',
-    detailedDescription: 'Powerful AI tools for sales professionals and marketers. Generate leads, automate campaigns and close more deals.',
-    icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" /></svg>,
-    color: 'bg-violet-100 text-violet-700',
-    gradient: 'bg-violet-50',
-    toolsCount: 20,
-    popular: true,
-    lastUpdated: 'January 2024'
+export const revalidate = 3600 // Revalidate every hour
+
+export const metadata: Metadata = {
+  title: 'TOP AI Tools Lists - Curated Rankings of Best AI Tools | Comparee.ai',
+  description: 'Discover curated TOP 20 lists of the best AI tools in each category. From AI writing to automation, find the highest-rated tools for 2025.',
+  keywords: 'TOP 20 AI tools, best AI tools lists, curated AI tools, top AI tools rankings, AI tools directory 2025',
+  openGraph: {
+    title: 'TOP AI Tools Lists - Curated Rankings | Comparee.ai',
+    description: 'Discover curated TOP 20 lists of the best AI tools in each category. From AI writing to automation, find the highest-rated tools for 2025.',
+    type: 'website',
+    url: 'https://comparee.ai/top-lists'
   }
-]
-
-export default function TopListsPage() {
-  const trendingLists = topListCategories.filter(cat => cat.trending)
-  const popularLists = topListCategories.filter(cat => cat.popular)
-
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-50/50 to-white">
-      <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-12">
-        <div className="max-w-7xl mx-auto">
-          
-          {/* Header */}
-          <div className="text-center mb-8 sm:mb-12">
-            <Link
-              href="/"
-              className="inline-flex items-center text-purple-600 hover:text-purple-700 mb-4 sm:mb-6 transition-colors text-sm sm:text-base"
-            >
-              <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-              Back to Homepage
-            </Link>
-            
-            <div className="mb-4 sm:mb-6">
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-2 sm:mb-4 px-2">
-                🏆 <span className="text-gradient-primary">TOP AI Tools</span> Lists
-              </h1>
-              <p className="text-base sm:text-lg lg:text-xl text-gray-600 max-w-3xl mx-auto px-4">
-                Carefully curated collections of the best AI tools in each category. 
-                Find the perfect tools for your specific needs and stay ahead of the curve.
-              </p>
-            </div>
-
-            {/* Stats - Mobilní optimalizace */}
-            <div className="grid grid-cols-3 gap-2 sm:gap-4 lg:gap-8 mb-6 sm:mb-8 max-w-lg mx-auto">
-              <div className="text-center bg-white rounded-lg p-3 sm:p-4 shadow-sm">
-                <div className="text-lg sm:text-2xl font-bold text-purple-600">{topListCategories.length}</div>
-                <div className="text-xs sm:text-sm text-gray-600">Categories</div>
-              </div>
-              <div className="text-center bg-white rounded-lg p-3 sm:p-4 shadow-sm">
-                <div className="text-lg sm:text-2xl font-bold text-purple-600">{topListCategories.length * 20}</div>
-                <div className="text-xs sm:text-sm text-gray-600">AI Tools</div>
-              </div>
-              <div className="text-center bg-white rounded-lg p-3 sm:p-4 shadow-sm">
-                <div className="text-lg sm:text-2xl font-bold text-purple-600">Weekly</div>
-                <div className="text-xs sm:text-sm text-gray-600">Updates</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Trending Lists */}
-          {trendingLists.length > 0 && (
-            <div className="mb-8 sm:mb-12">
-              <div className="flex items-center gap-2 mb-4 sm:mb-6 px-2">
-                <FireIcon className="w-5 h-5 sm:w-6 sm:h-6 text-red-500" />
-                <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Trending Now</h2>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
-                {trendingLists.map(category => (
-                  <CategoryCard key={category.id} category={category} />
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Popular Lists */}
-          {popularLists.length > 0 && (
-            <div className="mb-8 sm:mb-12">
-              <div className="flex items-center gap-2 mb-4 sm:mb-6 px-2">
-                <StarIcon className="w-5 h-5 sm:w-6 sm:h-6 text-blue-500" />
-                <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Most Popular</h2>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
-                {popularLists.map(category => (
-                  <CategoryCard key={category.id} category={category} />
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* All Categories */}
-          <div className="mb-8 sm:mb-12">
-            <div className="flex items-center gap-2 mb-4 sm:mb-6 px-2">
-              <TrophyFilledIcon className="w-5 h-5 sm:w-6 sm:h-6 text-amber-500" />
-              <h2 className="text-xl sm:text-2xl font-bold text-gray-900">All Categories</h2>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
-              {topListCategories.map(category => (
-                <CategoryCard key={category.id} category={category} />
-              ))}
-            </div>
-          </div>
-
-        </div>
-      </div>
-    </div>
-  )
 }
 
-// Mobilní optimalizovaná komponenta pro kartičky kategorií
-function CategoryCard({ category }: { category: TopListCategory }) {
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/[\s_-]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+}
+
+// Generate category descriptions for TOP 20 lists
+function generateTopListDescription(categoryName: string): string {
+  const descriptions: Record<string, string> = {
+    'content-and-writing': 'Discover the TOP 20 AI writing tools that are revolutionizing content creation in 2025.',
+    'productivity-and-organization': 'The TOP 20 AI productivity tools that boost efficiency and streamline workflows.',
+    'ai-design-and-creative-tools': 'TOP 20 AI design tools for creating stunning visuals and graphics without design experience.',
+    'marketing-and-social-media': 'The TOP 20 AI marketing tools for social media automation and campaign optimization.',
+    'workflow-automation': 'TOP 20 AI automation tools that eliminate repetitive tasks and optimize business processes.',
+    'ai-video-generation': 'The TOP 20 AI video tools for creating professional video content effortlessly.',
+    'business-automation': 'TOP 20 AI business tools for process automation and operational efficiency.',
+    'communication': 'The TOP 20 AI communication tools for enhanced team collaboration and messaging.',
+    'default': 'TOP 20 carefully selected AI tools that lead this category in performance and innovation.'
+  }
+  
+  const slug = slugify(categoryName)
+  return descriptions[slug] || descriptions.default
+}
+
+async function getTopListsData() {
+  try {
+    // Get all products from products API
+    const baseUrl = process.env.NODE_ENV === 'production' 
+      ? 'https://comparee.ai' 
+      : 'http://localhost:3000'
+    
+    // Fetch products with large page size to get all
+    const response = await fetch(`${baseUrl}/api/products?pageSize=1000`, {
+      next: { revalidate: 3600 },
+      headers: {
+        'User-Agent': 'TopLists-SSR'
+      }
+    })
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch products: ${response.status}`)
+    }
+
+    const data = await response.json()
+    const products = data.products || []
+
+    console.log(`TopLists: Loaded ${products.length} products from API`)
+
+    // Group products by category
+    const categoryProductsMap = new Map<string, any[]>()
+    
+    products.forEach((product: any) => {
+      if (product.category && product.category.trim()) {
+        const category = product.category.trim()
+        if (!categoryProductsMap.has(category)) {
+          categoryProductsMap.set(category, [])
+        }
+        categoryProductsMap.get(category)!.push(product)
+      }
+    })
+
+    // Process categories - only include those with 20+ products for TOP 20 lists
+    const categoriesWithProducts: CategoryWithProducts[] = []
+    
+    for (const [categoryName, categoryProducts] of categoryProductsMap.entries()) {
+      if (categoryProducts.length >= 20) {
+        // Get top 3 products for preview
+        const topProducts = categoryProducts
+          .slice(0, 3)
+          .map(product => ({
+            name: product.name,
+            description: product.description || 'Advanced AI tool for enhanced productivity and automation.'
+          }))
+
+        categoriesWithProducts.push({
+          slug: slugify(categoryName),
+          name: categoryName,
+          description: generateTopListDescription(categoryName),
+          productCount: categoryProducts.length,
+          topProducts
+        })
+      }
+    }
+
+    // Sort by product count (descending) then alphabetically
+    categoriesWithProducts.sort((a, b) => {
+      if (b.productCount !== a.productCount) {
+        return b.productCount - a.productCount
+      }
+      return a.name.localeCompare(b.name)
+    })
+
+    console.log(`TopLists: Found ${categoriesWithProducts.length} categories with 20+ products`)
+
+    return {
+      categories: categoriesWithProducts,
+      totalCategories: categoriesWithProducts.length,
+      totalTools: products.length
+    }
+  } catch (error) {
+    console.error('Error fetching top lists data:', error)
+    
+    // Fallback data
+    return {
+      categories: [],
+      totalCategories: 0,
+      totalTools: 0
+    }
+  }
+}
+
+export default async function TopListsPage() {
+  const data = await getTopListsData()
+
   return (
-    <Link
-      href={`/top-lists/${category.id}`}
-      className="group block"
-    >
-      <div className="rounded-xl p-4 sm:p-6 border border-gray-100 hover:shadow-sm hover:scale-105 transition-all duration-300 h-48 sm:h-64 relative" style={{ backgroundColor: '#F9FAFB' }}>
-        
-        {/* Badge */}
-        {category.badge && (
-          <div className="absolute top-2 sm:top-3 right-2 sm:right-3">
-            <span className="px-2 py-1 rounded-full text-xs font-bold text-slate-700 bg-slate-100">
-              {category.badge}
-            </span>
-          </div>
-        )}
+    <>
+      {/* JSON-LD Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "CollectionPage",
+            "name": "TOP AI Tools Lists - Curated Rankings of Best AI Tools",
+            "description": "Discover curated TOP 20 lists of the best AI tools in each category. From AI writing to automation, find the highest-rated tools for 2025.",
+            "url": "https://comparee.ai/top-lists",
+            "mainEntity": {
+              "@type": "ItemList",
+              "numberOfItems": data.totalCategories,
+              "itemListElement": data.categories.map((category, index) => ({
+                "@type": "ListItem",
+                "position": index + 1,
+                "name": `TOP 20 ${category.name}`,
+                "description": category.description,
+                "url": `https://comparee.ai/top-lists/${category.slug}`,
+                "additionalProperty": {
+                  "@type": "PropertyValue",
+                  "name": "numberOfItems",
+                  "value": Math.min(category.productCount, 20)
+                }
+              }))
+            }
+          })
+        }}
+      />
 
-        {/* Icon and title */}
-        <div className="flex items-start gap-3 sm:gap-4 mb-3 sm:mb-4">
-          <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg ${category.color} flex items-center justify-center group-hover:scale-110 transition-transform duration-300 flex-shrink-0`}>
-            {category.icon}
-          </div>
-          <div className="flex-1 min-w-0">
-            <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-1 group-hover:text-purple-600 transition-colors leading-tight">
-              TOP 20 {category.title}
-            </h3>
-            <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600">
-              <TrophyFilledIcon className="w-3 h-3 sm:w-4 sm:h-4 text-amber-500 flex-shrink-0" />
-              <span>TOP {category.toolsCount}</span>
-            </div>
-          </div>
-        </div>
+      {/* Canonical link */}
+      <link rel="canonical" href="https://comparee.ai/top-lists" />
 
-        {/* Description - na mobilu kratší */}
-        <p className="text-gray-600 text-sm mb-4 line-clamp-2 sm:line-clamp-3">
-          {category.detailedDescription}
-        </p>
-
-        {/* CTA blok - stejný jako TopListsSection */}
-        <div className="absolute bottom-2 sm:bottom-4 left-4 sm:left-6 right-4 sm:right-6">
-          <div className={`${category.gradient} rounded-2xl p-1 shadow-sm group-hover:shadow-md transition-shadow duration-300`}>
-            <div className="bg-white rounded-xl p-2 sm:p-3 flex items-center justify-between">
-              <div>
-                <div className="text-xs sm:text-sm font-bold text-gray-900">See all {category.toolsCount} tools ranked</div>
-                <div className="text-xs text-gray-600">View Complete Ranking</div>
-              </div>
-              <div className="flex items-center gap-2">
-                {category.trending && (
-                  <div className="flex items-center gap-1 text-xs text-red-600">
-                    <FireIcon className="w-3 h-3" />
-                  </div>
-                )}
-                {category.popular && (
-                  <div className="flex items-center gap-1 text-xs text-blue-600">
-                    <StarIcon className="w-3 h-3" />
-                  </div>
-                )}
-                <ArrowRightIcon className="w-4 h-4 text-purple-600 group-hover:translate-x-1 transition-transform duration-300" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </Link>
+      <TopListsClient
+        categories={data.categories}
+        totalCategories={data.totalCategories}
+        totalTools={data.totalTools}
+      />
+    </>
   )
 } 

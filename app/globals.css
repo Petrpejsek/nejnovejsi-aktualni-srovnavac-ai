@@ -49,6 +49,13 @@ body {
   -webkit-line-clamp: 2;
 }
 
+.line-clamp-3 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
 @layer utilities {
   .bg-gradient-primary {
     @apply bg-gradient-to-r from-purple-600 to-pink-500;
@@ -65,4 +72,108 @@ body {
   .border-gradient-primary {
     @apply border-purple-200 hover:border-purple-300;
   }
+}
+
+/* Swiper custom styles for top-lists page */
+.trending-swiper .swiper-button-next,
+.trending-swiper .swiper-button-prev,
+.popular-swiper .swiper-button-next,
+.popular-swiper .swiper-button-prev {
+  color: #7c3aed;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  margin-top: -22px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.trending-swiper .swiper-button-next:hover,
+.trending-swiper .swiper-button-prev:hover,
+.popular-swiper .swiper-button-next:hover,
+.popular-swiper .swiper-button-prev:hover {
+  background: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: scale(1.1);
+}
+
+.trending-swiper .swiper-button-next:after,
+.trending-swiper .swiper-button-prev:after,
+.popular-swiper .swiper-button-next:after,
+.popular-swiper .swiper-button-prev:after {
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.trending-swiper .swiper-pagination-bullet,
+.popular-swiper .swiper-pagination-bullet {
+  background: #d1d5db;
+  opacity: 1;
+  width: 12px;
+  height: 12px;
+  margin: 0 6px;
+  transition: all 0.3s ease;
+}
+
+.trending-swiper .swiper-pagination-bullet-active {
+  background: #dc2626;
+  transform: scale(1.2);
+}
+
+.popular-swiper .swiper-pagination-bullet-active {
+  background: #2563eb;
+  transform: scale(1.2);
+}
+
+.trending-swiper .swiper-pagination,
+.popular-swiper .swiper-pagination {
+  position: relative;
+  margin-top: 24px;
+}
+
+/* Responsive swiper adjustments */
+@media (max-width: 640px) {
+  .trending-swiper .swiper-button-next,
+  .trending-swiper .swiper-button-prev,
+  .popular-swiper .swiper-button-next,
+  .popular-swiper .swiper-button-prev {
+    display: none;
+  }
+} 
+
+/* Swiper custom styles */
+.swiper-pagination-bullet {
+  background: rgba(124, 58, 237, 0.3) !important;
+  opacity: 1 !important;
+}
+
+.swiper-pagination-bullet-active {
+  background: #7c3aed !important;
+}
+
+.swiper-button-next,
+.swiper-button-prev {
+  color: #7c3aed !important;
+}
+
+/* Top Categories Mobile Swiper */
+.top-categories-mobile-swiper .swiper-pagination {
+  bottom: 0 !important;
+}
+
+.top-categories-mobile-swiper .swiper-pagination-bullet {
+  width: 12px !important;
+  height: 12px !important;
+  margin: 0 6px !important;
+}
+
+/* Homepage Top 20 Cards Hover Effect */
+.home-top20-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.home-top20-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
 } 

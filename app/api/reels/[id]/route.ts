@@ -43,7 +43,7 @@ export async function DELETE(
   }
 }
 
-// PUT /api/reels/[id] - Update reel (optional for future)
+// PUT /api/reels/[id] - Update reel including banner settings
 export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -51,10 +51,19 @@ export async function PUT(
   try {
     const { id } = params
     const body = await request.json()
-    const { title, description } = body
+    const { title, description, adText, adLink, adEnabled } = body
 
     if (!title) {
       return NextResponse.json({ error: 'Title is required' }, { status: 400 })
+    }
+
+    // Validate ad link if provided
+    if (adLink && adLink.trim()) {
+      try {
+        new URL(adLink.trim())
+      } catch {
+        return NextResponse.json({ error: 'Invalid ad link URL' }, { status: 400 })
+      }
     }
 
     const reel = await prisma.reel.update({
@@ -62,6 +71,9 @@ export async function PUT(
       data: {
         title: title.trim(),
         description: description?.trim() || null,
+        adText: adText?.trim() || null,
+        adLink: adLink?.trim() || null,
+        adEnabled: Boolean(adEnabled),
         updatedAt: new Date()
       }
     })

@@ -8,6 +8,7 @@ import { HeartIcon as HeartFilledIcon } from '@heroicons/react/24/solid'
 import { useSession } from 'next-auth/react'
 import Modal from '../../components/Modal'
 import RegisterForm from '../../components/RegisterForm'
+import { useVideoThumbnail, getReelThumbnail } from '../../lib/videoUtils'
 
 // Toast notification helper
 const showToast = (message: string, type: 'success' | 'error' = 'success') => {
@@ -183,6 +184,123 @@ export default function ReelsPage() {
     })
   }
 
+  // Komponenta pro jednotlivý reel item s inteligentní thumbnail logikou
+  const ReelGridItem = ({ reel }: { reel: Reel }) => {
+    const { thumbnail: generatedThumbnail, isGenerating } = useVideoThumbnail(reel.videoUrl, reel.thumbnailUrl)
+    const finalThumbnail = getReelThumbnail(reel.thumbnailUrl, generatedThumbnail)
+    
+    return (
+      <div className="flex justify-center">
+        {/* Single Reel Container - Same Style as Homepage */}
+        <div className="relative h-96 w-54 rounded-3xl overflow-hidden bg-gray-900 shadow-2xl"
+             style={{ height: '384px', width: '216px' }}
+        >
+          {/* Video/Thumbnail Display */}
+          {playingId === reel.id ? (
+            <video
+              src={reel.videoUrl}
+              className="w-full h-full object-cover"
+              autoPlay
+              loop
+              preload="metadata"
+              controls
+              playsInline
+            />
+          ) : (
+            <div className="w-full h-full relative">
+              {/* Thumbnail s loading state */}
+              {isGenerating && !reel.thumbnailUrl ? (
+                // Loading state pro generování thumbnails
+                <div className="w-full h-full bg-gray-800 flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-2"></div>
+                    <span className="text-white text-xs">Načítám náhled...</span>
+                  </div>
+                </div>
+              ) : (
+                <img
+                  src={finalThumbnail}
+                  alt={reel.title}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.src = '/img/reel-placeholder.svg'
+                  }}
+                />
+              )}
+              
+              {/* Play Icon Overlay */}
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-20 h-20 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center">
+                  <PlayIcon className="w-10 h-10 text-white ml-1" />
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {/* Gradient Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+          
+          {/* Interactive Overlay */}
+          <button
+            onClick={() => handlePlay(reel.id)}
+            className={`absolute inset-0 ${playingId === reel.id ? 'flex items-center justify-center group' : ''}`}
+          >
+            {playingId === reel.id && (
+              <div className="w-16 h-16 rounded-full bg-black/30 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                <PauseIcon className="w-8 h-8 text-white" />
+              </div>
+            )}
+          </button>
+
+          {/* Favorite Button */}
+          <div className="absolute top-4 right-4">
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                handleFavorite(reel.id)
+              }}
+              className="w-10 h-10 bg-black/60 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-black/80 transition-colors"
+            >
+              {favoriteReels.has(reel.id) ? (
+                <HeartFilledIcon className="w-6 h-6 text-red-500" />
+              ) : (
+                <HeartIcon className="w-6 h-6 text-white" />
+              )}
+            </button>
+          </div>
+
+          {/* Content Overlay */}
+          <div className="absolute bottom-0 left-0 right-0 p-6">                      
+            {/* Title */}
+            <h3 className="text-white font-semibold text-lg mb-2 line-clamp-2">
+              {reel.title}
+            </h3>
+            
+            {/* Description */}
+            {reel.description && (
+              <p className="text-white/90 text-sm line-clamp-2 mb-4">
+                {reel.description}
+              </p>
+            )}
+          </div>
+
+          {/* Share Button */}
+          <div className="absolute right-4 bottom-24">
+            <button 
+              onClick={(e) => {
+                e.stopPropagation()
+                handleShare(reel)
+              }}
+              className="flex flex-col items-center gap-1 group/share"
+            >
+              <ShareIcon className="w-8 h-8 text-white group-hover/share:text-blue-400 group-hover/share:scale-110 transition-all" />
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
@@ -254,112 +372,7 @@ export default function ReelsPage() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
             {filteredReels.map((reel) => (
-              <div
-                key={reel.id}
-                className="flex justify-center"
-              >
-                {/* Single Reel Container - Same Style as Homepage */}
-                <div className="relative h-96 w-54 rounded-3xl overflow-hidden bg-gray-900 shadow-2xl"
-                     style={{ height: '384px', width: '216px' }}
-                >
-                  {/* Video/Thumbnail Display */}
-                  {playingId === reel.id ? (
-                    <video
-                      src={reel.videoUrl}
-                      className="w-full h-full object-cover"
-                      autoPlay
-                      loop
-                      preload="metadata"
-                      controls
-                      playsInline
-                    />
-                  ) : (
-                    <div className="w-full h-full relative">
-                      {reel.thumbnailUrl ? (
-                        <img
-                          src={reel.thumbnailUrl}
-                          alt={reel.title}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <video
-                          src={reel.videoUrl}
-                          className="w-full h-full object-cover"
-                          muted
-                          preload="metadata"
-                        />
-                      )}
-                      
-                      {/* Play Icon Overlay */}
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-20 h-20 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center">
-                          <PlayIcon className="w-10 h-10 text-white ml-1" />
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                  
-                  {/* Gradient Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                  
-                  {/* Interactive Overlay */}
-                  <button
-                    onClick={() => handlePlay(reel.id)}
-                    className={`absolute inset-0 ${playingId === reel.id ? 'flex items-center justify-center group' : ''}`}
-                  >
-                    {playingId === reel.id && (
-                      <div className="w-16 h-16 rounded-full bg-black/30 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                        <PauseIcon className="w-8 h-8 text-white" />
-                      </div>
-                    )}
-                  </button>
-
-                  {/* Favorite Button */}
-                  <div className="absolute top-4 right-4">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        handleFavorite(reel.id)
-                      }}
-                      className="w-10 h-10 bg-black/60 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-black/80 transition-colors"
-                    >
-                      {favoriteReels.has(reel.id) ? (
-                        <HeartFilledIcon className="w-6 h-6 text-red-500" />
-                      ) : (
-                        <HeartIcon className="w-6 h-6 text-white" />
-                      )}
-                    </button>
-                  </div>
-
-                  {/* Content Overlay */}
-                  <div className="absolute bottom-0 left-0 right-0 p-6">                      
-                    {/* Title */}
-                    <h3 className="text-white font-semibold text-lg mb-2 line-clamp-2">
-                      {reel.title}
-                    </h3>
-                    
-                    {/* Description */}
-                    {reel.description && (
-                      <p className="text-white/90 text-sm line-clamp-2 mb-4">
-                        {reel.description}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Share Button */}
-                  <div className="absolute right-4 bottom-24">
-                    <button 
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        handleShare(reel)
-                      }}
-                      className="flex flex-col items-center gap-1 group/share"
-                    >
-                      <ShareIcon className="w-8 h-8 text-white group-hover/share:text-blue-400 group-hover/share:scale-110 transition-all" />
-                    </button>
-                  </div>
-                </div>
-              </div>
+              <ReelGridItem key={reel.id} reel={reel} />
             ))}
           </div>
         )}

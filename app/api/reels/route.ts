@@ -11,6 +11,18 @@ export async function GET() {
     const reels = await prisma.reel.findMany({
       orderBy: {
         createdAt: 'desc'
+      },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        videoUrl: true,
+        thumbnailUrl: true,
+        createdAt: true,
+        updatedAt: true,
+        adText: true,
+        adLink: true,
+        adEnabled: true
       }
     })
 

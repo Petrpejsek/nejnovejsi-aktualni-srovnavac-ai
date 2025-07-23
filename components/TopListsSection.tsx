@@ -228,10 +228,7 @@ export default function TopListsSection() {
               href={`/top-lists/${category.id}`}
               className="flex-none w-96 group"
             >
-              <div className="relative rounded-xl p-8 border border-gray-100 hover:shadow-sm hover:scale-105 transition-all duration-500 group h-[420px] overflow-hidden" style={{ backgroundColor: '#F9FAFB' }}>
-                
-                {/* Gradient background overlay */}
-                <div className={`absolute inset-0 ${category.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl`} />
+              <div className="home-top20-card relative rounded-xl p-8 border border-gray-100 h-[420px] overflow-hidden" style={{ backgroundColor: '#F9FAFB' }}>
                 
                 {/* Floating sparkles effect */}
                 <div className="absolute top-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
