@@ -2,6 +2,19 @@ import React from 'react'
 import type { Metadata } from 'next'
 import TopListsClient from './TopListsClient'
 
+interface TopListData {
+  id: string
+  title: string
+  description: string
+  category: string
+  products: string[]
+  status: string
+  clicks: number
+  conversion: number
+  createdAt: string
+  updatedAt: string
+}
+
 interface CategoryWithProducts {
   slug: string
   name: string
@@ -35,32 +48,12 @@ function slugify(text: string): string {
     .replace(/^-+|-+$/g, '')
 }
 
-// Generate category descriptions for TOP 20 lists
-function generateTopListDescription(categoryName: string): string {
-  const descriptions: Record<string, string> = {
-    'content-and-writing': 'Discover the TOP 20 AI writing tools that are revolutionizing content creation in 2025.',
-    'productivity-and-organization': 'The TOP 20 AI productivity tools that boost efficiency and streamline workflows.',
-    'ai-design-and-creative-tools': 'TOP 20 AI design tools for creating stunning visuals and graphics without design experience.',
-    'marketing-and-social-media': 'The TOP 20 AI marketing tools for social media automation and campaign optimization.',
-    'workflow-automation': 'TOP 20 AI automation tools that eliminate repetitive tasks and optimize business processes.',
-    'ai-video-generation': 'The TOP 20 AI video tools for creating professional video content effortlessly.',
-    'business-automation': 'TOP 20 AI business tools for process automation and operational efficiency.',
-    'communication': 'The TOP 20 AI communication tools for enhanced team collaboration and messaging.',
-    'default': 'TOP 20 carefully selected AI tools that lead this category in performance and innovation.'
-  }
-  
-  const slug = slugify(categoryName)
-  return descriptions[slug] || descriptions.default
-}
-
 async function getTopListsData() {
   try {
-    // Get all products from products API
-    // Pro build i produkci používej localhost, protože externí doména není dostupná
+    // Load top lists from API
     const baseUrl = 'http://localhost:3000'
     
-    // Fetch products with large page size to get all
-    const response = await fetch(`${baseUrl}/api/products?pageSize=1000`, {
+    const response = await fetch(`${baseUrl}/api/top-lists?status=published`, {
       next: { revalidate: 3600 },
       headers: {
         'User-Agent': 'TopLists-SSR'
@@ -68,64 +61,63 @@ async function getTopListsData() {
     })
 
     if (!response.ok) {
-      throw new Error(`Failed to fetch products: ${response.status}`)
+      throw new Error(`Failed to fetch top lists: ${response.status}`)
     }
 
-    const data = await response.json()
-    const products = data.products || []
+    const topLists: TopListData[] = await response.json()
 
-    console.log(`TopLists: Loaded ${products.length} products from API`)
+    console.log(`TopLists: Loaded ${topLists.length} published top lists from API`)
 
-    // Group products by category
-    const categoryProductsMap = new Map<string, any[]>()
-    
-    products.forEach((product: any) => {
-      if (product.category && product.category.trim()) {
-        const category = product.category.trim()
-        if (!categoryProductsMap.has(category)) {
-          categoryProductsMap.set(category, [])
+    // Convert to CategoryWithProducts format for the frontend
+    const categoriesWithProducts: CategoryWithProducts[] = await Promise.all(
+      topLists.map(async (topList) => {
+        // Get product details for top 3 products
+        const topProducts = []
+        
+        try {
+          const productIds = topList.products.slice(0, 3)
+          if (productIds.length > 0) {
+            const productsResponse = await fetch(`${baseUrl}/api/products?ids=${productIds.join(',')}`, {
+              next: { revalidate: 3600 }
+            })
+            
+            if (productsResponse.ok) {
+              const products = await productsResponse.json()
+              for (const product of products) {
+                topProducts.push({
+                  name: product.name,
+                  description: product.description || 'Advanced AI tool for enhanced productivity and automation.'
+                })
+              }
+            }
+          }
+        } catch (error) {
+          console.error('Error fetching product details:', error)
         }
-        categoryProductsMap.get(category)!.push(product)
-      }
-    })
 
-    // Process categories - only include those with 20+ products for TOP 20 lists
-    const categoriesWithProducts: CategoryWithProducts[] = []
-    
-    for (const [categoryName, categoryProducts] of categoryProductsMap.entries()) {
-      if (categoryProducts.length >= 20) {
-        // Get top 3 products for preview
-        const topProducts = categoryProducts
-          .slice(0, 3)
-          .map(product => ({
-            name: product.name,
-            description: product.description || 'Advanced AI tool for enhanced productivity and automation.'
-          }))
+        // Fallback if no products found
+        if (topProducts.length === 0) {
+          topProducts.push(
+            { name: 'AI Tool #1', description: 'Advanced AI tool for enhanced productivity.' },
+            { name: 'AI Tool #2', description: 'Innovative solution for automation.' },
+            { name: 'AI Tool #3', description: 'Professional AI assistant for workflows.' }
+          )
+        }
 
-        categoriesWithProducts.push({
-          slug: slugify(categoryName),
-          name: categoryName,
-          description: generateTopListDescription(categoryName),
-          productCount: categoryProducts.length,
+        return {
+          slug: slugify(topList.category),
+          name: topList.title,
+          description: topList.description,
+          productCount: topList.products.length,
           topProducts
-        })
-      }
-    }
-
-    // Sort by product count (descending) then alphabetically
-    categoriesWithProducts.sort((a, b) => {
-      if (b.productCount !== a.productCount) {
-        return b.productCount - a.productCount
-      }
-      return a.name.localeCompare(b.name)
-    })
-
-    console.log(`TopLists: Found ${categoriesWithProducts.length} categories with 20+ products`)
+        }
+      })
+    )
 
     return {
       categories: categoriesWithProducts,
       totalCategories: categoriesWithProducts.length,
-      totalTools: products.length
+      totalTools: topLists.reduce((sum, list) => sum + list.products.length, 0)
     }
   } catch (error) {
     console.error('Error fetching top lists data:', error)

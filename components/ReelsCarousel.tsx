@@ -10,6 +10,32 @@ import Modal from './Modal'
 import RegisterForm from './RegisterForm'
 import { getReelThumbnail, isMobile } from '../lib/videoUtils'
 
+// Helper funkce pro sestavení správného video URL
+const getVideoUrl = (videoUrl: string): string => {
+  if (!videoUrl) {
+    console.error('🚨 Empty videoUrl provided to getVideoUrl')
+    return ''
+  }
+
+  // Pokud už je absolutní URL, vrátíme ji
+  if (videoUrl.startsWith('http://') || videoUrl.startsWith('https://')) {
+    console.log('🔗 Using absolute video URL:', videoUrl)
+    return videoUrl
+  }
+
+  // Pro produkci použijeme base URL
+  const baseUrl = process.env.NODE_ENV === 'production' 
+    ? 'https://comparee.ai' 
+    : ''
+  
+  // Ujistíme se, že cesta začíná lomítkem
+  const normalizedPath = videoUrl.startsWith('/') ? videoUrl : `/${videoUrl}`
+  const finalUrl = `${baseUrl}${normalizedPath}`
+  
+  console.log('🎬 Generated video URL:', finalUrl, 'from original:', videoUrl)
+  return finalUrl
+}
+
 // Toast notification helper
 const showToast = (message: string, type: 'success' | 'error' = 'success') => {
   const toast = document.createElement('div')
@@ -192,13 +218,33 @@ export default function ReelsCarousel() {
 
   const handlePlay = async (id: string) => {
     const video = videoRefs.current[id]
-    if (!video) return
-
     const reel = reels.find(r => r.id === id)
-    if (!reel) return
+    
+    console.log(`🎯 handlePlay called for ${reel?.title} (${id})`)
+    console.log('🎥 Video element:', video)
+    console.log('📱 Is mobile device:', isMobileDevice)
+    
+    if (!video) {
+      console.error('❌ No video element found for:', id)
+      return
+    }
+
+    if (!reel) {
+      console.error('❌ No reel data found for:', id)
+      return
+    }
+
+    console.log('🎬 Video details:', {
+      src: video.src,
+      readyState: video.readyState,
+      networkState: video.networkState,
+      duration: video.duration,
+      currentTime: video.currentTime
+    })
 
     // If currently playing, pause
     if (playingId === id) {
+      console.log('⏸️ Pausing video:', reel.title)
       video.pause()
       setPlayingId(null)
       setShowOverlay({ ...showOverlay, [id]: true })
@@ -218,6 +264,7 @@ export default function ReelsCarousel() {
 
     // Stop any other playing video
     if (playingId) {
+      console.log('⏹️ Stopping other video:', playingId)
       const prevVideo = videoRefs.current[playingId]
       if (prevVideo) {
         prevVideo.pause()
@@ -237,6 +284,7 @@ export default function ReelsCarousel() {
     }
 
     // Start playing new video
+    console.log('▶️ Starting video:', reel.title)
     setPlayingId(id)
     setShowOverlay({ ...showOverlay, [id]: true })
     setShowAdBanner({ ...showAdBanner, [id]: false })
@@ -244,34 +292,49 @@ export default function ReelsCarousel() {
     try {
       if (isMobileDevice) {
         // Mobile: Enter fullscreen
+        console.log('📱 Trying to enter fullscreen on mobile')
         try {
           if (video.requestFullscreen) {
+            console.log('🔳 Using requestFullscreen')
             await video.requestFullscreen()
           } else if ((video as any).webkitEnterFullscreen) {
+            console.log('🍎 Using webkitEnterFullscreen for iOS')
             // iOS Safari fallback
-            (video as any).webkitEnterFullscreen()
+            await (video as any).webkitEnterFullscreen()
           }
         } catch (error) {
-          console.warn('Fullscreen failed, playing inline:', error)
+          console.warn('⚠️ Fullscreen failed, playing inline:', error)
         }
       }
       
+      console.log('▶️ Calling video.play()')
       await video.play()
+      console.log('✅ Video.play() successful')
       
       // Hide overlay after 1.5 seconds (podle requirements)
       overlayTimeouts.current[id] = setTimeout(() => {
+        console.log('👻 Hiding overlay for:', reel.title)
         setShowOverlay(prev => ({ ...prev, [id]: false }))
       }, 1500)
       
       // Show ad banner after 5 seconds if enabled
       if (reel.adEnabled && reel.adText && reel.adLink) {
+        console.log('🎯 Ad banner will show after 5s for:', reel.title)
         adTimeouts.current[id] = setTimeout(() => {
+          console.log('📺 Showing ad banner for:', reel.title)
           setShowAdBanner(prev => ({ ...prev, [id]: true }))
         }, 5000)
       }
       
     } catch (error) {
-      console.error('Error playing video:', error)
+      console.error('❌ Error playing video:', error)
+      console.error('🎬 Video error details:', {
+        name: (error as Error)?.name || 'Unknown',
+        message: (error as Error)?.message || 'Unknown error',
+        videoSrc: video.src,
+        videoReadyState: video.readyState,
+        videoNetworkState: video.networkState
+      })
       setPlayingId(null)
     }
   }
@@ -385,6 +448,17 @@ export default function ReelsCarousel() {
   // Komponenta pro jednotlivý reel s inteligentní thumbnail logikou
   const ReelItem = ({ reel, index }: { reel: Reel, index: number }) => {
     const finalThumbnail = getReelThumbnail(reel.thumbnailUrl, null)
+    const finalVideoUrl = getVideoUrl(reel.videoUrl)
+    
+    // Debug logování pro každý reel
+    console.log(`🎬 ReelItem ${index} (${reel.id}):`, {
+      title: reel.title,
+      originalVideoUrl: reel.videoUrl,
+      finalVideoUrl: finalVideoUrl,
+      thumbnailUrl: reel.thumbnailUrl,
+      finalThumbnail: finalThumbnail,
+      isPlaying: playingId === reel.id
+    })
     
     return (
       <div className="flex-shrink-0 snap-center snap-always">
@@ -398,8 +472,15 @@ export default function ReelsCarousel() {
               <video
                 ref={(el) => {
                   videoRefs.current[reel.id] = el
+                  if (el) {
+                    console.log(`🎥 Video element created for ${reel.title}:`, {
+                      src: el.src,
+                      readyState: el.readyState,
+                      networkState: el.networkState
+                    })
+                  }
                 }}
-                src={reel.videoUrl}
+                src={finalVideoUrl}
                 poster={finalThumbnail}
                 className="w-full h-full object-cover"
                 autoPlay={!isMobileDevice}
@@ -408,6 +489,9 @@ export default function ReelsCarousel() {
                 controls={isMobileDevice && isInFullscreen}
                 playsInline
                 muted={!isMobileDevice}
+                onLoadStart={() => console.log(`📥 Video load started: ${reel.title}`)}
+                onLoadedData={() => console.log(`✅ Video loaded: ${reel.title}`)}
+                onError={(e) => console.error(`❌ Video error for ${reel.title}:`, e.currentTarget.error)}
                 onEnded={() => handleVideoEnded(reel.id)}
               />
               
@@ -453,13 +537,14 @@ export default function ReelsCarousel() {
                  
                  {/* Video fallback preview - zobrazí se pouze pokud není thumbnail */}
                  <video
-                   src={reel.videoUrl}
+                   src={finalVideoUrl}
                    className={`w-full h-full object-cover ${reel.thumbnailUrl ? 'hidden' : 'block'}`}
                    preload="metadata"
                    muted
                    playsInline
                    style={{ display: reel.thumbnailUrl ? 'none' : 'block' }}
-                   onError={() => {
+                   onError={(e) => {
+                     console.error(`❌ Thumbnail video error for ${reel.title}:`, e.currentTarget.error)
                      // Ultimate fallback na placeholder
                      const placeholder = document.createElement('img')
                      placeholder.src = '/img/reel-placeholder.svg'

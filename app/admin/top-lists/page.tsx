@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { 
   PlusIcon,
@@ -25,119 +25,61 @@ interface TopListCategory {
   id: string
   title: string
   description: string
-  detailedDescription: string
-  toolsCount: number
-  trending: boolean
-  popular: boolean
-  badge: string
-  lastUpdated: string
-  status: 'published' | 'draft' | 'archived'
-  position: number
-  clickCount: number
-  conversionRate: number
+  category: string
+  products: string[] // Array of product IDs
+  status: 'published' | 'draft'
+  clicks: number
+  conversion: number
+  createdAt: string
+  updatedAt: string
 }
 
 export default function TopListsAdmin() {
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
-  const [sortBy, setSortBy] = useState('position')
+  const [sortBy, setSortBy] = useState('createdAt')
+  const [topLists, setTopLists] = useState<TopListCategory[]>([])
+  const [loading, setLoading] = useState(true)
 
-  // Mock data - později nahradit API voláním
-  const topListCategories: TopListCategory[] = [
-    {
-      id: 'video-editing',
-      title: 'Video Editing Tools',
-      description: 'Best AI tools for video creation, editing and post-production',
-      detailedDescription: 'Comprehensive list of the most powerful AI video editing tools that will transform your video creation workflow.',
-      toolsCount: 20,
-      trending: true,
-      popular: false,
-      badge: 'HOT',
-      lastUpdated: '2024-01-15',
-      status: 'published',
-      position: 1,
-      clickCount: 2547,
-      conversionRate: 12.3
-    },
-    {
-      id: 'social-media',
-      title: 'Social Media Tools',
-      description: 'AI-powered content creation and social media management',
-      detailedDescription: 'Ultimate collection of AI tools for social media managers, content creators and marketers.',
-      toolsCount: 20,
-      trending: false,
-      popular: true,
-      badge: 'POPULAR',
-      lastUpdated: '2024-01-14',
-      status: 'published',
-      position: 2,
-      clickCount: 1923,
-      conversionRate: 8.7
-    },
-    {
-      id: 'writing-content',
-      title: 'Writing & Content',
-      description: 'AI writing assistants and content creation tools',
-      detailedDescription: 'Perfect collection for writers, bloggers and content creators.',
-      toolsCount: 20,
-      trending: false,
-      popular: false,
-      badge: 'NEW',
-      lastUpdated: '2024-01-13',
-      status: 'published',
-      position: 3,
-      clickCount: 1456,
-      conversionRate: 15.2
-    },
-    {
-      id: 'design-graphics',
-      title: 'Design & Graphics',
-      description: 'AI tools for graphic design, logos and visual content',
-      detailedDescription: 'Essential AI design tools for creating stunning graphics, logos, presentations and visual content.',
-      toolsCount: 20,
-      trending: false,
-      popular: false,
-      badge: '',
-      lastUpdated: '2024-01-10',
-      status: 'published',
-      position: 4,
-      clickCount: 1205,
-      conversionRate: 9.8
-    },
-    {
-      id: 'chatbots-draft',
-      title: 'Chatbots & AI Assistants',
-      description: 'Conversational AI and virtual assistant platforms',
-      detailedDescription: 'Top AI chatbots and virtual assistants for customer service, productivity and personal use.',
-      toolsCount: 15,
-      trending: false,
-      popular: false,
-      badge: '',
-      lastUpdated: '2024-01-12',
-      status: 'draft',
-      position: 5,
-      clickCount: 0,
-      conversionRate: 0
+  // Load top lists from API
+  useEffect(() => {
+    fetchTopLists()
+  }, [])
+
+  const fetchTopLists = async () => {
+    try {
+      setLoading(true)
+      const response = await fetch('/api/top-lists')
+      if (response.ok) {
+        const data = await response.json()
+        setTopLists(data)
+      } else {
+        console.error('Failed to fetch top lists')
+      }
+    } catch (error) {
+      console.error('Error fetching top lists:', error)
+    } finally {
+      setLoading(false)
     }
-  ]
+  }
 
-  const filteredCategories = topListCategories.filter(category => {
+  const filteredCategories = topLists.filter(category => {
     const matchesSearch = category.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          category.description.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesStatus = statusFilter === 'all' || category.status === statusFilter
     return matchesSearch && matchesStatus
   }).sort((a, b) => {
     switch (sortBy) {
-      case 'position':
-        return a.position - b.position
       case 'clicks':
-        return b.clickCount - a.clickCount
+        return b.clicks - a.clicks
       case 'conversion':
-        return b.conversionRate - a.conversionRate
-      case 'updated':
-        return new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime()
+        return b.conversion - a.conversion
+      case 'createdAt':
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      case 'title':
+        return a.title.localeCompare(b.title)
       default:
-        return a.position - b.position
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     }
   })
 
@@ -147,52 +89,77 @@ export default function TopListsAdmin() {
         return 'bg-green-100 text-green-800'
       case 'draft':
         return 'bg-yellow-100 text-yellow-800'
-      case 'archived':
-        return 'bg-gray-100 text-gray-800'
       default:
         return 'bg-gray-100 text-gray-800'
     }
   }
 
-  const getBadgeColor = (badge: string) => {
-    switch (badge) {
-      case 'HOT':
-        return 'bg-red-100 text-red-800'
-      case 'POPULAR':
-        return 'bg-blue-100 text-blue-800'
-      case 'NEW':
-        return 'bg-green-100 text-green-800'
-      default:
-        return 'bg-gray-100 text-gray-800'
-    }
-  }
-
-  const handleDelete = (categoryId: string) => {
+  const handleDelete = async (categoryId: string) => {
     if (confirm('Opravdu chcete smazat tuto kategorii? Tato akce je nevratná.')) {
-      console.log('Deleting category:', categoryId)
+      try {
+        const response = await fetch(`/api/top-lists/${categoryId}`, {
+          method: 'DELETE'
+        })
+        
+        if (response.ok) {
+          // Refresh the list
+          fetchTopLists()
+        } else {
+          alert('Chyba při mazání kategorie')
+        }
+      } catch (error) {
+        console.error('Error deleting category:', error)
+        alert('Chyba při mazání kategorie')
+      }
     }
   }
 
-  const handleMoveUp = (categoryId: string) => {
-    console.log('Moving up category:', categoryId)
-  }
+  const handleDuplicate = async (categoryId: string) => {
+    const originalCategory = topLists.find(c => c.id === categoryId)
+    if (!originalCategory) return
 
-  const handleMoveDown = (categoryId: string) => {
-    console.log('Moving down category:', categoryId)
-  }
+    try {
+      const response = await fetch('/api/top-lists', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          title: `${originalCategory.title} (Kopie)`,
+          description: originalCategory.description,
+          category: originalCategory.category,
+          products: originalCategory.products,
+          status: 'draft'
+        })
+      })
 
-  const handleDuplicate = (categoryId: string) => {
-    console.log('Duplicating category:', categoryId)
+      if (response.ok) {
+        fetchTopLists()
+      } else {
+        alert('Chyba při duplikování kategorie')
+      }
+    } catch (error) {
+      console.error('Error duplicating category:', error)
+      alert('Chyba při duplikování kategorie')
+    }
   }
 
   const stats = {
-    total: topListCategories.length,
-    published: topListCategories.filter(c => c.status === 'published').length,
-    draft: topListCategories.filter(c => c.status === 'draft').length,
-    totalClicks: topListCategories.reduce((sum, c) => sum + c.clickCount, 0),
-    averageConversion: topListCategories.length > 0 
-      ? (topListCategories.reduce((sum, c) => sum + c.conversionRate, 0) / topListCategories.length).toFixed(1)
+    total: topLists.length,
+    published: topLists.filter(c => c.status === 'published').length,
+    draft: topLists.filter(c => c.status === 'draft').length,
+    totalClicks: topLists.reduce((sum, c) => sum + c.clicks, 0),
+    averageConversion: topLists.length > 0 
+      ? (topLists.reduce((sum, c) => sum + c.conversion, 0) / topLists.length).toFixed(1)
       : '0.0'
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-purple-600"></div>
+      </div>
+    )
   }
 
   return (
@@ -209,13 +176,13 @@ export default function TopListsAdmin() {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <Link
-            href="/admin/top-lists/settings"
+          <button
+            onClick={fetchTopLists}
             className="inline-flex items-center px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
           >
-            <Cog6ToothIcon className="w-5 h-5 mr-2" />
-            Nastavení
-          </Link>
+            <ArrowDownIcon className="w-5 h-5 mr-2" />
+            Obnovit
+          </button>
           <Link
             href="/admin/top-lists/new"
             className="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
@@ -319,7 +286,6 @@ export default function TopListsAdmin() {
               <option value="all">Všechny stavy</option>
               <option value="published">Publikované</option>
               <option value="draft">Koncepty</option>
-              <option value="archived">Archivované</option>
             </select>
           </div>
 
@@ -333,24 +299,21 @@ export default function TopListsAdmin() {
               onChange={(e) => setSortBy(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
             >
-              <option value="position">Pozice</option>
+              <option value="createdAt">Datum vytvoření</option>
+              <option value="title">Název</option>
               <option value="clicks">Počet kliků</option>
               <option value="conversion">Konverze</option>
-              <option value="updated">Poslední aktualizace</option>
             </select>
           </div>
         </div>
       </div>
 
-      {/* Categories Table */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+      {/* Table */}
+      <div className="bg-white shadow-sm border border-gray-200 rounded-lg overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  #
-                </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Kategorie
                 </th>
@@ -374,65 +337,39 @@ export default function TopListsAdmin() {
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredCategories.map((category) => (
                 <tr key={category.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <TrophyFilledIcon className="w-5 h-5 text-yellow-500 mr-2" />
-                      <span className="text-sm font-semibold text-gray-900">#{category.position}</span>
-                    </div>
-                  </td>
                   <td className="px-6 py-4">
                     <div className="flex items-start">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
+                          <TrophyFilledIcon className="w-5 h-5 text-yellow-500" />
                           <h3 className="text-sm font-semibold text-gray-900">{category.title}</h3>
-                          {category.badge && (
-                            <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${getBadgeColor(category.badge)}`}>
-                              {category.badge}
-                            </span>
-                          )}
-                          {category.trending && <FireIcon className="w-4 h-4 text-red-500" />}
-                          {category.popular && <StarIcon className="w-4 h-4 text-blue-500" />}
                         </div>
                         <p className="text-sm text-gray-600 line-clamp-2">{category.description}</p>
+                        <p className="text-xs text-gray-500 mt-1">Kategorie: {category.category}</p>
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{category.toolsCount} nástrojů</div>
+                    <div className="text-sm text-gray-900">{category.products.length} nástrojů</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm">
-                      <div className="text-gray-900">{category.clickCount.toLocaleString()} kliků</div>
-                      <div className="text-gray-500">{category.conversionRate}% konverze</div>
+                      <div className="text-gray-900">{category.clicks.toLocaleString()} kliků</div>
+                      <div className="text-gray-500">{category.conversion}% konverze</div>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(category.status)}`}>
-                      {category.status === 'published' ? 'Publikované' : 
-                       category.status === 'draft' ? 'Koncept' : 'Archivované'}
+                      {category.status === 'published' ? 'Publikované' : 'Koncept'}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {new Date(category.lastUpdated).toLocaleDateString('cs-CZ')}
+                    {new Date(category.updatedAt).toLocaleDateString('cs-CZ')}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex items-center justify-end gap-2">
-                      <button
-                        onClick={() => handleMoveUp(category.id)}
-                        className="text-gray-400 hover:text-gray-600 p-1"
-                        title="Posunout nahoru"
-                      >
-                        <ArrowUpIcon className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleMoveDown(category.id)}
-                        className="text-gray-400 hover:text-gray-600 p-1"
-                        title="Posunout dolů"
-                      >
-                        <ArrowDownIcon className="w-4 h-4" />
-                      </button>
                       <Link
-                        href={`/top-lists/${category.id}`}
+                        href={`/top-lists/${category.category}`}
                         className="text-gray-400 hover:text-gray-600 p-1"
                         title="Zobrazit"
                       >
