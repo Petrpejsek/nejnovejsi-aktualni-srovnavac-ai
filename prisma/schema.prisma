@@ -321,3 +321,20 @@ model Reel {
   adLink       String?
   adEnabled    Boolean  @default(false)
 }
+
+model TopList {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  category    String
+  products    Json     // pole productId
+  status      String   @default("draft") // draft, published
+  clicks      Int      @default(0)
+  conversion  Float    @default(0.0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([category])
+  @@index([status])
+  @@index([createdAt])
+}
