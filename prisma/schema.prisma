@@ -317,9 +317,9 @@ model Reel {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   thumbnailUrl String?
-  adText       String?
-  adLink       String?
   adEnabled    Boolean  @default(false)
+  adLink       String?
+  adText       String?
 }
 
 model TopList {
@@ -327,8 +327,8 @@ model TopList {
   title       String
   description String
   category    String
-  products    Json     // pole productId
-  status      String   @default("draft") // draft, published
+  products    Json
+  status      String   @default("draft")
   clicks      Int      @default(0)
   conversion  Float    @default(0.0)
   createdAt   DateTime @default(now())

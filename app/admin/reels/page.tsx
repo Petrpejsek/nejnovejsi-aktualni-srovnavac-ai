@@ -315,7 +315,7 @@ export default function ReelsAdmin() {
             </div>
           ) : (
             <div className="space-y-4">
-              {reels.map((reel) => (
+                {reels.map((reel) => (
                 <div
                   key={reel.id}
                   className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors"
@@ -355,14 +355,14 @@ export default function ReelsAdmin() {
                           <div className="bg-purple-50 border border-purple-200 rounded-md p-3 mb-2">
                             <div className="flex items-center gap-2 mb-1">
                               <span className="text-xs font-medium text-purple-800">📢 BANNER REKLAMA:</span>
-                            </div>
+                      </div>
                             <p className="text-sm text-purple-700 font-medium mb-1">
                               "{reel.adText}"
                             </p>
                             <a
                               href={reel.adLink}
-                              target="_blank"
-                              rel="noopener noreferrer"
+                          target="_blank"
+                          rel="noopener noreferrer"
                               className="text-xs text-purple-600 hover:text-purple-800 underline break-all"
                             >
                               {reel.adLink}
@@ -405,7 +405,7 @@ export default function ReelsAdmin() {
                     </div>
                   </div>
                 </div>
-              ))}
+                ))}
             </div>
           )}
         </div>

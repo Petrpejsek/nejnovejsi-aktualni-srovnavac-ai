@@ -43,3 +43,6 @@ next-env.d.ts
 # AI Recommendations - dočasně schováno
 app/api/users/ai-recommendations/
 AI_RECOMMENDATIONS_HIDDEN.md
+.env.development
+.env.production
+.env.backup*

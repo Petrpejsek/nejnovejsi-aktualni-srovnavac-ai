@@ -72,7 +72,7 @@ export default function NewTopListCategory() {
       console.error('Error creating category:', error)
       alert('Chyba při vytváření kategorie')
     } finally {
-      setSaving(false)
+    setSaving(false)
     }
   }
 
@@ -127,79 +127,79 @@ export default function NewTopListCategory() {
       {/* Form */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
         <div className="p-6">
-          <div className="space-y-6">
+      <div className="space-y-6">
             {/* Basic Info */}
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Základní informace</h3>
-              
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Základní informace</h3>
+                
               <div className="grid grid-cols-1 gap-6">
-                <div>
+                  <div>
                   <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
-                    Název kategorie *
-                  </label>
-                  <input
-                    type="text"
+                      Název kategorie *
+                    </label>
+                    <input
+                      type="text"
                     id="title"
-                    value={category.title}
-                    onChange={(e) => handleInputChange('title', e.target.value)}
+                      value={category.title}
+                      onChange={(e) => handleInputChange('title', e.target.value)}
                     placeholder="např. AI Video Editing Tools"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
                     required
-                  />
-                </div>
+                    />
+                  </div>
 
-                <div>
+                  <div>
                   <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
                     Kategorie slug *
-                  </label>
+                    </label>
                   <input
                     type="text"
                     id="category"
                     value={category.category}
                     onChange={(e) => handleInputChange('category', e.target.value)}
                     placeholder="video-editing (používá se v URL)"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
                     required
-                  />
+                    />
                   <p className="text-sm text-gray-500 mt-1">
                     Použije se v URL: /top-lists/{category.category || 'kategorie'}
                   </p>
-                </div>
+                  </div>
 
-                <div>
+                  <div>
                   <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
                     Popis kategorie *
-                  </label>
-                  <textarea
+                    </label>
+                    <textarea
                     id="description"
                     value={category.description}
                     onChange={(e) => handleInputChange('description', e.target.value)}
                     placeholder="Stručný popis kategorie pro uživatele..."
                     rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
                     required
-                  />
+                    />
                 </div>
-
-                <div>
+                
+                  <div>
                   <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-2">
                     Status
-                  </label>
-                  <select
+                    </label>
+                    <select
                     id="status"
                     value={category.status}
                     onChange={(e) => handleInputChange('status', e.target.value as 'published' | 'draft')}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  >
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    >
                     <option value="draft">Koncept</option>
                     <option value="published">Publikováno</option>
-                  </select>
+                    </select>
                 </div>
               </div>
             </div>
 
             {/* Products Selection */}
-            <div>
+                  <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-4">
                 Výběr nástrojů ({category.products.length}/20)
               </h3>
@@ -208,8 +208,8 @@ export default function NewTopListCategory() {
                 <p className="text-sm text-yellow-800">
                   <strong>Důležité:</strong> TOP list musí obsahovat přesně 20 nástrojů. 
                   Aktuálně máte vybráno {category.products.length} nástrojů.
-                </p>
-              </div>
+                    </p>
+                  </div>
 
               {category.products.length > 0 && (
                 <div className="mb-4">
@@ -226,9 +226,9 @@ export default function NewTopListCategory() {
                         </button>
                       </div>
                     ))}
-                  </div>
-                </div>
-              )}
+            </div>
+          </div>
+        )}
 
               <div className="bg-gray-50 p-4 rounded-lg">
                 <p className="text-sm text-gray-600 mb-2">
@@ -238,9 +238,9 @@ export default function NewTopListCategory() {
                   Tip: Nejprve vytvořte kategorii s základními informacemi, pak přidejte nástroje v editaci.
                 </p>
               </div>
-            </div>
-          </div>
-        </div>
+                  </div>
+                </div>
+              </div>
 
         {/* Footer */}
         <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex items-center justify-between">
@@ -268,7 +268,7 @@ export default function NewTopListCategory() {
               </>
             )}
           </button>
-        </div>
+          </div>
       </div>
     </div>
   )

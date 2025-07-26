@@ -105,7 +105,12 @@ export default function ProductGrid({ selectedTags }: ProductGridProps = {}) {
     
     const loadProducts = async () => {
       try {
-        const response = await fetch(`/api/products?page=1&pageSize=${PAGE_SIZE}`)
+        const response = await fetch(`${window.location.origin}/api/products?page=1&pageSize=${PAGE_SIZE}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        })
         
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`)

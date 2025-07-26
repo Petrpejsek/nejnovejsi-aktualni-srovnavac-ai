@@ -23,14 +23,19 @@ const getVideoUrl = (videoUrl: string): string => {
     return videoUrl
   }
 
-  // Pro produkci použijeme base URL
-  const baseUrl = process.env.NODE_ENV === 'production' 
-    ? 'https://comparee.ai' 
-    : ''
+  // Fallback pro base URL
+  const baseURL = process.env.NEXT_PUBLIC_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : '')
   
-  // Ujistíme se, že cesta začíná lomítkem
-  const normalizedPath = videoUrl.startsWith('/') ? videoUrl : `/${videoUrl}`
-  const finalUrl = `${baseUrl}${normalizedPath}`
+  // Pokud je relativní URL (začíná '/uploads/' nebo '/')
+  if (videoUrl.startsWith('/')) {
+    const finalUrl = `${baseURL}${videoUrl}`
+    console.log('🎬 Generated video URL:', finalUrl, 'from original:', videoUrl)
+    return finalUrl
+  }
+  
+  // Ujistíme se, že cesta začíná lomítkem pro ostatní případy
+  const normalizedPath = `/${videoUrl}`
+  const finalUrl = `${baseURL}${normalizedPath}`
   
   console.log('🎬 Generated video URL:', finalUrl, 'from original:', videoUrl)
   return finalUrl
@@ -723,15 +728,15 @@ export default function ReelsCarousel() {
         {/* Mobile tip */}
         {isMobileDevice && (
           <div className="text-center mt-4">
-            <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500">
               Tap to play in fullscreen
-            </p>
-          </div>
+          </p>
+        </div>
         )}
 
         {/* Sign up modal */}
         <Modal isOpen={showSignUpModal} onClose={() => setShowSignUpModal(false)}>
-          <RegisterForm 
+          <RegisterForm
             onSuccess={() => {
               setShowSignUpModal(false)
               window.location.reload()

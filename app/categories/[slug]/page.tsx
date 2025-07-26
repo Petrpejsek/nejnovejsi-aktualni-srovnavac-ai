@@ -82,7 +82,23 @@ const CategoryProductCard: React.FC<CategoryProductCardProps> = ({ product, onVi
           {/* Tags */}
           {product.tags && (
             <div className="flex flex-wrap gap-1 mb-4">
-              {(typeof product.tags === 'string' ? JSON.parse(product.tags) : product.tags || [])?.slice(0, 3).map((tag: string, index: number) => (
+              {(() => {
+                if (!product.tags) return []
+                if (typeof product.tags === 'string') {
+                  const trimmed = product.tags.trim()
+                  if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
+                    try {
+                      return JSON.parse(trimmed)
+                    } catch {
+                      console.warn('Invalid JSON in product.tags:', trimmed)
+                      return []
+                    }
+                  }
+                  // fallback: comma-separated list
+                  return trimmed.split(',').map(t => t.trim())
+                }
+                return Array.isArray(product.tags) ? product.tags : []
+              })()?.slice(0, 3).map((tag: string, index: number) => (
                 <span
                   key={index}
                   className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-md"
@@ -350,7 +366,23 @@ export default function CategoryPage() {
                   // Check tags
                   if (product.tags) {
                     try {
-                      const tags = typeof product.tags === 'string' ? JSON.parse(product.tags) : product.tags
+                      const tags = (() => {
+                        if (!product.tags) return []
+                        if (typeof product.tags === 'string') {
+                          const trimmed = product.tags.trim()
+                          if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
+                            try {
+                              return JSON.parse(trimmed)
+                            } catch {
+                              console.warn('Invalid JSON in product.tags:', trimmed)
+                              return []
+                            }
+                          }
+                          // fallback: comma-separated list
+                          return trimmed.split(',').map(t => t.trim())
+                        }
+                        return Array.isArray(product.tags) ? product.tags : []
+                      })()
                       if (Array.isArray(tags)) {
                         return tags.some(tag => {
                           const tagLower = tag.toLowerCase()
