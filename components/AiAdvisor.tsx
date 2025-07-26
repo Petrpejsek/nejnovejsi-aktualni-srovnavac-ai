@@ -125,10 +125,10 @@ export default function AiAdvisor() {
   useEffect(() => {
     const loadProductCount = async () => {
       try {
-        const response = await fetch('/api/product-count', {
-          cache: 'no-store',
+        const response = await fetch(`${window.location.origin}/api/product-count`, {
+          method: 'GET',
           headers: {
-            'Cache-Control': 'no-cache',
+            'Content-Type': 'application/json',
           }
         })
         if (response.ok) {
@@ -256,13 +256,30 @@ export default function AiAdvisor() {
     setLoadingMessageIndex(0) // Reset to first message
     setLoading(true) // Start beautiful loading animation
     
-    console.log('Starting loading animation and redirecting to recommendations with query:', query)
+    console.log('🚀 Calling /api/advisor with query:', query)
     
-    // Čekáme ~6 s (≈ 75 % očekávané doby), zobrazujeme loading na homepage
-    setTimeout(() => {
-      // Directly redirect to recommendations page - let it handle the API call
+    try {
+      const response = await fetch("/api/advisor", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query }),
+      })
+      
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`)
+      }
+      
+      const data = await response.json()
+      console.log('✅ Got recommendations:', data)
+      
+      // Redirect to recommendations page with the query (let it show results)
       router.push(`/recommendations?query=${encodeURIComponent(query)}`)
-    }, 6000)
+      
+    } catch (error) {
+      console.error('❌ Error calling advisor API:', error)
+      setError('Failed to get recommendations. Please try again.')
+      setLoading(false)
+    }
   }
 
   return (
