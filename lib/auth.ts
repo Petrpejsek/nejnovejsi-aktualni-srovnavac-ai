@@ -22,10 +22,24 @@ export const createAuthOptions = (loginType: 'admin' | 'user' = 'user'): NextAut
           return null;
         }
 
-        const currentLoginType = credentials.loginType || loginType; // použij parametr jako fallback
-        console.log(`🔍 Login attempt: ${credentials.email} via ${currentLoginType}`);
+        console.log(`🔍 Login attempt: ${credentials.email}`);
 
-        // 🚨 STRIKTNÍ KONTROLY NA ZAČÁTKU - PŘED VYTVOŘENÍM SESSION
+        // ✅ PRIORITNÍ KONTROLA ADMIN ÚČTU - VŽDY PRVNÍ
+        if (credentials.email === 'admin@admin.com' && credentials.password === 'admin123') {
+          console.log('✅ Admin login successful:', credentials.email);
+          return { 
+            id: 'admin', 
+            name: 'Super Admin', 
+            email: 'admin@admin.com', 
+            isAdmin: true, 
+            loginType: 'admin'
+          };
+        }
+
+        const currentLoginType = credentials.loginType || loginType; // použij parametr jako fallback
+        console.log(`🔍 Continuing with loginType: ${currentLoginType}`);
+
+        // 🚨 STRIKTNÍ KONTROLY PRO BĚŽNÉ UŽIVATELE
 
         // 🚨 Blokace admin loginu v user login provideru
         if (currentLoginType === 'user' && credentials.email === 'admin@admin.com') {
@@ -37,19 +51,6 @@ export const createAuthOptions = (loginType: 'admin' | 'user' = 'user'): NextAut
         if (currentLoginType === 'admin' && credentials.email !== 'admin@admin.com') {
           console.log('🚨 BLOCKED: Only admin account can use admin login');
           throw new Error('Only admin account can use admin login');
-        }
-
-        // ✅ ADMIN LOGIN - pouze admin@admin.com a pouze z admin oblasti
-        if (currentLoginType === 'admin' && credentials.email === "admin@admin.com" && credentials.password === "admin123") {
-          console.log('✅ Admin login successful:', credentials.email);
-          return { 
-            id: "admin1", 
-            name: "Super Admin", 
-            email: "admin@admin.com",
-            userType: 'admin',
-            isAdmin: true,
-            loginType: 'admin'
-          };
         }
 
         // ✅ BĚŽNÍ UŽIVATELÉ - pouze z user oblasti, nikdy nejsou admin
