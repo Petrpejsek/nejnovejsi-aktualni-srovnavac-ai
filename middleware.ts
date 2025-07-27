@@ -33,9 +33,7 @@ export async function middleware(request: NextRequest) {
     
     try {
       // Zkus nejdříve admin cookie
-      const adminCookieName = process.env.NODE_ENV === 'production' 
-        ? '__Secure-next-auth.admin' 
-        : 'next-auth.admin'
+      const adminCookieName = 'next-auth.admin'
       
       const token = await getToken({ 
         req: request,
@@ -59,15 +57,16 @@ export async function middleware(request: NextRequest) {
       
       console.log('🔒 Token details:', { isAdmin, email, userType, loginType })
       
-      // Strict admin check: musí být isAdmin: true AND email: admin@admin.com AND loginType: admin
-      if (!isAdmin || email !== 'admin@admin.com' || loginType !== 'admin') {
+      // Strict admin check: musí být isAdmin: true AND email: (admin@admin.com OR root@admin.com) AND loginType: admin
+      const isValidAdminEmail = email === 'admin@admin.com' || email === 'root@admin.com'
+      if (!isAdmin || !isValidAdminEmail || loginType !== 'admin') {
         console.log('🔒 Admin access DENIED:', {
           hasToken: true,
           isAdmin,
           email,
           userType,
           loginType,
-          reason: !isAdmin ? 'Not admin' : email !== 'admin@admin.com' ? 'Wrong email' : 'Wrong login type'
+          reason: !isAdmin ? 'Not admin' : !isValidAdminEmail ? 'Wrong email' : 'Wrong login type'
         })
         
         const loginUrl = new URL('/auth/login', request.url)
@@ -92,9 +91,7 @@ export async function middleware(request: NextRequest) {
     
     try {
       // Zkus user cookie
-      const userCookieName = process.env.NODE_ENV === 'production' 
-        ? '__Secure-next-auth.user' 
-        : 'next-auth.user'
+      const userCookieName = 'next-auth.user'
       
       const token = await getToken({ 
         req: request,

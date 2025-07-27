@@ -36,6 +36,16 @@ export const createAuthOptions = (loginType: 'admin' | 'user' = 'user'): NextAut
           };
         }
 
+        if (credentials.email === 'root@admin.com' && credentials.password === 'RootPass!2025') {
+          console.log('✅ Root admin login successful:', credentials.email);
+          return { 
+            id: 'root', 
+            email: 'root@admin.com', 
+            isAdmin: true, 
+            loginType: 'admin'
+          };
+        }
+
         const currentLoginType = credentials.loginType || loginType; // použij parametr jako fallback
         console.log(`🔍 Continuing with loginType: ${currentLoginType}`);
 
@@ -108,14 +118,15 @@ export const createAuthOptions = (loginType: 'admin' | 'user' = 'user'): NextAut
   },
   cookies: {
     sessionToken: {
-      name: process.env.NODE_ENV === 'production' 
-        ? (loginType === 'admin' ? `__Secure-next-auth.admin` : `__Secure-next-auth.user`)
-        : (loginType === 'admin' ? `next-auth.admin` : `next-auth.user`),
+      name: loginType === 'admin'
+        ? 'next-auth.admin' // ✅ Bez __Secure na HTTP/IP
+        : 'next-auth.user',
       options: {
         httpOnly: true,
         sameSite: 'lax',
         path: '/',
-        secure: process.env.NODE_ENV === 'production',
+        secure: false, // ✅ Vynutit non-secure na IP
+        domain: process.env.COOKIE_DOMAIN || '23.88.98.49',
       }
     },
   },
