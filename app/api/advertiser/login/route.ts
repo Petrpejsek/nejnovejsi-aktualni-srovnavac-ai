@@ -65,7 +65,6 @@ export async function POST(request: NextRequest) {
     const updateData: any = { lastLoginAt: new Date() }
     if (company.status === 'approved') {
       updateData.status = 'active'
-      console.log(`🎯 First login: Changing company ${company.name} status from 'approved' to 'active'`)
     }
 
     await prisma.company.update({
@@ -88,7 +87,7 @@ export async function POST(request: NextRequest) {
       { expiresIn: tokenExpiry }
     )
 
-    console.log(`🔐 Company logged in: ${company.email} ${rememberMe ? '(Remember Me enabled - 30 days)' : '(Standard login - 7 days)'}`)
+
 
     // Create response with secure cookie (use updated status)
     const finalStatus = company.status === 'approved' ? 'active' : company.status
@@ -116,7 +115,6 @@ export async function POST(request: NextRequest) {
     return response
 
   } catch (error) {
-    console.error('Error during company login:', error)
     return NextResponse.json(
       { 
         success: false, 

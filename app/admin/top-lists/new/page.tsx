@@ -224,7 +224,7 @@ export default function NewTopListCategory() {
                         >
                           Odebrat
                         </button>
-                      </div>
+                  </div>
                     ))}
             </div>
           </div>

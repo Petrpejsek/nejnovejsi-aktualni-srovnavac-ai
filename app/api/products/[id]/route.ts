@@ -129,7 +129,8 @@ export async function PUT(
     }
 
     // Zkontrolovat oprávnění pro company admin - pouze jejich přiřazený produkt
-    if (isCompanyAdmin) {
+    // ✅ ADMIN INTERFACE - bez omezení pro development admin
+    if (isCompanyAdmin && !isDevelopmentAdmin) {
       const company = await prisma.company.findUnique({
         where: { id: companyUser.companyId },
         select: { assignedProductId: true, name: true }

@@ -1,10 +1,8 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { signOut, useSession } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
 
 interface AdminLayoutProps {
   children: React.ReactNode
@@ -13,57 +11,9 @@ interface AdminLayoutProps {
 export default function AdminLayout({ children }: AdminLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const pathname = usePathname()
-  const { data: session, status } = useSession()
-  const router = useRouter()
 
-  // Pokud není admin session, okamžitě redirect
-  useEffect(() => {
-    if (status === 'loading') return // Čeká na načtení session
-    
-    if (status === 'unauthenticated' || !session?.user) {
-      console.log('❌ No session in admin layout, redirecting to login')
-      router.push('/auth/login?reason=no_session')
-      return
-    }
-    
-    const isAdmin = (session.user as any)?.isAdmin
-    if (!isAdmin || session.user.email !== 'admin@admin.com') {
-      console.log('❌ Non-admin user in admin layout:', { 
-        email: session.user.email, 
-        isAdmin: isAdmin 
-      })
-      router.push('/auth/login?reason=not_admin')
-      return
-    }
-    
-    console.log('✅ Admin session confirmed in layout:', session.user.email)
-  }, [session, status, router])
-
-  const handleLogout = async () => {
-    console.log('🚪 Admin logout initiated')
-    await signOut({ 
-      redirect: true,
-      callbackUrl: '/auth/login'
-    })
-  }
-
-  // Pokud session loading, zobraz loading
-  if (status === 'loading') {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Ověřuji admin přístup...</p>
-        </div>
-      </div>
-    )
-  }
-
-  // Pokud není admin, nic nezobrazuj (middleware už přesměruje)
-  const isAdmin = (session?.user as any)?.isAdmin
-  if (!isAdmin || session?.user?.email !== 'admin@admin.com') {
-    return null
-  }
+  // 🔥 VŠECHNA SESSION LOGIKA ODSTRANĚNA!
+  // /admin je nyní volně přístupná bez jakékoli autentizace
 
   const navigation = [
     {
@@ -228,31 +178,24 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             </nav>
           </div>
           
-          {/* User info at bottom */}
+          {/* Admin info at bottom - bez přihlášení */}
           <div className="flex-shrink-0 border-t border-gray-200 p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
                   <span className="text-green-600 font-medium text-sm">
-                    ✅
+                    ⚙️
                   </span>
                 </div>
                 <div className="ml-3">
                   <p className="text-sm font-medium text-gray-700">
-                    {session?.user?.name || 'Admin'}
+                    Admin Panel
                   </p>
                   <p className="text-xs font-medium text-green-600">
-                    ✅ Přihlášený ADMIN ({session?.user?.email})
+                    🔓 Volný přístup (bez autentizace)
                   </p>
                 </div>
               </div>
-              <button
-                onClick={handleLogout}
-                className="ml-2 inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
-                title="Odhlásit se"
-              >
-                🚪 Odhlásit
-              </button>
             </div>
           </div>
         </div>

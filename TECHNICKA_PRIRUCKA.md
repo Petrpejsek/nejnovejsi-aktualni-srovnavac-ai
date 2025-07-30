@@ -75,8 +75,9 @@ npx prisma generate
 # Aplikování změn do databáze
 npx prisma db push
 
-# Resetování databáze (POZOR: maže data!)
-npx prisma db push --force-reset
+# NIKDY NEPOUŽÍVAT: Resetování databáze (MAŽE VŠECHNA DATA!)
+# npx prisma db push --force-reset  <-- NEBEZPEČNÉ! POUŽITO POUZE PRO VÝVOJ
+# Místo toho použij: npx prisma migrate deploy (bezpečné pro produkci)
 
 # Otevření databázového prohlížeče
 npx prisma studio
@@ -568,8 +569,12 @@ npm run backup
 
 2. **Databázové chyby**
    ```bash
-   npx prisma db push --force-reset
+   # BEZPEČNÁ CESTA - bez mazání dat:
+   npx prisma migrate deploy
    npx prisma db seed
+   
+   # POUZE PRO LOKÁLNÍ VÝVOJ (MAŽE DATA):
+   # npx prisma db push --force-reset  <-- NEBEZPEČNÉ!
    ```
 
 3. **OpenAI timeout**

@@ -22,6 +22,7 @@ import {
   ChevronUpIcon,
   ArrowRightOnRectangleIcon
 } from '@heroicons/react/24/outline'
+import { signOut } from 'next-auth/react'
 
 const navigation = [
   { name: 'Dashboard', href: '/company-admin', icon: HomeIcon },
@@ -85,8 +86,8 @@ export default function CompanyAdminLayout({
   }
 
   const handleSignOut = () => {
-    console.log('Sign out clicked')
-    // Add sign out logic here
+    console.log('🚪 Company admin logout initiated')
+    signOut({ callbackUrl: '/' })
   }
 
   return (

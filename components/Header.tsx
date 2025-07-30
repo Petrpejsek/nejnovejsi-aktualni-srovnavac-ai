@@ -245,7 +245,7 @@ export default function Header() {
                         <div className="border-t border-gray-100 my-1"></div>
                         <button
                           onClick={() => {
-                            signOut()
+                            signOut({ callbackUrl: '/' })
                             setIsUserMenuOpen(false)
                           }}
                           className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -386,7 +386,7 @@ export default function Header() {
                       </Link>
                       <button
                         onClick={() => {
-                          signOut()
+                          signOut({ callbackUrl: '/' })
                           closeMobileMenu()
                         }}
                         className="text-gray-600 font-medium hover:opacity-80 transition-opacity py-2"

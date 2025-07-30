@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { FiEye, FiEyeOff } from 'react-icons/fi'
 import { signIn } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 
 interface LoginFormProps {
   onSuccess?: () => void
@@ -11,25 +12,68 @@ export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormPr
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
     try {
-      // Použijeme NextAuth signIn funkci
-      const result = await signIn('credentials', {
-        email,
-        password,
-        redirect: false,
-      })
-
-      if (result?.ok) {
-        console.log('✅ Login successful')
-        onSuccess?.()
-        // Refresh page to update session
-        window.location.reload()
+      // 🔍 Detekce typu uživatele podle emailu
+      const isAdminEmail = email === 'admin@admin.com'
+      const loginType = isAdminEmail ? 'admin' : 'user'
+      
+      console.log(`🔍 LoginForm: Detected loginType '${loginType}' for email: ${email}`)
+      
+      // Pro různé loginType používáme různé NextAuth endpointy
+      let result = null;
+      if (loginType === 'user') {
+        // Pro běžné uživatele - používáme defaultní NextAuth endpoint (jednodušší)
+        result = await signIn('credentials', {
+          email,
+          password,
+          loginType,
+          redirect: false,
+          callbackUrl: '/user-area'
+        })
       } else {
-        alert(result?.error || 'Invalid email or password')
+        // ✅ ADMIN LOGIN - používáme NextAuth admin-credentials provider  
+        console.log('🔐 Admin login: Using NextAuth admin-credentials provider')
+        
+        // ✅ EXPLICITNÍ FORMAT podle NextAuth dokumentace
+        result = await signIn('admin-credentials', { 
+          email, 
+          password,
+          loginType: 'admin'
+        })
+        
+        console.log('🔐 Admin NextAuth signIn result:', result)
+      }
+      
+      if (result?.ok) {
+        console.log(`✅ LoginForm: Login successful for ${loginType} user: ${email}`)
+        
+        // Zavřít modal před navigací
+        onSuccess?.()
+        
+        if (loginType === 'user') {
+          // Pro user použij router.push
+          setTimeout(() => {
+            router.push('/user-area')
+          }, 100)
+        } else {
+          // Pro admin použij window.location.href pro správnou session aktualizaci
+          console.log('➡️ Redirecting admin to /admin')
+          // Přidej delší delay pro admin aby se token stihl uložit
+          setTimeout(() => {
+            console.log('🚀 Admin redirect executing...')
+            window.location.href = '/admin'
+          }, 500) // Delší delay pro admin
+        }
+      } else {
+        console.log(`❌ LoginForm: Login failed for ${email}:`, result?.error)
+        setError(result?.error || 'Invalid credentials')
       }
     } catch (error) {
       console.error('Login error:', error)
@@ -144,6 +188,12 @@ export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormPr
             Forgot password?
           </button>
         </div>
+
+        {error && (
+          <div className="text-red-500 text-sm text-center">
+            {error}
+          </div>
+        )}
 
         <button
           type="submit"

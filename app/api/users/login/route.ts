@@ -7,6 +7,8 @@ export async function POST(request: NextRequest) {
     const data = await request.json()
     const { email, password } = data
     
+    console.log('🔗 USER LOGIN API: Login attempt for:', email)
+    
     // Validation
     if (!email || !password) {
       return NextResponse.json(
@@ -19,9 +21,12 @@ export async function POST(request: NextRequest) {
     }
 
     // Find user in database
+    console.log('🔗 USER LOGIN API: Searching database for user:', email)
     const user = await prisma.user.findUnique({
       where: { email }
     })
+    
+    console.log('🔗 USER LOGIN API: Database result:', user ? 'USER FOUND' : 'USER NOT FOUND')
 
     if (!user) {
       return NextResponse.json(
@@ -45,7 +50,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify password
+    console.log('🔗 USER LOGIN API: Verifying password for:', email)
     const isValidPassword = await bcrypt.compare(password, user.hashedPassword)
+    console.log('🔗 USER LOGIN API: Password verification:', isValidPassword ? 'SUCCESS' : 'FAILED')
 
     if (!isValidPassword) {
       return NextResponse.json(
@@ -58,12 +65,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Update last login timestamp
+    console.log('🔗 USER LOGIN API: Updating last login timestamp for:', email)
     await prisma.user.update({
       where: { id: user.id },
       data: { lastLoginAt: new Date() }
     })
 
-    console.log('🎉 User logged in successfully:', user.email)
+    console.log('🔗 USER LOGIN API: LOGIN SUCCESSFUL for:', email, 'userID:', user.id)
 
     return NextResponse.json(
       { 
@@ -84,7 +92,6 @@ export async function POST(request: NextRequest) {
     )
 
   } catch (error) {
-    console.error('Login error:', error)
     return NextResponse.json(
       { 
         success: false, 
