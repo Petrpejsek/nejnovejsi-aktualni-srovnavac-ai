@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { signIn } from 'next-auth/react'
 
@@ -11,21 +11,55 @@ export default function CompanyLoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
 
+  // 🧹 Vyčisti všechny staré cookies při načtení stránky
+  useEffect(() => {
+    console.log('🔍 COMPANY LOGIN PAGE LOADED - vyčišťuji staré cookies')
+    console.log('📊 Initial state:', { email, password: password ? '***' : 'empty' })
+    
+    document.cookie = 'company-auth-token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
+    document.cookie = 'advertiser-token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
+    
+    // Vyčisti localStorage
+    const oldLocalAuth = localStorage.getItem('company-auth')
+    const oldSessionAuth = sessionStorage.getItem('company-auth')
+    
+    if (oldLocalAuth) console.log('🗑️ Removing old localStorage auth')
+    if (oldSessionAuth) console.log('🗑️ Removing old sessionStorage auth')
+    
+    localStorage.removeItem('company-auth')
+    sessionStorage.removeItem('company-auth')
+    
+    console.log('✅ COMPANY LOGIN PAGE - cookies cleaned')
+  }, [])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
     setIsLoading(true)
 
     try {
-      console.log('🚀 LOGIN CLICKED (Company)', { email, password: password ? '***' : 'missing' })
-      console.log('🔍 Company login attempt:', { email, loginType: 'company' })
+      console.log('🚀 FORM SUBMIT TRIGGERED (Company)', { 
+        email, 
+        password: password ? '***' : 'missing',
+        emailLength: email.length,
+        passwordLength: password.length 
+      })
+      
+      if (!email || !password) {
+        console.log('❌ PRÁZDNÉ POLE - zastavuji submit')
+        setError('Vyplňte email a heslo')
+        setIsLoading(false)
+        return
+      }
+      
+      console.log('🔍 Company login attempt:', { email, role: 'company' })
       
       const result = await signIn('credentials', {
         email,
         password,
-        loginType: 'company', // KRITICKÉ: označuje company login
+        role: 'company', // NOVÝ ROLE SYSTÉM
         redirect: false,
-        callbackUrl: '/company-admin', // EXPLICIT callback
+        callbackUrl: '/company-admin'
       })
 
       console.log('🔍 SignIn result (Company):', { ok: result?.ok, error: result?.error, status: result?.status })
@@ -72,10 +106,13 @@ export default function CompanyLoginPage() {
                   id="email"
                   name="email"
                   type="email"
-                  autoComplete="email"
+                  autoComplete="off"
                   required
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    console.log('📧 Email changed:', e.target.value)
+                    setEmail(e.target.value)
+                  }}
                   className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
                 />
               </div>
@@ -90,10 +127,13 @@ export default function CompanyLoginPage() {
                   id="password"
                   name="password"
                   type="password"
-                  autoComplete="current-password"
+                  autoComplete="off"
                   required
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => {
+                    console.log('🔐 Password changed:', e.target.value ? '***' : 'empty')
+                    setPassword(e.target.value)
+                  }}
                   className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
                 />
               </div>
@@ -116,22 +156,7 @@ export default function CompanyLoginPage() {
             </div>
           </form>
 
-          <div className="mt-6">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300" />
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">Test Credentials</span>
-              </div>
-            </div>
 
-            <div className="mt-3 text-sm text-gray-600 bg-purple-50 p-4 rounded-md">
-              <p><strong>Test Company:</strong></p>
-              <p>Email: firma@firma.cz</p>
-              <p>Password: firma123</p>
-            </div>
-          </div>
 
           <div className="mt-6 text-center">
             <a href="/" className="text-purple-600 hover:text-purple-500">

@@ -11,9 +11,9 @@ export default function ClientLayout({
   children: React.ReactNode
 }) {
   const pathname = usePathname()
-  const isCompanyAdmin = pathname?.startsWith('/company-admin')
+  const isCompanyAdmin = pathname?.startsWith('/company/')
   const isAdmin = pathname?.startsWith('/admin')
-  const isAdvertisePage = pathname === '/advertise'
+  const isCompanyPage = pathname === '/company' || pathname?.startsWith('/company/')
 
   // Pokud jsme v admin sekci, nezobrazujeme Header ani Footer
   if (isAdmin) {
@@ -24,8 +24,8 @@ export default function ClientLayout({
     )
   }
 
-  // Na advertise stránce nezobrazujeme Header (pouze pro firmy)
-  if (isAdvertisePage) {
+  // Na company stránce nezobrazujeme Header (pouze pro firmy)
+  if (isCompanyPage) {
     return (
       <div className="min-h-screen flex flex-col bg-white">
         <main className="flex-grow bg-white">

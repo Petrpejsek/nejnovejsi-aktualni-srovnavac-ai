@@ -18,14 +18,15 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
-      // ✅ ADMIN LOGIN - používáme NextAuth admin-credentials provider
-      console.log('🔐 Admin login page: Using NextAuth admin-credentials provider')
+      // ✅ ADMIN LOGIN - používáme unifikovaný NextAuth s role
+      console.log('🔐 Admin login attempt with role: admin')
       
-      // ✅ EXPLICITNÍ FORMAT podle NextAuth dokumentace
-      const result = await signIn('admin-credentials', {
+      const result = await signIn('credentials', {
         email,
         password,
-        loginType: 'admin', // KRITICKÉ: označuje admin login
+        role: 'admin', // NOVÝ ROLE SYSTÉM
+        redirect: false,
+        callbackUrl: '/admin'
       })
 
       if (result?.error) {
@@ -113,21 +114,7 @@ export default function LoginPage() {
             </div>
           </form>
 
-          <div className="mt-6">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300" />
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">Testovací údaje</span>
-              </div>
-            </div>
 
-            <div className="mt-3 text-sm text-gray-600 bg-gray-50 p-4 rounded-md">
-              <p><strong>Email:</strong> admin@admin.com</p>
-              <p><strong>Heslo:</strong> admin123</p>
-            </div>
-          </div>
 
           <div className="mt-6 text-center">
             <Link href="/" className="text-indigo-600 hover:text-indigo-500">

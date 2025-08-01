@@ -61,27 +61,22 @@ export default function CompanyLoginForm({ onSuccess, onSwitchToRegister }: Comp
     setIsLoading(true)
 
     try {
-      const response = await fetch('/api/advertiser/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password,
-          rememberMe: formData.rememberMe
-        })
+      // Use NextAuth signIn instead of direct API call
+      const { signIn } = await import('next-auth/react')
+      
+      const result = await signIn('credentials', {
+        email: formData.email,
+        password: formData.password,
+        role: 'company',
+        redirect: false,
+        callbackUrl: '/company/dashboard'
       })
 
-      const data = await response.json()
-
-      if (data.success) {
-        console.log('Company login successful:', data.data)
-        onSuccess()
-        // Redirect to company dashboard
-        window.location.href = '/company-admin'
+      if (result?.error) {
+        setErrors({ general: 'Invalid email or password. Please try again.' })
       } else {
-        setErrors({ general: data.error || 'Invalid email or password. Please try again.' })
+        console.log('Company login successful')
+        onSuccess()
       }
     } catch (error) {
       console.error('Login failed:', error)

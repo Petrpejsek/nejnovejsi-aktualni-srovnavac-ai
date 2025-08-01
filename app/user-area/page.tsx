@@ -96,6 +96,11 @@ function UserAreaContent() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const searchParams = useSearchParams()
+  
+  // Import useAuth hook for role-based access
+  // DEBUG: Remove after testing
+  console.log('🔍 USER AREA - Session status:', status)
+  console.log('🔍 USER AREA - Session data:', session)
   const [isLoginOpen, setIsLoginOpen] = useState(false)
   const [isRegisterOpen, setIsRegisterOpen] = useState(false)
   const [userData, setUserData] = useState<UserData>({

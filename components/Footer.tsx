@@ -33,7 +33,7 @@ export default function Footer() {
     { name: 'How It Works', href: '/how-it-works' },
     { name: 'AI Tool Directory', href: '/directory' },
     { name: 'Submit Your Tool', href: '/submit' },
-    { name: 'For Companies', href: '/advertise' },
+    { name: 'For Companies', href: '/company' },
     { name: 'Terms of Service', href: '/terms' },
     { name: 'Privacy Policy', href: '/privacy' },
     { name: 'Contact Support', href: '/contact' }

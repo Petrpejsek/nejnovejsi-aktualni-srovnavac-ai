@@ -21,7 +21,7 @@ export default function Header() {
   const userMenuRef = useRef<HTMLDivElement>(null)
 
   // Check if we're in company admin environment
-  const isCompanyAdmin = pathname?.startsWith('/company-admin')
+  const isCompanyAdmin = pathname?.startsWith('/company/')
 
   // Fetch user avatar when user is authenticated
   useEffect(() => {
@@ -115,7 +115,7 @@ export default function Header() {
     return (
       <header className="fixed top-0 w-full z-50 bg-white border-b border-gray-200 h-12">
         <div className="h-full flex items-center justify-center px-4">
-          <Link href="/company-admin" className="flex items-center">
+          <Link href="/company/dashboard" className="flex items-center">
             <span 
               className="font-bold text-gradient-primary"
               style={{ fontSize: '1.4rem' }}
@@ -155,7 +155,7 @@ export default function Header() {
                   AI Reels
                 </Link>
                 <Link 
-                  href="/advertise"
+                  href="/company"
                   className="text-gray-700 hover:text-gradient-primary font-medium transition-colors duration-200"
                 >
                   For AI Companies
@@ -344,7 +344,7 @@ export default function Header() {
                   AI Reels
                 </Link>
                 <Link 
-                  href="/advertise"
+                  href="/company"
                   onClick={closeMobileMenu}
                   className="text-gray-700 hover:text-gradient-primary font-medium transition-colors duration-200 py-2"
                 >

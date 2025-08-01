@@ -1,126 +1,32 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
-import bcrypt from 'bcryptjs'
-import jwt from 'jsonwebtoken'
+import { NextRequest, NextResponse } from 'next/server';
 
-const prisma = new PrismaClient()
+// 🚨 DEPRECATED API ENDPOINT
+// This endpoint is no longer used. All company authentication is handled by NextAuth.
 
 export async function POST(request: NextRequest) {
-  try {
-    const data = await request.json()
-    
-    const { email, password, rememberMe = false } = data
-    
-    // Validation
-    if (!email || !password) {
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: 'Email and password are required' 
-        },
-        { status: 400 }
-      )
-    }
-
-    // Find company
-    const company = await prisma.company.findUnique({
-      where: { email }
-    })
-
-    if (!company) {
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: 'Invalid email or password' 
-        },
-        { status: 401 }
-      )
-    }
-
-    // Check password
-    const isValidPassword = await bcrypt.compare(password, company.hashedPassword)
-
-    if (!isValidPassword) {
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: 'Invalid email or password' 
-        },
-        { status: 401 }
-      )
-    }
-
-    // Check if company is approved
-    if (company.status !== 'active' && company.status !== 'approved') {
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: 'Your account is pending approval. Please wait for admin confirmation.' 
-        },
-        { status: 403 }
-      )
-    }
-
-    // Update last login and change status from 'approved' to 'active' on first login
-    const updateData: any = { lastLoginAt: new Date() }
-    if (company.status === 'approved') {
-      updateData.status = 'active'
-    }
-
-    await prisma.company.update({
-      where: { id: company.id },
-      data: updateData
-    })
-
-    // Nastavení doby platnosti podle remember me
-    const tokenExpiry = rememberMe ? '30d' : '7d' // 30 dní pokud je remember me zapnuté, jinak 7 dní
-    const cookieMaxAge = rememberMe ? 60 * 60 * 24 * 30 : 60 * 60 * 24 * 7 // v sekundách
-
-    // Create JWT token
-    const token = jwt.sign(
-      { 
-        companyId: company.id, 
-        email: company.email,
-        name: company.name 
-      },
-      process.env.JWT_SECRET || 'fallback-secret',
-      { expiresIn: tokenExpiry }
-    )
-
-
-
-    // Create response with secure cookie (use updated status)
-    const finalStatus = company.status === 'approved' ? 'active' : company.status
-    const response = NextResponse.json({
-      success: true,
-      message: 'Login successful',
-      data: {
-        id: company.id,
-        name: company.name,
-        email: company.email,
-        balance: company.balance,
-        status: finalStatus,
-        rememberMe: rememberMe // Informace pro frontend
+  console.log('⚠️  DEPRECATED: /api/advertiser/login called - redirecting to NextAuth');
+  
+  return NextResponse.json({
+    success: false,
+    error: 'This endpoint is deprecated. Please use NextAuth for company login.',
+    migrationInfo: {
+      message: 'Company login has been migrated to NextAuth',
+      newEndpoint: '/api/auth/signin',
+      loginPage: '/company',
+      testCredentials: {
+        role: 'company',
+        email: 'firma@firma.cz', 
+        password: 'firma123'
       }
-    })
+    }
+  }, { status: 410 });
+}
 
-    // Set HTTP-only cookie s odpovídající dobou platnosti
-    response.cookies.set('advertiser-token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: cookieMaxAge
-    })
-
-    return response
-
-  } catch (error) {
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: 'An error occurred during login' 
-      },
-      { status: 500 }
-    )
-  }
-} 
+// Also handle GET requests
+export async function GET() {
+  return NextResponse.json({
+    success: false,
+    error: 'This endpoint is deprecated. Company authentication has been migrated to NextAuth.',
+    redirectTo: '/company'
+  }, { status: 410 });
+}

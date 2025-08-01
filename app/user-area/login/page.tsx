@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { signIn } from 'next-auth/react'
 
 export default function UserLoginPage() {
   const [email, setEmail] = useState('')
@@ -24,25 +25,28 @@ export default function UserLoginPage() {
     }
 
     try {
-      // Použij user NextAuth endpoint
-      const result = await fetch('/api/auth/user/callback/credentials', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: new URLSearchParams({
-          email,
-          password,
-          loginType: 'user',
-          redirect: 'false',
-          json: 'true'
-        })
+      // Použij oficiální NextAuth signIn API s role
+      const result = await signIn('credentials', {
+        email,
+        password,
+        role: 'user',
+        redirect: false,
+        callbackUrl: '/user-area'
       })
 
-      if (result.ok) {
-        // Po úspěšném přihlášení přesměruj
-        router.push('/user-area')
+      console.log('🔍 SignIn result:', result)
+      
+      if (result?.ok) {
+        console.log('✅ User login successful, redirecting to /user-area')
+        console.log('🔍 SignIn result details:', result)
+        
+        // Krátká pauza aby se session stihla nastavit
+        setTimeout(() => {
+          console.log('🚀 Redirecting to /user-area...')
+          window.location.href = '/user-area'
+        }, 500)
       } else {
+        console.log('❌ User login failed:', result?.error)
         setError('Neplatné přihlašovací údaje')
       }
     } catch (error) {
@@ -133,7 +137,7 @@ export default function UserLoginPage() {
             </div>
 
             <div className="mt-3 text-sm text-gray-600 bg-blue-50 p-4 rounded-md">
-              <p><strong>Poznámka:</strong> Admin účet (admin@admin.com) nemůže být použit v user oblasti.</p>
+              <p><strong>Poznámka:</strong> Admin účty nemohou být použity v user oblasti.</p>
               <p>Pro přístup do admin sekce použijte <Link href="/auth/login" className="text-blue-600 hover:text-blue-500">admin přihlášení</Link>.</p>
             </div>
           </div>

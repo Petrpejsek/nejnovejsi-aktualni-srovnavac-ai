@@ -337,4 +337,4 @@ export default function CompanyDashboard() {
       </div>
     </div>
   )
-} 
+}

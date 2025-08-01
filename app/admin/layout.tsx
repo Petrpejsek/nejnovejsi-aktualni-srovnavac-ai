@@ -3,6 +3,8 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { signOut } from 'next-auth/react'
+import { useAuth } from '@/hooks/useAuth'
 
 interface AdminLayoutProps {
   children: React.ReactNode
@@ -11,9 +13,9 @@ interface AdminLayoutProps {
 export default function AdminLayout({ children }: AdminLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const pathname = usePathname()
+  const { user, isAdmin, isLoading } = useAuth()
 
-  // 🔥 VŠECHNA SESSION LOGIKA ODSTRANĚNA!
-  // /admin je nyní volně přístupná bez jakékoli autentizace
+  // 🚀 NOVÝ AUTH SYSTÉM - Role-based admin access
 
   const navigation = [
     {
@@ -143,6 +145,40 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               ))}
             </nav>
           </div>
+          
+          {/* Mobile Admin info at bottom */}
+          <div className="flex-shrink-0 border-t border-gray-200 p-4">
+            <div className="space-y-3">
+              {/* Admin user info */}
+              <div className="flex items-center">
+                <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                  <span className="text-purple-600 font-medium text-sm">
+                    👤
+                  </span>
+                </div>
+                <div className="ml-3 flex-1">
+                  <p className="text-sm font-medium text-gray-700">
+                    {user?.email || 'Admin'}
+                  </p>
+                  <p className="text-xs font-medium text-purple-600">
+                    🔒 {isAdmin ? 'Super Admin' : 'Admin Panel'}
+                  </p>
+                </div>
+              </div>
+              
+              {/* Logout button */}
+              <button
+                onClick={() => {
+                  signOut({ callbackUrl: '/' })
+                  setSidebarOpen(false)
+                }}
+                className="w-full bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center justify-center space-x-2"
+              >
+                <span>🔓</span>
+                <span>Odhlásit se</span>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -178,24 +214,36 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             </nav>
           </div>
           
-          {/* Admin info at bottom - bez přihlášení */}
+          {/* Admin info at bottom - s logout */}
           <div className="flex-shrink-0 border-t border-gray-200 p-4">
-            <div className="flex items-center justify-between">
+            <div className="space-y-3">
+              {/* Admin user info */}
               <div className="flex items-center">
-                <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                  <span className="text-green-600 font-medium text-sm">
-                    ⚙️
+                <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                  <span className="text-purple-600 font-medium text-sm">
+                    👤
                   </span>
                 </div>
-                <div className="ml-3">
+                <div className="ml-3 flex-1">
                   <p className="text-sm font-medium text-gray-700">
-                    Admin Panel
+                    {user?.email || 'Admin'}
                   </p>
-                  <p className="text-xs font-medium text-green-600">
-                    🔓 Volný přístup (bez autentizace)
+                  <p className="text-xs font-medium text-purple-600">
+                    🔒 {isAdmin ? 'Super Admin' : 'Admin Panel'}
                   </p>
                 </div>
               </div>
+              
+              {/* Logout button */}
+              <button
+                onClick={() => {
+                  signOut({ callbackUrl: '/' })
+                }}
+                className="w-full bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center justify-center space-x-2"
+              >
+                <span>🔓</span>
+                <span>Odhlásit se</span>
+              </button>
             </div>
           </div>
         </div>

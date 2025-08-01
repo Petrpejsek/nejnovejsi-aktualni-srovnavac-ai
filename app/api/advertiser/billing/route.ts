@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
-import jwt from 'jsonwebtoken'
+import { getToken } from 'next-auth/jwt'
 import { v4 as uuidv4 } from 'uuid'
 
 const prisma = new PrismaClient()
@@ -21,23 +21,39 @@ function extractDailyLimitFromDescription(description: string | null): number | 
   return null
 }
 
-// Ověření JWT tokenu
-function verifyToken(request: NextRequest) {
-  const token = request.cookies.get('advertiser-token')?.value
-  
-  console.log('🔐 Token verification:', { hasToken: !!token, tokenStart: token?.substring(0, 20) })
-  
-  if (!token) {
-    console.log('❌ No token found')
-    return null
-  }
-
+// 🚀 NEXTAUTH TOKEN VERIFICATION - nahradil starý JWT systém
+async function verifyNextAuthToken(request: NextRequest) {
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret') as any
-    console.log('✅ Token verified:', { companyId: decoded.companyId })
-    return decoded
+    const token = await getToken({
+      req: request,
+      secret: process.env.NEXTAUTH_SECRET
+    })
+    
+    console.log('🔐 NextAuth token verification:', { 
+      hasToken: !!token, 
+      email: token?.email,
+      role: token?.role 
+    })
+    
+    if (!token || token.role !== 'company') {
+      console.log('❌ No valid company token found')
+      return null
+    }
+
+    console.log('✅ NextAuth token verified:', { 
+      email: token.email,
+      role: token.role 
+    })
+    
+    // 🔥 TEMPORARY - přidáme mock companyId pro kompatibilitu se starým systémem
+    const userWithCompanyId = {
+      ...token,
+      companyId: 'company1' // Mock ID pro testování
+    }
+    
+    return userWithCompanyId
   } catch (error) {
-    console.log('❌ Token verification failed:', error)
+    console.log('❌ NextAuth token verification failed:', error)
     return null
   }
 }
@@ -47,7 +63,7 @@ function verifyToken(request: NextRequest) {
 // GET /api/advertiser/billing - načtení billing informací
 export async function GET(request: NextRequest) {
   try {
-    const user = verifyToken(request)
+    const user = await verifyNextAuthToken(request)
     
     if (!user) {
       return NextResponse.json(
@@ -190,7 +206,7 @@ export async function GET(request: NextRequest) {
 // POST /api/advertiser/billing - přidání finančních prostředků nebo nastavení
 export async function POST(request: NextRequest) {
   try {
-    let user = verifyToken(request)
+    let user = await verifyNextAuthToken(request)
 
     // Pro testovací akci "add-mock-funds" povolíme výjimku z ověřování –
     // pokud není platný JWT token, ale frontend pošle companyId explicitně,
@@ -202,7 +218,11 @@ export async function POST(request: NextRequest) {
     const dataPreview = await request.clone().json().catch(() => ({}))
 
     if (!user && testBypassAllowedActions.includes(dataPreview.action) && dataPreview.companyId) {
-      user = { companyId: dataPreview.companyId }
+      user = { 
+        companyId: dataPreview.companyId,
+        role: 'company',
+        isAdmin: false 
+      }
     }
 
     if (!user) {

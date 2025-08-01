@@ -4,34 +4,24 @@ import { useState } from 'react'
 import Link from 'next/link'
 import CompanyAuth from '@/components/CompanyAuth'
 import Modal from '@/components/Modal'
-import CompanyRegisterForm from '@/components/CompanyRegisterForm'
 
-export default function AdvertisePage() {
-  const [isRegisterOpen, setIsRegisterOpen] = useState(false)
+export default function CompanyPage() {
+  const [isAuthOpen, setIsAuthOpen] = useState(false)
+  const [authDefaultTab, setAuthDefaultTab] = useState<'login' | 'register'>('register')
 
   const handleLoginClick = () => {
-    // Přesměrování na NextAuth company login stránku
-    window.location.href = '/company-admin/login'
+    setAuthDefaultTab('login')
+    setIsAuthOpen(true)
   }
 
-  const handleRegisterSuccess = () => {
-    setIsRegisterOpen(false)
-    window.location.href = '/company-registration-success'
-  }
-
-  const switchToRegister = () => {
-    setIsRegisterOpen(true)
-  }
-
-  const switchToLogin = () => {
-    setIsRegisterOpen(false)
-    // Přesměrování na NextAuth company login stránku
-    window.location.href = '/company-admin/login'
+  const handleRegisterClick = () => {
+    setAuthDefaultTab('register')
+    setIsAuthOpen(true)
   }
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Firemní Header */}
+      {/* Company Header */}
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-gray-100 shadow-sm">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
@@ -39,7 +29,7 @@ export default function AdvertisePage() {
               comparee.ai
             </Link>
             
-            {/* Desktop - Firemní Login tlačítka */}
+            {/* Desktop - Company Login buttons */}
             <div className="hidden md:flex items-center gap-4">
               <button 
                 onClick={handleLoginClick}
@@ -48,14 +38,14 @@ export default function AdvertisePage() {
                 Company Log In
               </button>
               <button
-                onClick={() => setIsRegisterOpen(true)}
+                onClick={handleRegisterClick}
                 className="text-sm text-gradient-primary font-medium hover:opacity-80 transition-opacity"
               >
                 Company Sign Up
               </button>
             </div>
 
-            {/* Mobile - Firemní Login tlačítka */}
+            {/* Mobile - Company Login buttons */}
             <div className="md:hidden flex items-center gap-2">
               <button 
                 onClick={handleLoginClick}
@@ -64,7 +54,7 @@ export default function AdvertisePage() {
                 Log In
               </button>
               <button
-                onClick={() => setIsRegisterOpen(true)}
+                onClick={handleRegisterClick}
                 className="text-xs text-gradient-primary font-medium hover:opacity-80 transition-opacity"
               >
                 Sign Up
@@ -73,6 +63,7 @@ export default function AdvertisePage() {
           </div>
         </div>
       </header>
+      
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 text-white overflow-hidden">
         <div className="absolute inset-0 bg-black bg-opacity-20"></div>
@@ -98,9 +89,12 @@ export default function AdvertisePage() {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-6 justify-center mb-16">
-              <a href="#signup" className="bg-gradient-to-r from-yellow-400 to-orange-500 text-black font-bold px-8 py-4 rounded-xl text-lg hover:scale-105 transition-transform duration-200 shadow-2xl inline-block">
+              <button 
+                onClick={handleRegisterClick}
+                className="bg-gradient-to-r from-yellow-400 to-orange-500 text-black font-bold px-8 py-4 rounded-xl text-lg hover:scale-105 transition-transform duration-200 shadow-2xl"
+              >
                 Start Advertising Today
-              </a>
+              </button>
               <button className="border-2 border-white text-white font-bold px-8 py-4 rounded-xl text-lg hover:bg-white hover:text-black transition-all duration-200">
                 View Success Stories
               </button>
@@ -312,16 +306,16 @@ export default function AdvertisePage() {
         </div>
       </section>
 
-      {/* Firemní Modal windows */}
+      {/* Company Auth Modal */}
       <Modal
-        isOpen={isRegisterOpen}
-        onClose={() => setIsRegisterOpen(false)}
+        isOpen={isAuthOpen}
+        onClose={() => setIsAuthOpen(false)}
       >
-        <CompanyRegisterForm
-          onSuccess={handleRegisterSuccess}
-          onSwitchToLogin={switchToLogin}
+        <CompanyAuth
+          onClose={() => setIsAuthOpen(false)}
+          defaultTab={authDefaultTab}
         />
       </Modal>
     </div>
   )
-} 
+}

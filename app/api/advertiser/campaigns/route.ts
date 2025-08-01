@@ -1,27 +1,43 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
-import jwt from 'jsonwebtoken'
+import { getToken } from 'next-auth/jwt'
 import { v4 as uuidv4 } from 'uuid'
 
 const prisma = new PrismaClient()
 
-// Ověření JWT tokenu
-function verifyToken(request: NextRequest) {
-  const token = request.cookies.get('advertiser-token')?.value
-  
-  console.log('🔐 [Campaigns] Token verification:', { hasToken: !!token, tokenStart: token?.substring(0, 20) })
-  
-  if (!token) {
-    console.log('❌ [Campaigns] No token found')
-    return null
-  }
-
+// 🚀 NEXTAUTH TOKEN VERIFICATION - nahradil starý JWT systém
+async function verifyNextAuthToken(request: NextRequest) {
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret') as any
-    console.log('✅ [Campaigns] Token verified:', { companyId: decoded.companyId })
-    return decoded
+    const token = await getToken({
+      req: request,
+      secret: process.env.NEXTAUTH_SECRET
+    })
+    
+    console.log('🔐 [Campaigns] NextAuth token verification:', { 
+      hasToken: !!token, 
+      email: token?.email,
+      role: token?.role 
+    })
+    
+    if (!token || token.role !== 'company') {
+      console.log('❌ [Campaigns] No valid company token found')
+      return null
+    }
+
+    console.log('✅ [Campaigns] NextAuth token verified:', { 
+      email: token.email,
+      role: token.role 
+    })
+    
+    // 🔥 TEMPORARY - přidáme mock companyId pro kompatibilitu se starým systémem
+    const userWithCompanyId = {
+      ...token,
+      companyId: 'company1' // Mock ID pro testování
+    }
+    
+    return userWithCompanyId
   } catch (error) {
-    console.log('❌ [Campaigns] Token verification failed:', error)
+    console.log('❌ [Campaigns] NextAuth token verification failed:', error)
     return null
   }
 }
@@ -29,7 +45,7 @@ function verifyToken(request: NextRequest) {
 // GET /api/advertiser/campaigns - načtení kampaní firmy
 export async function GET(request: NextRequest) {
   try {
-    const user = verifyToken(request)
+    const user = await verifyNextAuthToken(request)
     
     if (!user) {
       return NextResponse.json(
@@ -102,7 +118,7 @@ export async function GET(request: NextRequest) {
 // POST /api/advertiser/campaigns - vytvoření nové kampaně
 export async function POST(request: NextRequest) {
   try {
-    const user = verifyToken(request)
+    const user = await verifyNextAuthToken(request)
     
     if (!user) {
       return NextResponse.json(

@@ -6,14 +6,15 @@ import CompanyLoginForm from './CompanyLoginForm'
 
 interface CompanyAuthProps {
   onClose: () => void
+  defaultTab?: 'login' | 'register'
 }
 
-export default function CompanyAuth({ onClose }: CompanyAuthProps) {
-  const [activeTab, setActiveTab] = useState<'login' | 'register'>('register')
+export default function CompanyAuth({ onClose, defaultTab = 'register' }: CompanyAuthProps) {
+  const [activeTab, setActiveTab] = useState<'login' | 'register'>(defaultTab)
 
   const handleLoginSuccess = () => {
     onClose()
-    window.location.href = '/company-admin'
+    window.location.href = '/company/dashboard'
   }
 
   const handleRegisterSuccess = () => {

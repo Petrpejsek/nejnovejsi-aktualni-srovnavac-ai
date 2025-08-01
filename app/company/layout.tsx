@@ -26,23 +26,22 @@ import {
 import { signOut } from 'next-auth/react'
 
 const navigation = [
-  { name: 'Dashboard', href: '/company-admin', icon: HomeIcon },
-  { name: 'Company Profile', href: '/company-admin/profile', icon: BuildingOfficeIcon },
-  { name: 'Products', href: '/company-admin/products', icon: CubeIcon },
-  { name: 'PPC Campaigns', href: '/company-admin/campaigns', icon: ChartBarIcon },
-  { name: 'Analytics', href: '/company-admin/analytics', icon: ChartBarIcon },
-  { name: 'Billing', href: '/company-admin/billing', icon: CreditCardIcon },
-  // { name: 'Affiliate', href: '/company-admin/affiliate', icon: WalletIcon }, // Dočasně skryto - pouze PPC zatím
-  { name: 'Promotions', href: '/company-admin/promotions', icon: MegaphoneIcon },
-  { name: 'Reels', href: '/company-admin/reels', icon: FilmIcon },
-  { name: 'Courses', href: '/company-admin/courses', icon: AcademicCapIcon },
-  { name: 'Email Campaigns', href: '/company-admin/email', icon: EnvelopeIcon },
-  { name: 'Top Lists', href: '/company-admin/toplists', icon: TrophyIcon },
-  { name: 'Team', href: '/company-admin/team', icon: UsersIcon },
-  { name: 'Settings', href: '/company-admin/settings', icon: CogIcon },
+  { name: 'Dashboard', href: '/company/dashboard', icon: HomeIcon },
+  { name: 'Company Profile', href: '/company/profile', icon: BuildingOfficeIcon },
+  { name: 'Products', href: '/company/products', icon: CubeIcon },
+  { name: 'PPC Campaigns', href: '/company/campaigns', icon: ChartBarIcon },
+  { name: 'Analytics', href: '/company/analytics', icon: ChartBarIcon },
+  { name: 'Billing', href: '/company/billing', icon: CreditCardIcon },
+  { name: 'Promotions', href: '/company/promotions', icon: MegaphoneIcon },
+  { name: 'Reels', href: '/company/reels', icon: FilmIcon },
+  { name: 'Courses', href: '/company/courses', icon: AcademicCapIcon },
+  { name: 'Email Campaigns', href: '/company/email', icon: EnvelopeIcon },
+  { name: 'Top Lists', href: '/company/toplists', icon: TrophyIcon },
+  { name: 'Team', href: '/company/team', icon: UsersIcon },
+  { name: 'Settings', href: '/company/settings', icon: CogIcon },
 ]
 
-export default function CompanyAdminLayout({
+export default function CompanyLayout({
   children,
 }: {
   children: React.ReactNode
@@ -58,7 +57,8 @@ export default function CompanyAdminLayout({
     isAuthenticated, 
     isCompany, 
     user: user?.email,
-    role: user?.role || 'unknown'
+    role: user?.role || 'unknown',
+    pathname
   })
 
   // 🔥 POUŽÍVÁME MOCK DATA - starý JWT systém je kompletně vypnutý
@@ -96,10 +96,13 @@ export default function CompanyAdminLayout({
     signOut({ callbackUrl: '/' })
   }
 
-  // 🔐 AUTHENTICATION GUARD - ale ne pro login stránku!
-  const isLoginPage = pathname === '/company-admin/login'
-  
-  if (authLoading && !isLoginPage) {
+  // 🏠 POKUD JSME NA HLAVNÍ /company STRÁNCE, NEPOUŽÍVAJ SIDEBAR LAYOUT
+  if (pathname === '/company') {
+    return <>{children}</>
+  }
+
+  // 🔐 AUTHENTICATION GUARD - pro admin stránky
+  if (authLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -110,7 +113,7 @@ export default function CompanyAdminLayout({
     )
   }
 
-  if (!isLoginPage && (!isAuthenticated || !isCompany)) {
+  if (!isAuthenticated || !isCompany) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -118,7 +121,7 @@ export default function CompanyAdminLayout({
           <p className="text-gray-600 mb-4">Tato stránka je pouze pro přihlášené company účty.</p>
           <p className="text-sm text-gray-500">Aktuální role: {user?.role || 'žádná'}</p>
           <a 
-            href="/company-admin/login" 
+            href="/company" 
             className="mt-4 inline-block px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
           >
             Přihlásit se
@@ -169,7 +172,7 @@ export default function CompanyAdminLayout({
               <nav className="space-y-1 px-2">
                 {navigation.map((item) => {
                   // Special case for Dashboard - only exact match
-                  const isActive = item.href === '/company-admin' 
+                  const isActive = item.href === '/company/dashboard' 
                     ? pathname === item.href 
                     : pathname === item.href || pathname.startsWith(item.href + '/')
                   return (
@@ -223,7 +226,7 @@ export default function CompanyAdminLayout({
           <nav className="mt-2 flex-1 px-2 space-y-1 pb-4">
             {navigation.map((item) => {
               // Special case for Dashboard - only exact match
-              const isActive = item.href === '/company-admin' 
+              const isActive = item.href === '/company/dashboard' 
                 ? pathname === item.href 
                 : pathname === item.href || pathname.startsWith(item.href + '/')
               return (
@@ -263,7 +266,7 @@ export default function CompanyAdminLayout({
               {userMenuOpen && (
                 <div className="absolute bottom-full mb-1 left-0 right-0 bg-white rounded-md shadow-lg border border-gray-200 py-1">
                   <Link
-                    href="/company-admin/settings"
+                    href="/company/settings"
                     className="flex items-center px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-100"
                   >
                     <CogIcon className="w-3 h-3 mr-2" />
@@ -309,18 +312,18 @@ export default function CompanyAdminLayout({
 
 function getPageTitle(pathname: string): string {
   const routes = {
-    '/company-admin': 'Dashboard',
-    '/company-admin/profile': 'Company Profile',
-    '/company-admin/products': 'Products',
-    '/company-admin/campaigns': 'PPC Campaigns',
-    '/company-admin/billing': 'Credits & Billing',
-    '/company-admin/promotions': 'Promotions',
-    '/company-admin/reels': 'Reels',
-    '/company-admin/courses': 'Courses',
-    '/company-admin/email': 'Email Campaigns',
-    '/company-admin/toplists': 'Top Lists',
-    '/company-admin/team': 'Team',
-    '/company-admin/settings': 'Settings',
+    '/company/dashboard': 'Dashboard',
+    '/company/profile': 'Company Profile',
+    '/company/products': 'Products',
+    '/company/campaigns': 'PPC Campaigns',
+    '/company/billing': 'Credits & Billing',
+    '/company/promotions': 'Promotions',
+    '/company/reels': 'Reels',
+    '/company/courses': 'Courses',
+    '/company/email': 'Email Campaigns',
+    '/company/toplists': 'Top Lists',
+    '/company/team': 'Team',
+    '/company/settings': 'Settings',
   }
-  return routes[pathname as keyof typeof routes] || 'Admin Panel'
-} 
+  return routes[pathname as keyof typeof routes] || 'Company Panel'
+}

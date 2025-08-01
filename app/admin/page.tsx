@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { signOut } from 'next-auth/react'
+import { useAuth } from '@/hooks/useAuth'
 
 interface AnalyticsData {
   totalClicks: number
@@ -194,10 +196,28 @@ export default function AdminDashboard() {
     <div className="space-y-6">
       {/* Header */}
       <div className="border-b border-gray-200 pb-4">
-        <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-        <p className="text-gray-600 mt-1">
-          Přehled a správa celého webu AI nástroje
-        </p>
+        <div className="flex justify-between items-start">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+            <p className="text-gray-600 mt-1">
+              Přehled a správa celého webu AI nástroje
+            </p>
+          </div>
+          
+          {/* Logout Button */}
+          <div className="flex items-center space-x-4">
+            <span className="text-sm text-gray-500">Admin panel</span>
+            <button
+              onClick={() => {
+                signOut({ callbackUrl: '/' })
+              }}
+              className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center space-x-2"
+            >
+              <span>🔓</span>
+              <span>Odhlásit se</span>
+            </button>
+          </div>
+        </div>
       </div>
 
 
