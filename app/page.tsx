@@ -16,9 +16,10 @@ export default function Home() {
         <div className="mt-2">
           <ProductGridWrapper />
         </div>
-        <div className="mt-2">
+        {/* Dočasně skryto - ReelsCarousel pro budoucí použití */}
+        {/* <div className="mt-2">
           <ReelsCarousel />
-        </div>
+        </div> */}
         <div className="mt-2">
           <TopListsSection />
         </div>

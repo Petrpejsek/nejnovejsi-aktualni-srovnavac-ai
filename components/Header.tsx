@@ -148,12 +148,13 @@ export default function Header() {
                 >
                   TOP Lists
                 </Link>
-                <Link 
+                {/* Dočasně skryto - AI Reels odkaz pro budoucí použití */}
+                {/* <Link 
                   href="/reels" 
                   className="text-gray-700 hover:text-gradient-primary font-medium transition-colors duration-200"
                 >
                   AI Reels
-                </Link>
+                </Link> */}
                 <Link 
                   href="/company"
                   className="text-gray-700 hover:text-gradient-primary font-medium transition-colors duration-200"
@@ -336,13 +337,14 @@ export default function Header() {
                 >
                   TOP Lists
                 </Link>
-                <Link 
+                {/* Dočasně skryto - AI Reels odkaz pro budoucí použití */}
+                {/* <Link 
                   href="/reels"
                   onClick={closeMobileMenu}
                   className="text-gray-700 hover:text-gradient-primary font-medium transition-colors duration-200 py-2"
                 >
                   AI Reels
-                </Link>
+                </Link> */}
                 <Link 
                   href="/company"
                   onClick={closeMobileMenu}

@@ -145,10 +145,52 @@ python3 -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ssh -L 5433:localhost:5432 root@195.201.219.128
 ```
 
-### Environment variables:
+### 🔧 UPDATED SETUP (Aktuální funkční konfigurace):
+
+**⚠️ KRITICKÉ PRAVIDLO: ŽÁDNÉ SQLite FALLBACKY!**
+- Používáme POUZE produkční PostgreSQL databázi
+- SQLite fallbacky jsou ZAKÁZANÉ
+
+**SSH připojení (aktuální způsob):**
+```bash
+# 1. Načtení SSH klíčů:
+ssh-add ~/.ssh/hetzner_comparee
+ssh-add ~/.ssh/comparee_deploy_key
+
+# 2. SSH tunnel pomocí aliasu:
+ssh -L 5433:localhost:5432 comparee-database -N -f
+```
+
+**SSH config (~/.ssh/config):**
+```
+Host comparee-database
+    HostName 195.201.219.128
+    User root
+
+Host comparee-production  
+    HostName 23.88.98.49
+    User root
+```
+
+**Environment (.env.local):**
+```bash
+DATABASE_URL="postgresql://comparee_user:comparee_secure_password_2024!@localhost:5433/comparee_production"
+NEXTAUTH_SECRET="development-secret-123"
+NEXTAUTH_URL="http://localhost:3000"
+JWT_SECRET="e9d77b5ea0174f493f7bf2c5a6f2383298b0c2c558084dbb371ae6c9ca3ad05e4e829e0c76385bcc6166356a5d2a951ed098e1ebf7eef6473e54086e06a35325"
+```
+
+**Kontrolní checklist:**
+- [ ] SSH klíče načtené (`ssh-add -l`)
+- [ ] SSH tunnel běží (`lsof -i :5433`)
+- [ ] .env.local obsahuje správné DATABASE_URL
+- [ ] Žádné *.db soubory v projektu
+- [ ] API vrací 500+ produktů (ne 20 testovacích)
+
+### Environment variables (původní):
 ```bash
 # Hlavní konfigurace
-DATABASE_URL="postgresql://..."  # PostgreSQL connection
+DATABASE_URL="postgresql://..."  # PostgreSQL connection (viz UPDATED SETUP výše pro aktuální verzi)
 NEXTAUTH_SECRET="..."           # NextAuth.js secret
 GOOGLE_CLIENT_ID="..."          # Google OAuth
 OPENAI_API_KEY="..."           # Pro AI funkcionalita

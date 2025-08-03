@@ -63,21 +63,7 @@ interface DuplicateCheckResponse {
 }
 
 export default function URLUploadPage() {
-  // Kontrola prostředí - blokace na produkci
-  const isAdminUploadEnabled = process.env.NODE_ENV === 'development' || process.env.NEXT_PUBLIC_ENABLE_ADMIN_UPLOAD === 'true'
-  
-  if (!isAdminUploadEnabled) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">🚫 Funkce není dostupná</h1>
-          <p className="text-gray-600 mb-6">URL Upload funkcionalita je dostupná pouze v development prostředí.</p>
-          <p className="text-sm text-gray-500">Pro aktivaci nastavte NEXT_PUBLIC_ENABLE_ADMIN_UPLOAD=true</p>
-        </div>
-      </div>
-    )
-  }
-
+  // VŠECHNY HOOKS MUSÍ BÝT NAHOŘE PŘED PODMÍNĚNÝMI RETURN
   // Základní stav
   const [urls, setUrls] = useState('')
   const [isProcessing, setIsProcessing] = useState(false)
@@ -95,6 +81,65 @@ export default function URLUploadPage() {
   const [processedCount, setProcessedCount] = useState(0)
   const [totalToProcess, setTotalToProcess] = useState(0)
 
+  // VŠECHNY useEffect HOOKS MUSÍ BÝT TADY
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setIsLoadingReview(true)
+        const response = await fetch('/api/review-queue')
+        const data: ReviewQueueResponse = await response.json()
+
+        if (data.success) {
+          setReviewQueue(data.products)
+        }
+      } catch (error) {
+        console.error('Chyba při načítání review queue:', error)
+      } finally {
+        setIsLoadingReview(false)
+      }
+    }
+    loadData()
+  }, [])
+
+  // Znovu načíst po úspěšném scrapingu
+  useEffect(() => {
+    if (results && results.reviewQueueAdded > 0) {
+      const reloadData = async () => {
+        try {
+          setIsLoadingReview(true)
+          const response = await fetch('/api/review-queue')
+          const data: ReviewQueueResponse = await response.json()
+
+          if (data.success) {
+            setReviewQueue(data.products)
+          }
+        } catch (error) {
+          console.error('Chyba při načítání review queue:', error)
+        } finally {
+          setIsLoadingReview(false)
+        }
+      }
+      setTimeout(() => {
+        reloadData()
+      }, 1000)
+    }
+  }, [results])
+
+  // Kontrola prostředí - blokace na produkci
+  const isAdminUploadEnabled = process.env.NODE_ENV === 'development' || process.env.NEXT_PUBLIC_ENABLE_ADMIN_UPLOAD === 'true'
+  
+  if (!isAdminUploadEnabled) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">🚫 Funkce není dostupná</h1>
+          <p className="text-gray-600 mb-6">URL Upload funkcionalita je dostupná pouze v development prostředí.</p>
+          <p className="text-sm text-gray-500">Pro aktivaci nastavte NEXT_PUBLIC_ENABLE_ADMIN_UPLOAD=true</p>
+        </div>
+      </div>
+    )
+  }
+
   // Načíst review queue při načtení stránky
   const loadReviewQueue = async () => {
     try {
@@ -111,19 +156,6 @@ export default function URLUploadPage() {
       setIsLoadingReview(false)
     }
   }
-
-  useEffect(() => {
-    loadReviewQueue()
-  }, [])
-
-  // Znovu načíst po úspěšném scrapingu
-  useEffect(() => {
-    if (results && results.reviewQueueAdded > 0) {
-      setTimeout(() => {
-        loadReviewQueue()
-      }, 1000)
-    }
-  }, [results])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

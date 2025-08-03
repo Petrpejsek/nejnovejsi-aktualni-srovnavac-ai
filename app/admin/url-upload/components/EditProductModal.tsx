@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { getImageUrl } from '@/lib/utils'
 
 interface ReviewProduct {
   reviewId: string

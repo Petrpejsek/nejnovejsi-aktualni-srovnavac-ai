@@ -13,6 +13,7 @@ import {
   PlayIcon,
   LinkIcon
 } from '@heroicons/react/24/outline'
+import { getImageUrl } from '@/lib/utils'
 
 interface Product {
   id: string
@@ -632,7 +633,7 @@ export default function ProductEditPage({ params }: { params: { id: string } }) 
                     <div className="flex justify-center mb-4">
                       <div className="relative">
                         <Image
-                          src={displayImage}
+                          src={getImageUrl(displayImage)}
                           alt="Product preview"
                           width={250}
                           height={250}

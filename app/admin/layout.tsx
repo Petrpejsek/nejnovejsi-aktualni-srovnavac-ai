@@ -80,6 +80,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       current: pathname.startsWith('/admin/pages')
     },
     {
+      name: 'Vytvořit Landing Page',
+      href: '/admin/create-landing',
+      icon: '🚀',
+      current: pathname.startsWith('/admin/create-landing')
+    },
+    {
       name: 'Analytics',
       href: '/admin/analytics',
       icon: '📊',
@@ -172,7 +178,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                   signOut({ callbackUrl: '/' })
                   setSidebarOpen(false)
                 }}
-                className="w-full bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center justify-center space-x-2"
+                className="w-full bg-gray-300 hover:bg-gray-400 text-gray-700 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center justify-center space-x-2"
               >
                 <span>🔓</span>
                 <span>Odhlásit se</span>
@@ -239,7 +245,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 onClick={() => {
                   signOut({ callbackUrl: '/' })
                 }}
-                className="w-full bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center justify-center space-x-2"
+                className="w-full bg-gray-300 hover:bg-gray-400 text-gray-700 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center justify-center space-x-2"
               >
                 <span>🔓</span>
                 <span>Odhlásit se</span>

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
+import { trackProductClick } from '../../../lib/utils'
 
 interface Product {
   id: string
@@ -103,17 +104,17 @@ export default function CategoryPage() {
     return () => clearTimeout(timer)
   }, [category])
 
-  const handleVisit = (url: string | null) => {
-    if (url) {
-      // Použijeme dočasný HTML link místo window.open() pro lepší kompatibilitu
-      const tempLink = document.createElement('a')
-      tempLink.href = url
-      tempLink.target = '_blank'
-      tempLink.rel = 'noopener,noreferrer'
-      document.body.appendChild(tempLink)
-      tempLink.click()
-      document.body.removeChild(tempLink)
-    }
+  const handleVisit = (product: Product) => {
+    // Use shared tracking function for consistency
+    trackProductClick({
+      id: product.id,
+      name: product.name,
+      externalUrl: product.externalUrl,
+      category: product.category,
+      imageUrl: product.imageUrl,
+      price: product.price,
+      tags: product.tags
+    })
   }
 
   if (loading) {
@@ -263,7 +264,7 @@ export default function CategoryPage() {
                       {/* Action Button - vždy na spodku */}
                       <div className="mt-auto">
                         <button
-                          onClick={() => handleVisit(product.externalUrl)}
+                          onClick={() => handleVisit(product)}
                           className="w-full px-3 py-2 text-sm font-medium rounded-[12px] bg-gradient-to-r from-purple-600 to-purple-500 text-white hover:from-purple-700 hover:to-purple-600 transition-all"
                         >
                           {product.hasTrial ? 'Try for Free' : 'Try Now'}
@@ -393,7 +394,7 @@ export default function CategoryPage() {
                           {/* Action Button - vždy na spodku */}
                           <div className="mt-auto">
                             <button
-                              onClick={() => handleVisit(product.externalUrl)}
+                              onClick={() => handleVisit(product)}
                               className="w-full px-3 py-2 text-sm font-medium rounded-[12px] bg-gradient-to-r from-purple-600 to-purple-500 text-white hover:from-purple-700 hover:to-purple-600 transition-all"
                             >
                               {product.hasTrial ? 'Try for Free' : 'Try Now'}

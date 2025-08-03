@@ -340,16 +340,218 @@ model TopList {
 }
 
 model Admin {
-  id             String   @id @default(uuid())
+  id             String    @id @default(uuid())
   name           String
-  email          String   @unique
+  email          String    @unique
   hashedPassword String
-  role           String   @default("super_admin")
-  isActive       Boolean  @default(true)
+  role           String    @default("super_admin")
+  isActive       Boolean   @default(true)
   lastLoginAt    DateTime?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
   @@index([email])
   @@index([isActive])
+}
+
+model MonetizationConfig {
+  id                   String                @id @default(cuid())
+  monetizableType      String                @map("monetizable_type")
+  monetizableId        String                @map("monetizable_id")
+  mode                 MonetizationMode      @default(cpc)
+  refCode              String                @unique @map("ref_code")
+  affiliateLink        String?               @map("affiliate_link")
+  fallbackLink         String?               @map("fallback_link")
+  isTop                Boolean               @default(false) @map("is_top")
+  isActive             Boolean               @default(true) @map("is_active")
+  partnerId            String                @map("partner_id")
+  cpcRate              Float?                @map("cpc_rate")
+  affiliateRate        Float?                @map("affiliate_rate")
+  totalClicks          Int                   @default(0) @map("total_clicks")
+  totalAffiliateClicks Int                   @default(0) @map("total_affiliate_clicks")
+  totalCpcClicks       Int                   @default(0) @map("total_cpc_clicks")
+  totalConversions     Int                   @default(0) @map("total_conversions")
+  totalRevenue         Float                 @default(0.0) @map("total_revenue")
+  createdAt            DateTime              @default(now()) @map("created_at")
+  updatedAt            DateTime              @updatedAt @map("updated_at")
+  createdBy            String?               @map("created_by")
+  affiliateClicks      AffiliateClick[]
+  conversions          AffiliateConversion[]
+
+  @@index([monetizableType, monetizableId], map: "idx_monetizable_entity")
+  @@index([partnerId, isActive], map: "idx_partner_active")
+  @@index([mode, isActive], map: "idx_mode_active")
+  @@index([monetizableType])
+  @@index([monetizableId])
+  @@index([partnerId])
+  @@map("monetization_configs")
+}
+
+model AffiliateClick {
+  id              String               @id @default(cuid())
+  monetizableType String               @map("monetizable_type")
+  monetizableId   String               @map("monetizable_id")
+  refCode         String               @map("ref_code")
+  partnerId       String               @map("partner_id")
+  timestamp       DateTime             @default(now())
+  ipHash          String?              @map("ip_hash")
+  userAgent       String?              @map("user_agent")
+  referrer        String?
+  clickSource     String?              @map("click_source")
+  country         String?
+  region          String?
+  isValid         Boolean              @default(true) @map("is_valid")
+  fraudReason     String?              @map("fraud_reason")
+  conversionId    String?              @unique @map("conversion_id")
+  isConverted     Boolean              @default(false) @map("is_converted")
+  sessionId       String?              @map("session_id")
+  config          MonetizationConfig   @relation(fields: [refCode], references: [refCode])
+  conversion      AffiliateConversion? @relation("ClickToConversion")
+
+  @@index([monetizableType, monetizableId], map: "idx_affiliate_entity")
+  @@index([partnerId, timestamp], map: "idx_affiliate_partner")
+  @@index([refCode, timestamp], map: "idx_affiliate_ref")
+  @@index([sessionId, timestamp], map: "idx_affiliate_session")
+  @@index([monetizableType])
+  @@index([monetizableId])
+  @@index([refCode])
+  @@index([partnerId])
+  @@index([sessionId])
+  @@map("affiliate_clicks")
+}
+
+model AdClickMonetization {
+  id                String   @id @default(cuid())
+  monetizableType   String   @map("monetizable_type")
+  monetizableId     String   @map("monetizable_id")
+  campaignId        String?  @map("campaign_id")
+  partnerId         String   @map("partner_id")
+  timestamp         DateTime @default(now())
+  ipHash            String?  @map("ip_hash")
+  userAgent         String?  @map("user_agent")
+  referrer          String?
+  costPerClick      Float    @map("cost_per_click")
+  currency          String   @default("USD")
+  isValidClick      Boolean  @default(true) @map("is_valid_click")
+  fraudReason       String?  @map("fraud_reason")
+  country           String?
+  conversionTracked Boolean  @default(false) @map("conversion_tracked")
+  conversionValue   Float?   @map("conversion_value")
+
+  @@index([monetizableType, monetizableId], map: "idx_adclick_entity")
+  @@index([partnerId, timestamp], map: "idx_adclick_partner")
+  @@index([campaignId, timestamp], map: "idx_adclick_campaign")
+  @@index([partnerId, costPerClick], map: "idx_adclick_billing")
+  @@index([monetizableType])
+  @@index([monetizableId])
+  @@index([campaignId])
+  @@index([partnerId])
+  @@map("ad_clicks_monetization")
+}
+
+model AffiliateConversion {
+  id                     String             @id @default(cuid())
+  affiliateClickId       String?            @unique @map("affiliate_click_id")
+  refCode                String             @map("ref_code")
+  partnerId              String             @map("partner_id")
+  monetizableType        String             @map("monetizable_type")
+  monetizableId          String             @map("monetizable_id")
+  conversionType         ConversionType     @map("conversion_type")
+  conversionValue        Float?             @map("conversion_value")
+  currency               String             @default("USD")
+  commissionRate         Float?             @map("commission_rate")
+  commissionAmount       Float?             @map("commission_amount")
+  timestamp              DateTime           @default(now())
+  attributionWindowHours Int                @default(720) @map("attribution_window_hours")
+  sessionId              String?            @map("session_id")
+  externalConversionId   String?            @map("external_conversion_id")
+  metadata               String?
+  isBillable             Boolean            @default(true) @map("is_billable")
+  billedAt               DateTime?          @map("billed_at")
+  invoiceId              String?            @map("invoice_id")
+  affiliateClick         AffiliateClick?    @relation("ClickToConversion", fields: [affiliateClickId], references: [id])
+  config                 MonetizationConfig @relation(fields: [refCode], references: [refCode])
+
+  @@index([monetizableType, monetizableId], map: "idx_conversion_entity")
+  @@index([partnerId, timestamp], map: "idx_conversion_partner")
+  @@index([partnerId, isBillable, billedAt], map: "idx_conversion_billing")
+  @@index([refCode, timestamp], map: "idx_conversion_ref")
+  @@index([affiliateClickId])
+  @@index([refCode])
+  @@index([partnerId])
+  @@index([monetizableType])
+  @@index([monetizableId])
+  @@index([sessionId])
+  @@map("affiliate_conversions")
+}
+
+model BillingAccount {
+  id                        String    @id @default(cuid())
+  partnerId                 String    @unique @map("partner_id")
+  stripeCustomerId          String?   @unique @map("stripe_customer_id")
+  creditBalance             Float     @default(0.0) @map("credit_balance")
+  totalDeposited            Float     @default(0.0) @map("total_deposited")
+  totalSpent                Float     @default(0.0) @map("total_spent")
+  autoRechargeEnabled       Boolean   @default(false) @map("auto_recharge_enabled")
+  autoRechargeThreshold     Float     @default(50.0) @map("auto_recharge_threshold")
+  autoRechargeAmount        Float     @default(200.0) @map("auto_recharge_amount")
+  dailySpendLimit           Float?    @map("daily_spend_limit")
+  monthlySpendLimit         Float?    @map("monthly_spend_limit")
+  isActive                  Boolean   @default(true) @map("is_active")
+  isVerified                Boolean   @default(false) @map("is_verified")
+  creditLimit               Float     @default(1000.0) @map("credit_limit")
+  affiliateBillingEnabled   Boolean   @default(false) @map("affiliate_billing_enabled")
+  affiliateBillingThreshold Float     @default(10.0) @map("affiliate_billing_threshold")
+  lastAffiliateInvoiceDate  DateTime? @map("last_affiliate_invoice_date")
+  createdAt                 DateTime  @default(now()) @map("created_at")
+  updatedAt                 DateTime  @updatedAt @map("updated_at")
+  lastActivityAt            DateTime? @map("last_activity_at")
+  notes                     String?
+  metadata                  String?
+
+  @@index([partnerId, isActive], map: "idx_billing_partner")
+  @@index([stripeCustomerId], map: "idx_billing_stripe")
+  @@index([creditBalance, autoRechargeEnabled], map: "idx_billing_balance")
+  @@map("billing_accounts")
+}
+
+model LandingPage {
+  id              String   @id @default(uuid())
+  slug            String   @unique
+  title           String
+  summary         String?
+  language        String   @default("cs")
+  contentHtml     String   @map("content_html")
+  imageUrl        String?  @map("image_url")
+  category        String?
+  metaDescription String   @map("meta_description")
+  metaKeywords    String   @map("meta_keywords")
+  schemaOrg       String?  @map("schema_org")
+  visuals         Json?
+  faq             Json?
+  format          String   @default("html")
+  publishedAt     DateTime @default(now()) @map("published_at")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@index([slug])
+  @@index([language])
+  @@index([publishedAt])
+  @@index([category])
+  @@map("landing_pages")
+}
+
+enum MonetizationMode {
+  cpc
+  affiliate
+  hybrid
+}
+
+enum ConversionType {
+  registration
+  trial_start
+  subscription
+  purchase
+  lead
+  custom
 }

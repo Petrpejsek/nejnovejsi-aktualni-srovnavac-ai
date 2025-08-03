@@ -4,6 +4,12 @@ import React, { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
+import { BookmarkIcon } from '@heroicons/react/24/outline'
+import { BookmarkIcon as BookmarkFilledIcon } from '@heroicons/react/24/solid'
+import { useSession } from 'next-auth/react'
+import { trackProductClick } from '../../../lib/utils'
+import Modal from '../../../components/Modal'
+import RegisterForm from '../../../components/RegisterForm'
 import Head from 'next/head'
 
 interface Product {
@@ -23,10 +29,125 @@ interface Product {
 // Lokální CategoryProductCard komponenta jen pro category stránky
 interface CategoryProductCardProps {
   product: Product
-  onVisit: (url: string | null) => void
+  onVisit: (product: Product) => void
+  isBookmarked?: boolean
+  onBookmarkChange?: (productId: string, isBookmarked: boolean) => void
 }
 
-const CategoryProductCard: React.FC<CategoryProductCardProps> = ({ product, onVisit }) => {
+// Toast notification helper
+const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+  const toast = document.createElement('div')
+  toast.className = `fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg transform transition-all duration-300 ${
+    type === 'success' 
+      ? 'bg-green-500 text-white' 
+      : 'bg-red-500 text-white'
+  }`
+  toast.textContent = message
+  document.body.appendChild(toast)
+  
+  // Animate in
+  setTimeout(() => {
+    toast.style.transform = 'translateX(0)'
+  }, 10)
+  
+  // Remove after 3 seconds
+  setTimeout(() => {
+    toast.style.transform = 'translateX(400px)'
+    setTimeout(() => {
+      if (document.body.contains(toast)) {
+        document.body.removeChild(toast)
+      }
+    }, 300)
+  }, 3000)
+}
+
+const CategoryProductCard: React.FC<CategoryProductCardProps> = ({ product, onVisit, isBookmarked = false, onBookmarkChange }) => {
+  const { data: session } = useSession()
+  const [localBookmarked, setLocalBookmarked] = useState(isBookmarked)
+  const [isAnimating, setIsAnimating] = useState(false)
+  const [showSignUpModal, setShowSignUpModal] = useState(false)
+
+  // Update local state when prop changes
+  useEffect(() => {
+    setLocalBookmarked(isBookmarked)
+  }, [isBookmarked])
+
+  const handleBookmark = async (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    
+    console.log('🔖 BOOKMARK CLICK:', { productId: product.id, productName: product.name, sessionExists: !!session })
+    
+    // Check if user is authenticated
+    if (!session) {
+      console.log('❌ User not authenticated, showing signup modal')
+      setShowSignUpModal(true)
+      return
+    }
+    
+    // Start animation
+    setIsAnimating(true)
+    
+    // OPTIMISTIC UPDATE - update UI immediately
+    const newBookmarkedState = !localBookmarked
+    setLocalBookmarked(newBookmarkedState)
+    
+    console.log('🔄 OPTIMISTIC UPDATE:', { newBookmarkedState, productId: product.id })
+    
+    // Show toast immediately
+    showToast(newBookmarkedState ? 'Saved!' : 'Removed!', 'success')
+    
+    // Call parent callback immediately for UI consistency
+    if (onBookmarkChange) {
+      onBookmarkChange(product.id, newBookmarkedState)
+    }
+
+    try {
+      let response: Response
+      
+      if (newBookmarkedState) {
+        // SAVE: POST to /api/users/saved-products
+        response = await fetch('/api/users/saved-products', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
+            productId: product.id,
+            productName: product.name,
+            category: product.category,
+            imageUrl: product.imageUrl,
+            price: product.price
+          }),
+        })
+      } else {
+        // UNSAVE: DELETE to /api/users/saved-products with query param
+        response = await fetch(`/api/users/saved-products?productId=${encodeURIComponent(product.id)}`, {
+          method: 'DELETE'
+        })
+      }
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      console.log(`✅ ${newBookmarkedState ? 'SAVE' : 'UNSAVE'} SUCCESS:`, { productId: product.id })
+      
+    } catch (error) {
+      console.error('❌ BOOKMARK ERROR:', error)
+      
+      // ROLLBACK on API error
+      setLocalBookmarked(!newBookmarkedState)
+      if (onBookmarkChange) {
+        onBookmarkChange(product.id, !newBookmarkedState)
+      }
+      
+      showToast('Something went wrong. Please try again.', 'error')
+    } finally {
+      setTimeout(() => setIsAnimating(false), 300)
+    }
+  }
+
   return (
     <div className="group bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-200 border border-gray-100 overflow-hidden flex flex-col h-full">
       <div className="aspect-video relative bg-gray-50">
@@ -47,7 +168,7 @@ const CategoryProductCard: React.FC<CategoryProductCardProps> = ({ product, onVi
         )}
         
         {/* Price badge */}
-        <div className="absolute top-3 left-3">
+        <div className="absolute bottom-3 left-3">
           <span className={`px-2 py-1 rounded-full text-xs font-medium ${
             product.price === 0 
               ? 'bg-green-100 text-green-800' 
@@ -65,6 +186,20 @@ const CategoryProductCard: React.FC<CategoryProductCardProps> = ({ product, onVi
             </span>
           </div>
         )}
+
+        {/* Bookmark button */}
+        <button
+          onClick={handleBookmark}
+          className={`absolute top-2 left-2 w-8 h-8 bg-white bg-opacity-90 hover:bg-opacity-100 rounded-full flex items-center justify-center shadow-sm transition-all duration-300 hover:scale-110 ${
+            isAnimating ? 'animate-pulse transform -translate-y-1' : ''
+          }`}
+        >
+          {localBookmarked ? (
+            <BookmarkFilledIcon className="w-4 h-4 text-purple-600" />
+          ) : (
+            <BookmarkIcon className="w-4 h-4 text-gray-600" />
+          )}
+        </button>
       </div>
 
       {/* Flex container pro obsah - zajistí správné rozmístění */}
@@ -113,13 +248,36 @@ const CategoryProductCard: React.FC<CategoryProductCardProps> = ({ product, onVi
         {/* Tlačítko na spodku pomocí mt-auto */}
         <div className="mt-auto">
           <button
-            onClick={() => onVisit(product.externalUrl)}
+            onClick={() => onVisit(product)}
             className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200"
           >
             View Tool
           </button>
         </div>
       </div>
+
+      {/* Signup modal */}
+      <Modal 
+        isOpen={showSignUpModal} 
+        onClose={() => setShowSignUpModal(false)}
+        title="Save to Favorites"
+      >
+        <div className="mb-4">
+          <p className="text-gray-600 mb-4">
+            Create an account to save your favorite tools and access them anytime.
+          </p>
+        </div>
+        <RegisterForm 
+          onSuccess={() => {
+            setShowSignUpModal(false)
+            // Optimistically add to saved products after successful registration
+            setLocalBookmarked(true)
+            if (onBookmarkChange) {
+              onBookmarkChange(product.id, true)
+            }
+          }}
+        />
+      </Modal>
     </div>
   )
 }
@@ -294,6 +452,7 @@ export default function CategoryPage() {
   const params = useParams()
   const slug = params.slug as string
   const categoryName = slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
+  const { data: session } = useSession()
   
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
@@ -301,6 +460,7 @@ export default function CategoryPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [totalProducts, setTotalProducts] = useState(0)
+  const [savedProducts, setSavedProducts] = useState<Set<string>>(new Set())
   
   const PAGE_SIZE = 12
 
@@ -312,6 +472,30 @@ export default function CategoryPage() {
     .filter(cat => cat.slug !== slug)
     .sort(() => Math.random() - 0.5)
     .slice(0, 3)
+
+  // Load saved products when user is authenticated
+  useEffect(() => {
+    const loadSavedProducts = async () => {
+      if (!session) {
+        setSavedProducts(new Set())
+        return
+      }
+
+      try {
+        const response = await fetch('/api/users/saved-products')
+        if (response.ok) {
+          const data = await response.json()
+          const savedProductIds = new Set<string>(data.map((product: any) => product.id))
+          setSavedProducts(savedProductIds)
+          console.log('📖 Loaded saved products for category page:', savedProductIds.size)
+        }
+      } catch (error) {
+        console.error('Error loading saved products:', error)
+      }
+    }
+
+    loadSavedProducts()
+  }, [session])
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -438,16 +622,29 @@ export default function CategoryPage() {
     fetchProducts()
   }, [slug, categoryName, currentPage])
 
-  const handleVisit = (url: string | null) => {
-    if (url) {
-      const tempLink = document.createElement('a')
-      tempLink.href = url
-      tempLink.target = '_blank'
-      tempLink.rel = 'noopener,noreferrer'
-      document.body.appendChild(tempLink)
-      tempLink.click()
-      document.body.removeChild(tempLink)
-    }
+  const handleVisit = (product: Product) => {
+    // Use shared tracking function for consistency
+    trackProductClick({
+      id: product.id,
+      name: product.name,
+      externalUrl: product.externalUrl,
+      category: product.category,
+      imageUrl: product.imageUrl,
+      price: product.price,
+      tags: product.tags
+    })
+  }
+
+  const handleBookmarkChange = (productId: string, isBookmarked: boolean) => {
+    setSavedProducts(prev => {
+      const newSavedProducts = new Set(prev)
+      if (isBookmarked) {
+        newSavedProducts.add(productId)
+      } else {
+        newSavedProducts.delete(productId)
+      }
+      return newSavedProducts
+    })
   }
 
   if (loading) {
@@ -552,6 +749,8 @@ export default function CategoryPage() {
                     key={product.id}
                     product={product}
                     onVisit={handleVisit}
+                    isBookmarked={savedProducts.has(product.id)}
+                    onBookmarkChange={handleBookmarkChange}
                   />
                 ))}
               </div>

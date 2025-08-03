@@ -1,0 +1,334 @@
+// ================================================================================
+// MONETIZATION SYSTEM - PRISMA SCHEMA EXTENSION
+// ================================================================================
+// Add these models to your existing schema.prisma file for Next.js integration
+// This enables the portable monetization system to work with Prisma ORM
+
+// Monetization Mode Enum
+enum MonetizationMode {
+  cpc
+  affiliate  
+  hybrid
+}
+
+// Conversion Type Enum for Affiliate Tracking
+enum ConversionType {
+  registration
+  trial_start
+  subscription
+  purchase
+  lead
+  custom
+}
+
+// ================================================================================
+// MAIN MONETIZATION CONFIG
+// ================================================================================
+model MonetizationConfig {
+  id                     String           @id @default(cuid())
+  
+  // Generic entity reference - PORTABLE DESIGN
+  monetizableType        String           @map("monetizable_type")  // e.g., "Tool", "Product"
+  monetizableId          String           @map("monetizable_id")    // Entity ID
+  
+  // Monetization settings
+  mode                   MonetizationMode @default(cpc)
+  refCode                String           @unique @map("ref_code")
+  affiliateLink          String?          @map("affiliate_link") @db.Text
+  fallbackLink           String?          @map("fallback_link") @db.Text
+  
+  // Display and positioning
+  isTop                  Boolean          @default(false) @map("is_top")
+  isActive               Boolean          @default(true) @map("is_active")
+  
+  // Partner and rates
+  partnerId              String           @map("partner_id")
+  cpcRate                Float?           @map("cpc_rate")
+  affiliateRate          Float?           @map("affiliate_rate")
+  
+  // Statistics
+  totalClicks            Int              @default(0) @map("total_clicks")
+  totalAffiliateClicks   Int              @default(0) @map("total_affiliate_clicks")
+  totalCpcClicks         Int              @default(0) @map("total_cpc_clicks")
+  totalConversions       Int              @default(0) @map("total_conversions")
+  totalRevenue           Float            @default(0.0) @map("total_revenue")
+  
+  // Metadata
+  createdAt              DateTime         @default(now()) @map("created_at")
+  updatedAt              DateTime         @updatedAt @map("updated_at")
+  createdBy              String?          @map("created_by")
+  
+  // Relations
+  affiliateClicks        AffiliateClick[]
+  adClicks               AdClickMonetization[]
+  conversions            AffiliateConversion[]
+  
+  @@index([monetizableType, monetizableId], name: "idx_monetizable_entity")
+  @@index([partnerId, isActive], name: "idx_partner_active")
+  @@index([mode, isActive], name: "idx_mode_active")
+  @@index([monetizableType])
+  @@index([monetizableId])
+  @@index([partnerId])
+  @@map("monetization_configs")
+}
+
+// ================================================================================
+// AFFILIATE CLICK TRACKING
+// ================================================================================
+model AffiliateClick {
+  id                String              @id @default(cuid())
+  
+  // Entity reference
+  monetizableType   String              @map("monetizable_type")
+  monetizableId     String              @map("monetizable_id")
+  
+  // Tracking
+  refCode           String              @map("ref_code")
+  partnerId         String              @map("partner_id")
+  
+  // Click metadata
+  timestamp         DateTime            @default(now())
+  ipHash            String?             @map("ip_hash")
+  userAgent         String?             @map("user_agent") @db.Text
+  referrer          String?             @db.Text
+  clickSource       String?             @map("click_source")
+  
+  // Geolocation
+  country           String?
+  region            String?
+  
+  // Tracking status
+  isValid           Boolean             @default(true) @map("is_valid")
+  fraudReason       String?             @map("fraud_reason")
+  
+  // Conversion tracking
+  conversionId      String?             @map("conversion_id")
+  isConverted       Boolean             @default(false) @map("is_converted")
+  
+  // Session tracking
+  sessionId         String?             @map("session_id")
+  
+  // Relations
+  config            MonetizationConfig? @relation(fields: [refCode], references: [refCode])
+  conversion        AffiliateConversion? @relation(fields: [conversionId], references: [id])
+  
+  @@index([monetizableType, monetizableId], name: "idx_affiliate_entity")
+  @@index([partnerId, timestamp], name: "idx_affiliate_partner")
+  @@index([refCode, timestamp], name: "idx_affiliate_ref")
+  @@index([sessionId, timestamp], name: "idx_affiliate_session")
+  @@index([monetizableType])
+  @@index([monetizableId])
+  @@index([refCode])
+  @@index([partnerId])
+  @@index([sessionId])
+  @@map("affiliate_clicks")
+}
+
+// ================================================================================
+// CPC AD CLICK TRACKING (Enhanced)
+// ================================================================================
+model AdClickMonetization {
+  id                String              @id @default(cuid())
+  
+  // Entity reference - PORTABLE
+  monetizableType   String              @map("monetizable_type")
+  monetizableId     String              @map("monetizable_id")
+  
+  // Campaign and partner
+  campaignId        String?             @map("campaign_id")
+  partnerId         String              @map("partner_id")
+  
+  // Click details
+  timestamp         DateTime            @default(now())
+  ipHash            String?             @map("ip_hash")
+  userAgent         String?             @map("user_agent") @db.Text
+  referrer          String?             @db.Text
+  
+  // Billing
+  costPerClick      Float               @map("cost_per_click")
+  currency          String              @default("USD")
+  
+  // Fraud detection
+  isValidClick      Boolean             @default(true) @map("is_valid_click")
+  fraudReason       String?             @map("fraud_reason")
+  
+  // Geolocation
+  country           String?
+  
+  // Conversion tracking
+  conversionTracked Boolean             @default(false) @map("conversion_tracked")
+  conversionValue   Float?              @map("conversion_value")
+  
+  // Relations
+  config            MonetizationConfig? @relation(fields: [monetizableType, monetizableId], references: [monetizableType, monetizableId])
+  
+  @@index([monetizableType, monetizableId], name: "idx_adclick_entity")
+  @@index([partnerId, timestamp], name: "idx_adclick_partner")
+  @@index([campaignId, timestamp], name: "idx_adclick_campaign")
+  @@index([partnerId, costPerClick], name: "idx_adclick_billing")
+  @@index([monetizableType])
+  @@index([monetizableId])
+  @@index([campaignId])
+  @@index([partnerId])
+  @@map("ad_clicks_monetization")
+}
+
+// ================================================================================
+// AFFILIATE CONVERSIONS
+// ================================================================================
+model AffiliateConversion {
+  id                     String              @id @default(cuid())
+  
+  // Reference back to click
+  affiliateClickId       String?             @map("affiliate_click_id")
+  refCode                String              @map("ref_code")
+  partnerId              String              @map("partner_id")
+  
+  // Entity reference
+  monetizableType        String              @map("monetizable_type")
+  monetizableId          String              @map("monetizable_id")
+  
+  // Conversion details
+  conversionType         ConversionType      @map("conversion_type")
+  conversionValue        Float?              @map("conversion_value")
+  currency               String              @default("USD")
+  
+  // Commission
+  commissionRate         Float?              @map("commission_rate")
+  commissionAmount       Float?              @map("commission_amount")
+  
+  // Timing
+  timestamp              DateTime            @default(now())
+  attributionWindowHours Int                 @default(720) @map("attribution_window_hours")
+  
+  // Session tracking
+  sessionId              String?             @map("session_id")
+  
+  // External data
+  externalConversionId   String?             @map("external_conversion_id")
+  metadata               String?             @db.Text
+  
+  // Billing
+  isBillable             Boolean             @default(true) @map("is_billable")
+  billedAt               DateTime?           @map("billed_at")
+  invoiceId              String?             @map("invoice_id")
+  
+  // Relations
+  affiliateClick         AffiliateClick?     @relation(fields: [affiliateClickId], references: [id])
+  config                 MonetizationConfig? @relation(fields: [refCode], references: [refCode])
+  
+  @@index([monetizableType, monetizableId], name: "idx_conversion_entity")
+  @@index([partnerId, timestamp], name: "idx_conversion_partner")
+  @@index([partnerId, isBillable, billedAt], name: "idx_conversion_billing")
+  @@index([refCode, timestamp], name: "idx_conversion_ref")
+  @@index([affiliateClickId])
+  @@index([refCode])
+  @@index([partnerId])
+  @@index([monetizableType])
+  @@index([monetizableId])
+  @@index([sessionId])
+  @@map("affiliate_conversions")
+}
+
+// ================================================================================
+// BILLING ACCOUNTS
+// ================================================================================
+model BillingAccount {
+  id                         String    @id @default(cuid())
+  
+  // Partner reference
+  partnerId                  String    @unique @map("partner_id")
+  
+  // Stripe integration
+  stripeCustomerId           String?   @unique @map("stripe_customer_id")
+  
+  // Credit balance
+  creditBalance              Float     @default(0.0) @map("credit_balance")
+  totalDeposited             Float     @default(0.0) @map("total_deposited")
+  totalSpent                 Float     @default(0.0) @map("total_spent")
+  
+  // Auto-recharge settings
+  autoRechargeEnabled        Boolean   @default(false) @map("auto_recharge_enabled")
+  autoRechargeThreshold      Float     @default(50.0) @map("auto_recharge_threshold")
+  autoRechargeAmount         Float     @default(200.0) @map("auto_recharge_amount")
+  
+  // Limits
+  dailySpendLimit            Float?    @map("daily_spend_limit")
+  monthlySpendLimit          Float?    @map("monthly_spend_limit")
+  
+  // Account status
+  isActive                   Boolean   @default(true) @map("is_active")
+  isVerified                 Boolean   @default(false) @map("is_verified")
+  creditLimit                Float     @default(1000.0) @map("credit_limit")
+  
+  // Affiliate billing
+  affiliateBillingEnabled    Boolean   @default(false) @map("affiliate_billing_enabled")
+  affiliateBillingThreshold  Float     @default(10.0) @map("affiliate_billing_threshold")
+  lastAffiliateInvoiceDate   DateTime? @map("last_affiliate_invoice_date")
+  
+  // Metadata
+  createdAt                  DateTime  @default(now()) @map("created_at")
+  updatedAt                  DateTime  @updatedAt @map("updated_at")
+  lastActivityAt             DateTime? @map("last_activity_at")
+  
+  // Additional data
+  notes                      String?   @db.Text
+  metadata                   String?   @db.Text // JSON
+  
+  @@index([partnerId, isActive], name: "idx_billing_partner")
+  @@index([stripeCustomerId], name: "idx_billing_stripe")
+  @@index([creditBalance, autoRechargeEnabled], name: "idx_billing_balance")
+  @@map("billing_accounts")
+}
+
+// ================================================================================
+// ADDITIONAL PERFORMANCE INDEXES
+// ================================================================================
+// These would be added as separate @@index declarations in your Prisma schema
+
+// Cross-table performance indexes (add to existing models if applicable)
+// @@index([partnerId, timestamp], name: "idx_clicks_partner_time") // for AffiliateClick
+// @@index([partnerId, timestamp], name: "idx_adclicks_partner_time") // for AdClickMonetization  
+// @@index([partnerId, timestamp], name: "idx_conversions_partner_time") // for AffiliateConversion
+
+// ================================================================================
+// MIGRATION COMMANDS
+// ================================================================================
+// After adding these models to your schema.prisma:
+//
+// 1. Generate migration:
+//    npx prisma migrate dev --name add_monetization_system
+//
+// 2. Generate client:
+//    npx prisma generate
+//
+// 3. Apply to production:
+//    npx prisma migrate deploy
+//
+// ================================================================================
+
+// ================================================================================
+// INTEGRATION NOTES
+// ================================================================================
+// 
+// 1. EXISTING MODELS COMPATIBILITY:
+//    - This extends your existing schema without modifying current models
+//    - Uses generic monetizableType/monetizableId for portability
+//    - Can reference any existing model (Product, Tool, Service, etc.)
+//
+// 2. NEXT.JS API INTEGRATION:
+//    - Add monetization API routes under /api/monetization/
+//    - Use these Prisma models in your API handlers
+//    - Maintain existing /api/redirect for backward compatibility
+//
+// 3. FRONTEND INTEGRATION:
+//    - Update product cards to use: /api/monetization/out/Product/${id}?ref=${refCode}
+//    - Implement conversion tracking pixels
+//    - Add billing dashboard for partners
+//
+// 4. STRIPE INTEGRATION:
+//    - Add STRIPE_SECRET_KEY and STRIPE_WEBHOOK_SECRET to .env
+//    - Set up webhook endpoint: /api/monetization/stripe/webhook
+//    - Configure Stripe webhook in dashboard
+//
+// ================================================================================

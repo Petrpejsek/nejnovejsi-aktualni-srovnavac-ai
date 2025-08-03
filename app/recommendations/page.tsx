@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import TagFilter from '../../components/TagFilter'
 import CompareBar from '../../components/CompareBar'
-import { openInNewTab } from '../../lib/utils'
+import { openInNewTab, trackProductClick } from '../../lib/utils'
 
 // Constants for enabling/disabling features 
 const COMPARE_FEATURE_ENABLED = false;
@@ -501,18 +501,17 @@ function RecommendationsPageContent() {
     setSelectedItems(new Set())
   }
 
-  const handleVisit = (url?: string) => {
-    if (!url) {
-      console.log('Missing URL!')
-      return
-    }
-
-    try {
-      // Použijeme utility funkci pro otevření v novém okně
-      openInNewTab(url)
-    } catch (error) {
-      console.error('Error opening URL:', error)
-    }
+  const handleVisit = (product: Product) => {
+    // Use shared tracking function for consistency
+    trackProductClick({
+      id: product.id,
+      name: product.name,
+      externalUrl: product.externalUrl || null,
+      category: product.category,
+      imageUrl: product.imageUrl || null,
+      price: product.price,
+      tags: product.tags || null
+    })
   }
 
   if (loading) {
@@ -617,7 +616,7 @@ function RecommendationsPageContent() {
                 )}
                 <div 
                   className="w-full aspect-video relative rounded-[14px] overflow-hidden bg-gray-50 cursor-pointer hover:opacity-90 transition-opacity"
-                  onClick={() => handleVisit(product.externalUrl)}
+                  onClick={() => handleVisit(product)}
                 >
                   <Image
                     src={product.imageUrl || 'https://placehold.co/800x450/f3f4f6/94a3b8?text=No+Image'}
@@ -692,7 +691,7 @@ function RecommendationsPageContent() {
                   
                   <div className="flex flex-col sm:flex-row items-center gap-3 mt-8 mb-6">
                     <button
-                      onClick={() => handleVisit(product.externalUrl)}
+                      onClick={() => handleVisit(product)}
                       className="w-full sm:w-auto px-6 py-3 text-base font-medium rounded-[14px] bg-gradient-primary text-white hover-gradient-primary transition-all"
                     >
                       {product.hasTrial ? 'Try for Free' : 'Try Now'}
@@ -964,7 +963,7 @@ function RecommendationsPageContent() {
                       {/* Call to Action */}
                       <div className="text-center pt-4">
                         <button
-                          onClick={() => handleVisit(product.externalUrl)}
+                          onClick={() => handleVisit(product)}
                           className="px-6 py-2 text-sm font-medium rounded-lg bg-gradient-primary text-white hover-gradient-primary transition-all"
                         >
                           {product.hasTrial ? 'Start Free Trial' : 'Try Now'}
@@ -989,7 +988,7 @@ function RecommendationsPageContent() {
                 {/* Žádný % Match badge pro podobné produkty */}
                 <div 
                   className="w-full aspect-video relative rounded-[14px] overflow-hidden bg-gray-50 cursor-pointer hover:opacity-90 transition-opacity"
-                  onClick={() => handleVisit(product.externalUrl)}
+                  onClick={() => handleVisit(product)}
                 >
                   <Image
                     src={product.imageUrl || 'https://placehold.co/800x450/f3f4f6/94a3b8?text=No+Image'}
@@ -1061,7 +1060,7 @@ function RecommendationsPageContent() {
                   
                   <div className="flex flex-col sm:flex-row items-center gap-3 mt-8 mb-6">
                     <button
-                      onClick={() => handleVisit(product.externalUrl)}
+                      onClick={() => handleVisit(product)}
                       className="w-full sm:w-auto px-6 py-3 text-base font-medium rounded-[14px] bg-gradient-primary text-white hover-gradient-primary transition-all"
                     >
                       {product.hasTrial ? 'Try for Free' : 'Try Now'}

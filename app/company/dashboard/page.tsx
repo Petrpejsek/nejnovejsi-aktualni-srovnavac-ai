@@ -59,21 +59,7 @@ export default function CompanyDashboard() {
     role: user?.role || 'unknown'
   })
 
-  // 🔐 AUTHENTICATION CHECK
-  if (authLoading) {
-    return <div className="p-4">Načítám session...</div>
-  }
-
-  if (!isAuthenticated || !isCompany) {
-    return (
-      <div className="p-4">
-        <h1 className="text-xl font-bold text-red-600">Přístup zamítnut</h1>
-        <p>Tato stránka je pouze pro přihlášené company účty.</p>
-        <p>Aktuální role: {user?.role || 'žádná'}</p>
-      </div>
-    )
-  }
-
+  // HOOKS MUSÍ BÝT PŘED EARLY RETURN
   useEffect(() => {
     const fetchDashboardData = async () => {
       console.log('🚀 NAČÍTÁM COMPANY DASHBOARD DATA pro:', user?.email)
@@ -132,6 +118,21 @@ export default function CompanyDashboard() {
       fetchDashboardData()
     }
   }, [isAuthenticated, isCompany, user?.email])
+
+  // 🔐 AUTHENTICATION CHECK
+  if (authLoading) {
+    return <div className="p-4">Načítám session...</div>
+  }
+
+  if (!isAuthenticated || !isCompany) {
+    return (
+      <div className="p-4">
+        <h1 className="text-xl font-bold text-red-600">Přístup zamítnut</h1>
+        <p>Tato stránka je pouze pro přihlášené company účty.</p>
+        <p>Aktuální role: {user?.role || 'žádná'}</p>
+      </div>
+    )
+  }
 
   // Loading state
   if (loading) {

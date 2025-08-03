@@ -13,7 +13,7 @@ import { StarIcon as StarFilledIcon, BookmarkIcon as BookmarkFilledIcon } from '
 import { useSession } from 'next-auth/react'
 import Modal from './Modal'
 import RegisterForm from './RegisterForm'
-import { openInNewTab } from '../lib/utils'
+import { openInNewTab, trackProductClick } from '@/lib/utils'
 
 interface Review {
   id: number
@@ -147,58 +147,16 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
 
     console.log('🚀 Opening product:', id)
 
-    // OKAMŽITĚ otevřeme nové okno - bez čekání na API
-    openInNewTab(externalUrl)
-
-    // Optimistic update pro click history - okamžitě
-    if (typeof window !== 'undefined' && window.addToClickHistory) {
-      window.addToClickHistory({
-        id,
-        name,
-        category: (tags && tags.length > 0) ? tags[0] : undefined,
-        imageUrl,
-        price,
-        externalUrl
-      })
-    }
-
-        // SPOLEHLIVÉ tracking - používáme fetch s keepalive pro garantované odeslání
-    sendTrackingFetch()
-    
-         // Funkce pro spolehlivé tracking přes fetch
-     function sendTrackingFetch() {
-       const trackData = { productId: id }
-       
-       fetch('/api/ads/click', {
-         method: 'POST',
-         headers: {
-           'Content-Type': 'application/json',
-         },
-         body: JSON.stringify(trackData),
-         keepalive: true  // Zajistí odeslání i když se stránka zavře
-      }).then(async ppcResponse => {
-        if (ppcResponse.ok) {
-          const ppcResult = await ppcResponse.json()
-          console.log('💰 PPC click successful (fetch):', ppcResult)
-          
-          if (ppcResult.budgetWarning) {
-            console.log('⚠️ Budget warning:', ppcResult.budgetWarning)
-          }
-        } else {
-                     console.log('⚠️ PPC click failed, using free tracking:', ppcResponse.status)
-           // Fallback na bezplatný tracking
-           fetch(`/api/redirect?productId=${encodeURIComponent(id)}&externalUrl=${encodeURIComponent(externalUrl || '')}`, {
-             keepalive: true
-           }).catch(fallbackError => console.log('⚠️ Fallback tracking failed:', fallbackError))
-        }
-      }).catch(error => {
-                 console.log('⚠️ PPC click error, using free tracking fallback:', error)
-         // Pokus o fallback tracking
-         fetch(`/api/redirect?productId=${encodeURIComponent(id)}&externalUrl=${encodeURIComponent(externalUrl || '')}`, {
-           keepalive: true
-         }).catch(fallbackError => console.log('⚠️ All tracking failed:', fallbackError))
-      })
-    }
+    // SPOLEHLIVÉ tracking - používáme sdílenou funkci bez duplicity kódu  
+    trackProductClick({
+      id,
+      name,
+      externalUrl,
+      category: (tags && tags.length > 0) ? tags[0] : undefined,
+      imageUrl,
+      price,
+      tags
+    })
   }
 
   const handleClick = async (productId: string) => {

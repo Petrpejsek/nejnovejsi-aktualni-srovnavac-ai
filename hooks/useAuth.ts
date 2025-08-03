@@ -4,6 +4,15 @@ import { useSession } from 'next-auth/react';
 export function useAuth() {
   const { data: session, status } = useSession();
 
+  // DEBUG: Add console logging to diagnose client-side session issues
+  console.log('🔍 useAuth DEBUG:', { 
+    status, 
+    hasSession: !!session, 
+    user: session?.user,
+    role: (session?.user as any)?.role,
+    isAdmin: (session?.user as any)?.isAdmin 
+  });
+
   const role = (session?.user as any)?.role || null;
   const isAdmin = Boolean((session?.user as any)?.isAdmin);
 

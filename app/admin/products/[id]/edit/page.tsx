@@ -17,6 +17,7 @@ import {
   UserIcon,
   CalendarIcon
 } from '@heroicons/react/24/outline'
+import { getImageUrl } from '@/lib/utils'
 
 interface Product {
   id: string
@@ -780,7 +781,7 @@ export default function AdminProductEditPage({ params }: { params: { id: string 
                   </div>
                   <div className="relative inline-block">
                     <Image
-                      src={product.imageUrl}
+                      src={getImageUrl(product.imageUrl)}
                       alt={product.name}
                       width={200}
                       height={150}
@@ -915,7 +916,7 @@ export default function AdminProductEditPage({ params }: { params: { id: string 
                   </div>
                   <div className="relative inline-block">
                     <Image
-                      src={imagePreview}
+                      src={getImageUrl(imagePreview)}
                       alt="Preview"
                       width={200}
                       height={150}

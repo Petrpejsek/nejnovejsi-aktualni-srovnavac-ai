@@ -264,8 +264,7 @@ export default function ProductGrid({ selectedTags }: ProductGridProps = {}) {
   return (
     <div className="space-y-4 md:space-y-6 pb-20">
       {/* Header s layout toggle */}
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-semibold">Products</h2>
+      <div className="flex justify-end items-center mb-4">
         <div className="flex space-x-2 border rounded p-1 bg-white">
           <button
             onClick={() => setCompactView(true)}

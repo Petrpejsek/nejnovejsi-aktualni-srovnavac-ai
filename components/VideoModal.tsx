@@ -36,11 +36,13 @@ const getEmbedSrc = (url: string, platform: 'tiktok' | 'instagram') => {
 }
 
 export default function VideoModal({ isOpen, onClose, reel }: VideoModalProps) {
+  // HOOKS MUSÍ BÝT PŘED EARLY RETURN
+  const [showOverlay, setShowOverlay] = useState(true)
+  const iframeRef = useRef<HTMLIFrameElement>(null)
+  
   if (!isOpen || !reel) return null
 
   const embedSrc = getEmbedSrc(reel.embedUrl, reel.platform)
-  const [showOverlay, setShowOverlay] = useState(true)
-  const iframeRef = useRef<HTMLIFrameElement>(null)
 
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) onClose()
