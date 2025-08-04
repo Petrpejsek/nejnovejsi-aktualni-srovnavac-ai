@@ -1,0 +1,30 @@
+# 🚀 COPY-PASTE DEPLOYMENT PŘÍKAZY
+# ====================================
+# Zkopíruj a vlož tyto příkazy jeden po druhém
+
+# 1. SSH připojení
+ssh comparee@23.88.98.49
+
+# 2. Přejdi do správného adresáře
+cd /var/www/comparee
+
+# 3. Git pull (stáhni nejnovější změny)
+git pull origin main
+
+# 4. Instalace dependencies
+npm install
+
+# 5. Build production aplikace
+npm run build
+
+# 6. BEZPEČNÁ databáze migrace (BEZ RESETU!)
+npx prisma migrate deploy
+
+# 7. Restart PM2 
+pm2 restart all
+
+# 8. Kontrola stavu
+pm2 status
+
+# 9. Poslední logy (pro kontrolu)
+pm2 logs --lines 20

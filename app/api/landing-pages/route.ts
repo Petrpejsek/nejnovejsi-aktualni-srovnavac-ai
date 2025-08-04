@@ -1,8 +1,9 @@
 import { NextResponse, NextRequest } from 'next/server'
 import prisma from '@/lib/prisma'
 import { v4 as uuidv4 } from 'uuid'
+import { isValidLocale, locales, defaultLocale } from '@/lib/i18n'
 
-// TypeScript interfaces for the AI farma API
+// TypeScript interfaces for the AI farma API with i18n support
 interface AiLandingPagePayload {
   slug?: string  // Optional - can be generated automatically
   title: string
@@ -12,6 +13,7 @@ interface AiLandingPagePayload {
   publishedAt?: string // ISO date string
   keywords: string[]
   category?: string
+  language: string // Required - language code (cs, en, de, fr, es)
   faq?: {
     question: string
     answer: string
@@ -92,14 +94,19 @@ function generateSlug(title: string): string {
     .substring(0, 100) // Limit slug length for database and URL compatibility
 }
 
-// Function to ensure unique slug
-async function ensureUniqueSlug(baseSlug: string): Promise<string> {
+// Function to ensure unique slug for specific language
+async function ensureUniqueSlug(baseSlug: string, language: string): Promise<string> {
   let uniqueSlug = baseSlug
   let counter = 1
 
   while (true) {
     const existing = await prisma.landingPage.findUnique({
-      where: { slug: uniqueSlug }
+      where: { 
+        slug_language: {
+          slug: uniqueSlug,
+          language: language
+        }
+      }
     })
     
     if (!existing) {
@@ -157,6 +164,13 @@ function validateAiPayload(data: any): { isValid: boolean, errors: string[], war
     if (data.keywords.length > 20) {
       warnings.push('more than 20 keywords provided, consider reducing for better SEO focus')
     }
+  }
+
+  // Language validation (required for i18n support)
+  if (!data.language || typeof data.language !== 'string' || data.language.trim().length === 0) {
+    errors.push('language is required and must be a non-empty string')
+  } else if (!isValidLocale(data.language)) {
+    errors.push(`language must be one of: ${locales.join(', ')}`)
   }
 
   // Optional fields validation
@@ -457,27 +471,35 @@ async function handleAiFormatPayload(data: any) {
       console.log('⚠️ AI Validation warnings:', validation.warnings)
     }
 
-    // Check if slug already exists
+    // Check if slug already exists for this language
     const existingPage = await prisma.landingPage.findUnique({
-      where: { slug: payload.slug },
-      select: { id: true, title: true, createdAt: true }
+      where: { 
+        slug_language: {
+          slug: payload.slug,
+          language: payload.language
+        }
+      },
+      select: { id: true, title: true, createdAt: true, language: true }
     })
     
     if (existingPage) {
-      console.log('❌ Slug conflict:', {
+      console.log('❌ Slug and language conflict:', {
         requestedSlug: payload.slug,
+        requestedLanguage: payload.language,
         existingPage: {
           id: existingPage.id,
           title: existingPage.title,
+          language: existingPage.language,
           createdAt: existingPage.createdAt
         }
       })
       return NextResponse.json(
         { 
-          error: 'Slug conflict', 
-          details: `A landing page with slug '${payload.slug}' already exists`,
+          error: 'Slug and language conflict', 
+          details: `A landing page with slug '${payload.slug}' and language '${payload.language}' already exists`,
           conflictingPage: {
             title: existingPage.title,
+            language: existingPage.language,
             createdAt: existingPage.createdAt
           }
         },
@@ -503,14 +525,14 @@ async function handleAiFormatPayload(data: any) {
     const metaDescription = payload.summary || 
       payload.contentHtml.replace(/<[^>]*>/g, '').substring(0, 160) + '...'
 
-    // Create landing page record
+    // Create landing page record with i18n support
     const landingPage = await prisma.landingPage.create({
       data: {
         id: uuidv4(),
         slug: payload.slug,
         title: payload.title,
         summary: payload.summary || null,
-        language: 'cs', // Default language
+        language: payload.language, // Use provided language
         contentHtml: payload.contentHtml,
         imageUrl: payload.imageUrl || null,
         category: payload.category || null,
@@ -534,15 +556,15 @@ async function handleAiFormatPayload(data: any) {
       console.error('⚠️ Search engine ping failed (non-blocking):', error)
     })
 
-    // AI farma response format
+    // AI farma response format with i18n URL
     const response: AiLandingPageResponse = {
       status: 'ok',
-      url: `/landing/${payload.slug}`,
+      url: `/${payload.language}/landing/${payload.slug}`,
       slug: payload.slug
     }
 
     console.log('✅ AI Landing page successfully created and published')
-    console.log('🚀 Available at: https://comparee.ai/landing/' + payload.slug)
+    console.log(`🚀 Available at: https://comparee.ai/${payload.language}/landing/${payload.slug}`)
 
     return NextResponse.json(response, { status: 201 })
     
@@ -565,9 +587,9 @@ async function handleAiFormatPayload(data: any) {
         case 'P2002': // Unique constraint violation
           return NextResponse.json(
             { 
-              error: 'Slug conflict', 
-              details: 'A landing page with this slug already exists',
-              field: prismaError.meta?.target?.[0] || 'slug'
+              error: 'Slug and language conflict', 
+              details: 'A landing page with this slug and language combination already exists',
+              field: prismaError.meta?.target || ['slug', 'language']
             },
             { status: 409 }
           )
@@ -646,8 +668,8 @@ async function handleLegacyFormatPayload(data: any) {
     
     console.log('🔗 Generated base slug:', baseSlug)
 
-    // Ensure slug is unique
-    const uniqueSlug = await ensureUniqueSlug(baseSlug)
+    // Ensure slug is unique for this language
+    const uniqueSlug = await ensureUniqueSlug(baseSlug, payload.language)
     console.log('✨ Final unique slug:', uniqueSlug)
 
     // Create landing page record (legacy format)
