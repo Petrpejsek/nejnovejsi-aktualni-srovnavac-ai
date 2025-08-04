@@ -101,7 +101,8 @@ export async function POST(request: NextRequest) {
         email: email.toLowerCase().trim(),
         hashedPassword,
         role,
-        isActive: true
+        isActive: true,
+        updatedAt: new Date()
       }
     });
 

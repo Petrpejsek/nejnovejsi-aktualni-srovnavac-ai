@@ -74,13 +74,15 @@ export async function POST(request: NextRequest) {
 
     const newTopList = await prisma.topList.create({
       data: {
+        id: crypto.randomUUID(),
         title,
         description,
         category,
         products: products, // JSON array of product IDs
         status,
         clicks: 0,
-        conversion: 0.0
+        conversion: 0.0,
+        updatedAt: new Date()
       }
     })
 

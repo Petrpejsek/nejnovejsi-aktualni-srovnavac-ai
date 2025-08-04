@@ -85,6 +85,7 @@ export async function POST(request: NextRequest) {
     // Vytvoření v databázi
     const newPackage = await prisma.promotionalPackage.create({
       data: {
+        id: crypto.randomUUID(),
         title,
         description,
         amount,
@@ -95,7 +96,8 @@ export async function POST(request: NextRequest) {
         minimumSpend: minimumSpend || 0,
         active: active !== false,
         order: order || 1,
-        targetStatus: targetStatus || 'all'
+        targetStatus: targetStatus || 'all',
+        updatedAt: new Date()
       }
     })
 

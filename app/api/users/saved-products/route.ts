@@ -126,6 +126,7 @@ export async function POST(request: NextRequest) {
     // Uložíme produkt
     const savedProduct = await prisma.savedProduct.create({
       data: {
+        id: crypto.randomUUID(),
         userId: user.id,
         productId,
         productName,

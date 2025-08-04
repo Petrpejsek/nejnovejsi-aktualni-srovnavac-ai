@@ -25,21 +25,21 @@ export async function GET(
     let config = null
     
     if (refCode) {
-      config = await prisma.monetizationConfig.findUnique({
-        where: { refCode }
+      config = await prisma.monetization_configs.findUnique({
+        where: { ref_code: refCode }
       })
     } else {
       // Find any active config for this entity
-      config = await prisma.monetizationConfig.findFirst({
+      config = await prisma.monetization_configs.findFirst({
         where: {
-          monetizableType,
-          monetizableId,
-          isActive: true
+          monetizable_type: monetizableType,
+          monetizable_id: monetizableId,
+          is_active: true
         }
       })
     }
 
-    if (!config || !config.isActive) {
+    if (!config || !config.is_active) {
       console.log('❌ No active monetization config found')
       return NextResponse.json({ error: 'Not monetized' }, { status: 404 })
     }
@@ -69,21 +69,21 @@ export async function GET(
     await Promise.allSettled(trackingPromises)
 
     // Update config statistics
-    await prisma.monetizationConfig.update({
+    await prisma.monetization_configs.update({
       where: { id: config.id },
       data: {
-        totalClicks: { increment: 1 },
+        total_clicks: { increment: 1 },
         ...(config.mode === 'affiliate' || config.mode === 'hybrid' 
-          ? { totalAffiliateClicks: { increment: 1 } } 
+          ? { total_affiliate_clicks: { increment: 1 } } 
           : {}),
         ...(config.mode === 'cpc' || config.mode === 'hybrid' 
-          ? { totalCpcClicks: { increment: 1 } } 
+          ? { total_cpc_clicks: { increment: 1 } } 
           : {})
       }
     })
 
     // Determine redirect URL
-    const redirectUrl = config.affiliateLink || config.fallbackLink || await getOriginalUrl(monetizableType, monetizableId)
+    const redirectUrl = config.affiliate_link || config.fallback_link || await getOriginalUrl(monetizableType, monetizableId)
 
     if (!redirectUrl) {
       return NextResponse.json({ error: 'No redirect URL available' }, { status: 404 })
@@ -115,16 +115,17 @@ async function trackAffiliateClick(
   referrer: string | null
 ) {
   try {
-    await prisma.affiliateClick.create({
+    await prisma.affiliate_clicks.create({
       data: {
-        monetizableType: config.monetizableType,
-        monetizableId: config.monetizableId,
-        refCode: config.refCode,
-        partnerId: config.partnerId,
-        ipHash,
-        userAgent,
+        id: crypto.randomUUID(),
+        monetizable_type: config.monetizable_type,
+        monetizable_id: config.monetizable_id,
+        ref_code: config.ref_code,
+        partner_id: config.partner_id,
+        ip_hash: ipHash,
+        user_agent: userAgent,
         referrer,
-        clickSource: 'direct'
+        click_source: 'direct'
       }
     })
     console.log('📊 Affiliate click tracked')
@@ -140,17 +141,17 @@ async function trackCPCClick(
   referrer: string | null
 ) {
   try {
-    if (!config.cpcRate || config.cpcRate <= 0) {
+    if (!config.cpc_rate || config.cpc_rate <= 0) {
       console.log('⚠️ Invalid CPC rate, skipping CPC tracking')
       return
     }
 
     // Check partner balance
-    const billingAccount = await prisma.billingAccount.findUnique({
-      where: { partnerId: config.partnerId }
+    const billingAccount = await prisma.billing_accounts.findUnique({
+      where: { partner_id: config.partner_id }
     })
 
-    if (!billingAccount || billingAccount.creditBalance < config.cpcRate) {
+    if (!billingAccount || billingAccount.credit_balance < config.cpc_rate) {
       console.log('💸 Insufficient balance for CPC tracking')
       return
     }
@@ -158,31 +159,32 @@ async function trackCPCClick(
     // Charge the click
     await prisma.$transaction(async (tx) => {
       // Create click record
-      await tx.adClickMonetization.create({
+      await tx.ad_clicks_monetization.create({
         data: {
-          monetizableType: config.monetizableType,
-          monetizableId: config.monetizableId,
-          partnerId: config.partnerId,
-          ipHash,
-          userAgent,
+          id: crypto.randomUUID(),
+          monetizable_type: config.monetizable_type,
+          monetizable_id: config.monetizable_id,
+          partner_id: config.partner_id,
+          ip_hash: ipHash,
+          user_agent: userAgent,
           referrer,
-          costPerClick: config.cpcRate,
+          cost_per_click: config.cpc_rate,
           currency: 'USD'
         }
       })
 
       // Deduct balance
-      await tx.billingAccount.update({
-        where: { partnerId: config.partnerId },
+      await tx.billing_accounts.update({
+        where: { partner_id: config.partner_id },
         data: {
-          creditBalance: { decrement: config.cpcRate },
-          totalSpent: { increment: config.cpcRate },
-          lastActivityAt: new Date()
+          credit_balance: { decrement: config.cpc_rate },
+          total_spent: { increment: config.cpc_rate },
+          last_activity_at: new Date()
         }
       })
     })
 
-    console.log(`💰 CPC click tracked: $${config.cpcRate}`)
+    console.log(`💰 CPC click tracked: $${config.cpc_rate}`)
   } catch (error) {
     console.error('❌ CPC tracking failed:', error)
   }

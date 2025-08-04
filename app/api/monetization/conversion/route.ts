@@ -24,8 +24,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Find the monetization config
-    const config = await prisma.monetizationConfig.findUnique({
-      where: { refCode: ref_code }
+    const config = await prisma.monetization_configs.findUnique({
+      where: { ref_code: ref_code }
     })
 
     if (!config) {
@@ -33,8 +33,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Find the most recent affiliate click
-    const affiliateClick = await prisma.affiliateClick.findFirst({
-      where: { refCode: ref_code },
+    const affiliateClick = await prisma.affiliate_clicks.findFirst({
+      where: { ref_code: ref_code },
       orderBy: { timestamp: 'desc' }
     })
 
@@ -52,45 +52,46 @@ export async function POST(request: NextRequest) {
 
     // Calculate commission
     let commissionAmount = null
-    if (config.affiliateRate && conversion_value) {
-      commissionAmount = (conversion_value * config.affiliateRate) / 100
+    if (config.affiliate_rate && conversion_value) {
+      commissionAmount = (conversion_value * config.affiliate_rate) / 100
     }
 
     // Create conversion record
-    const conversion = await prisma.affiliateConversion.create({
+    const conversion = await prisma.affiliate_conversions.create({
       data: {
-        affiliateClickId: affiliateClick.id,
-        refCode: ref_code,
-        partnerId: config.partnerId,
-        monetizableType: config.monetizableType,
-        monetizableId: config.monetizableId,
-        conversionType: conversion_type,
-        conversionValue: conversion_value,
+        id: crypto.randomUUID(),
+        affiliate_click_id: affiliateClick.id,
+        ref_code: ref_code,
+        partner_id: config.partner_id,
+        monetizable_type: config.monetizable_type,
+        monetizable_id: config.monetizable_id,
+        conversion_type: conversion_type,
+        conversion_value: conversion_value,
         currency,
-        commissionRate: config.affiliateRate,
-        commissionAmount,
-        attributionWindowHours,
-        sessionId: session_id,
-        externalConversionId: external_conversion_id,
+        commission_rate: config.affiliate_rate,
+        commission_amount: commissionAmount,
+        attribution_window_hours: attributionWindowHours,
+        session_id: session_id,
+        external_conversion_id: external_conversion_id,
         metadata: metadata ? JSON.stringify(metadata) : null
       }
     })
 
     // Update affiliate click
-    await prisma.affiliateClick.update({
+    await prisma.affiliate_clicks.update({
       where: { id: affiliateClick.id },
       data: {
-        isConverted: true,
-        conversionId: conversion.id
+        is_converted: true,
+        conversion_id: conversion.id
       }
     })
 
     // Update config statistics
-    await prisma.monetizationConfig.update({
+    await prisma.monetization_configs.update({
       where: { id: config.id },
       data: {
-        totalConversions: { increment: 1 },
-        totalRevenue: commissionAmount ? { increment: commissionAmount } : undefined
+        total_conversions: { increment: 1 },
+        total_revenue: commissionAmount ? { increment: commissionAmount } : undefined
       }
     })
 

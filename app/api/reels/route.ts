@@ -112,10 +112,12 @@ export async function POST(request: NextRequest) {
     const videoUrl = `/uploads/reels/${videoFileName}`
     const newReel = await prisma.reel.create({
       data: {
+        id: crypto.randomUUID(),
         title: title.trim(),
         description: description?.trim() || null,
         videoUrl,
-        thumbnailUrl
+        thumbnailUrl,
+        updatedAt: new Date()
       }
     })
 

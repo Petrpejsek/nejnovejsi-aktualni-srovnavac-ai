@@ -37,8 +37,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if ref_code is unique
-    const existingConfig = await prisma.monetizationConfig.findUnique({
-      where: { refCode }
+    const existingConfig = await prisma.monetization_configs.findUnique({
+      where: { ref_code: refCode }
     })
 
     if (existingConfig) {
@@ -57,29 +57,33 @@ export async function POST(request: NextRequest) {
     }
 
     // Create monetization config
-    const config = await prisma.monetizationConfig.create({
+    const config = await prisma.monetization_configs.create({
       data: {
-        monetizableType,
-        monetizableId,
+        id: crypto.randomUUID(),
+        monetizable_type: monetizableType,
+        monetizable_id: monetizableId,
         mode,
-        refCode,
-        affiliateLink,
-        fallbackLink,
-        isTop,
-        partnerId,
-        cpcRate,
-        affiliateRate,
-        createdBy: session.user.email
+        ref_code: refCode,
+        affiliate_link: affiliateLink,
+        fallback_link: fallbackLink,
+        is_top: isTop,
+        partner_id: partnerId,
+        cpc_rate: cpcRate,
+        affiliate_rate: affiliateRate,
+        created_by: session.user.email,
+        updated_at: new Date()
       }
     })
 
     // Create or update billing account
-    await prisma.billingAccount.upsert({
-      where: { partnerId },
+    await prisma.billing_accounts.upsert({
+      where: { partner_id: partnerId },
       create: {
-        partnerId,
-        creditBalance: 0,
-        isActive: true
+        id: crypto.randomUUID(),
+        partner_id: partnerId,
+        credit_balance: 0,
+        is_active: true,
+        updated_at: new Date()
       },
       update: {}
     })
@@ -90,12 +94,12 @@ export async function POST(request: NextRequest) {
       success: true,
       config: {
         id: config.id,
-        monetizableType: config.monetizableType,
-        monetizableId: config.monetizableId,
+        monetizableType: config.monetizable_type,
+        monetizableId: config.monetizable_id,
         mode: config.mode,
-        refCode: config.refCode,
-        isActive: config.isActive,
-        createdAt: config.createdAt
+        refCode: config.ref_code,
+        isActive: config.is_active,
+        createdAt: config.created_at
       }
     })
 
@@ -120,26 +124,23 @@ export async function GET(request: NextRequest) {
 
     const where: any = {}
     
-    if (partnerId) where.partnerId = partnerId
-    if (monetizableType) where.monetizableType = monetizableType
-    if (monetizableId) where.monetizableId = monetizableId
+    if (partnerId) where.partner_id = partnerId
+    if (monetizableType) where.monetizable_type = monetizableType
+    if (monetizableId) where.monetizable_id = monetizableId
 
-    const configs = await prisma.monetizationConfig.findMany({
+    const configs = await prisma.monetization_configs.findMany({
       where,
       include: {
-        affiliateClicks: {
-          select: { id: true }
-        },
-        conversions: {
+        affiliate_clicks: {
           select: { id: true }
         }
       },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { created_at: 'desc' }
     })
 
     return NextResponse.json({
       success: true,
-      configs: configs.map(config => ({
+      configs: configs.map((config: any) => ({
         ...config,
         affiliateClicksCount: config.affiliateClicks.length,
         conversionsCount: config.conversions.length
