@@ -289,14 +289,7 @@ export default function AiAdvisor() {
           Stop Wasting Hours Searching.<br />
           <span className="text-3xl md:text-4xl">Get Your Perfect AI Tool in 30 Seconds!</span>
         </h1>
-        <p className="text-gray-700 text-xl font-medium max-w-3xl mx-auto mb-3">
-          <span className="bg-yellow-100 px-2 py-1 rounded-md font-semibold text-gray-800">⚡ NEW:</span> Our AI instantly matches you with the best tool from{' '}
-          <span className="inline-flex items-center bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text text-transparent font-bold">
-            <span className="inline-block w-12 text-center font-bold tabular-nums">
-              {totalProducts}
-            </span>+ verified solutions
-          </span>
-        </p>
+
 
       </div>
 

@@ -10,17 +10,7 @@ const nextConfig = {
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
     unoptimized: true
   },
-  // i18n configuration for App Router
-  async redirects() {
-    return [
-      // Redirect old /landing/slug to /cs/landing/slug (default language)
-      {
-        source: '/landing/:slug*',
-        destination: '/cs/landing/:slug*',
-        permanent: true,
-      },
-    ]
-  },
+  // Simple landing pages without i18n redirects
   reactStrictMode: false,
   experimental: { 
     largePageDataBytes: 128 * 1000,

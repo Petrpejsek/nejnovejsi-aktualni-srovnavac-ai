@@ -4,6 +4,23 @@ import { v4 as uuidv4 } from 'uuid'
 import { isValidLocale, locales, defaultLocale } from '@/lib/i18n'
 
 // TypeScript interfaces for the AI farma API with i18n support
+interface TableRow {
+  feature: string
+  values: (string | number | boolean | null)[]
+  highlight?: number[]
+  type?: 'text' | 'number' | 'boolean' | 'price' | 'rating'
+}
+
+interface TableData {
+  type: 'comparison' | 'pricing' | 'features' | 'specs'
+  title: string
+  subtitle?: string
+  headers: string[]
+  rows: TableRow[]
+  highlightColumns?: number[]
+  style?: 'modern' | 'classic' | 'minimal'
+}
+
 interface AiLandingPagePayload {
   slug?: string  // Optional - can be generated automatically
   title: string
@@ -18,6 +35,11 @@ interface AiLandingPagePayload {
     question: string
     answer: string
   }[]
+  
+  comparisonTables?: TableData[]
+  pricingTables?: TableData[]
+  featureTables?: TableData[]
+  dataTables?: TableData[]
 }
 
 // Legacy interface for backward compatibility
@@ -386,7 +408,16 @@ export async function POST(request: NextRequest) {
     console.log('📋 Raw payload keys:', Object.keys(rawData))
 
     // Detect payload format (AI farma vs legacy)
-    const isAiFormat = 'contentHtml' in rawData && 'keywords' in rawData && !('meta' in rawData)
+    // AI format: has contentHtml and keywords (check both top level and data object, including meta.keywords)
+    // Legacy format: has content_html (with underscore)
+    const hasContentHtml = 'contentHtml' in rawData || (rawData.data && 'contentHtml' in rawData.data)
+    const hasKeywords = 'keywords' in rawData || 
+                       (rawData.data && 'keywords' in rawData.data) || 
+                       (rawData.data && rawData.data.meta && 'keywords' in rawData.data.meta) ||
+                       (rawData.meta && 'keywords' in rawData.meta)
+    const hasLegacyContentHtml = 'content_html' in rawData
+    
+    const isAiFormat = (hasContentHtml && hasKeywords) && !hasLegacyContentHtml
     
     if (isAiFormat) {
       console.log('🤖 Processing AI farma format')
@@ -411,7 +442,30 @@ export async function POST(request: NextRequest) {
 // Handle AI farma format payload
 async function handleAiFormatPayload(data: any) {
   try {
-    const payload = data as AiLandingPagePayload
+    // Extract payload - check if data is in 'data' object or at root level
+    let payload: AiLandingPagePayload
+    
+    if (data.data && typeof data.data === 'object') {
+      // Data is in 'data' object - extract it
+      payload = {
+        title: data.data.title || data.title,
+        slug: data.data.slug || data.slug,
+        summary: data.data.summary || data.summary,
+        contentHtml: data.data.contentHtml || data.contentHtml,
+        imageUrl: data.data.imageUrl || data.imageUrl,
+        publishedAt: data.data.publishedAt || data.publishedAt,
+        keywords: data.data.meta?.keywords || data.meta?.keywords || data.data.keywords || data.keywords,
+        category: data.data.category || data.category,
+        language: data.data.language || data.language,
+        faq: data.data.faq || data.faq
+      }
+    } else {
+      // Data is at root level
+      payload = {
+        ...data,
+        keywords: data.meta?.keywords || data.keywords
+      } as AiLandingPagePayload
+    }
     console.log('📋 AI Payload received:', { 
       title: payload.title, 
       slug: payload.slug,
@@ -539,6 +593,12 @@ async function handleAiFormatPayload(data: any) {
         metaDescription,
         metaKeywords: JSON.stringify(payload.keywords),
         faq: payload.faq || undefined,
+        visuals: JSON.parse(JSON.stringify({
+          comparisonTables: payload.comparisonTables || [],
+          pricingTables: payload.pricingTables || [],
+          featureTables: payload.featureTables || [],
+          dataTables: payload.dataTables || []
+        })),
         format: 'html',
         publishedAt
       }
@@ -556,15 +616,15 @@ async function handleAiFormatPayload(data: any) {
       console.error('⚠️ Search engine ping failed (non-blocking):', error)
     })
 
-    // AI farma response format with i18n URL
+    // AI farma response format with simple URL (no i18n)
     const response: AiLandingPageResponse = {
       status: 'ok',
-      url: `/${payload.language}/landing/${payload.slug}`,
+      url: `/landing/${payload.slug}`,
       slug: payload.slug
     }
 
     console.log('✅ AI Landing page successfully created and published')
-    console.log(`🚀 Available at: https://comparee.ai/${payload.language}/landing/${payload.slug}`)
+    console.log(`🚀 Available at: https://comparee.ai/landing/${payload.slug}`)
 
     return NextResponse.json(response, { status: 201 })
     

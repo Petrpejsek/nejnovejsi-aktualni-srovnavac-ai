@@ -86,6 +86,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       current: pathname.startsWith('/admin/create-landing')
     },
     {
+      name: 'Správa Landing Pages',
+      href: '/admin/landing-pages',
+      icon: '📝',
+      current: pathname.startsWith('/admin/landing-pages')
+    },
+    {
       name: 'Analytics',
       href: '/admin/analytics',
       icon: '📊',

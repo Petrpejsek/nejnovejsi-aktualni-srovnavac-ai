@@ -53,8 +53,7 @@ export default function Footer() {
               </Link>
             </div>
             <p className="text-gray-600 text-sm mb-4 leading-relaxed">
-              Your ultimate destination for discovering and comparing AI tools. 
-              Find the perfect solution for your business needs from our curated collection.
+              Your ultimate destination for discovering and comparing AI tools. Find the perfect solution for your business needs from our curated collection.
             </p>
 
 

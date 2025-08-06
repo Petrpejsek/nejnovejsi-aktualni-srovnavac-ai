@@ -478,8 +478,6 @@ model billing_accounts {
   @@index([stripe_customer_id], map: "idx_billing_stripe")
 }
 
-
-
 model monetization_configs {
   id                     String                  @id
   monetizable_type       String
@@ -512,21 +510,6 @@ model monetization_configs {
   @@index([partner_id])
 }
 
-enum ConversionType {
-  registration
-  trial_start
-  subscription
-  purchase
-  lead
-  custom
-}
-
-enum MonetizationMode {
-  cpc
-  affiliate
-  hybrid
-}
-
 model LandingPage {
   id              String   @id @default(uuid())
   slug            String
@@ -546,10 +529,25 @@ model LandingPage {
   createdAt       DateTime @default(now()) @map("created_at")
   updatedAt       DateTime @updatedAt @map("updated_at")
 
-  @@unique([slug, language], name: "slug_language")
+  @@unique([slug, language], name: "slug_language", map: "slug_language")
   @@index([slug])
   @@index([language])
   @@index([publishedAt])
   @@index([category])
   @@map("landing_pages")
+}
+
+enum ConversionType {
+  registration
+  trial_start
+  subscription
+  purchase
+  lead
+  custom
+}
+
+enum MonetizationMode {
+  cpc
+  affiliate
+  hybrid
 }

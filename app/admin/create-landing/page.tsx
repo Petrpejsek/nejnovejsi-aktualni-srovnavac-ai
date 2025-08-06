@@ -452,13 +452,28 @@ export default function CreateLandingPage() {
 
                   {/* Conflicting page info */}
                   {result.conflictingPage && (
-                    <div className="mt-2 p-2 bg-red-100 rounded border">
+                    <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded">
                       <p className="text-sm text-red-800">
                         <strong>Existující stránka:</strong> {result.conflictingPage.title}
                       </p>
-                      <p className="text-xs text-red-600">
+                      <p className="text-xs text-red-600 mb-2">
                         Vytvořena: {new Date(result.conflictingPage.createdAt).toLocaleString('cs-CZ')}
                       </p>
+                      <div className="flex gap-2">
+                        <a
+                          href="/admin/landing-pages"
+                          className="inline-flex items-center px-3 py-1 text-xs font-medium text-red-700 bg-red-100 border border-red-300 rounded hover:bg-red-200 transition-colors"
+                        >
+                          📝 Správa Landing Pages
+                        </a>
+                        <button
+                          onClick={() => window.open('http://localhost:5555', '_blank')}
+                          className="inline-flex items-center px-3 py-1 text-xs font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded hover:bg-gray-200 transition-colors"
+                          title="Otevřít Prisma Studio pro rychlé smazání"
+                        >
+                          🗄️ Prisma Studio
+                        </button>
+                      </div>
                     </div>
                   )}
 

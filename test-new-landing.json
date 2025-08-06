@@ -1,0 +1,21 @@
+{
+  "success": true,
+  "data": {
+    "title": "Test nové landing page",
+    "summary": "Testovací článek pro ověření, že české obsahy fungují v anglickém layoutu",
+    "language": "cs",
+    "contentHtml": "<h1>Test nové landing page</h1><p>Toto je test českého obsahu v anglickém layoutu. Mělo by vše fungovat krásně bez multijazycnosti.</p><h2>Výhody tohoto přístupu</h2><ul><li>Jednoduchý anglický layout</li><li>České obsahy fungují</li><li>Žádná složitá i18n logika</li></ul>",
+    "meta": {
+      "title": "Test nové landing page",
+      "description": "Testovací článek pro ověření, že české obsahy fungují v anglickém layoutu",
+      "slug": "test-nove-landing-page",
+      "keywords": [
+        "test",
+        "česky",
+        "landing page",
+        "anglický layout"
+      ]
+    },
+    "slug": "test-nove-landing-page"
+  }
+}

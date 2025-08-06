@@ -2,67 +2,19 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://comparee.ai</loc>
-    <lastmod>2025-08-04</lastmod>
+    <lastmod>2025-08-06</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://comparee.ai/landing/ceska-testovaci-stranka</loc>
-    <lastmod>2025-08-04</lastmod>
+    <loc>https://comparee.ai/landing/ai-nastroje-2025-mock-test</loc>
+    <lastmod>2025-08-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://comparee.ai/landing/ceska-testovaci-stranka</loc>
-    <lastmod>2025-08-04</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://comparee.ai/landing/test-english-page</loc>
-    <lastmod>2025-08-04</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://comparee.ai/landing/test-landing-202508031510</loc>
-    <lastmod>2025-08-03</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://comparee.ai/landing/test-landing-202508031507</loc>
-    <lastmod>2025-08-03</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://comparee.ai/landing/test-landing-202508031506</loc>
-    <lastmod>2025-08-03</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://comparee.ai/landing/test-landing-202508021739</loc>
-    <lastmod>2025-08-02</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://comparee.ai/landing/test-landing-202508021737</loc>
-    <lastmod>2025-08-02</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://comparee.ai/landing/test-admin-landing-2024</loc>
-    <lastmod>2025-08-02</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://comparee.ai/landing/test-obnoveni-databaze</loc>
-    <lastmod>2025-08-02</lastmod>
+    <loc>https://comparee.ai/landing/generativni-ai-2025-pruvodce</loc>
+    <lastmod>2025-08-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>

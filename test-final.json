@@ -1,0 +1,21 @@
+{
+  "success": true,
+  "data": {
+    "title": "Test Finální Landing Page",
+    "summary": "Test že české obsahy fungují v krásném anglickém layoutu",
+    "language": "cs",
+    "contentHtml": "<h1>Test Finální Landing Page</h1><p>Toto je test českého obsahu v původním krásném anglickém layoutu! 🎉</p><h2>Výhody tohoto přístupu</h2><ul><li>✅ Krásný původní design</li><li>✅ České obsahy fungují perfektně</li><li>✅ Žádná složitá i18n logika</li><li>✅ URL /landing/slug místo /cs/landing/slug</li></ul><p>Výsledek je přesně to, co jste chtěl - krásná landing page s českým obsahem!</p>",
+    "meta": {
+      "title": "Test Finální Landing Page",
+      "description": "Test že české obsahy fungují v krásném anglickém layoutu",
+      "slug": "test-finalni-landing",
+      "keywords": [
+        "test",
+        "finální",
+        "českylayout",
+        "anglický design"
+      ]
+    },
+    "slug": "test-finalni-landing"
+  }
+}

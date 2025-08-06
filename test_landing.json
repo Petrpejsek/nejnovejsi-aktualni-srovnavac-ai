@@ -1,0 +1,11 @@
+{
+  "title": "Test Landing Page",
+  "slug": "test-landing-page-123",
+  "language": "cs",
+  "content_html": "<h1>Test obsah</h1><p>Toto je testovací landing page.</p>",
+  "meta": {
+    "description": "Testovací landing page pro ověření funkčnosti",
+    "keywords": ["test", "landing", "page"]
+  },
+  "format": "html"
+}
