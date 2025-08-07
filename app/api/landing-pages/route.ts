@@ -600,7 +600,7 @@ async function handleAiFormatPayload(data: any) {
           dataTables: payload.dataTables || []
         })),
         format: 'html',
-        publishedAt
+        published_at: publishedAt
       }
     })
 
@@ -745,7 +745,8 @@ async function handleLegacyFormatPayload(data: any) {
         schema_org: payload.schema_org ? JSON.stringify(payload.schema_org) : null,
         visuals: payload.visuals || undefined,
         faq: payload.faq || undefined,
-        format: payload.format || 'html'
+        format: payload.format || 'html',
+        updated_at: new Date()
       }
     })
 
