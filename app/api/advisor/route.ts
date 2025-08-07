@@ -1,10 +1,6 @@
 import type { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
 export async function POST(req: NextRequest) {
   if (req.method !== "POST") {
     return Response.json({ error: "Method not allowed" }, { status: 405 });
@@ -15,6 +11,15 @@ export async function POST(req: NextRequest) {
   if (!query) {
     return Response.json({ error: "Missing query" }, { status: 400 });
   }
+
+  // Initialize OpenAI only at runtime
+  if (!process.env.OPENAI_API_KEY) {
+    return Response.json({ error: "OpenAI API key not configured" }, { status: 500 });
+  }
+
+  const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  });
 
   try {
     const completion = await openai.chat.completions.create({
