@@ -19,7 +19,7 @@ interface LandingPageData {
   language: string;
   contentHtml: string;
   metaDescription: string;
-  metaKeywords: string[];
+  meta_keywords: string[];
   schemaOrg?: string;
   visuals?: any[];
   faq?: any[];
@@ -62,7 +62,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return {
       title: `${landingPage.title} | Comparee.ai`,
       description: landingPage.metaDescription,
-      keywords: landingPage.metaKeywords.join(', '),
+      keywords: landingPage.meta_keywords.join(', '),
       alternates: {
         canonical: `https://comparee.ai/${params.lang}/landing/${params.slug}`,
         languages: alternateLanguages,
@@ -119,11 +119,11 @@ async function getLandingPage(slug: string, language: Locale): Promise<LandingPa
     }
 
     // Parse meta keywords from JSON string
-    let metaKeywords: string[] = [];
+    let meta_keywords: string[] = [];
     try {
-      metaKeywords = JSON.parse(landingPage.metaKeywords);
+      meta_keywords = JSON.parse(landingPage.meta_keywords);
     } catch (e) {
-      metaKeywords = [];
+      meta_keywords = [];
     }
 
     return {
@@ -131,16 +131,16 @@ async function getLandingPage(slug: string, language: Locale): Promise<LandingPa
       slug: landingPage.slug,
       title: landingPage.title,
       language: landingPage.language,
-      contentHtml: landingPage.contentHtml,
-      metaDescription: landingPage.metaDescription,
-      metaKeywords,
-      schemaOrg: landingPage.schemaOrg || undefined,
+      contentHtml: landingPage.content_html,
+      metaDescription: landingPage.meta_description,
+      meta_keywords,
+      schemaOrg: landingPage.schema_org || undefined,
       visuals: landingPage.visuals ? (landingPage.visuals as any[]) : undefined,
       faq: landingPage.faq ? (landingPage.faq as any[]) : undefined,
       format: landingPage.format,
-      publishedAt: landingPage.publishedAt,
-      createdAt: landingPage.createdAt,
-      updatedAt: landingPage.updatedAt,
+      publishedAt: landingPage.published_at,
+      createdAt: landingPage.created_at,
+      updatedAt: landingPage.updated_at,
     };
   } catch (error) {
     console.error('Error fetching i18n landing page:', error);

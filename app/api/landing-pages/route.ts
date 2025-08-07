@@ -338,7 +338,7 @@ async function updateSitemap(): Promise<void> {
 
     // Add landing pages to sitemap
     landingPages.forEach(page => {
-      const lastmod = page.updatedAt.toISOString().split('T')[0]
+      const lastmod = page.updated_at.toISOString().split('T')[0]
       sitemapContent += `
   <url>
     <loc>${baseUrl}/landing/${encodeURIComponent(page.slug)}</loc>
@@ -544,7 +544,7 @@ async function handleAiFormatPayload(data: any) {
           id: existingPage.id,
           title: existingPage.title,
           language: existingPage.language,
-          createdAt: existingPage.createdAt
+          createdAt: existingPage.created_at
         }
       })
       return NextResponse.json(
@@ -554,7 +554,7 @@ async function handleAiFormatPayload(data: any) {
           conflictingPage: {
             title: existingPage.title,
             language: existingPage.language,
-            createdAt: existingPage.createdAt
+            createdAt: existingPage.created_at
           }
         },
         { status: 409 }
@@ -587,10 +587,10 @@ async function handleAiFormatPayload(data: any) {
         title: payload.title,
         summary: payload.summary || null,
         language: payload.language, // Use provided language
-        contentHtml: payload.contentHtml,
-        imageUrl: payload.imageUrl || null,
+        content_html: payload.contentHtml,
+        image_url: payload.imageUrl || null,
         category: payload.category || null,
-        metaDescription,
+        meta_description: metaDescription,
         metaKeywords: JSON.stringify(payload.keywords),
         faq: payload.faq || undefined,
         visuals: JSON.parse(JSON.stringify({
@@ -739,9 +739,9 @@ async function handleLegacyFormatPayload(data: any) {
         slug: uniqueSlug,
         title: payload.title,
         language: payload.language,
-        contentHtml: payload.content_html,
-        metaDescription: payload.meta.description,
-        metaKeywords: JSON.stringify(payload.meta.keywords),
+        content_html: payload.content_html,
+        meta_description: payload.meta.description,
+        meta_keywords: JSON.stringify(payload.meta.keywords),
         schemaOrg: payload.schema_org ? JSON.stringify(payload.schema_org) : null,
         visuals: payload.visuals || undefined,
         faq: payload.faq || undefined,
@@ -767,16 +767,16 @@ async function handleLegacyFormatPayload(data: any) {
       slug: landingPage.slug,
       title: landingPage.title,
       language: landingPage.language,
-      contentHtml: landingPage.contentHtml,
-      metaDescription: landingPage.metaDescription,
-      metaKeywords: JSON.parse(landingPage.metaKeywords),
-      schemaOrg: landingPage.schemaOrg || undefined,
+      contentHtml: landingPage.content_html,
+      metaDescription: landingPage.meta_description,
+      metaKeywords: JSON.parse(landingPage.meta_keywords),
+      schemaOrg: landingPage.schema_org || undefined,
       visuals: landingPage.visuals ? (landingPage.visuals as any[]) : undefined,
       faq: landingPage.faq ? (landingPage.faq as any[]) : undefined,
       format: landingPage.format,
-      publishedAt: landingPage.publishedAt,
-      createdAt: landingPage.createdAt,
-      updatedAt: landingPage.updatedAt,
+      publishedAt: landingPage.published_at,
+      createdAt: landingPage.created_at,
+      updatedAt: landingPage.updated_at,
       finalSlug: landingPage.slug
     }
 

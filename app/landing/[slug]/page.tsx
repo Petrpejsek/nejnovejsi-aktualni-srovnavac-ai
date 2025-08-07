@@ -41,8 +41,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       },
       select: {
         title: true,
-        metaDescription: true,
-        metaKeywords: true,
+        meta_description: true,
+        meta_keywords: true,
         language: true,
         slug: true,
       },
@@ -57,8 +57,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     
     return {
       title: `${landingPage.title} | Comparee.ai`,
-      description: landingPage.metaDescription,
-      keywords: typeof landingPage.metaKeywords === 'string' ? landingPage.metaKeywords : (landingPage.metaKeywords as any)?.join?.(', ') || '',
+      description: landingPage.meta_description,
+      keywords: typeof landingPage.meta_keywords === 'string' ? landingPage.meta_keywords : (landingPage.meta_keywords as any)?.join?.(', ') || '',
     };
   } catch (error) {
     console.error('Error generating metadata:', error);
@@ -84,7 +84,7 @@ export default async function LandingPageDetail({ params }: Props) {
       notFound();
     }
 
-    const wordCount = landingPage.contentHtml.replace(/<[^>]*>/g, "").split(/\s+/).length;
+    const wordCount = landingPage.content_html.replace(/<[^>]*>/g, "").split(/\s+/).length;
 
 
 
@@ -103,7 +103,7 @@ export default async function LandingPageDetail({ params }: Props) {
                 </span>
               </h1>
               <p className="text-xl sm:text-2xl text-blue-100 leading-relaxed mb-8">
-                {landingPage.metaDescription}
+                {landingPage.meta_description}
               </p>
               
               <div className="flex flex-wrap gap-4 justify-center">
@@ -131,7 +131,7 @@ export default async function LandingPageDetail({ params }: Props) {
           <div className="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
             <div className="p-8 lg:p-12">
               <AdaptiveContentRenderer 
-                contentHtml={landingPage.contentHtml}
+                contentHtml={landingPage.content_html}
                 comparisonTables={(landingPage.visuals as any)?.comparisonTables || []}
                 pricingTables={(landingPage.visuals as any)?.pricingTables || []}
                 featureTables={(landingPage.visuals as any)?.featureTables || []}

@@ -12,9 +12,9 @@ export async function GET(request: NextRequest) {
         title: true, 
         format: true, 
         language: true,
-        createdAt: true 
+        created_at: true 
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { created_at: 'desc' },
       take: 10
     });
 

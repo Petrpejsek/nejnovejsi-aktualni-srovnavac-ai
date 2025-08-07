@@ -155,7 +155,7 @@ export async function PUT(
               id: slugCheck.id,
               title: slugCheck.title,
               language: slugCheck.language,
-              createdAt: slugCheck.createdAt
+              createdAt: slugCheck.created_at
             }
           },
           { status: 409 }
@@ -169,11 +169,11 @@ export async function PUT(
       data: {
         title: data.title,
         summary: data.summary,
-        contentHtml: data.contentHtml,
+        content_html: data.contentHtml,
         slug: data.slug || existingPage.slug,
         language: data.language || existingPage.language,
-        metaDescription: data.metaDescription || data.summary || `${data.title} - Comparee.ai`,
-        metaKeywords: Array.isArray(data.keywords) ? data.keywords.join(', ') : data.keywords || '',
+        meta_description: data.metaDescription || data.summary || `${data.title} - Comparee.ai`,
+        meta_keywords: Array.isArray(data.keywords) ? data.keywords.join(', ') : data.keywords || '',
         faq: data.faq,
         visuals: data.visuals,
         updatedAt: new Date()
