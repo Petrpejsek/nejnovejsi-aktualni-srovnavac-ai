@@ -404,6 +404,18 @@ export async function POST(request: NextRequest) {
   try {
     console.log('📥 Received landing page creation request')
     
+    // Optional webhook security for production
+    const webhookSecret = request.headers.get('x-webhook-secret')
+    const expectedSecret = process.env.WEBHOOK_SECRET
+    
+    if (expectedSecret && webhookSecret !== expectedSecret) {
+      console.log('❌ Invalid webhook secret')
+      return NextResponse.json(
+        { error: 'Unauthorized webhook call' },
+        { status: 401 }
+      )
+    }
+    
     const rawData = await request.json()
     console.log('📋 Raw payload keys:', Object.keys(rawData))
 
