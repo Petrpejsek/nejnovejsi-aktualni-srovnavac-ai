@@ -692,7 +692,7 @@ export default function CategoryPage() {
             <div className="h-6 bg-gray-200 rounded w-48 animate-pulse"></div>
           </div>
           
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {Array.from({ length: 12 }).map((_, index) => (
               <div key={index} className="bg-white rounded-lg shadow-md overflow-hidden">
                 <div className="aspect-[16/9] bg-gray-200 animate-pulse"></div>
