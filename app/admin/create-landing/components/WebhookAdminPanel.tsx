@@ -30,40 +30,49 @@ export default function WebhookAdminPanel() {
   const [retryCount, setRetryCount] = useState(3)
   
   const [stats, setStats] = useState<WebhookStats>({
-    todayCount: 45,
-    todaySuccess: 42,
-    todayErrors: 3,
-    weekCount: 287,
-    avgResponseTime: 342,
-    successRate: 96.2
+    todayCount: 0,
+    todaySuccess: 0,
+    todayErrors: 0,
+    weekCount: 0,
+    avgResponseTime: 0,
+    successRate: 0
   })
 
-  const [recentLogs, setRecentLogs] = useState<WebhookLog[]>([
-    {
-      id: '1',
-      timestamp: new Date(Date.now() - 2 * 60 * 1000),
-      status: 'success',
-      payload: { title: 'AI Tools 2025' },
-      responseTime: 234,
-      createdPageUrl: '/landing/ai-tools-2025'
-    },
-    {
-      id: '2', 
-      timestamp: new Date(Date.now() - 6 * 60 * 1000),
-      status: 'success',
-      payload: { title: 'ChatGPT vs Claude' },
-      responseTime: 456,
-      createdPageUrl: '/landing/chatgpt-vs-claude'
-    },
-    {
-      id: '3',
-      timestamp: new Date(Date.now() - 9 * 60 * 1000),
-      status: 'error',
-      payload: { title: 'Invalid payload' },
-      responseTime: 0,
-      error: 'JSON validation failed: title is required'
-    }
-  ])
+  const [recentLogs, setRecentLogs] = useState<WebhookLog[]>([])
+  const [isLoadingStats, setIsLoadingStats] = useState(false)
+  const [isLoadingLogs, setIsLoadingLogs] = useState(false)
+
+  // TODO: Add API endpoints for webhook management
+  // useEffect(() => {
+  //   loadWebhookStats()
+  //   loadRecentLogs()
+  // }, [])
+
+  // const loadWebhookStats = async () => {
+  //   setIsLoadingStats(true)
+  //   try {
+  //     const response = await fetch('/api/webhook/stats')
+  //     const data = await response.json()
+  //     setStats(data)
+  //   } catch (error) {
+  //     console.error('Failed to load webhook stats:', error)
+  //   } finally {
+  //     setIsLoadingStats(false)
+  //   }
+  // }
+
+  // const loadRecentLogs = async () => {
+  //   setIsLoadingLogs(true)
+  //   try {
+  //     const response = await fetch('/api/webhook/logs?limit=10')
+  //     const data = await response.json()
+  //     setRecentLogs(data)
+  //   } catch (error) {
+  //     console.error('Failed to load webhook logs:', error)
+  //   } finally {
+  //     setIsLoadingLogs(false)
+  //   }
+  // }
 
   const [testPayload, setTestPayload] = useState(`{
   "title": "Test Webhook from Admin",
@@ -130,9 +139,28 @@ export default function WebhookAdminPanel() {
     })
   }
 
-  const retryFailedWebhook = (logId: string) => {
-    // TODO: Implement retry logic
+  const retryFailedWebhook = async (logId: string) => {
+    // TODO: Implement retry logic with API call
     console.log('Retrying webhook:', logId)
+    // const response = await fetch(`/api/webhook/retry/${logId}`, { method: 'POST' })
+    // if (response.ok) {
+    //   loadRecentLogs() // Refresh logs after retry
+    // }
+  }
+
+  const saveConfiguration = async () => {
+    // TODO: Implement configuration save to backend
+    console.log('Saving webhook configuration:', {
+      enabled: webhookEnabled,
+      rateLimit,
+      timeout,
+      retryCount
+    })
+    // const response = await fetch('/api/webhook/config', {
+    //   method: 'PUT',
+    //   headers: { 'Content-Type': 'application/json' },
+    //   body: JSON.stringify({ enabled: webhookEnabled, rateLimit, timeout, retryCount })
+    // })
   }
 
   return (
@@ -234,15 +262,28 @@ export default function WebhookAdminPanel() {
         </div>
 
         <div className="mt-6 pt-6 border-t border-gray-200">
-          <button className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm hover:bg-blue-700">
+          <button 
+            onClick={saveConfiguration}
+            className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm hover:bg-blue-700"
+          >
             💾 Save Configuration
           </button>
+          <div className="mt-2 text-xs text-gray-500">
+            Configuration is stored locally for now. API integration will be added soon.
+          </div>
         </div>
       </div>
 
       {/* Statistics */}
       <div className="bg-white shadow rounded-lg p-6">
-        <h2 className="text-lg font-medium text-gray-900 mb-6">📊 Webhook Statistics</h2>
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-lg font-medium text-gray-900">📊 Webhook Statistics</h2>
+          {stats.todayCount === 0 && (
+            <div className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+              Real-time data will appear after first webhook
+            </div>
+          )}
+        </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
           <div className="bg-green-50 p-4 rounded-lg">
@@ -261,12 +302,16 @@ export default function WebhookAdminPanel() {
           </div>
           
           <div className="bg-purple-50 p-4 rounded-lg">
-            <div className="text-2xl font-bold text-purple-600">{stats.avgResponseTime}ms</div>
+            <div className="text-2xl font-bold text-purple-600">
+              {stats.avgResponseTime > 0 ? `${stats.avgResponseTime}ms` : '—'}
+            </div>
             <div className="text-sm text-purple-700">Avg Response</div>
           </div>
           
           <div className="bg-indigo-50 p-4 rounded-lg">
-            <div className="text-2xl font-bold text-indigo-600">{stats.successRate}%</div>
+            <div className="text-2xl font-bold text-indigo-600">
+              {stats.todayCount > 0 ? `${stats.successRate}%` : '—'}
+            </div>
             <div className="text-sm text-indigo-700">Success Rate</div>
           </div>
           
@@ -275,6 +320,12 @@ export default function WebhookAdminPanel() {
             <div className="text-sm text-gray-700">Total Today</div>
           </div>
         </div>
+        
+        {stats.todayCount === 0 && (
+          <div className="mt-4 text-center text-sm text-gray-500">
+            📈 Statistics will update automatically as webhooks are received
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -283,47 +334,57 @@ export default function WebhookAdminPanel() {
           <h2 className="text-lg font-medium text-gray-900 mb-6">📝 Recent Webhook Activity</h2>
           
           <div className="space-y-3">
-            {recentLogs.map((log) => (
-              <div key={log.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <div className="flex items-center gap-3">
-                  <span className="text-lg">
-                    {log.status === 'success' ? '✅' : '❌'}
-                  </span>
-                  <div>
-                    <div className="text-sm font-medium text-gray-900">
-                      {log.payload?.title || 'Unknown'}
+            {recentLogs.length > 0 ? (
+              recentLogs.map((log) => (
+                <div key={log.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <span className="text-lg">
+                      {log.status === 'success' ? '✅' : '❌'}
+                    </span>
+                    <div>
+                      <div className="text-sm font-medium text-gray-900">
+                        {log.payload?.title || 'Unknown'}
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {formatTime(log.timestamp)} • {log.responseTime}ms
+                      </div>
+                      {log.error && (
+                        <div className="text-xs text-red-600">{log.error}</div>
+                      )}
                     </div>
-                    <div className="text-xs text-gray-500">
-                      {formatTime(log.timestamp)} • {log.responseTime}ms
-                    </div>
-                    {log.error && (
-                      <div className="text-xs text-red-600">{log.error}</div>
+                  </div>
+                  
+                  <div className="flex gap-2">
+                    {log.status === 'error' && (
+                      <button
+                        onClick={() => retryFailedWebhook(log.id)}
+                        className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
+                      >
+                        🔄 Retry
+                      </button>
+                    )}
+                    {log.createdPageUrl && (
+                      <a
+                        href={log.createdPageUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200"
+                      >
+                        👁️ View
+                      </a>
                     )}
                   </div>
                 </div>
-                
-                <div className="flex gap-2">
-                  {log.status === 'error' && (
-                    <button
-                      onClick={() => retryFailedWebhook(log.id)}
-                      className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
-                    >
-                      🔄 Retry
-                    </button>
-                  )}
-                  {log.createdPageUrl && (
-                    <a
-                      href={log.createdPageUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200"
-                    >
-                      👁️ View
-                    </a>
-                  )}
+              ))
+            ) : (
+              <div className="text-center py-8">
+                <div className="text-4xl mb-3">📝</div>
+                <div className="text-sm text-gray-600 mb-2">No webhook activity yet</div>
+                <div className="text-xs text-gray-500">
+                  Webhook logs will appear here after the first request
                 </div>
               </div>
-            ))}
+            )}
           </div>
 
           <div className="mt-4 pt-4 border-t border-gray-200">
