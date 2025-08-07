@@ -63,30 +63,100 @@ export default function AdminDashboard() {
   })
   const [dashboardStats, setDashboardStats] = useState<DashboardStats | null>(null)
   const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
+  const [previousPendingCount, setPreviousPendingCount] = useState<number>(0)
 
   // Fetch skutečných dat z API
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const response = await fetch('/api/admin-stats')
-        if (response.ok) {
-          const data = await response.json()
-          setDashboardStats(data)
-          setAnalytics({
-            totalClicks: data.analytics.totalClicks,
-            uniqueVisitors: data.analytics.uniqueVisitors
-          })
-        } else {
-          console.error('Chyba při načítání statistik')
-        }
-      } catch (error) {
-        console.error('Chyba při načítání statistik:', error)
-      } finally {
-        setLoading(false)
-      }
+  const fetchStats = async (isRefresh = false) => {
+    if (isRefresh) {
+      setRefreshing(true)
+    } else {
+      setLoading(true)
     }
+    
+    try {
+      const response = await fetch('/api/admin-stats', {
+        cache: 'no-store', // Zajistíme fresh data
+        headers: {
+          'Cache-Control': 'no-cache',
+        },
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        
+        // Detekce nových firemních aplikací
+        const currentPendingCount = data.companyApplications?.pending || 0
+        if (isRefresh && previousPendingCount > 0 && currentPendingCount > previousPendingCount) {
+          // Nová firemní aplikace!
+          console.log('🚨 Nová firemní aplikace detekována!', {
+            previous: previousPendingCount,
+            current: currentPendingCount
+          })
+          
+          // Audio notifikace (pokud browser podporuje)
+          try {
+            if ('speechSynthesis' in window) {
+              const utterance = new SpeechSynthesisUtterance('Nová firemní aplikace')
+              utterance.lang = 'cs-CZ'
+              utterance.volume = 0.5
+              speechSynthesis.speak(utterance)
+            }
+          } catch (e) {
+            console.log('Audio notifikace není podporována')
+          }
+          
+          // Desktop notifikace
+          if ('Notification' in window && Notification.permission === 'granted') {
+            new Notification('Comparee.ai Admin', {
+              body: `Nová firemní aplikace čeká na schválení! (${currentPendingCount} celkem)`,
+              icon: '/favicon.ico'
+            })
+          }
+        }
+        
+        setPreviousPendingCount(currentPendingCount)
+        setDashboardStats(data)
+        setAnalytics({
+          totalClicks: data.analytics.totalClicks,
+          uniqueVisitors: data.analytics.uniqueVisitors
+        })
+        setLastUpdated(new Date())
+        console.log('📊 Dashboard stats aktualizovány:', new Date().toLocaleTimeString())
+      } else {
+        console.error('Chyba při načítání statistik')
+      }
+    } catch (error) {
+      console.error('Chyba při načítání statistik:', error)
+    } finally {
+      setLoading(false)
+      setRefreshing(false)
+    }
+  }
 
-    fetchStats()
+  // Manuální refresh
+  const handleManualRefresh = () => {
+    fetchStats(true)
+  }
+
+  // Inicializace notifikací
+  useEffect(() => {
+    // Požádat o povolení desktop notifikací
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission()
+    }
+  }, [])
+
+  // Automatické obnovování každých 30 sekund
+  useEffect(() => {
+    fetchStats() // První načtení
+    
+    const interval = setInterval(() => {
+      fetchStats(true) // Auto refresh každých 30 sekund
+    }, 30000)
+
+    return () => clearInterval(interval)
   }, [])
 
   // Pokud ještě načítáme data, zobrazíme loading stav
@@ -202,11 +272,41 @@ export default function AdminDashboard() {
             <p className="text-gray-600 mt-1">
               Přehled a správa celého webu AI nástroje
             </p>
+            {lastUpdated && (
+              <div className="flex items-center mt-2 text-sm text-gray-500">
+                <span className="mr-2">📊</span>
+                <span>Poslední aktualizace: {lastUpdated.toLocaleTimeString('cs-CZ')}</span>
+                <span className="mx-2">•</span>
+                <span className="flex items-center">
+                  <span className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></span>
+                  Automaticky se obnovuje každých 30s
+                </span>
+              </div>
+            )}
           </div>
           
-          {/* Logout Button */}
+          {/* Controls */}
           <div className="flex items-center space-x-4">
             <span className="text-sm text-gray-500">Admin panel</span>
+            
+            {/* Refresh Button */}
+            <button
+              onClick={handleManualRefresh}
+              disabled={refreshing}
+              className={`${
+                refreshing 
+                  ? 'bg-gray-400 cursor-not-allowed' 
+                  : 'bg-blue-600 hover:bg-blue-700'
+              } text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center space-x-2`}
+              title="Aktualizovat statistiky"
+            >
+              <span className={refreshing ? 'animate-spin' : ''}>
+                {refreshing ? '⟳' : '🔄'}
+              </span>
+              <span>{refreshing ? 'Načítám...' : 'Obnovit'}</span>
+            </button>
+            
+            {/* Logout Button */}
             <button
               onClick={() => {
                 signOut({ callbackUrl: '/' })
@@ -259,6 +359,18 @@ export default function AdminDashboard() {
                 </Link>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Auto Refresh Status */}
+      {refreshing && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className="flex items-center">
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-3"></div>
+            <span className="text-sm text-blue-800 font-medium">
+              Obnovuji statistiky...
+            </span>
           </div>
         </div>
       )}
