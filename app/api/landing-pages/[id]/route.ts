@@ -176,7 +176,7 @@ export async function PUT(
         meta_keywords: Array.isArray(data.keywords) ? data.keywords.join(', ') : data.keywords || '',
         faq: data.faq,
         visuals: data.visuals,
-        updatedAt: new Date()
+        updated_at: new Date()
       }
     })
 

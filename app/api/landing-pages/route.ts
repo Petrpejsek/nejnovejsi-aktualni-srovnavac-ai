@@ -591,7 +591,7 @@ async function handleAiFormatPayload(data: any) {
         image_url: payload.imageUrl || null,
         category: payload.category || null,
         meta_description: metaDescription,
-        metaKeywords: JSON.stringify(payload.keywords),
+        meta_keywords: JSON.stringify(payload.keywords),
         faq: payload.faq || undefined,
         visuals: JSON.parse(JSON.stringify({
           comparisonTables: payload.comparisonTables || [],
@@ -742,7 +742,7 @@ async function handleLegacyFormatPayload(data: any) {
         content_html: payload.content_html,
         meta_description: payload.meta.description,
         meta_keywords: JSON.stringify(payload.meta.keywords),
-        schemaOrg: payload.schema_org ? JSON.stringify(payload.schema_org) : null,
+        schema_org: payload.schema_org ? JSON.stringify(payload.schema_org) : null,
         visuals: payload.visuals || undefined,
         faq: payload.faq || undefined,
         format: payload.format || 'html'
