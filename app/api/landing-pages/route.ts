@@ -600,7 +600,8 @@ async function handleAiFormatPayload(data: any) {
           dataTables: payload.dataTables || []
         })),
         format: 'html',
-        published_at: publishedAt
+        published_at: publishedAt,
+        updated_at: new Date()
       }
     })
 
