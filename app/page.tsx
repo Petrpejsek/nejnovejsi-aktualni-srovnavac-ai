@@ -3,7 +3,7 @@
 import React from 'react'
 import AiAdvisor from '../components/AiAdvisor'
 import ProductGridWrapper from '../components/ProductGridWrapper'
-import ReelsCarousel from '../components/ReelsCarousel'
+// import ReelsCarousel from '../components/ReelsCarousel' // Dočasně skryto - pro budoucí použití
 import TopListsSection from '../components/TopListsSection'
 import NewsletterSignup from '../components/NewsletterSignup'
 // import AiCoursesCarousel from '../components/AiCoursesCarousel' // Dočasně skryto - pro budoucí použití
