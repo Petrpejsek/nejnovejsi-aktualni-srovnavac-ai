@@ -11,6 +11,7 @@ import {
   Cog6ToothIcon,
   PhotoIcon
 } from '@heroicons/react/24/outline'
+import { FIXED_CATEGORIES, isValidCategorySlug } from '@/lib/categories'
 
 interface NewTopListCategory {
   title: string
@@ -34,20 +35,36 @@ export default function NewTopListCategory() {
 
   const handleInputChange = (field: keyof NewTopListCategory, value: any) => {
     setCategory({ ...category, [field]: value })
+    
+    // Pokud se mění kategorie, automaticky nastav název podle výběru
+    if (field === 'category' && value) {
+      const selectedCategory = FIXED_CATEGORIES.find(cat => cat.slug === value)
+      if (selectedCategory && !category.title) {
+        setCategory(prev => ({ ...prev, [field]: value, title: `TOP 20 ${selectedCategory.name}` }))
+        return
+      }
+    }
   }
 
   const handleSave = async () => {
     setSaving(true)
     
-    // Validace
+    // Validation
     if (!category.title || !category.description || !category.category) {
-      alert('Vyplňte prosím povinná pole (název, popis a kategorie)')
+      alert('Please fill in all required fields (title, description and category)')
+      setSaving(false)
+      return
+    }
+
+    // Verify that category is from allowed list
+    if (!isValidCategorySlug(category.category)) {
+      alert('Category must be selected from the predefined 20 categories')
       setSaving(false)
       return
     }
 
     if (category.products.length !== 20) {
-      alert('TOP list musí obsahovat přesně 20 nástrojů')
+      alert('TOP 20 list must contain exactly 20 tools')
       setSaving(false)
       return
     }
@@ -78,7 +95,7 @@ export default function NewTopListCategory() {
 
   const addProduct = (productId: string) => {
     if (category.products.length >= 20) {
-      alert('TOP list může obsahovat maximálně 20 nástrojů')
+      alert('TOP 20 list může obsahovat maximálně 20 nástrojů')
       return
     }
     
@@ -115,7 +132,7 @@ export default function NewTopListCategory() {
           <div>
             <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
               <TrophyIcon className="w-8 h-8 text-purple-600" />
-              Nová TOP kategorie
+              Nová TOP 20 kategorie
             </h1>
             <p className="text-gray-600 mt-1">
               Vytvořte novou kategorii s TOP 20 AI nástroji
@@ -150,19 +167,27 @@ export default function NewTopListCategory() {
 
                   <div>
                   <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
-                    Kategorie slug *
+                    Kategorie *
                     </label>
-                  <input
-                    type="text"
+                  <select
                     id="category"
                     value={category.category}
                     onChange={(e) => handleInputChange('category', e.target.value)}
-                    placeholder="video-editing (používá se v URL)"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
                     required
-                    />
+                  >
+                    <option value="">Vyberte kategorii...</option>
+                    {FIXED_CATEGORIES.map((cat) => (
+                      <option key={cat.slug} value={cat.slug}>
+                        {cat.name}
+                      </option>
+                    ))}
+                  </select>
                   <p className="text-sm text-gray-500 mt-1">
                     Použije se v URL: /top-lists/{category.category || 'kategorie'}
+                  </p>
+                  <p className="text-sm text-blue-600 mt-1">
+                    💡 Pouze z těchto 20 pevně stanovených kategorií je možné vytvořit TOP 20 list
                   </p>
                   </div>
 
@@ -206,7 +231,7 @@ export default function NewTopListCategory() {
               
               <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200 mb-4">
                 <p className="text-sm text-yellow-800">
-                  <strong>Důležité:</strong> TOP list musí obsahovat přesně 20 nástrojů. 
+                  <strong>Důležité:</strong> TOP 20 list musí obsahovat přesně 20 nástrojů. 
                   Aktuálně máte vybráno {category.products.length} nástrojů.
                     </p>
                   </div>
@@ -232,7 +257,7 @@ export default function NewTopListCategory() {
 
               <div className="bg-gray-50 p-4 rounded-lg">
                 <p className="text-sm text-gray-600 mb-2">
-                  Pro výběr nástrojů do TOP listu budete přesměrováni do editačního rozhraní po vytvoření kategorie.
+                  Pro výběr nástrojů do TOP 20 listu budete přesměrováni do editačního rozhraní po vytvoření kategorie.
                 </p>
                 <p className="text-xs text-gray-500">
                   Tip: Nejprve vytvořte kategorii s základními informacemi, pak přidejte nástroje v editaci.

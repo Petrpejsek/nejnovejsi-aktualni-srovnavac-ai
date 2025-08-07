@@ -20,6 +20,7 @@ import {
   Cog6ToothIcon
 } from '@heroicons/react/24/outline'
 import { TrophyIcon as TrophyFilledIcon } from '@heroicons/react/24/solid'
+import { FIXED_CATEGORIES, getCategoryName } from '@/lib/categories'
 
 interface TopListCategory {
   id: string
@@ -34,9 +35,11 @@ interface TopListCategory {
   updatedAt: string
 }
 
+
+
 export default function TopListsAdmin() {
-  const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
+  const [categoryFilter, setCategoryFilter] = useState('all')
   const [sortBy, setSortBy] = useState('createdAt')
   const [topLists, setTopLists] = useState<TopListCategory[]>([])
   const [loading, setLoading] = useState(true)
@@ -64,10 +67,9 @@ export default function TopListsAdmin() {
   }
 
   const filteredCategories = topLists.filter(category => {
-    const matchesSearch = category.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         category.description.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesStatus = statusFilter === 'all' || category.status === statusFilter
-    return matchesSearch && matchesStatus
+    const matchesCategory = categoryFilter === 'all' || category.category === categoryFilter
+    return matchesStatus && matchesCategory
   }).sort((a, b) => {
     switch (sortBy) {
       case 'clicks':
@@ -167,13 +169,13 @@ export default function TopListsAdmin() {
       {/* Header */}
       <div className="flex items-center justify-between border-b border-gray-200 pb-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-            <TrophyIcon className="w-8 h-8 text-purple-600" />
-            Správa TOP žebříčků
-          </h1>
-          <p className="text-gray-600 mt-1">
-            Spravuj kategorie nástrojů, jejich pořadí a obsah TOP listů
-          </p>
+                        <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
+                <TrophyIcon className="w-8 h-8 text-purple-600" />
+                TOP 20 Lists Management
+              </h1>
+              <p className="text-gray-600 mt-1">
+                Manage tool categories, their order and TOP 20 lists content
+              </p>
         </div>
         <div className="flex items-center gap-3">
           <button
@@ -181,14 +183,14 @@ export default function TopListsAdmin() {
             className="inline-flex items-center px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
           >
             <ArrowDownIcon className="w-5 h-5 mr-2" />
-            Obnovit
+            Refresh
           </button>
           <Link
             href="/admin/top-lists/new"
             className="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
           >
             <PlusIcon className="w-5 h-5 mr-2" />
-            Nová kategorie
+            New TOP 20 Category
           </Link>
         </div>
       </div>
@@ -201,7 +203,7 @@ export default function TopListsAdmin() {
               <ListBulletIcon className="h-6 w-6 text-blue-500" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Celkem kategorií</p>
+              <p className="text-sm font-medium text-gray-500">Total Categories</p>
               <p className="text-2xl font-semibold text-gray-900">{stats.total}</p>
             </div>
           </div>
@@ -213,7 +215,7 @@ export default function TopListsAdmin() {
               <CheckCircleIcon className="h-6 w-6 text-green-500" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Publikované</p>
+              <p className="text-sm font-medium text-gray-500">Published</p>
               <p className="text-2xl font-semibold text-gray-900">{stats.published}</p>
             </div>
           </div>
@@ -225,7 +227,7 @@ export default function TopListsAdmin() {
               <DocumentDuplicateIcon className="h-6 w-6 text-yellow-500" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Koncepty</p>
+              <p className="text-sm font-medium text-gray-500">Drafts</p>
               <p className="text-2xl font-semibold text-gray-900">{stats.draft}</p>
             </div>
           </div>
@@ -237,7 +239,7 @@ export default function TopListsAdmin() {
               <FireIcon className="h-6 w-6 text-orange-500" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Celkem kliků</p>
+              <p className="text-sm font-medium text-gray-500">Total Clicks</p>
               <p className="text-2xl font-semibold text-gray-900">{stats.totalClicks.toLocaleString()}</p>
             </div>
           </div>
@@ -249,7 +251,7 @@ export default function TopListsAdmin() {
               <StarIcon className="h-6 w-6 text-purple-500" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Průměrná konverze</p>
+              <p className="text-sm font-medium text-gray-500">Avg Conversion</p>
               <p className="text-2xl font-semibold text-gray-900">{stats.averageConversion}%</p>
             </div>
           </div>
@@ -258,21 +260,7 @@ export default function TopListsAdmin() {
 
       {/* Filters */}
       <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-2">
-              Vyhledat kategorii
-            </label>
-            <input
-              type="text"
-              id="search"
-              placeholder="Název kategorie..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-            />
-          </div>
-
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-2">
               Status
@@ -283,15 +271,34 @@ export default function TopListsAdmin() {
               onChange={(e) => setStatusFilter(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
             >
-              <option value="all">Všechny stavy</option>
-              <option value="published">Publikované</option>
-              <option value="draft">Koncepty</option>
+              <option value="all">All Statuses</option>
+              <option value="published">Published</option>
+              <option value="draft">Drafts</option>
+            </select>
+          </div>
+
+          <div>
+            <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
+              Category
+            </label>
+            <select
+              id="category"
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+            >
+              <option value="all">All Categories</option>
+              {FIXED_CATEGORIES.map((cat) => (
+                <option key={cat.slug} value={cat.slug}>
+                  {cat.name}
+                </option>
+              ))}
             </select>
           </div>
 
           <div>
             <label htmlFor="sort" className="block text-sm font-medium text-gray-700 mb-2">
-              Řadit podle
+              Sort by
             </label>
             <select
               id="sort"
@@ -299,10 +306,10 @@ export default function TopListsAdmin() {
               onChange={(e) => setSortBy(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
             >
-              <option value="createdAt">Datum vytvoření</option>
-              <option value="title">Název</option>
-              <option value="clicks">Počet kliků</option>
-              <option value="conversion">Konverze</option>
+              <option value="createdAt">Created Date</option>
+              <option value="title">Title</option>
+              <option value="clicks">Clicks</option>
+              <option value="conversion">Conversion</option>
             </select>
           </div>
         </div>
@@ -315,10 +322,10 @@ export default function TopListsAdmin() {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Kategorie
+                  Category
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Nástroje
+                  Tools
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Performance
@@ -327,10 +334,10 @@ export default function TopListsAdmin() {
                   Status
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Aktualizace
+                  Updated
                 </th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Akce
+                  Actions
                 </th>
               </tr>
             </thead>
@@ -407,21 +414,21 @@ export default function TopListsAdmin() {
         {filteredCategories.length === 0 && (
           <div className="text-center py-12">
             <TrophyIcon className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900">Žádné kategorie</h3>
+            <h3 className="mt-2 text-sm font-medium text-gray-900">No categories</h3>
             <p className="mt-1 text-sm text-gray-500">
-              {searchTerm || statusFilter !== 'all' 
-                ? 'Nebyli nalezeny žádné kategorie odpovídající filtru.'
-                : 'Začněte vytvořením první kategorie TOP listu.'
+              {statusFilter !== 'all' || categoryFilter !== 'all'
+                ? 'No categories found matching the filter.'
+                : 'Start by creating your first TOP 20 list category.'
               }
             </p>
-            {(!searchTerm && statusFilter === 'all') && (
+            {(statusFilter === 'all' && categoryFilter === 'all') && (
               <div className="mt-6">
                 <Link
                   href="/admin/top-lists/new"
                   className="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
                 >
                   <PlusIcon className="w-5 h-5 mr-2" />
-                  Vytvořit kategorii
+                  Create Category
                 </Link>
               </div>
             )}

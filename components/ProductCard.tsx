@@ -15,6 +15,21 @@ import Modal from './Modal'
 import RegisterForm from './RegisterForm'
 import { openInNewTab, trackProductClick } from '@/lib/utils'
 
+// Inline SVG placeholder pro rychlé načítání (žádné externí requesty)
+const createImagePlaceholder = (productName: string) => {
+  const colors = ['#8B5CF6', '#10B981', '#3B82F6', '#F59E0B', '#EF4444', '#8B5CF6'];
+  const color = colors[productName.length % colors.length];
+  const initials = productName.slice(0, 2).toUpperCase();
+  
+  return `data:image/svg+xml;base64,${btoa(`
+    <svg width="400" height="225" viewBox="0 0 400 225" xmlns="http://www.w3.org/2000/svg">
+      <rect width="400" height="225" fill="${color}"/>
+      <text x="200" y="120" font-family="Arial, sans-serif" font-size="48" font-weight="bold" 
+            text-anchor="middle" fill="white" opacity="0.9">${initials}</text>
+    </svg>
+  `)}`
+}
+
 interface Review {
   id: number
   userName: string
@@ -35,6 +50,8 @@ interface ProductCardProps {
   hasTrial?: boolean
   isBookmarked?: boolean
   onBookmarkChange?: (productId: string, isBookmarked: boolean) => void
+  priority?: boolean // Pro optimalizaci načítání prvních obrázků
+  sizes?: string // Pro responsive optimalizaci
 }
 
 declare global {
@@ -122,10 +139,12 @@ const showToast = (message: string, type: 'success' | 'error' = 'success') => {
   }, 3000)
 }
 
-export default function ProductCard({ id, name, description, price, imageUrl, tags, externalUrl, hasTrial, isBookmarked, onBookmarkChange }: ProductCardProps) {
+export default function ProductCard({ 
+  id, name, description, price, imageUrl, tags, externalUrl, hasTrial, isBookmarked, onBookmarkChange,
+  priority = false, sizes = "(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
+}: ProductCardProps) {
   const [localBookmarked, setLocalBookmarked] = useState(isBookmarked || false)
   const [isAnimating, setIsAnimating] = useState(false)
-
   const [showSignUpModal, setShowSignUpModal] = useState(false)
   const { data: session } = useSession()
 
@@ -153,7 +172,7 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
       name,
       externalUrl,
       category: (tags && tags.length > 0) ? tags[0] : undefined,
-      imageUrl,
+      imageUrl: imageUrl,
       price,
       tags
     })
@@ -370,13 +389,17 @@ export default function ProductCard({ id, name, description, price, imageUrl, ta
       >
       <div className="absolute inset-0 bg-gradient-to-br from-purple-50/30 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
       
-      {/* Image section - původní aspect ratio */}
-      <div className="relative w-full aspect-[1.91/1]">
+      {/* Image section - optimalizovaný pro rychlé načítání */}
+      <div className="relative w-full aspect-[16/9]">
         <Image
-          src={imageUrl || 'https://placehold.co/800x450/f3f4f6/94a3b8?text=No+Image'}
-          alt={name}
+          src={imageUrl || createImagePlaceholder(name)}
+          alt={`${name} - AI tool screenshot`}
           fill
-          className="object-cover rounded-t-lg"
+          priority={priority}
+          sizes={sizes}
+          className="object-cover rounded-t-lg transition-opacity duration-300"
+          placeholder="blur"
+          blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
         />
         {hasTrial && (
           <div className="absolute top-2 right-2 bg-purple-100 text-purple-600 text-xs font-medium px-2 py-1 rounded-full">

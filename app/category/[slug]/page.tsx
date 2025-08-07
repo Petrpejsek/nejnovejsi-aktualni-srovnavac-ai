@@ -43,7 +43,7 @@ export default function CategoryPage() {
         setLoading(true)
         setError(null)
         
-        const response = await fetch(`/api/products?category=${encodeURIComponent(category)}&page=${currentPage}&pageSize=${PAGE_SIZE}`)
+        const response = await fetch(`/api/products?category=${encodeURIComponent(category)}&page=${currentPage}&pageSize=${PAGE_SIZE}&forHomepage=true`)
         
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`)
@@ -75,7 +75,7 @@ export default function CategoryPage() {
       try {
         setSimilarLoading(true)
         
-        const response = await fetch(`/api/products/similar?category=${encodeURIComponent(category)}&limit=12`)
+        const response = await fetch(`/api/products/similar?category=${encodeURIComponent(category)}&limit=8&forHomepage=true`)
         
         if (!response.ok) {
           console.warn('Failed to load similar products:', response.status)

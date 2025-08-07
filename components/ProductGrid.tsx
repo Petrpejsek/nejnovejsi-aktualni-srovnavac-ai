@@ -105,7 +105,7 @@ export default function ProductGrid({ selectedTags }: ProductGridProps = {}) {
     
     const loadProducts = async () => {
       try {
-        const response = await fetch(`${window.location.origin}/api/products?page=1&pageSize=${PAGE_SIZE}`, {
+        const response = await fetch(`${window.location.origin}/api/products?page=1&pageSize=${PAGE_SIZE}&forHomepage=true`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -181,7 +181,7 @@ export default function ProductGrid({ selectedTags }: ProductGridProps = {}) {
       setError(null)
       
       const nextPage = currentPage + 1
-      const response = await fetch(`/api/products?page=${nextPage}&pageSize=${PAGE_SIZE}`)
+      const response = await fetch(`/api/products?page=${nextPage}&pageSize=${PAGE_SIZE}&forHomepage=true`)
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
@@ -238,11 +238,40 @@ export default function ProductGrid({ selectedTags }: ProductGridProps = {}) {
       )
     : products
 
+  // Skeleton loader pro lepší UX během prvního načítání
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-[200px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
-        <span className="ml-3">Loading products...</span>
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <div className="h-8 bg-gray-200 rounded w-48 animate-pulse"></div>
+          <div className="flex gap-2">
+            <div className="h-10 w-10 bg-gray-200 rounded animate-pulse"></div>
+            <div className="h-10 w-10 bg-gray-200 rounded animate-pulse"></div>
+          </div>
+        </div>
+        
+        <div className={`grid gap-4 md:gap-6 items-stretch ${
+          compactView
+            ? 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'
+            : 'grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
+        }`}>
+          {Array.from({ length: 12 }).map((_, index) => (
+            <div key={index} className="bg-white rounded-lg shadow-md overflow-hidden">
+              <div className="aspect-[16/9] bg-gray-200 animate-pulse"></div>
+              <div className="p-4 space-y-3">
+                <div className="h-6 bg-gray-200 rounded animate-pulse"></div>
+                <div className="space-y-2">
+                  <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+                  <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+                </div>
+                <div className="flex gap-2">
+                  <div className="h-6 w-16 bg-gray-200 rounded-full animate-pulse"></div>
+                  <div className="h-6 w-12 bg-gray-200 rounded-full animate-pulse"></div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     )
   }
@@ -270,10 +299,10 @@ export default function ProductGrid({ selectedTags }: ProductGridProps = {}) {
             onClick={() => setCompactView(true)}
             className={`p-2 rounded transition ${
               compactView
-                ? 'bg-gray-100 text-gray-800 ring-2 ring-gray-300'
+                ? 'bg-gray-100 text-gray-800'
                 : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
             }`}
-            title="Compact View (2 products per row)"
+            title="Compact View (1 product per row on mobile, 2+ on desktop)"
           >
             <IconTwoColumns />
           </button>
@@ -281,7 +310,7 @@ export default function ProductGrid({ selectedTags }: ProductGridProps = {}) {
             onClick={() => setCompactView(false)}
             className={`p-2 rounded transition ${
               !compactView
-                ? 'bg-gray-100 text-gray-800 ring-2 ring-gray-300'
+                ? 'bg-gray-100 text-gray-800'
                 : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
             }`}
             title="Large View (1 product per row)"
@@ -291,27 +320,39 @@ export default function ProductGrid({ selectedTags }: ProductGridProps = {}) {
         </div>
       </div>
 
-      {/* Použití CSS Grid s align-items-stretch pro rovnoměrné výšky */}
+      {/* Optimalizovaný CSS Grid s responsive breakpointy */}
       <div className={`grid gap-4 md:gap-6 items-stretch ${
         compactView
-          ? 'grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'
+          ? 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'
           : 'grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
       }`}>
-        {filteredProducts.map((product) => (
-          <ProductCard
-            key={product.id}
-            id={product.id}
-            name={product.name}
-            description={product.description}
-            price={product.price}
-            imageUrl={product.imageUrl}
-            tags={product.tags}
-            externalUrl={product.externalUrl}
-            hasTrial={product.hasTrial}
-            isBookmarked={product.isBookmarked}
-            onBookmarkChange={handleBookmarkChange}
-          />
-        ))}
+        {filteredProducts.map((product, index) => {
+          // Optimalizace pro first meaningful paint - první 6 produktů s priority loading
+          const isPriority = index < 6;
+          
+          // Responsive sizes prop odpovídající CSS Grid breakpointům
+          const sizes = compactView 
+            ? "(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            : "(max-width: 640px) 100vw, (max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw";
+          
+          return (
+            <ProductCard
+              key={product.id}
+              id={product.id}
+              name={product.name}
+              description={product.description}
+              price={product.price}
+              imageUrl={product.imageUrl}
+              tags={product.tags}
+              externalUrl={product.externalUrl}
+              hasTrial={product.hasTrial}
+              isBookmarked={product.isBookmarked}
+              onBookmarkChange={handleBookmarkChange}
+              priority={isPriority}
+              sizes={sizes}
+            />
+          );
+        })}
       </div>
 
       {filteredProducts.length === 0 && !loading && (

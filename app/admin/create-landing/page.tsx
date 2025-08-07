@@ -65,7 +65,7 @@ export default function CreateLandingPage() {
       <div className="border-b border-gray-200 mb-8">
         <nav className="-mb-px flex space-x-8">
           {tabs.map((tab) => (
-            <button
+                <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`py-4 px-1 border-b-2 font-medium text-sm ${
@@ -75,11 +75,11 @@ export default function CreateLandingPage() {
               }`}
             >
               {tab.name}
-            </button>
+                </button>
           ))}
         </nav>
-      </div>
-
+              </div>
+              
       {/* Tab Content */}
       <div className="space-y-8">
         {activeTab === 'manual' && (
@@ -99,11 +99,11 @@ export default function CreateLandingPage() {
               <p className="text-gray-600">Správa webhook integrace, konfigurace a monitoring.</p>
             </div>
             <WebhookAdminPanel />
-          </div>
-        )}
+            </div>
+          )}
 
         {activeTab === 'stats' && (
-          <div>
+                <div>
             <div className="mb-4">
               <h2 className="text-xl font-semibold text-gray-900">Statistics & Monitoring</h2>
               <p className="text-gray-600">Detailní statistiky a monitoring webhook aktivit.</p>

@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { NextRequest } from 'next/server'
 import { Prisma } from '@prisma/client'
-import { enhanceProductWithScreenshot } from '@/lib/screenshot-utils'
+import { enhanceProductWithScreenshot, getScreenshotUrl } from '@/lib/screenshot-utils'
 import { v4 as uuidv4 } from 'uuid'
 
 interface Product {
@@ -145,6 +145,7 @@ export async function GET(request: NextRequest) {
       const pageParam = searchParams.get('page');
       const pageSizeParam = searchParams.get('pageSize');
       const categoryParam = searchParams.get('category');
+      const forHomepage = searchParams.get('forHomepage') === 'true'; // optimalizace pro homepage
       
       const page = pageParam ? parseInt(pageParam, 10) : 1;
       const pageSize = pageSizeParam ? parseInt(pageSizeParam, 10) : 50; // New default - show up to 50 products if client doesn't specify otherwise
@@ -167,7 +168,10 @@ export async function GET(request: NextRequest) {
       
       // Prepare where clause for filtering - include soft delete filter
       const whereClause: any = {
-        isActive: true  // Only count active products
+        isActive: true,  // Only count active products
+        name: { 
+          not: '' 
+        }  // Filtruj produkty s prázdnými názvy
       };
       if (categoryParam) {
         whereClause.category = categoryParam;
@@ -200,6 +204,8 @@ export async function GET(request: NextRequest) {
         FROM "Product" p
         LEFT JOIN "Company" c ON p."changesSubmittedBy" = c."id"
         WHERE p."isActive" = true
+        AND p."name" IS NOT NULL 
+        AND p."name" != ''
         ${categoryParam ? Prisma.sql`AND p."category" = ${categoryParam}` : Prisma.empty}
         ORDER BY 
           effective_balance DESC,  -- Nejvyšší kredit + aktivní kampaň s dostatečným kreditem první
@@ -210,8 +216,24 @@ export async function GET(request: NextRequest) {
       
       // Clean products and enhance with screenshots before sending
       const products = rawProducts.map(product => {
-        const cleanedProduct = enhanceProductWithScreenshot(cleanProduct(product));
-        return cleanedProduct;
+        if (forHomepage) {
+          // Optimalizované data pro homepage - jen základní pole bez obrázků
+          return {
+            id: product.id,
+            name: product.name,
+            description: product.description,
+            price: product.price || 0,
+            category: product.category,
+            imageUrl: product.name ? getScreenshotUrl(product.name) : '/placeholder-image.png', // používá inteligentní mapování screenshotů
+            tags: safeJsonParse(product.tags, []),
+            externalUrl: product.externalUrl,
+            hasTrial: Boolean(product.hasTrial)
+          };
+        } else {
+          // Plná data pro ostatní endpointy
+          const cleanedProduct = enhanceProductWithScreenshot(cleanProduct(product));
+          return cleanedProduct;
+        }
       });
       
       const totalPages = Math.ceil(totalProducts / validPageSize);

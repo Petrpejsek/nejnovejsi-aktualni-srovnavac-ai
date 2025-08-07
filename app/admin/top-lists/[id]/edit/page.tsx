@@ -60,75 +60,96 @@ export default function EditTopListCategory() {
   const [category, setCategory] = useState<TopListCategory | null>(null)
   const [activeTab, setActiveTab] = useState('basic')
 
-  // Mock data - později nahradit API voláním
+  // Load real data from API
   useEffect(() => {
-    const mockCategory: TopListCategory = {
-      id: categoryId,
-      title: 'Video Editing Tools',
-      description: 'Best AI tools for video creation, editing and post-production',
-      detailedDescription: 'Comprehensive list of the most powerful AI video editing tools that will transform your video creation workflow. From automated editing to smart effects, these tools will save you hours of work while producing professional-quality videos.',
-      toolsCount: 20,
-      trending: true,
-      popular: false,
-      badge: 'HOT',
-      lastUpdated: '2024-01-15',
-      status: 'published',
-      position: 1,
-      clickCount: 2547,
-      conversionRate: 12.3,
-      color: 'from-red-500 to-pink-500',
-      gradient: 'bg-gradient-to-br from-red-50 to-pink-50',
-      icon: 'video',
-      seoTitle: 'Best AI Video Editing Tools 2024 - Complete Guide',
-      seoDescription: 'Discover the top 20 AI video editing tools for 2024. Compare features, pricing, and reviews to find the perfect video editor for your needs.',
-      tools: [
-        {
-          id: '1',
-          name: 'RunwayML',
-          description: 'AI-powered video editing with magical effects',
-          website: 'https://runwayml.com',
-          pricing: 'Freemium',
-          rating: 4.8,
-          reviews: 1250,
-          position: 1,
-          category: 'Video Editing',
-          tags: ['AI Effects', 'Magic Tools', 'Professional'],
-          logo: '/logos/runway.png'
-        },
-        {
-          id: '2',
-          name: 'Descript',
-          description: 'Edit videos like editing text documents',
-          website: 'https://descript.com',
-          pricing: 'Freemium',
-          rating: 4.6,
-          reviews: 890,
-          position: 2,
-          category: 'Video Editing',
-          tags: ['Text-based', 'Transcription', 'Easy'],
-          logo: '/logos/descript.png'
+    const fetchCategory = async () => {
+      try {
+        setLoading(true)
+        const response = await fetch(`/api/top-lists/${categoryId}`)
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch category')
         }
-      ]
+        
+        const data = await response.json()
+        
+        // Convert API data to component format
+        const categoryData: TopListCategory = {
+          id: data.id,
+          title: data.title,
+          description: data.description,
+          detailedDescription: data.description,
+          toolsCount: data.products?.length || 0,
+          trending: false,
+          popular: data.status === 'published',
+          badge: data.status === 'published' ? 'LIVE' : 'DRAFT',
+          lastUpdated: new Date(data.updatedAt).toISOString().split('T')[0],
+          status: data.status,
+          position: 1,
+          clickCount: data.clicks || 0,
+          conversionRate: data.conversion || 0,
+          color: 'from-purple-500 to-blue-500',
+          gradient: 'bg-gradient-to-br from-purple-50 to-blue-50',
+          icon: 'trophy',
+          seoTitle: `TOP 20 ${data.title} | Best Tools 2025`,
+          seoDescription: data.description,
+          tools: data.products?.slice(0, 20).map((productId: string, index: number) => ({
+            id: productId,
+            name: `Tool ${index + 1}`,
+            description: 'Loading product details...',
+            website: '',
+            pricing: '',
+            rating: 0,
+            reviews: 0,
+            position: index + 1,
+            category: data.category,
+            tags: [],
+            logo: ''
+          })) || []
+        }
+        
+        setCategory(categoryData)
+      } catch (error) {
+        console.error('Error fetching category:', error)
+      } finally {
+        setLoading(false)
+      }
     }
     
-    setTimeout(() => {
-      setCategory(mockCategory)
-      setLoading(false)
-    }, 500)
+    fetchCategory()
   }, [categoryId])
 
   const handleSave = async () => {
     if (!category) return
     
     setSaving(true)
-    // Simulace API volání
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    
-    console.log('Saving category:', category)
-    setSaving(false)
-    
-    // Redirect po uložení
-    router.push('/admin/top-lists')
+    try {
+      const response = await fetch(`/api/top-lists/${categoryId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          title: category.title,
+          description: category.description,
+          category: categoryId.replace('top20-', ''), // Remove prefix for category slug
+          products: category.tools.map(tool => tool.id),
+          status: category.status
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to save category')
+      }
+
+      console.log('Category saved successfully')
+      router.push('/admin/top-lists')
+    } catch (error) {
+      console.error('Error saving category:', error)
+      alert('Failed to save changes. Please try again.')
+    } finally {
+      setSaving(false)
+    }
   }
 
   const handleInputChange = (field: keyof TopListCategory, value: any) => {
@@ -735,71 +756,42 @@ function ProductSelector({ onProductAdd, excludeIds }: ProductSelectorProps) {
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(false)
 
-  // Mock data - později nahradit API voláním
+  // Load real products from API
   useEffect(() => {
-    const mockProducts: Product[] = [
-      {
-        id: 'runway-ml',
-        name: 'RunwayML',
-        description: 'AI-powered video editing with magical effects and green screen removal',
-        website: 'https://runwayml.com',
-        pricing: 'Freemium',
-        rating: 4.8,
-        reviews: 1250,
-        tags: ['Video Editing', 'AI Effects', 'Magic Tools'],
-        category: 'Video Editing',
-        logo: '/logos/runway.png'
-      },
-      {
-        id: 'descript',
-        name: 'Descript',
-        description: 'Edit videos like editing text documents with transcription',
-        website: 'https://descript.com',
-        pricing: 'Freemium',
-        rating: 4.6,
-        reviews: 890,
-        tags: ['Video Editing', 'Transcription', 'Text-based'],
-        category: 'Video Editing',
-        logo: '/logos/descript.png'
-      },
-      {
-        id: 'synthesia',
-        name: 'Synthesia',
-        description: 'Create AI videos with virtual presenters in minutes',
-        website: 'https://synthesia.io',
-        pricing: 'Paid',
-        rating: 4.5,
-        reviews: 650,
-        tags: ['Video Generation', 'AI Avatars', 'Presentation'],
-        category: 'Video Editing',
-        logo: '/logos/synthesia.png'
-      },
-      {
-        id: 'luma-ai',
-        name: 'Luma AI',
-        description: '3D capture and video effects with smartphone camera',
-        website: 'https://lumalabs.ai',
-        pricing: 'Free',
-        rating: 4.3,
-        reviews: 420,
-        tags: ['3D Capture', 'Mobile', 'AR Effects'],
-        category: 'Video Editing',
-        logo: '/logos/luma.png'
-      },
-      {
-        id: 'fliki',
-        name: 'Fliki',
-        description: 'Turn text into videos with AI voices and media library',
-        website: 'https://fliki.ai',
-        pricing: 'Freemium',
-        rating: 4.4,
-        reviews: 780,
-        tags: ['Text to Video', 'AI Voice', 'Content Creation'],
-        category: 'Video Editing',
-        logo: '/logos/fliki.png'
+    const fetchProducts = async () => {
+      try {
+        setLoading(true)
+        const response = await fetch('/api/products')
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch products')
+        }
+        
+        const data = await response.json()
+        
+        // Convert API data to component format
+        const productsData: Product[] = data.map((product: any) => ({
+          id: product.id,
+          name: product.name || product.title,
+          description: product.description || '',
+          website: product.url || product.website || '',
+          pricing: product.pricing || 'Not specified',
+          rating: product.rating || 0,
+          reviews: product.reviews || 0,
+          tags: product.tags || [],
+          category: product.category || '',
+          logo: product.imageUrl || product.logo || ''
+        }))
+        
+        setProducts(productsData)
+      } catch (error) {
+        console.error('Error fetching products:', error)
+      } finally {
+        setLoading(false)
       }
-    ]
-    setProducts(mockProducts)
+    }
+    
+    fetchProducts()
   }, [])
 
   const filteredProducts = products.filter(product => {

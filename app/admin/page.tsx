@@ -199,8 +199,8 @@ export default function AdminDashboard() {
       stats: `${dashboardStats.courses.total} kurzů`
     },
     {
-      title: 'Top Listy',
-      description: 'Správa kategorických seznamů',
+      title: 'TOP 20 Lists',
+      description: 'Manage TOP 20 categorical lists',
       href: '/admin/top-lists',
       icon: '📋',
       color: 'bg-green-500',

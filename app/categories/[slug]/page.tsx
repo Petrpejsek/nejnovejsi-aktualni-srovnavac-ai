@@ -509,7 +509,7 @@ export default function CategoryPage() {
         // Try each mapped category
         for (const category of mappedCategories) {
           try {
-            const response = await fetch(`/api/products?category=${encodeURIComponent(category)}&page=1&pageSize=500`)
+            const response = await fetch(`/api/products?category=${encodeURIComponent(category)}&page=1&pageSize=24&forHomepage=true`)
             if (response.ok) {
               const data = await response.json()
               if (data.products && data.products.length > 0) {
@@ -524,7 +524,7 @@ export default function CategoryPage() {
         // If no products found with exact category matches, try searching by tags
         if (allProducts.length === 0) {
           try {
-            const allProductsResponse = await fetch(`/api/products?page=1&pageSize=500`)
+            const allProductsResponse = await fetch(`/api/products?page=1&pageSize=100&forHomepage=true`)
             if (allProductsResponse.ok) {
               const allData = await allProductsResponse.json()
               if (allData.products) {
@@ -649,14 +649,69 @@ export default function CategoryPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="container mx-auto px-4 py-12">
-          <div className="flex justify-center items-center min-h-[400px]">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
-            <span className="ml-3">Loading...</span>
+      <main className="min-h-screen bg-gray-50">
+        {/* Header Section - Real breadcrumb and title for immediate visibility */}
+        <div className="bg-white border-b border-gray-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            {/* Real Breadcrumb - okamžitě viditelný */}
+            <nav className="flex mb-6" aria-label="Breadcrumb">
+              <ol className="flex items-center space-x-2">
+                <li>
+                  <Link href="/" className="text-gray-500 hover:text-gray-700">
+                    Home
+                  </Link>
+                </li>
+                <li>
+                  <span className="text-gray-400">/</span>
+                </li>
+                <li>
+                  <span className="text-gray-500">Categories</span>
+                </li>
+                <li>
+                  <span className="text-gray-400">/</span>
+                </li>
+                <li>
+                  <span className="text-gray-900 font-medium">{categoryName}</span>
+                </li>
+              </ol>
+            </nav>
+
+            {/* Real Title - okamžitě viditelný */}
+            <h1 className="text-4xl font-bold text-gray-900 mb-4">
+              {categoryData.title}
+            </h1>
+            <p className="text-xl text-gray-600 max-w-3xl">
+              {categoryData.description}
+            </p>
           </div>
         </div>
-      </div>
+
+        {/* Products Grid Skeleton */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="mb-8">
+            <div className="h-6 bg-gray-200 rounded w-48 animate-pulse"></div>
+          </div>
+          
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {Array.from({ length: 12 }).map((_, index) => (
+              <div key={index} className="bg-white rounded-lg shadow-md overflow-hidden">
+                <div className="aspect-[16/9] bg-gray-200 animate-pulse"></div>
+                <div className="p-4 space-y-3">
+                  <div className="h-6 bg-gray-200 rounded animate-pulse"></div>
+                  <div className="space-y-2">
+                    <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+                    <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <div className="h-6 w-16 bg-gray-200 rounded-full animate-pulse"></div>
+                    <div className="h-8 w-20 bg-gray-200 rounded animate-pulse"></div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </main>
     )
   }
 

@@ -9,6 +9,8 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const status = searchParams.get('status') // draft, published
     const category = searchParams.get('category')
+    const includeProducts = searchParams.get('includeProducts') === 'true'
+    const productsLimit = parseInt(searchParams.get('productsLimit') || '20') // limit produktů per top list
     
     const whereClause: any = {}
     if (status) {
@@ -36,6 +38,60 @@ export async function GET(request: NextRequest) {
         updatedAt: true
       }
     })
+
+    // Pokud chceme včetně kompletních product dat (pro rychlé načítání)
+    if (includeProducts) {
+      // Sesbírej product IDs ze všech top listů s respektováním limitu
+      const allProductIds = new Set<string>()
+      topLists.forEach(list => {
+        if (Array.isArray(list.products)) {
+          // Vezmi jen první `productsLimit` produktů z každého listu
+          const limitedProducts = list.products.slice(0, productsLimit)
+          limitedProducts.forEach(id => {
+            if (typeof id === 'string') {
+              allProductIds.add(id)
+            }
+          })
+        }
+      })
+
+      console.log(`📊 API Optimalizace: Načítám ${allProductIds.size} produktů místo ${topLists.reduce((acc, list) => acc + (Array.isArray(list.products) ? list.products.length : 0), 0)} (limit: ${productsLimit} per list)`)
+
+      // Načti pouze potřebné produkty jedním query
+      const products = await prisma.product.findMany({
+        where: {
+          id: {
+            in: Array.from(allProductIds)
+          }
+        },
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          imageUrl: true,
+          externalUrl: true,
+          pricingInfo: true,
+          tags: true,
+          hasTrial: true
+        }
+      })
+
+      // Vytvořím mapu pro rychlé hledání
+      const productsMap = new Map(products.map(p => [p.id, p]))
+
+      // Přidej kompletní product data do každého top listu (s limitem)
+      const topListsWithProducts = topLists.map(list => ({
+        ...list,
+        productsData: Array.isArray(list.products) 
+          ? list.products.slice(0, productsLimit)
+              .filter(id => typeof id === 'string')
+              .map(id => productsMap.get(id as string))
+              .filter(Boolean)
+          : []
+      }))
+
+      return NextResponse.json(topListsWithProducts)
+    }
 
     return NextResponse.json(topLists)
   } catch (error) {
