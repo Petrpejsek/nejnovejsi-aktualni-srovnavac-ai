@@ -105,7 +105,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 // Function to get landing page from database with language support
 async function getLandingPage(slug: string, language: Locale): Promise<LandingPageData> {
   try {
-    const landingPage = await prisma.landingPage.findUnique({
+    const landingPage = await prisma.landing_pages.findUnique({
       where: { 
         slug_language: {
           slug,
@@ -151,7 +151,7 @@ async function getLandingPage(slug: string, language: Locale): Promise<LandingPa
 // Generate static params for all language/slug combinations
 export async function generateStaticParams() {
   try {
-    const landingPages = await prisma.landingPage.findMany({
+    const landingPages = await prisma.landing_pages.findMany({
       select: {
         slug: true,
         language: true,

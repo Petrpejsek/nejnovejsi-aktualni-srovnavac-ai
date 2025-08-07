@@ -23,15 +23,15 @@ async function generateSitemap(): Promise<string> {
     console.log('🗺️  Starting sitemap generation...')
     
     // Get all published landing pages
-    const landingPages = await prisma.landingPage.findMany({
+    const landingPages = await prisma.landing_pages.findMany({
       select: {
         slug: true,
         language: true,
-        updatedAt: true,
-        publishedAt: true
+        updated_at: true,
+        published_at: true
       },
       orderBy: {
-        publishedAt: 'desc'
+        published_at: 'desc'
       }
     })
 
@@ -108,7 +108,7 @@ async function generateSitemap(): Promise<string> {
     // Add landing pages (with i18n support)
     console.log('📝 Adding landing pages to sitemap...')
     landingPages.forEach(page => {
-      const lastmod = page.updatedAt.toISOString().split('T')[0]
+      const lastmod = page.updated_at.toISOString().split('T')[0]
       
       // i18n URL format: /[lang]/landing/[slug]
       sitemapContent += `

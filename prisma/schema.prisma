@@ -510,31 +510,30 @@ model monetization_configs {
   @@index([partner_id])
 }
 
-model LandingPage {
-  id              String   @id @default(uuid())
-  slug            String
-  title           String
-  summary         String?
-  language        String   @default("cs")
-  contentHtml     String   @map("content_html")
-  imageUrl        String?  @map("image_url")
-  category        String?
-  metaDescription String   @map("meta_description")
-  metaKeywords    String   @map("meta_keywords")
-  schemaOrg       String?  @map("schema_org")
-  visuals         Json?
-  faq             Json?
-  format          String   @default("html")
-  publishedAt     DateTime @default(now()) @map("published_at")
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
+model landing_pages {
+  id               String   @id
+  slug             String
+  title            String
+  summary          String?
+  language         String   @default("cs")
+  content_html     String
+  image_url        String?
+  category         String?
+  meta_description String
+  meta_keywords    String
+  schema_org       String?
+  visuals          Json?
+  faq              Json?
+  format           String   @default("html")
+  published_at     DateTime @default(now())
+  created_at       DateTime @default(now())
+  updated_at       DateTime
 
-  @@unique([slug, language], name: "slug_language", map: "slug_language")
-  @@index([slug])
-  @@index([language])
-  @@index([publishedAt])
+  @@unique([slug, language], map: "slug_language")
   @@index([category])
-  @@map("landing_pages")
+  @@index([language])
+  @@index([published_at])
+  @@index([slug])
 }
 
 enum ConversionType {

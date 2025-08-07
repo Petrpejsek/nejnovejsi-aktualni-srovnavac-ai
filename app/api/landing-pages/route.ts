@@ -122,7 +122,7 @@ async function ensureUniqueSlug(baseSlug: string, language: string): Promise<str
   let counter = 1
 
   while (true) {
-    const existing = await prisma.landingPage.findUnique({
+    const existing = await prisma.landing_pages.findUnique({
       where: { 
         slug_language: {
           slug: uniqueSlug,
@@ -311,14 +311,14 @@ async function updateSitemap(): Promise<void> {
     lastSitemapUpdate = now
     
     // Get all published landing pages with minimal data
-    const landingPages = await prisma.landingPage.findMany({
+    const landingPages = await prisma.landing_pages.findMany({
       select: {
         slug: true,
-        updatedAt: true,
-        publishedAt: true
+        updated_at: true,
+        published_at: true
       },
       orderBy: {
-        publishedAt: 'desc'
+        published_at: 'desc'
       },
       take: 5000 // Limit for performance, adjust as needed
     })
@@ -526,14 +526,14 @@ async function handleAiFormatPayload(data: any) {
     }
 
     // Check if slug already exists for this language
-    const existingPage = await prisma.landingPage.findUnique({
+    const existingPage = await prisma.landing_pages.findUnique({
       where: { 
         slug_language: {
           slug: payload.slug,
           language: payload.language
         }
       },
-      select: { id: true, title: true, createdAt: true, language: true }
+      select: { id: true, title: true, created_at: true, language: true }
     })
     
     if (existingPage) {
@@ -580,7 +580,7 @@ async function handleAiFormatPayload(data: any) {
       payload.contentHtml.replace(/<[^>]*>/g, '').substring(0, 160) + '...'
 
     // Create landing page record with i18n support
-    const landingPage = await prisma.landingPage.create({
+    const landingPage = await prisma.landing_pages.create({
       data: {
         id: uuidv4(),
         slug: payload.slug,
@@ -733,7 +733,7 @@ async function handleLegacyFormatPayload(data: any) {
     console.log('✨ Final unique slug:', uniqueSlug)
 
     // Create landing page record (legacy format)
-    const landingPage = await prisma.landingPage.create({
+    const landingPage = await prisma.landing_pages.create({
       data: {
         id: uuidv4(),
         slug: uniqueSlug,
@@ -820,23 +820,23 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * pageSize
 
     const [landingPages, total] = await Promise.all([
-      prisma.landingPage.findMany({
+      prisma.landing_pages.findMany({
         select: {
           id: true,
           slug: true,
           title: true,
           language: true,
-          metaDescription: true,
-          format: true,
-          publishedAt: true,
-          createdAt: true,
-          updatedAt: true
-        },
-        orderBy: { createdAt: 'desc' },
+                  meta_description: true,
+        format: true,
+        published_at: true,
+        created_at: true,
+        updated_at: true
+      },
+      orderBy: { created_at: 'desc' },
         skip,
         take: pageSize
       }),
-      prisma.landingPage.count()
+      prisma.landing_pages.count()
     ])
 
     return NextResponse.json({

@@ -21,7 +21,7 @@ export async function DELETE(
     }
 
     // Check if landing page exists
-    const landingPage = await prisma.landingPage.findUnique({
+    const landingPage = await prisma.landing_pages.findUnique({
       where: { id: params.id },
       select: { id: true, title: true, slug: true, language: true }
     })
@@ -34,7 +34,7 @@ export async function DELETE(
     }
 
     // Delete the landing page
-    await prisma.landingPage.delete({
+    await prisma.landing_pages.delete({
       where: { id: params.id }
     })
 
@@ -74,7 +74,7 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const landingPage = await prisma.landingPage.findUnique({
+    const landingPage = await prisma.landing_pages.findUnique({
       where: { id: params.id }
     })
 
@@ -124,7 +124,7 @@ export async function PUT(
     }
 
     // Check if landing page exists
-    const existingPage = await prisma.landingPage.findUnique({
+    const existingPage = await prisma.landing_pages.findUnique({
       where: { id: params.id }
     })
 
@@ -139,7 +139,7 @@ export async function PUT(
     if ((data.slug && data.slug !== existingPage.slug) || 
         (data.language && data.language !== existingPage.language)) {
       
-      const slugCheck = await prisma.landingPage.findFirst({
+      const slugCheck = await prisma.landing_pages.findFirst({
         where: {
           slug: data.slug || existingPage.slug,
           language: data.language || existingPage.language,
@@ -164,7 +164,7 @@ export async function PUT(
     }
 
     // Update the landing page
-    const updatedPage = await prisma.landingPage.update({
+    const updatedPage = await prisma.landing_pages.update({
       where: { id: params.id },
       data: {
         title: data.title,

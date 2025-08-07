@@ -5,7 +5,7 @@ export async function GET(request: NextRequest) {
   try {
     console.log('🔍 Querying database for landing pages...');
     
-    const allPages = await prisma.landingPage.findMany({
+    const allPages = await prisma.landing_pages.findMany({
       select: { 
         id: true, 
         slug: true, 

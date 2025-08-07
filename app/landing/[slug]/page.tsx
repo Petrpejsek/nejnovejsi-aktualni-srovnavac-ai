@@ -34,7 +34,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = params;
   
   try {
-    const landingPage = await prisma.landingPage.findFirst({
+    const landingPage = await prisma.landing_pages.findFirst({
       where: { 
         slug: slug,
         format: 'landing_page'
@@ -74,7 +74,7 @@ export default async function LandingPageDetail({ params }: Props) {
 
   try {
     // Fetch the landing page from database
-    const landingPage = await prisma.landingPage.findFirst({
+    const landingPage = await prisma.landing_pages.findFirst({
       where: { 
         slug: slug
       },
