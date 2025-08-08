@@ -51,7 +51,7 @@ export default function CompanyAdminLayout({
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   const [companyData, setCompanyData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
-  const pathname = usePathname()
+  const pathname = usePathname() || ''
   const { user, isCompany, isAuthenticated, isLoading: authLoading } = useAuth()
 
   console.log('🔍 COMPANY LAYOUT - Auth status:', { 

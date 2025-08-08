@@ -65,12 +65,12 @@ export default function CompanyPage() {
       </header>
       
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 text-white overflow-hidden">
-        <div className="absolute inset-0 bg-black bg-opacity-20"></div>
+      <section className="relative bg-gradient-to-br from-purple-600 via-purple-700 to-pink-500 text-white overflow-hidden">
+        <div className="absolute inset-0 bg-black bg-opacity-10"></div>
         <div className="absolute inset-0">
-          <div className="absolute top-20 left-20 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
-          <div className="absolute top-40 right-20 w-72 h-72 bg-yellow-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
-          <div className="absolute bottom-20 left-40 w-72 h-72 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
+          <div className="absolute top-20 left-20 w-72 h-72 bg-purple-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
+          <div className="absolute top-40 right-20 w-72 h-72 bg-pink-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
+          <div className="absolute bottom-20 left-40 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
         </div>
         
         <div className="relative container mx-auto px-4 py-24">
@@ -81,44 +81,33 @@ export default function CompanyPage() {
             </div>
             
             <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-              Reach the <span className="bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">Right Audience</span> for Your AI Business
+              Grow Your AI Business with <span className="bg-gradient-to-r from-pink-300 to-purple-300 bg-clip-text text-transparent">Two Proven Models</span>
             </h1>
             
-            <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed">
-              Connect with decision-makers, developers, and AI enthusiasts actively searching for cutting-edge tools and solutions.
+            <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">
+              Choose your preferred way to monetize: revenue sharing through our affiliate program or pay for targeted advertising. Both deliver results.
             </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-xl mx-auto mb-12">
+              <div className="bg-white/10 backdrop-blur-md rounded-lg p-6 text-center">
+                <div className="text-3xl font-bold text-pink-300 mb-2">Affiliate</div>
+                <div className="text-sm text-gray-300">Performance-based revenue</div>
+              </div>
+              <div className="bg-white/10 backdrop-blur-md rounded-lg p-6 text-center">
+                <div className="text-3xl font-bold text-purple-300 mb-2">CPC Ads</div>
+                <div className="text-sm text-gray-300">Pay per click results</div>
+              </div>
+            </div>
             
-            <div className="flex flex-col sm:flex-row gap-6 justify-center mb-16">
+            <div className="flex justify-center mb-16">
               <button 
                 onClick={handleRegisterClick}
-                className="bg-gradient-to-r from-yellow-400 to-orange-500 text-black font-bold px-8 py-4 rounded-xl text-lg hover:scale-105 transition-transform duration-200 shadow-2xl"
+                className="bg-gradient-to-r from-pink-400 to-purple-400 text-white font-bold px-8 py-4 rounded-xl text-lg hover:scale-105 transition-transform duration-200 shadow-2xl"
               >
-                Start Advertising Today
-              </button>
-              <button className="border-2 border-white text-white font-bold px-8 py-4 rounded-xl text-lg hover:bg-white hover:text-black transition-all duration-200">
-                View Success Stories
+                Start Growing Your Revenue Today
               </button>
             </div>
-            
-            {/* Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
-              <div className="text-center">
-                <div className="text-4xl font-bold text-yellow-400 mb-2">50K+</div>
-                <div className="text-gray-300">Monthly Visitors</div>
-              </div>
-              <div className="text-center">
-                <div className="text-4xl font-bold text-yellow-400 mb-2">2.3%</div>
-                <div className="text-gray-300">Average CTR</div>
-              </div>
-              <div className="text-center">
-                <div className="text-4xl font-bold text-yellow-400 mb-2">$0.50</div>
-                <div className="text-gray-300">Avg. Cost Per Click</div>
-              </div>
-              <div className="text-center">
-                <div className="text-4xl font-bold text-yellow-400 mb-2">24hrs</div>
-                <div className="text-gray-300">Campaign Approval</div>
-              </div>
-            </div>
+
           </div>
         </div>
       </section>
@@ -129,10 +118,10 @@ export default function CompanyPage() {
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-16">
               <h2 className="text-4xl font-bold text-gray-900 mb-6">
-                Why Top AI Companies Choose Us
+                Why Both Models Work for AI Companies
               </h2>
               <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-                We connect you with the most engaged AI community online. No wasted impressions, just quality traffic.
+                Whether you choose affiliate revenue sharing or targeted advertising, you're tapping into our highly engaged AI community. Both approaches deliver proven results.
               </p>
             </div>
             
@@ -144,9 +133,9 @@ export default function CompanyPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                   </svg>
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">Targeted AI Audience</h3>
+                <h3 className="text-2xl font-bold text-gray-900 mb-4">Engaged AI Community</h3>
                 <p className="text-gray-600 leading-relaxed">
-                  Reach developers, product managers, and decision-makers actively looking for AI solutions. Our audience is pre-qualified and engaged.
+                  50,000+ monthly AI enthusiasts who actively search for and purchase AI tools. Both affiliate and CPC campaigns see higher conversion rates here.
                 </p>
               </div>
 
@@ -157,9 +146,9 @@ export default function CompanyPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                   </svg>
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">Real-Time Analytics</h3>
+                <h3 className="text-2xl font-bold text-gray-900 mb-4">Flexible Business Models</h3>
                 <p className="text-gray-600 leading-relaxed">
-                  Track impressions, clicks, CTR, and conversions in real-time. Get detailed insights into your campaign performance and ROI.
+                  Choose what works for your business: revenue sharing without upfront costs, or invest in targeted traffic with full budget control. Switch models anytime.
                 </p>
               </div>
 
@@ -170,9 +159,9 @@ export default function CompanyPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
                   </svg>
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">Cost-Effective CPC</h3>
+                <h3 className="text-2xl font-bold text-gray-900 mb-4">Quality Over Quantity</h3>
                 <p className="text-gray-600 leading-relaxed">
-                  Pay only for quality clicks. Our average CPC of $0.50 delivers exceptional value compared to Google Ads or Facebook.
+                  We focus on relevant, high-intent traffic rather than volume. Every visitor is genuinely interested in AI solutions, leading to better ROI for both models.
                 </p>
               </div>
 
@@ -183,9 +172,9 @@ export default function CompanyPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">Quick Setup</h3>
+                <h3 className="text-2xl font-bold text-gray-900 mb-4">Fast Onboarding</h3>
                 <p className="text-gray-600 leading-relaxed">
-                  Launch your campaign in minutes. Simple approval process, usually completed within 24 hours. No complex requirements.
+                  Start generating revenue in 24 hours. Simple affiliate setup with instant approval for qualified AI companies. No waiting, no complex requirements.
                 </p>
               </div>
 
@@ -196,9 +185,9 @@ export default function CompanyPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">Quality Control</h3>
+                <h3 className="text-2xl font-bold text-gray-900 mb-4">Proven Track Record</h3>
                 <p className="text-gray-600 leading-relaxed">
-                  All campaigns are manually reviewed. We maintain high standards to ensure quality ads that provide value to our community.
+                  Our partners report 40% higher conversion rates compared to traditional ad networks. Join successful AI companies already partnering with us.
                 </p>
               </div>
 
@@ -209,9 +198,9 @@ export default function CompanyPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192L5.636 18.364M12 2.25a9.75 9.75 0 109.75 9.75A9.75 9.75 0 0012 2.25z" />
                   </svg>
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">24/7 Support</h3>
+                <h3 className="text-2xl font-bold text-gray-900 mb-4">Dedicated Success Manager</h3>
                 <p className="text-gray-600 leading-relaxed">
-                  Get dedicated support for campaign optimization, troubleshooting, and strategy. Our team helps maximize your ROI.
+                  Premium partners get a dedicated success manager for optimization, strategy, and growth planning. We're invested in your success.
                 </p>
               </div>
             </div>
@@ -222,46 +211,113 @@ export default function CompanyPage() {
       {/* Pricing Section */}
       <section className="py-24 bg-white">
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center">
+          <div className="max-w-7xl mx-auto text-center">
             <h2 className="text-4xl font-bold text-gray-900 mb-6">
-              Simple, Transparent Pricing
+              Two Simple Ways to Grow Together
             </h2>
-            <p className="text-xl text-gray-600 mb-12">
-              No hidden fees, no long-term contracts. Pay only for quality clicks.
+            <p className="text-xl text-gray-600 mb-16">
+              Choose the model that fits your business goals. Both options deliver real results with our engaged AI community.
             </p>
             
-            <div className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-3xl p-12 text-white mb-12">
-              <div className="max-w-2xl mx-auto">
-                <h3 className="text-3xl font-bold mb-4">Cost Per Click (CPC) Model</h3>
-                <div className="text-6xl font-bold mb-4">$0.50</div>
-                <p className="text-xl mb-8">Average cost per click</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-5xl mx-auto">
+              {/* Affiliate Program */}
+              <div className="bg-gradient-to-b from-purple-600 to-pink-500 rounded-3xl p-10 shadow-xl text-white relative">
+                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                  <span className="bg-yellow-400 text-black px-4 py-1 rounded-full text-sm font-bold">MOST POPULAR</span>
+                </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
-                  <div className="flex items-center gap-3">
-                    <svg className="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                <div className="text-center mb-8">
+                  <div className="w-20 h-20 bg-white/20 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                    <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
                     </svg>
-                    <span>Only pay for actual clicks</span>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <svg className="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <h3 className="text-3xl font-bold mb-3">Affiliate Partnership</h3>
+                  <div className="text-5xl font-bold mb-3">Revenue</div>
+                  <p className="text-purple-100 text-lg">Share</p>
+                </div>
+                
+                <div className="space-y-5 text-left mb-8">
+                  <div className="flex items-start gap-4">
+                    <svg className="w-6 h-6 text-green-300 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
-                    <span>$50 minimum budget</span>
+                    <div>
+                      <div className="font-semibold text-lg">Performance-based income</div>
+                      <div className="text-purple-100">No upfront costs - revenue sharing when we both succeed</div>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <svg className="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="flex items-start gap-4">
+                    <svg className="w-6 h-6 text-green-300 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
-                    <span>Set your own daily budget</span>
+                    <div>
+                      <div className="font-semibold text-lg">Premium placement included</div>
+                      <div className="text-purple-100">Featured positioning for better visibility and higher conversions</div>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <svg className="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="flex items-start gap-4">
+                    <svg className="w-6 h-6 text-green-300 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
-                    <span>Pause anytime</span>
+                    <div>
+                      <div className="font-semibold text-lg">Real-time tracking & support</div>
+                      <div className="text-purple-100">Dashboard analytics plus dedicated success manager</div>
+                    </div>
                   </div>
                 </div>
+                
+                <button onClick={handleRegisterClick} className="w-full bg-white text-purple-600 font-bold py-4 px-6 rounded-xl text-lg hover:bg-gray-100 transition-colors">
+                  Start Affiliate Partnership
+                </button>
+              </div>
+
+              {/* CPC Advertising */}
+              <div className="bg-white rounded-3xl p-10 shadow-lg border-2 border-gray-200 hover:border-purple-300 transition-all duration-300">
+                <div className="text-center mb-8">
+                  <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                    <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-3xl font-bold text-gray-900 mb-3">CPC Advertising</h3>
+                  <div className="text-5xl font-bold text-blue-600 mb-3">Custom</div>
+                  <p className="text-gray-600 text-lg">Pay only for actual clicks</p>
+                </div>
+                
+                <div className="space-y-5 text-left mb-8">
+                  <div className="flex items-start gap-4">
+                    <svg className="w-6 h-6 text-green-500 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <div>
+                      <div className="font-semibold text-lg text-gray-900">Guaranteed immediate visibility</div>
+                      <div className="text-gray-600">Start getting traffic within 24 hours of campaign approval</div>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-4">
+                    <svg className="w-6 h-6 text-green-500 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <div>
+                      <div className="font-semibold text-lg text-gray-900">Full budget control</div>
+                      <div className="text-gray-600">Set daily/monthly limits, pause anytime, scale what works</div>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-4">
+                    <svg className="w-6 h-6 text-green-500 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <div>
+                      <div className="font-semibold text-lg text-gray-900">Detailed performance metrics</div>
+                      <div className="text-gray-600">Track clicks, conversions, ROI with real-time reporting</div>
+                    </div>
+                  </div>
+                </div>
+                
+                <button onClick={handleRegisterClick} className="w-full bg-blue-600 text-white font-bold py-4 px-6 rounded-xl text-lg hover:bg-blue-700 transition-colors">
+                  Start CPC Campaign
+                </button>
               </div>
             </div>
           </div>
@@ -292,7 +348,7 @@ export default function CompanyPage() {
       </section>
 
       {/* Footer CTA */}
-      <section className="py-16 bg-gradient-to-r from-purple-900 to-blue-900 text-white">
+      <section className="py-16 bg-gradient-to-r from-purple-600 to-pink-500 text-white">
         <div className="container mx-auto px-4 text-center">
           <h3 className="text-3xl font-bold mb-4">
             Questions? We're Here to Help
@@ -300,7 +356,7 @@ export default function CompanyPage() {
           <p className="text-xl text-gray-300 mb-8">
             Talk to our advertising specialists about your campaign goals.
           </p>
-          <button className="bg-white text-purple-900 font-bold px-8 py-4 rounded-xl text-lg hover:scale-105 transition-transform duration-200">
+          <button className="bg-white text-purple-600 font-bold px-8 py-4 rounded-xl text-lg hover:scale-105 transition-transform duration-200">
             Contact Our Team
           </button>
         </div>

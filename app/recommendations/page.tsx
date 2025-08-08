@@ -52,7 +52,7 @@ interface DisplayProduct extends Product {
 
 function RecommendationsPageContent() {
   const searchParams = useSearchParams()
-  const query = searchParams.get('query')
+  const query = searchParams?.get('query') || null
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set())
   const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set())
   const [expandedProductId, setExpandedProductId] = useState<string | null>(null)

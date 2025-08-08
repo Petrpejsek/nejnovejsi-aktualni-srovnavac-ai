@@ -95,7 +95,7 @@ declare global {
 function UserAreaContent() {
   const { data: session, status } = useSession()
   const router = useRouter()
-  const searchParams = useSearchParams()
+  const searchParams = useSearchParams() || ({} as any)
   
   // Import useAuth hook for role-based access
   // DEBUG: Remove after testing

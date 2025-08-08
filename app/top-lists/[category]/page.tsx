@@ -283,8 +283,8 @@ const categoryStyles: { [key: string]: { gradient: string, iconBg: string, name:
 
 export default function CategoryListPage() {
   const { data: session } = useSession()
-  const params = useParams()
-  const categoryId = params.category as string
+  const params = useParams() || ({} as Record<string, string>)
+  const categoryId = (params as any)?.category as string
   const [favorites, setFavorites] = useState<Set<string>>(new Set())
   const [topList, setTopList] = useState<TopList | null>(null)
   const [products, setProducts] = useState<Product[]>([])

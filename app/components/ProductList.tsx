@@ -68,11 +68,11 @@ function ProductListContent() {
   });
 
   const searchParams = useSearchParams();
-  const category = searchParams.get('category');
-  const provider = searchParams.get('provider');
-  const minPrice = searchParams.get('minPrice');
-  const maxPrice = searchParams.get('maxPrice');
-  const page = searchParams.get('page') ? parseInt(searchParams.get('page')!, 10) : 1;
+  const category = searchParams?.get('category') ?? null;
+  const provider = searchParams?.get('provider') ?? null;
+  const minPrice = searchParams?.get('minPrice') ?? null;
+  const maxPrice = searchParams?.get('maxPrice') ?? null;
+  const page = searchParams?.get('page') ? parseInt((searchParams.get('page') as string), 10) : 1;
 
   // Vytvoření cache klíče na základě parametrů
   const cacheKey = useMemo(() => {

@@ -449,8 +449,8 @@ const allCategories = [
 ]
 
 export default function CategoryPage() {
-  const params = useParams()
-  const slug = params.slug as string
+  const params = useParams() || ({} as Record<string, string>)
+  const slug = ((params as any)?.slug as string) || ''
   const categoryName = slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
   const { data: session } = useSession()
   

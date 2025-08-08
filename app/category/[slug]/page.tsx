@@ -21,8 +21,8 @@ interface Product {
 }
 
 export default function CategoryPage() {
-  const params = useParams()
-  const category = decodeURIComponent(params.slug as string)
+  const params = useParams() || ({} as Record<string, string>)
+  const category = decodeURIComponent(((params as any)?.slug as string) || '')
   
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)

@@ -1,28 +1,18 @@
 Environment variables loaded from .env
 Prisma schema loaded from prisma/schema.prisma
 
-✔ Generated Prisma Client (v6.3.1) to ./node_modules/@prisma/client in 363ms
+✔ Generated Prisma Client (v6.3.1) to ./node_modules/@prisma/client in 361ms
 
 Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
 
-Tip: Curious about the SQL queries Prisma ORM generates? Optimize helps you enhance your visibility: https://pris.ly/tip-2-optimize
+Tip: Interested in query caching in just a few lines of code? Try Accelerate today! https://pris.ly/tip-3-accelerate
 
-┌─────────────────────────────────────────────────────────┐
-│  Update available 6.3.1 -> 6.13.0                       │
-│  Run the following to update                            │
-│    npm i --save-dev prisma@latest                       │
-│    npm i @prisma/client@latest                          │
-└─────────────────────────────────────────────────────────┘
   ▲ Next.js 14.2.24
   - Environments: .env.local, .env.production, .env
   - Experiments (use with caution):
     · optimizeServerReact
 
    Creating an optimized production build ...
-(node:18234) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
-(Use `node --trace-deprecation ...` to show where the warning was created)
-(node:18254) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
-(Use `node --trace-deprecation ...` to show where the warning was created)
 Browserslist: browsers data (caniuse-lite) is 6 months old. Please run:
   npx update-browserslist-db@latest
   Why you should do it regularly: https://github.com/browserslist/update-db#readme
@@ -368,7 +358,9 @@ Browserslist: caniuse-lite is outdated. Please run:
 313:10  Warning: 'getPageTitle' is defined but never used.  no-unused-vars
 
 ./app/company/page.tsx
-298:26  Warning: `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`.  react/no-unescaped-entities
+124:90  Warning: `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`.  react/no-unescaped-entities
+203:119  Warning: `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`.  react/no-unescaped-entities
+354:26  Warning: `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`.  react/no-unescaped-entities
 
 ./app/company-admin/affiliate/page.tsx
 13:3  Warning: 'ArrowDownIcon' is defined but never used.  no-unused-vars
@@ -701,6 +693,8 @@ Browserslist: caniuse-lite is outdated. Please run:
 info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/basic-features/eslint#disabling-rules
    Collecting page data ...
 Prisma initialized in production mode
+Prisma initialized in production mode
+DATABASE_URL defined: true
 DATABASE_URL defined: true
 Prisma initialized in production mode
 DATABASE_URL defined: true
@@ -712,9 +706,7 @@ Prisma initialized in production mode
 DATABASE_URL defined: true
 Prisma initialized in production mode
 DATABASE_URL defined: true
-Prisma initialized in production mode
-DATABASE_URL defined: true
-(node:19029) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(node:82618) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
 (Use `node --trace-deprecation ...` to show where the warning was created)
    Generating static pages (0/116) ...
 🔍 Querying database for landing pages...
@@ -725,7 +717,7 @@ DATABASE_URL defined: true
 TopLists: Loaded 20 published top lists from API
 TopLists: Loaded 20 published top lists from API
  ✓ Generating static pages (116/116)
-(node:19025) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(node:82615) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
 (Use `node --trace-deprecation ...` to show where the warning was created)
    Finalizing page optimization ...
    Collecting build traces ...
@@ -733,7 +725,7 @@ TopLists: Loaded 20 published top lists from API
 Route (app)                                    Size     First Load JS
 ┌ ƒ /                                          11.2 kB         135 kB
 ├ ƒ /_not-found                                170 B          87.5 kB
-├ ● /[lang]/landing/[slug]                     171 B          87.5 kB
+├ ● /[lang]/landing/[slug]                     170 B          87.5 kB
 ├ ƒ /about                                     170 B          87.5 kB
 ├ ƒ /admin                                     4.13 kB         108 kB
 ├ ƒ /admin/analytics                           3.7 kB         91.1 kB
@@ -865,7 +857,7 @@ Route (app)                                    Size     First Load JS
 ├ ƒ /categories/[slug]                         14.8 kB         125 kB
 ├ ƒ /categories/all                            189 B          94.4 kB
 ├ ƒ /category/[slug]                           3.78 kB         103 kB
-├ ƒ /company                                   8.68 kB         103 kB
+├ ƒ /company                                   9.16 kB         103 kB
 ├ ƒ /company-admin                             3.78 kB         101 kB
 ├ ƒ /company-admin/affiliate                   4.42 kB        91.8 kB
 ├ ƒ /company-admin/analytics                   4.51 kB        91.9 kB

@@ -126,10 +126,10 @@ const generateChartData = (days: number): ChartDataPoint[] => {
 }
 
 export default function CampaignDetailPage() {
-  const params = useParams()
+  const params = useParams() || ({} as Record<string, string>)
   const [campaign, setCampaign] = useState<Campaign | null>(null)
   const [loading, setLoading] = useState(true)
-  const campaignId = Number(params.id)
+  const campaignId = Number((params as any)?.id)
   const [selectedPeriod, setSelectedPeriod] = useState(7)
   const [selectedMetric, setSelectedMetric] = useState<keyof ChartDataPoint>('clicks')
   const [chartData, setChartData] = useState<ChartDataPoint[]>([])

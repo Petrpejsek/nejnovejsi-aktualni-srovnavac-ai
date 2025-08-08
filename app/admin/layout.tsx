@@ -12,7 +12,7 @@ interface AdminLayoutProps {
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const pathname = usePathname()
+  const pathname = usePathname() || ''
   const { user, isAdmin, isLoading } = useAuth()
 
   // 🚀 NOVÝ AUTH SYSTÉM - Role-based admin access

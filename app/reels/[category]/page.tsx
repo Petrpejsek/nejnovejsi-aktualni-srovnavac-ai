@@ -157,8 +157,8 @@ interface Reel {
 }
 
 export default function CategoryReelsPage() {
-  const params = useParams()
-  const categorySlug = params.category as string
+  const params = useParams() || ({} as Record<string, string>)
+  const categorySlug = (params as any)?.category as string
   const categoryName = categoryNames[categorySlug] || 'Unknown Category'
   const categoryDescription = categoryDescriptions[categorySlug] || ''
 

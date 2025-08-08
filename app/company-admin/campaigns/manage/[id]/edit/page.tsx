@@ -25,11 +25,11 @@ interface Campaign {
 }
 
 export default function EditCampaignPage() {
-  const params = useParams()
+  const params = useParams() || ({} as Record<string, string>)
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const campaignId = Number(params.id)
+  const campaignId = Number((params as any)?.id)
 
   // Form state
   const [formData, setFormData] = useState<Campaign>({

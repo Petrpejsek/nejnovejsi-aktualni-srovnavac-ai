@@ -29,7 +29,7 @@ function SearchParamsHandler({ onSearchTermChange }: { onSearchTermChange: (term
   const searchParams = useSearchParams()
   
   useEffect(() => {
-    const searchQuery = searchParams.get('search')
+    const searchQuery = searchParams?.get('search') || null
     if (searchQuery) {
       onSearchTermChange(searchQuery)
       const url = new URL(window.location.href)

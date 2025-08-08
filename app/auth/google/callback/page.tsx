@@ -9,8 +9,8 @@ function GoogleCallbackContent() {
 
   useEffect(() => {
     // Get token or error from URL parameters
-    const token = searchParams.get('token')
-    const error = searchParams.get('error')
+    const token = searchParams?.get('token') || null
+    const error = searchParams?.get('error') || null
 
     if (token) {
       // Save token and redirect to main page

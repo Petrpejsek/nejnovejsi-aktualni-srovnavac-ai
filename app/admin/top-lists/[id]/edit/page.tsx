@@ -51,9 +51,9 @@ interface Tool {
 }
 
 export default function EditTopListCategory() {
-  const params = useParams()
+  const params = useParams() || ({} as Record<string, string>)
   const router = useRouter()
-  const categoryId = params.id as string
+  const categoryId = (params as any)?.id as string
   
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
