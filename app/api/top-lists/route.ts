@@ -76,8 +76,23 @@ export async function GET(request: NextRequest) {
         }
       })
 
+      // Normalizace tags na string[] (v DB může být JSON pole nebo string)
+      const normalizedProducts = products.map((p) => {
+        let normalizedTags: string[] = []
+        if (Array.isArray(p.tags)) {
+          normalizedTags = p.tags as unknown as string[]
+        } else if (typeof p.tags === 'string') {
+          try {
+            normalizedTags = JSON.parse(p.tags as unknown as string) || []
+          } catch {
+            normalizedTags = []
+          }
+        }
+        return { ...p, tags: normalizedTags }
+      })
+
       // Vytvořím mapu pro rychlé hledání
-      const productsMap = new Map(products.map(p => [p.id, p]))
+      const productsMap = new Map(normalizedProducts.map(p => [p.id, p]))
 
       // Přidej kompletní product data do každého top listu (s limitem)
       const topListsWithProducts = topLists.map(list => ({

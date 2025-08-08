@@ -10,7 +10,7 @@ export async function GET() {
       timestamp,
       service: 'comparee-ai',
       version: '1.0.0',
-      environment: process.env.NODE_ENV || 'development'
+      environment: process.env.NODE_ENV
     })
   } catch (error) {
     return NextResponse.json(

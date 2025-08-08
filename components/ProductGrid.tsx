@@ -46,7 +46,7 @@ export default function ProductGrid({ selectedTags }: ProductGridProps = {}) {
   const [hasMore, setHasMore] = useState(true)
   const [totalProducts, setTotalProducts] = useState(0)
   const [savedProducts, setSavedProducts] = useState<Set<string>>(new Set())
-  const [compactView, setCompactView] = useState(true)
+  const [compactView, setCompactView] = useState(false)
   const PAGE_SIZE = 12
 
   const handleBookmarkChange = (productId: string, isBookmarked: boolean) => {
@@ -71,6 +71,22 @@ export default function ProductGrid({ selectedTags }: ProductGridProps = {}) {
       })
     }
   }
+
+  // Persist and restore user layout preference (mobile/desktop)
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('homepage_compact_view')
+      if (stored !== null) {
+        setCompactView(stored === 'true')
+      }
+    } catch {}
+  }, [])
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('homepage_compact_view', String(compactView))
+    } catch {}
+  }, [compactView])
 
   // Load saved products for authenticated users
   useEffect(() => {
@@ -250,13 +266,13 @@ export default function ProductGrid({ selectedTags }: ProductGridProps = {}) {
           </div>
         </div>
         
-        <div className={`grid gap-4 md:gap-6 items-stretch ${
+        <div className={`grid gap-4 md:gap-6 items-stretch min-w-0 ${
           compactView
-            ? 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'
-            : 'grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
+            ? 'grid-cols-2 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'
+            : 'grid-cols-1 xs:grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
         }`}>
           {Array.from({ length: 12 }).map((_, index) => (
-            <div key={index} className="bg-white rounded-lg shadow-md overflow-hidden">
+            <div key={index} className="bg-white rounded-lg shadow-md overflow-hidden min-w-0">
               <div className="aspect-[16/9] bg-gray-200 animate-pulse"></div>
               <div className="p-4 space-y-3">
                 <div className="h-6 bg-gray-200 rounded animate-pulse"></div>
@@ -296,24 +312,42 @@ export default function ProductGrid({ selectedTags }: ProductGridProps = {}) {
       <div className="flex justify-end items-center mb-4">
         <div className="flex space-x-2 border rounded p-1 bg-white">
           <button
+            onPointerUp={() => setCompactView(true)}
             onClick={() => setCompactView(true)}
+            onTouchStart={(e) => {
+              e.preventDefault()
+              setCompactView(true)
+            }}
             className={`p-2 rounded transition ${
               compactView
                 ? 'bg-gray-100 text-gray-800'
                 : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
             }`}
             title="Compact View (1 product per row on mobile, 2+ on desktop)"
+            aria-pressed={compactView}
+            style={{ touchAction: 'manipulation' }}
+            role="button"
+            tabIndex={0}
           >
             <IconTwoColumns />
           </button>
           <button
+            onPointerUp={() => setCompactView(false)}
             onClick={() => setCompactView(false)}
+            onTouchStart={(e) => {
+              e.preventDefault()
+              setCompactView(false)
+            }}
             className={`p-2 rounded transition ${
               !compactView
                 ? 'bg-gray-100 text-gray-800'
                 : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
             }`}
             title="Large View (1 product per row)"
+            aria-pressed={!compactView}
+            style={{ touchAction: 'manipulation' }}
+            role="button"
+            tabIndex={0}
           >
             <IconOneColumn />
           </button>
@@ -321,10 +355,10 @@ export default function ProductGrid({ selectedTags }: ProductGridProps = {}) {
       </div>
 
       {/* Optimalizovaný CSS Grid s responsive breakpointy */}
-      <div className={`grid gap-4 md:gap-6 items-stretch ${
+      <div className={`grid gap-4 md:gap-6 items-stretch min-w-0 ${
         compactView
-          ? 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'
-          : 'grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
+          ? 'grid-compact-mobile grid-cols-2 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'
+          : 'grid-cols-1 xs:grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
       }`}>
         {filteredProducts.map((product, index) => {
           // Optimalizace pro first meaningful paint - první 6 produktů s priority loading
@@ -332,25 +366,26 @@ export default function ProductGrid({ selectedTags }: ProductGridProps = {}) {
           
           // Responsive sizes prop odpovídající CSS Grid breakpointům
           const sizes = compactView 
-            ? "(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            ? "(max-width: 640px) 50vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
             : "(max-width: 640px) 100vw, (max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw";
           
           return (
-            <ProductCard
-              key={product.id}
-              id={product.id}
-              name={product.name}
-              description={product.description}
-              price={product.price}
-              imageUrl={product.imageUrl}
-              tags={product.tags}
-              externalUrl={product.externalUrl}
-              hasTrial={product.hasTrial}
-              isBookmarked={product.isBookmarked}
-              onBookmarkChange={handleBookmarkChange}
-              priority={isPriority}
-              sizes={sizes}
-            />
+            <div key={product.id} className="min-w-0">
+              <ProductCard
+                id={product.id}
+                name={product.name}
+                description={product.description}
+                price={product.price}
+                imageUrl={product.imageUrl}
+                tags={product.tags}
+                externalUrl={product.externalUrl}
+                hasTrial={product.hasTrial}
+                isBookmarked={product.isBookmarked}
+                onBookmarkChange={handleBookmarkChange}
+                priority={isPriority}
+                sizes={sizes}
+              />
+            </div>
           );
         })}
       </div>

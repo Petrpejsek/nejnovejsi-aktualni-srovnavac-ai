@@ -324,7 +324,7 @@ async function updateSitemap(): Promise<void> {
     })
 
     // Basic sitemap structure
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://comparee.ai'
+    const baseUrl = (() => { const v = process.env.NEXT_PUBLIC_BASE_URL; if (!v) throw new Error('NEXT_PUBLIC_BASE_URL is required'); return v })()
     const currentDate = new Date().toISOString().split('T')[0]
 
     let sitemapContent = `<?xml version="1.0" encoding="UTF-8"?>

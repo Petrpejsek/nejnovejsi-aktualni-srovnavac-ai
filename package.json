@@ -8,6 +8,7 @@
     "init-assistant": "tsx scripts/init-assistant.ts",
     "build": "tsc --project tsconfig.json && prisma generate && next build",
     "vercel-build": "tsc --project tsconfig.json && prisma generate && node --loader ts-node/esm scripts/migrate-database.js && next build",
+    "predeploy": "tsx scripts/predeploy-check.ts",
     "start": "next start",
     "lint": "next lint",
     "db:sync": "node scripts/sync-db.js",

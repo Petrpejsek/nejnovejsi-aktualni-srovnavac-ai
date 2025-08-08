@@ -12,12 +12,18 @@ class TranslationService {
   private readonly timeout: number = 30000 // 30 seconds
 
   constructor() {
-    this.baseUrl = process.env.TRANSLATION_SERVICE_URL || 'http://localhost:4000'
-    this.apiKey = process.env.TRANSLATION_SERVICE_API_KEY || ''
-    
-    if (!this.apiKey) {
-      console.warn('⚠️ TRANSLATION_SERVICE_API_KEY not configured')
+    const baseUrl = process.env.TRANSLATION_SERVICE_URL
+    if (!baseUrl) {
+      throw new Error('TRANSLATION_SERVICE_URL is required')
     }
+    this.baseUrl = baseUrl
+    const apiKey = process.env.TRANSLATION_SERVICE_API_KEY
+    if (!apiKey) {
+      throw new Error('TRANSLATION_SERVICE_API_KEY is required')
+    }
+    this.apiKey = apiKey
+    
+    // apiKey is guaranteed above
   }
 
   /**

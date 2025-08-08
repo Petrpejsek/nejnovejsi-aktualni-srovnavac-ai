@@ -1,0 +1,40 @@
+
+> muj-web@0.1.0 start
+> next start
+
+  ▲ Next.js 14.2.24
+  - Local:        http://localhost:4010
+
+ ✓ Starting...
+ ⚠ The static directory has been deprecated in favor of the public directory. https://nextjs.org/docs/messages/static-dir-deprecated
+ ✓ Ready in 612ms
+ ⨯ Error: Cannot find module './vendor-chunks/react-icons.js'
+Require stack:
+- /Users/petrliesner/ai new new new/.next/server/webpack-runtime.js
+- /Users/petrliesner/ai new new new/.next/server/pages/_document.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/require.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/next-server.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/next.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/start-server.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/cli/next-start.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1225:15)
+    at /Users/petrliesner/ai new new new/node_modules/next/dist/server/require-hook.js:55:36
+    at Module._load (node:internal/modules/cjs/loader:1051:27)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at mod.require (/Users/petrliesner/ai new new new/node_modules/next/dist/server/require-hook.js:65:28)
+    at require (node:internal/modules/helpers:179:18)
+    at __webpack_require__.f.require (/Users/petrliesner/ai new new new/.next/server/webpack-runtime.js:203:28)
+    at /Users/petrliesner/ai new new new/.next/server/webpack-runtime.js:116:40
+    at Array.reduce (<anonymous>)
+    at __webpack_require__.e (/Users/petrliesner/ai new new new/.next/server/webpack-runtime.js:115:67) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [
+    '/Users/petrliesner/ai new new new/.next/server/webpack-runtime.js',
+    '/Users/petrliesner/ai new new new/.next/server/pages/_document.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/require.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/next-server.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/next.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/start-server.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/cli/next-start.js'
+  ]
+}

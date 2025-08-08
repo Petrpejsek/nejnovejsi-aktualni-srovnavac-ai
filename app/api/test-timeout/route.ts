@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
       message: `Test completed successfully after ${actualDuration.toFixed(2)} seconds`,
       timestamp: new Date().toISOString(),
       environment: process.env.NODE_ENV,
-      vercel_region: process.env.VERCEL_REGION || 'unknown'
+      vercel_region: process.env.VERCEL_REGION
     });
   } catch (error) {
     return NextResponse.json({

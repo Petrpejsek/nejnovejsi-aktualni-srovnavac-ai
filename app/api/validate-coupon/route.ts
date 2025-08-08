@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
     // Používáme fetch pro získání aktuálních nastavení
     const baseUrl = process.env.VERCEL_URL 
       ? `https://${process.env.VERCEL_URL}` 
-      : process.env.NEXTAUTH_URL || 'http://localhost:3000'
+      : (() => { if (!process.env.NEXTAUTH_URL) throw new Error('NEXTAUTH_URL is required'); return process.env.NEXTAUTH_URL })()
     
     let settings
     try {

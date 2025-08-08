@@ -219,7 +219,7 @@ export async function POST(request: NextRequest) {
 
     if (reviewProducts.length > 0) {
       try {
-        const reviewResponse = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/review-queue`, {
+        const reviewResponse = await fetch(`${(() => { if (!process.env.NEXTAUTH_URL) throw new Error('NEXTAUTH_URL is required'); return process.env.NEXTAUTH_URL })()}/api/review-queue`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ products: reviewProducts })

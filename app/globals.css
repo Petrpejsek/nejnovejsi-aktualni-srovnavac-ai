@@ -57,6 +57,19 @@ body {
 }
 
 @layer utilities {
+  /* Extra-small breakpoint helper (acts below sm) */
+  .xs\:grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Force compact 2-cols on mobile when explicitly requested by component */
+  @media (max-width: 640px) {
+    .grid-compact-mobile {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+  }
+
   .bg-gradient-primary {
     @apply bg-gradient-to-r from-purple-600 to-pink-500;
   }

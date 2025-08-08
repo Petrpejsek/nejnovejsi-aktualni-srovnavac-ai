@@ -18,7 +18,11 @@ const http = require('http')
 
 // Configuration
 const CONFIG = {
-  baseUrl: process.env.NEXT_PUBLIC_BASE_URL || 'https://comparee.ai',
+  baseUrl: (function(){
+    const v = process.env.NEXT_PUBLIC_BASE_URL
+    if (!v) throw new Error('NEXT_PUBLIC_BASE_URL is required for sitemap cron')
+    return v
+  })(),
   timeout: 30000, // 30 seconds timeout
   retries: 3
 }
@@ -188,7 +192,7 @@ async function main() {
   try {
     log('info', '🚀 Comparee Daily Sitemap Update Cron Job Started')
     log('info', `📅 Time: ${new Date().toLocaleString()}`)
-    log('info', `🌍 Environment: ${process.env.NODE_ENV || 'development'}`)
+    log('info', `🌍 Environment: ${process.env.NODE_ENV}`)
     log('info', `🔗 Base URL: ${CONFIG.baseUrl}`)
     
     // Perform health check first (optional)

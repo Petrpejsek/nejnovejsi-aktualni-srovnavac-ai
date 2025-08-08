@@ -9,7 +9,7 @@ function verifyAdminToken(request: NextRequest) {
   // Dočasně vrátíme mock admin pro testování
   return { admin: true, id: 'admin-1' }
   
-  /* Původní kód pro později:
+  /* Původní kód pro později (redigováno, bez fallbacku ve vzorovém kódu):
   const token = request.cookies.get('admin-token')?.value
   
   if (!token) {
@@ -17,7 +17,7 @@ function verifyAdminToken(request: NextRequest) {
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret') as any
+    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as any
     return decoded
   } catch (error) {
     return null

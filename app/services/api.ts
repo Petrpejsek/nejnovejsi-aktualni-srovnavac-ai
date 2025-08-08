@@ -25,7 +25,11 @@ export interface ComparisonResult {
 }
 
 // API endpoints
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+const API_BASE_URL = (() => {
+  const v = process.env.NEXT_PUBLIC_API_URL
+  if (!v) throw new Error('NEXT_PUBLIC_API_URL must be set')
+  return v
+})()
 
 // API služba
 export const api = {

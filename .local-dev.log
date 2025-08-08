@@ -1,0 +1,261 @@
+
+> muj-web@0.1.0 dev
+> next dev -p 3000 -p 3000
+
+  ▲ Next.js 14.2.24
+  - Local:        http://localhost:3000
+  - Environments: .env.local, .env.development, .env
+  - Experiments (use with caution):
+    · optimizeServerReact
+
+ ✓ Starting...
+ ✓ Ready in 4s
+ ○ Compiling /api/product-count ...
+ ✓ Compiled /api/product-count in 576ms (58 modules)
+📊 Product count loaded from database: 501
+ GET /api/product-count 200 in 1946ms
+ ○ Compiling / ...
+Browserslist: browsers data (caniuse-lite) is 6 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+ ✓ Compiled / in 5.6s (954 modules)
+ GET / 200 in 7131ms
+ ✓ Compiled in 1231ms (357 modules)
+ ✓ Compiled /api/top-lists in 291ms (621 modules)
+ ✓ Compiled (623 modules)
+API: Processing request for products with params: {
+  page: 1,
+  pageSize: 12,
+  pageParam: '1',
+  pageSizeParam: '12',
+  category: null,
+  url: 'http://localhost:3000/api/products?page=1&pageSize=12&forHomepage=true'
+}
+API: Successfully loaded 12 products (page 1, pageSize 12, total 500) - SORTED BY CREDIT + ACTIVE CAMPAIGNS
+🔧 Preventive check: Auto-paused campaigns with insufficient credit
+ GET /api/products?page=1&pageSize=12&forHomepage=true 200 in 1334ms
+📊 API Optimalizace: Načítám 42 produktů místo 234 (limit: 3 per list)
+ GET /api/products?categoriesOnly=true 200 in 1423ms
+📊 Product count loaded from database: 501
+ GET /api/product-count 200 in 1443ms
+ GET /api/top-lists?status=published&includeProducts=true&productsLimit=3 200 in 1458ms
+ GET / 200 in 357ms
+API: Processing request for products with params: {
+  page: 1,
+  pageSize: 12,
+  pageParam: '1',
+  pageSizeParam: '12',
+  category: null,
+  url: 'http://localhost:3000/api/products?page=1&pageSize=12&forHomepage=true'
+}
+📊 Product count loaded from database: 501
+ GET /api/product-count 200 in 115ms
+📊 API Optimalizace: Načítám 42 produktů místo 234 (limit: 3 per list)
+ GET /api/top-lists?status=published&includeProducts=true&productsLimit=3 200 in 152ms
+ GET /api/products?categoriesOnly=true 200 in 176ms
+API: Successfully loaded 12 products (page 1, pageSize 12, total 500) - SORTED BY CREDIT + ACTIVE CAMPAIGNS
+🔧 Preventive check: Auto-paused campaigns with insufficient credit
+ GET /api/products?page=1&pageSize=12&forHomepage=true 200 in 288ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 753ms (969 modules)
+ GET /screenshots/nastroj_ai_homepage.png 404 in 1058ms
+ ○ Compiling /categories/[slug] ...
+ ✓ Compiled /categories/[slug] in 510ms (981 modules)
+ GET /categories/seo-tools 200 in 1552ms
+API: Processing request for products with params: {
+  page: 1,
+  pageSize: 24,
+  pageParam: '1',
+  pageSizeParam: '24',
+  category: 'SEO',
+  url: 'http://localhost:3000/api/products?category=SEO&page=1&pageSize=24&forHomepage=true'
+}
+API: Successfully loaded 0 products (page 1, pageSize 24, total 0) - SORTED BY CREDIT + ACTIVE CAMPAIGNS
+🔧 Preventive check: Auto-paused campaigns with insufficient credit
+ GET /api/products?category=SEO&page=1&pageSize=24&forHomepage=true 200 in 192ms
+API: Processing request for products with params: {
+  page: 1,
+  pageSize: 24,
+  pageParam: '1',
+  pageSizeParam: '24',
+  category: 'Marketing Tools',
+  url: 'http://localhost:3000/api/products?category=Marketing%20Tools&page=1&pageSize=24&forHomepage=true'
+}
+ GET /api/products?category=Marketing%20Tools&page=1&pageSize=24&forHomepage=true 200 in 70ms
+API: Successfully loaded 6 products (page 1, pageSize 24, total 6) - SORTED BY CREDIT + ACTIVE CAMPAIGNS
+🔧 Preventive check: Auto-paused campaigns with insufficient credit
+ ⨯ Error: Cannot find module './8948.js'
+Require stack:
+- /Users/petrliesner/ai new new new/.next/server/webpack-runtime.js
+- /Users/petrliesner/ai new new new/.next/server/app/categories/[slug]/page.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/require.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/load-components.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/build/utils.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/hot-middleware.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/hot-reloader-webpack.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/start-server.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1225:15)
+    at /Users/petrliesner/ai new new new/node_modules/next/dist/server/require-hook.js:55:36
+    at Module._load (node:internal/modules/cjs/loader:1051:27)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at mod.require (/Users/petrliesner/ai new new new/node_modules/next/dist/server/require-hook.js:65:28)
+    at require (node:internal/modules/helpers:179:18)
+    at __webpack_require__.f.require (/Users/petrliesner/ai new new new/.next/server/webpack-runtime.js:203:28)
+    at /Users/petrliesner/ai new new new/.next/server/webpack-runtime.js:116:40
+    at Array.reduce (<anonymous>)
+    at __webpack_require__.e (/Users/petrliesner/ai new new new/.next/server/webpack-runtime.js:115:67)
+    at Array.map (<anonymous>)
+    at __webpack_require__.X (/Users/petrliesner/ai new new new/.next/server/webpack-runtime.js:167:22)
+    at /Users/petrliesner/ai new new new/.next/server/app/api/top-lists/route.js:1:9051
+    at Object.<anonymous> (/Users/petrliesner/ai new new new/.next/server/app/api/top-lists/route.js:1:9098)
+    at Module._compile (node:internal/modules/cjs/loader:1469:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)
+    at Module.load (node:internal/modules/cjs/loader:1288:32)
+    at Module._load (node:internal/modules/cjs/loader:1104:12)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at mod.require (/Users/petrliesner/ai new new new/node_modules/next/dist/server/require-hook.js:65:28)
+    at require (node:internal/modules/helpers:179:18)
+    at requirePage (/Users/petrliesner/ai new new new/node_modules/next/dist/server/require.js:109:84)
+    at /Users/petrliesner/ai new new new/node_modules/next/dist/server/load-components.js:103:84
+    at async loadComponentsImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/load-components.js:103:26)
+    at async DevServer.findPageComponentsImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/next-server.js:714:36)
+    at async DevServer.findPageComponents (/Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/next-dev-server.js:577:20)
+    at async DevServer.renderPageComponent (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1910:24)
+    at async DevServer.renderToResponseImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1962:32)
+    at async DevServer.pipeImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:922:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/Users/petrliesner/ai new new new/node_modules/next/dist/server/next-server.js:272:17)
+    at async DevServer.handleRequestImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:818:17)
+    at async /Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/next-dev-server.js:339:20
+    at async Span.traceAsyncFn (/Users/petrliesner/ai new new new/node_modules/next/dist/trace/trace.js:154:20)
+    at async DevServer.handleRequest (/Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/next-dev-server.js:336:24)
+    at async invokeRender (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js:178:21)
+    at async handleRequest (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js:355:24)
+    at async requestHandlerImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js:379:13)
+    at async Server.requestListener (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/start-server.js:141:13) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [
+    '/Users/petrliesner/ai new new new/.next/server/webpack-runtime.js',
+    '/Users/petrliesner/ai new new new/.next/server/app/categories/[slug]/page.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/require.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/load-components.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/build/utils.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/hot-middleware.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/hot-reloader-webpack.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/start-server.js'
+  ],
+  page: '/api/top-lists'
+}
+ GET /api/top-lists?status=published 500 in 269ms
+API: Loading products by IDs: [
+  '22091e2d-c3a9-4a2f-9610-339e235899fc',
+  '3f5412d1-7010-4748-8f0c-ac2fa531d54d',
+  'c384350e-3cc9-40fd-8412-c7a8cc7a5e34'
+]
+API: Loading products by IDs: [
+  '9154f6ed-b9ac-4cec-a8ac-9c5000db19c8',
+  '1f595974-65ad-4f62-bfa4-605c080cf10f',
+  '9a477695-8446-4166-969c-23250a6cec31'
+]
+API: Loading products by IDs: [
+  '80d695d6-e815-4ab0-862a-80c6c82b0b2b',
+  'e3218aaa-2eb0-4b86-94a6-47e9f2453a99',
+  '2e5876d4-618d-4348-8aab-b27997e357ff'
+]
+API: Loading products by IDs: [ '293863b8-2689-45fd-b4f3-c5c5187eae92' ]
+API: Loading products by IDs: [
+  '1d0fa52a-d77e-4760-a728-b435c9dab069',
+  '95f1af2d-c453-4ffd-968f-d3a4b6962d16',
+  'a7d39507-0ad3-4775-9990-56fe95c20681'
+]
+API: Loading products by IDs: [
+  'dbab24bf-0b0b-4245-9eba-b1fabb5f8346',
+  'cbfcb592-158d-452f-b314-4b8267e2e116'
+]
+API: Loading products by IDs: [
+  '03ef92a6-ba21-4977-9543-f9ed13eda22c',
+  'bf67f36f-edb2-4747-9144-97d973349577',
+  'a7d39507-0ad3-4775-9990-56fe95c20681'
+]
+API: Loading products by IDs: [ '7fc311df-fa1b-4415-a2bb-6e4f9a0d942b' ]
+API: Loading products by IDs: [
+  '7c4ad4dc-a804-4198-91aa-059c8411c30f',
+  'a9fa4030-debf-4ddc-bf20-897726fd7cae',
+  'cf243411-8690-4c8f-807e-14d99b14abff'
+]
+API: Loading products by IDs: [
+  '86ec630a-cb1a-4aa1-911b-eac9f013fee5',
+  '5329aaa9-fc89-4014-bde3-9c99ab5e7779',
+  '304a8acc-9e7f-4d75-ae93-85d16a1ab373'
+]
+API: Loading products by IDs: [
+  'e29c2ee8-3239-4d59-983f-f64caa125188',
+  '7c4ad4dc-a804-4198-91aa-059c8411c30f',
+  '7616f824-cb56-467b-b81c-c4939587d321'
+]
+API: Loading products by IDs: [
+  'c228e879-afcc-4e09-97ba-8f94f24b4108',
+  '0faf3410-db39-4a8b-890b-d4a5f326fd52'
+]
+API: Loading products by IDs: [
+  '74e9729e-d439-4ad9-9ffe-a1cf5b9df344',
+  'b721220d-e22d-43dd-a6e9-9f3c1717cd1f',
+  'e29c2ee8-3239-4d59-983f-f64caa125188'
+]
+API: Loading products by IDs: [
+  '3c3eb5bc-aafb-43fd-8d24-d331999a174f',
+  '4f374ccd-5c1a-405b-afad-50f9c1a698cc'
+]
+API: Loading products by IDs: [
+  '4f374ccd-5c1a-405b-afad-50f9c1a698cc',
+  '3c3eb5bc-aafb-43fd-8d24-d331999a174f'
+]
+API: Loading products by IDs: [
+  '89bdf474-2cd2-4b3c-a55e-861e793280b0',
+  'cb95e407-271b-4122-a0a7-6d57cad1b1db',
+  '6a3c60d8-3cde-4c4b-ade9-4f685be08b72'
+]
+API: Loading products by IDs: [
+  '630f3316-d7fa-41b4-8b3d-4090cfc3ee13',
+  'a7d39507-0ad3-4775-9990-56fe95c20681',
+  'c8f47c35-de36-42b5-a078-876e82b3428f'
+]
+ ○ Compiling /_error ...
+API: Successfully loaded 3 products by IDs
+API: Successfully loaded 3 products by IDs
+API: Successfully loaded 3 products by IDs
+API: Successfully loaded 1 products by IDs
+API: Successfully loaded 3 products by IDs
+API: Successfully loaded 2 products by IDs
+API: Successfully loaded 3 products by IDs
+API: Successfully loaded 1 products by IDs
+API: Successfully loaded 3 products by IDs
+API: Successfully loaded 3 products by IDs
+API: Successfully loaded 3 products by IDs
+API: Successfully loaded 2 products by IDs
+API: Successfully loaded 3 products by IDs
+API: Successfully loaded 2 products by IDs
+API: Successfully loaded 2 products by IDs
+API: Successfully loaded 3 products by IDs
+API: Successfully loaded 3 products by IDs
+API: Loading products by IDs: [
+  '1f595974-65ad-4f62-bfa4-605c080cf10f',
+  '0bff98ce-d097-4778-ba78-85f551d78429',
+  '6bb1de90-48c6-409a-9725-927911ca079d'
+]
+API: Successfully loaded 3 products by IDs
+ ✓ Compiled /_error in 4.2s (1196 modules)
+ GET /?_rsc=r3yhw 200 in 2549ms
+ GET / 200 in 2759ms
+ ✓ Compiled /_not-found in 438ms (664 modules)
+ GET /_next/static/css/app/layout.css?v=1754599836689 404 in 1032ms
+ GET /_next/static/chunks/main-app.js?v=1754599836689 404 in 1082ms
+ GET /_next/static/chunks/app/layout.js 404 in 1048ms
+ GET /_next/static/chunks/app-pages-internals.js 404 in 1082ms
+ GET /_next/static/chunks/app/page.js 404 in 1081ms
+ GET /_next/static/chunks/app/error.js 404 in 1049ms
+ GET /_next/static/chunks/app/not-found.js 404 in 53ms
+[?25h
