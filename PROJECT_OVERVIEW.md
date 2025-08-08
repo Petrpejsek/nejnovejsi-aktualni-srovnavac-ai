@@ -247,3 +247,90 @@ PYTHON_API_URL="http://localhost:8000/api/v1"
 ---
 
 **TL;DR**: Je to jako Heureka pro AI nástroje s vestavěným reklamním systémem a AI doporučovacím enginem. Frontend je Next.js, backend Python, databáze PostgreSQL. Firmy platí za reklamy, uživatelé dostanou personalizovaná doporučení AI nástrojů. 
+
+---
+
+## 🔄 Production Deploy (Hetzner)
+
+### Potvrzená produkční konfigurace
+- **Server**: `23.88.98.49`
+- **App dir**: `/var/www/comparee`
+- **PM2 proces**: `comparee-nextjs`
+- **Povinné env v `/var/www/comparee/.env.production`**:
+  - `NEXT_PUBLIC_ASSET_PREFIX=http://23.88.98.49`
+  - `NEXTAUTH_URL=http://23.88.98.49`
+- **Databáze**: PostgreSQL (Hetzner). V produkci VŽDY pouze `prisma migrate deploy` (žádné reset/dev/push).
+
+### Standardní postup deploye (bez výjimek)
+1) SSH přístup a přechod do app dir
+```bash
+ssh root@23.88.98.49
+cd /var/www/comparee
+```
+
+2) Sync kódu na `main`
+```bash
+git fetch --all -q
+git checkout main || true
+git reset -q --hard origin/main
+```
+
+3) ENV jistota (nevypisovat tajemství)
+```bash
+[ -f .env.production ] || touch .env.production
+grep -q '^NEXT_PUBLIC_ASSET_PREFIX=' .env.production || echo NEXT_PUBLIC_ASSET_PREFIX=http://23.88.98.49 >> .env.production
+grep -q '^NEXTAUTH_URL=' .env.production || echo NEXTAUTH_URL=http://23.88.98.49 >> .env.production
+```
+
+4) Instalace závislostí, Prisma a build
+```bash
+unset NODE_ENV
+npm ci --include=dev --no-audit --no-fund --silent || npm install --include=dev --no-audit --no-fund --silent
+npx prisma generate
+npx prisma migrate deploy --schema prisma/schema.prisma
+rm -rf .next
+NODE_ENV=production npm run build --silent
+```
+
+5) Restart aplikace přes PM2
+```bash
+pm2 describe comparee-nextjs >/dev/null 2>&1 && pm2 restart comparee-nextjs || pm2 start ecosystem.config.cjs --only comparee-nextjs --update-env
+pm2 save || true
+```
+
+6) Ověření na serveru
+```bash
+curl -s -o /dev/null -w "HTTP:%{http_code}\n" http://127.0.0.1:3000/api/health
+echo HEAD:$(git rev-parse --short HEAD)
+[ -f .next/BUILD_ID ] && echo BUILD_ID:$(cat .next/BUILD_ID)
+```
+
+### One-shot (bezpečný skript)
+```bash
+ssh root@23.88.98.49 <<'EOS'
+set -e
+cd /var/www/comparee || exit 1
+git fetch --all -q || true
+git checkout -q main || true
+git reset -q --hard origin/main || true
+[ -f .env.production ] || touch .env.production
+grep -q '^NEXT_PUBLIC_ASSET_PREFIX=' .env.production || echo NEXT_PUBLIC_ASSET_PREFIX=http://23.88.98.49 >> .env.production
+grep -q '^NEXTAUTH_URL=' .env.production || echo NEXTAUTH_URL=http://23.88.98.49 >> .env.production
+unset NODE_ENV
+npm ci --include=dev --no-audit --no-fund --silent || npm install --include=dev --no-audit --no-fund --silent
+npx prisma generate || true
+npx prisma migrate deploy --schema prisma/schema.prisma || true
+rm -rf .next
+NODE_ENV=production npm run build --silent
+pm2 describe comparee-nextjs >/dev/null 2>&1 && pm2 restart comparee-nextjs || pm2 start ecosystem.config.cjs --only comparee-nextjs --update-env
+pm2 save || true
+printf "HEALTH:%s\n" "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:3000/api/health || true)"
+printf "HEAD:%s\n" "$(git rev-parse --short HEAD || true)"
+[ -f .next/BUILD_ID ] && printf "BUILD_ID:%s\n" "$(cat .next/BUILD_ID)" || true
+EOS
+```
+
+### Poznámky a troubleshooting
+- Husky hlášky typu `husky: not found` při CI/instalaci jsou neškodné (používáme `--include=dev` a/nebo `--ignore-scripts`).
+- Pokud se změny neprojeví: smaž `.next`, proveď nový build, a restartuj PM2 dle kroků výše.
+- V produkci nikdy nepoužívat: `prisma migrate dev`, `prisma db push`, `prisma migrate reset`.
