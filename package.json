@@ -28,7 +28,8 @@
     "fix-imageurl": "node --loader ts-node/esm scripts/fix-imageUrl-database.js",
     "check-screenshots": "node --loader ts-node/esm scripts/check-screenshot-status.js",
     "fix-screenshots": "node --loader ts-node/esm scripts/fix-missing-screenshots.js",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "deploy:prod": "bash scripts/deploy-prod.sh"
   },
   "prisma": {
     "seed": "node --loader ts-node/esm prisma/seed.ts"
