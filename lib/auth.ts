@@ -174,6 +174,19 @@ export const authOptions: NextAuthOptions = {
     signIn: '/auth/login', // Default admin login page
   },
   callbacks: {
+    // Force correct callback/base URL in production to avoid stale domain issues
+    async redirect({ url, baseUrl }) {
+      const forced = process.env.NEXTAUTH_URL || process.env.NEXTAUTH_CALLBACK_URL || 'http://localhost:3000'
+      // Only allow relative or same-origin redirects
+      try {
+        const u = new URL(url, forced)
+        const allowedBase = new URL(forced)
+        if (u.origin === allowedBase.origin) return u.toString()
+        return allowedBase.toString()
+      } catch {
+        return forced
+      }
+    },
     async jwt({ token, user, account }) {
       if (user) {
         // Set role from user object
