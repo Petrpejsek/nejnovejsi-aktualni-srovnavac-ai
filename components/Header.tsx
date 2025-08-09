@@ -8,6 +8,8 @@ import { Bars3Icon, XMarkIcon, UserIcon, BookmarkIcon, ClockIcon, StarIcon, CogI
 import Modal from './Modal'
 import LoginForm from './LoginForm'
 import RegisterForm from './RegisterForm'
+import CompanyLoginForm from './CompanyLoginForm'
+import CompanyRegisterForm from './CompanyRegisterForm'
 
 
 export default function Header() {
@@ -21,8 +23,12 @@ export default function Header() {
   const { data: session, status } = useSession()
   const userMenuRef = useRef<HTMLDivElement>(null)
 
-  // Check if we're in company admin environment
-  const isCompanyAdmin = pathname?.startsWith('/company/')
+  // Context flags
+  const currentPath = pathname || ''
+  // Company admin/dashboard header = minimalist header
+  const isCompanyAdminHeader = currentPath.startsWith('/company/dashboard') || currentPath.startsWith('/company-admin')
+  // Company marketing/signup context = show company auth actions in header
+  const isCompanyContext = currentPath === '/company' || currentPath === '/company-registration-success'
 
   // Fetch user avatar when user is authenticated
   useEffect(() => {
@@ -112,7 +118,7 @@ export default function Header() {
   const isLoading = status === 'loading'
 
   // Company Admin Header Layout
-  if (isCompanyAdmin) {
+  if (isCompanyAdminHeader) {
     return (
       <header className="fixed top-0 w-full z-50 bg-white border-b border-gray-200 h-12">
         <div className="h-full flex items-center justify-center px-4">
@@ -164,7 +170,7 @@ export default function Header() {
                 </Link>
               </nav>
               
-              {/* User Authentication */}
+              {/* Authentication (user vs company context) */}
               <div className="flex items-center gap-4">
                 {isLoading ? (
                   /* Loading skeleton */
@@ -261,20 +267,37 @@ export default function Header() {
                     )}
                   </div>
                 ) : (
-                  <>
-                    <button 
-                      onClick={() => setIsLoginOpen(true)}
-                      className="px-4 py-2 text-sm font-medium rounded-[14px] bg-gradient-primary text-white hover-gradient-primary transition-all"
-                    >
-                      Log In
-                    </button>
-                    <button
-                      onClick={() => setIsRegisterOpen(true)}
-                      className="text-sm text-gradient-primary font-medium hover:opacity-80 transition-opacity"
-                    >
-                      Sign Up
-                    </button>
-                  </>
+                  isCompanyContext ? (
+                    <>
+                      <button
+                        onClick={() => setIsLoginOpen(true)}
+                        className="px-4 py-2 text-sm font-medium rounded-[14px] bg-gradient-primary text-white hover-gradient-primary transition-all"
+                      >
+                        Company Log In
+                      </button>
+                      <button
+                        onClick={() => setIsRegisterOpen(true)}
+                        className="text-sm text-gradient-primary font-medium hover:opacity-80 transition-opacity"
+                      >
+                        Company Sign Up
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button 
+                        onClick={() => setIsLoginOpen(true)}
+                        className="px-4 py-2 text-sm font-medium rounded-[14px] bg-gradient-primary text-white hover-gradient-primary transition-all"
+                      >
+                        Log In
+                      </button>
+                      <button
+                        onClick={() => setIsRegisterOpen(true)}
+                        className="text-sm text-gradient-primary font-medium hover:opacity-80 transition-opacity"
+                      >
+                        Sign Up
+                      </button>
+                    </>
+                  )
                 )}
               </div>
             </div>
@@ -309,7 +332,7 @@ export default function Header() {
                   onClick={() => setIsLoginOpen(true)}
                   className="px-3 py-1.5 text-xs font-medium rounded-lg bg-gradient-primary text-white hover-gradient-primary transition-all"
                 >
-                  Log In
+                  {isCompanyContext ? 'Company Log In' : 'Log In'}
                 </button>
               )}
               <button
@@ -405,7 +428,7 @@ export default function Header() {
                       }}
                       className="text-gradient-primary font-medium hover:opacity-80 transition-opacity py-2"
                     >
-                      Sign Up
+                      {isCompanyContext ? 'Company Sign Up' : 'Sign Up'}
                     </button>
                   )}
                 </div>
@@ -419,23 +442,37 @@ export default function Header() {
       <Modal
         isOpen={isLoginOpen}
         onClose={() => setIsLoginOpen(false)}
-        title="Log In"
+        title={isCompanyContext ? 'Company Log In' : 'Log In'}
       >
-        <LoginForm
-          onSuccess={handleLoginSuccess}
-          onSwitchToRegister={switchToRegister}
-        />
+        {isCompanyContext ? (
+          <CompanyLoginForm
+            onSuccess={handleLoginSuccess}
+            onSwitchToRegister={switchToRegister}
+          />
+        ) : (
+          <LoginForm
+            onSuccess={handleLoginSuccess}
+            onSwitchToRegister={switchToRegister}
+          />
+        )}
       </Modal>
 
       <Modal
         isOpen={isRegisterOpen}
         onClose={() => setIsRegisterOpen(false)}
-        title="Sign Up"
+        title={isCompanyContext ? 'Company Sign Up' : 'Sign Up'}
       >
-        <RegisterForm
-          onSuccess={handleRegisterSuccess}
-          onSwitchToLogin={switchToLogin}
-        />
+        {isCompanyContext ? (
+          <CompanyRegisterForm
+            onSuccess={handleRegisterSuccess}
+            onSwitchToLogin={switchToLogin}
+          />
+        ) : (
+          <RegisterForm
+            onSuccess={handleRegisterSuccess}
+            onSwitchToLogin={switchToLogin}
+          />
+        )}
       </Modal>
     </>
   )

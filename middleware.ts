@@ -45,7 +45,11 @@ export async function middleware(request: NextRequest) {
       return NextResponse.next();
     }
 
-    // 🏢 COMPANY ROUTES - require company role (except main page)
+    // 🏢 COMPANY ROUTES - require company role (except main page and public profile alias)
+    if (pathname === '/company/profile') {
+      // Public alias – má zobrazit stejný obsah jako /company
+      return NextResponse.next();
+    }
     if (pathname.startsWith('/company/')) {
       if (userRole !== 'company') {
         console.log(`❌ Access denied: Company route requires company role (current: ${userRole})`);

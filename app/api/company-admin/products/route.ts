@@ -4,37 +4,23 @@ import { NextRequest, NextResponse } from 'next/server'
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 import { PrismaClient } from '@prisma/client'
-import jwt from 'jsonwebtoken'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
 
 const prisma = new PrismaClient()
 
-// Ověření JWT tokenu
-function verifyToken(request: NextRequest) {
-  const token = request.cookies.get('advertiser-token')?.value
-  
-  if (!token) {
-    return null
-  }
-
-  try {
-    const decoded = jwt.verify(token, (() => { const v = process.env.JWT_SECRET; if (!v) throw new Error('JWT_SECRET is required'); return v })()) as any
-    return decoded
-  } catch (error) {
-    return null
-  }
-}
-
 export async function GET(request: NextRequest) {
   try {
-    const user = verifyToken(request)
-    
-    if (!user) {
+    // Autorizace přes NextAuth (žádné JWT cookies)
+    const session = await getServerSession(authOptions)
+    const email = (session as any)?.user?.email as string | undefined
+    if (!email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Najdi firmu podle ID z JWT tokenu
-    const company = await prisma.company.findUnique({
-      where: { id: user.companyId }
+    // Najdi firmu podle emailu ze session
+    const company = await prisma.company.findFirst({
+      where: { email }
     })
 
     if (!company) {
@@ -108,10 +94,11 @@ export async function GET(request: NextRequest) {
         category: product.category || 'Other',
         tags: Array.isArray(product.tags) ? product.tags : 
               (typeof product.tags === 'string' ? JSON.parse(product.tags || '[]') : []),
+        // Bez mock dat – základní nulové statistiky (dokud nevzniknou reálné metriky)
         stats: {
-          views: Math.floor(Math.random() * 1000) + 100,
-          clicks: Math.floor(Math.random() * 100) + 10,
-          ctr: Math.round((Math.random() * 5 + 1) * 100) / 100
+          views: 0,
+          clicks: 0,
+          ctr: 0
         },
         lastUpdated: product.updatedAt.toISOString().split('T')[0],
         createdAt: product.createdAt.toISOString(),

@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
       verifiedCompanies,
       // Landing pages
       totalLandingPages,
-      // Company applications
+      // Company applications (separate table)
       companyApplicationsStats
     ] = await Promise.all([
       prisma.product.count({ where: { deletedAt: null } }),
@@ -67,6 +67,10 @@ export async function GET(request: NextRequest) {
       return acc
     }, { pending: 0, approved: 0, rejected: 0 })
 
+    // Sjednocení „čekajících žádostí“: zahrň i Companies.status='pending' (PPC inzerenti čekající na schválení)
+    const unifiedPendingApplications = (companyStats.pending || 0) + (pendingCompanies || 0)
+    const unifiedTotalApplications = unifiedPendingApplications + (companyStats.approved || 0) + (companyStats.rejected || 0)
+
     // Vytvoříme statistiky pouze z reálných dat
     const stats = {
       products: {
@@ -101,10 +105,10 @@ export async function GET(request: NextRequest) {
         totalClicks,
         uniqueVisitors
       },
-      // Nové: Specifické statistiky pro company applications
+      // Nové: Specifické statistiky pro company applications (sjednocené s PPC inzerenty)
       companyApplications: {
-        total: companyStats.pending + companyStats.approved + companyStats.rejected,
-        pending: companyStats.pending,
+        total: unifiedTotalApplications,
+        pending: unifiedPendingApplications,
         approved: companyStats.approved,
         rejected: companyStats.rejected
       },

@@ -346,12 +346,12 @@ export default function ManualCreatePanel() {
                 <p className="text-sm text-green-800 mt-1">
                   Stránka je dostupná na: 
                   <a 
-                    href={`http://localhost:3000${result.url}`}
+                    href={`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}${result.url}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="ml-1 font-medium underline hover:no-underline text-blue-600"
                   >
-                    {`http://localhost:3000${result.url}`}
+                    {(process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000') + result.url}
                   </a>
                 </p>
               </div>
