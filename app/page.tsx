@@ -6,6 +6,7 @@ import ProductGridWrapper from '../components/ProductGridWrapper'
 // import ReelsCarousel from '../components/ReelsCarousel' // Dočasně skryto - pro budoucí použití
 import TopListsSection from '../components/TopListsSection'
 import NewsletterSignup from '../components/NewsletterSignup'
+// import PromptsSection from '../components/PromptsSection' // Temporarily hidden
 // import AiCoursesCarousel from '../components/AiCoursesCarousel' // Dočasně skryto - pro budoucí použití
 
 export default function Home() {
@@ -23,6 +24,7 @@ export default function Home() {
         <div className="mt-2">
           <TopListsSection />
         </div>
+        {/* Prompts marketplace temporarily hidden */}
         {/* Dočasně skryto - AI kurzy pro budoucí použití */}
         {/* <div className="mt-2">
           <AiCoursesCarousel />

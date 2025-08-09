@@ -268,8 +268,8 @@ export default function ProductGrid({ selectedTags }: ProductGridProps = {}) {
         
         <div className={`grid gap-4 md:gap-6 items-stretch min-w-0 ${
           compactView
-            ? 'grid-cols-2 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'
-            : 'grid-cols-1 xs:grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
+            ? 'grid-cols-1 xs:grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'
+            : 'grid-cols-1 xs:grid-cols-1 sm:grid-cols-1 md:grid-cols-3 lg:grid-cols-4'
         }`}>
           {Array.from({ length: 12 }).map((_, index) => (
             <div key={index} className="bg-white rounded-lg shadow-md overflow-hidden min-w-0">
@@ -308,8 +308,9 @@ export default function ProductGrid({ selectedTags }: ProductGridProps = {}) {
 
   return (
     <div className="space-y-4 md:space-y-6 pb-20">
-      {/* Header s layout toggle */}
-      <div className="flex justify-end items-center mb-4">
+      {/* Header: title vlevo + layout toggle vpravo */}
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-gray-900 via-purple-900 to-pink-900 bg-clip-text text-transparent">AI Tools</h2>
         <div className="flex space-x-2 border rounded p-1 bg-white">
           <button
             onPointerUp={() => setCompactView(true)}
@@ -323,7 +324,7 @@ export default function ProductGrid({ selectedTags }: ProductGridProps = {}) {
                 ? 'bg-gray-100 text-gray-800'
                 : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
             }`}
-            title="Compact View (1 product per row on mobile, 2+ on desktop)"
+            title="Compact View (více karet v řadě na desktopu; mobil 1 v řadě)"
             aria-pressed={compactView}
             style={{ touchAction: 'manipulation' }}
             role="button"
@@ -343,7 +344,7 @@ export default function ProductGrid({ selectedTags }: ProductGridProps = {}) {
                 ? 'bg-gray-100 text-gray-800'
                 : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
             }`}
-            title="Large View (1 product per row)"
+            title="Large View (větší karty; mobil 1 v řadě, desktop 3–4)"
             aria-pressed={!compactView}
             style={{ touchAction: 'manipulation' }}
             role="button"
@@ -357,8 +358,8 @@ export default function ProductGrid({ selectedTags }: ProductGridProps = {}) {
       {/* Optimalizovaný CSS Grid s responsive breakpointy */}
       <div className={`grid gap-4 md:gap-6 items-stretch min-w-0 ${
         compactView
-          ? 'grid-compact-mobile grid-cols-2 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'
-          : 'grid-cols-1 xs:grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
+          ? 'grid-compact-mobile grid-cols-1 xs:grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'
+          : 'grid-cols-1 xs:grid-cols-1 sm:grid-cols-1 md:grid-cols-3 lg:grid-cols-4'
       }`}>
         {filteredProducts.map((product, index) => {
           // Optimalizace pro first meaningful paint - první 6 produktů s priority loading
@@ -366,8 +367,8 @@ export default function ProductGrid({ selectedTags }: ProductGridProps = {}) {
           
           // Responsive sizes prop odpovídající CSS Grid breakpointům
           const sizes = compactView 
-            ? "(max-width: 640px) 50vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            : "(max-width: 640px) 100vw, (max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw";
+            ? "(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            : "(max-width: 640px) 100vw, (max-width: 1024px) 33vw, 25vw";
           
           return (
             <div key={product.id} className="min-w-0">

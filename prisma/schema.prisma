@@ -567,3 +567,55 @@ model PageView {
   @@index([createdAt])
   @@index([visitorId])
 }
+
+/// Prompt marketplace
+model PromptCategory {
+  id        String   @id @default(uuid())
+  name      String
+  slug      String   @unique
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+  prompts   Prompt[]
+
+  @@index([order])
+}
+
+model Prompt {
+  id              String         @id @default(uuid())
+  title           String
+  slug            String         @unique
+  summary         String
+  description     String?
+  modelTarget     String
+  categoryId      String
+  priceUsd        Decimal        @db.Decimal(10, 2)
+  coverImage      String?
+  previewVideoUrl String?
+  tags            Json?
+  rating          Float          @default(0)
+  ratingCount     Int            @default(0)
+  salesCount      Int            @default(0)
+  isFeatured      Boolean        @default(false)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime
+  category        PromptCategory @relation(fields: [categoryId], references: [id])
+  reviews         PromptReview[]
+
+  @@index([categoryId])
+  @@index([isFeatured])
+  @@index([salesCount])
+}
+
+model PromptReview {
+  id        String  @id @default(uuid())
+  promptId  String
+  userId    String?
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now())
+  Prompt    Prompt  @relation(fields: [promptId], references: [id])
+
+  @@index([promptId])
+  @@index([rating])
+}
