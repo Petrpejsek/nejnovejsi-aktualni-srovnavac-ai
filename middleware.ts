@@ -23,9 +23,10 @@ export async function middleware(request: NextRequest) {
     try {
       const url = new URL(request.url);
       const wanted = new URL(base);
-      if (url.host !== wanted.host || url.protocol !== wanted.protocol) {
-        url.host = wanted.host;
+      if (url.hostname !== wanted.hostname || url.protocol !== wanted.protocol) {
         url.protocol = wanted.protocol;
+        url.hostname = wanted.hostname;
+        url.port = wanted.port || '';
         return NextResponse.redirect(url, { status: 308 });
       }
     } catch {
