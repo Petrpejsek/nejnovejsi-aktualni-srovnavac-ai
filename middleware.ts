@@ -1,68 +1,72 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 
-// 🚀 ČISTÉ JEDNODUCHÉ MIDDLEWARE - JEN ROUTING PODLE ROLE
+// Unified middleware: base URL enforcement + role-based routing
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
-  
-  // Skip middleware for auth endpoints and static files
+
+  // Skip static and special files
   if (
-    pathname.startsWith('/api/auth') ||
     pathname.startsWith('/_next') ||
+    pathname.startsWith('/static') ||
     pathname.startsWith('/favicon') ||
+    pathname === '/robots.txt' ||
+    pathname === '/sitemap.xml' ||
     pathname.includes('.')
   ) {
     return NextResponse.next();
   }
 
+  // Enforce base URL if configured
+  const base = process.env.NEXT_PUBLIC_BASE_URL;
+  if (base) {
+    try {
+      const url = new URL(request.url);
+      const wanted = new URL(base);
+      if (url.host !== wanted.host || url.protocol !== wanted.protocol) {
+        url.host = wanted.host;
+        url.protocol = wanted.protocol;
+        return NextResponse.redirect(url, { status: 308 });
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  // Role-based access control
   try {
-    // Get user token and role
-    const token = await getToken({ 
-      req: request,
-      secret: process.env.NEXTAUTH_SECRET
-    });
+    const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
+    const userRole = (token?.role as string) || null;
 
-    const userRole = token?.role as string | null;
-    console.log(`🔍 Middleware: ${pathname} | Role: ${userRole || 'none'}`);
-
-    // 🔐 ADMIN ROUTES - require admin role
+    // Admin routes
     if (pathname.startsWith('/admin')) {
       if (userRole !== 'admin') {
-        console.log(`❌ Access denied: Admin route requires admin role (current: ${userRole})`);
         return NextResponse.redirect(new URL('/auth/login', request.url));
       }
-      console.log('✅ Admin access granted');
       return NextResponse.next();
     }
 
-    // 👤 USER ROUTES - require user role (except login page)
+    // User routes
     if (pathname.startsWith('/user-area')) {
       if (userRole !== 'user' && pathname !== '/user-area/login') {
-        console.log(`❌ Access denied: User route requires user role (current: ${userRole})`);
         return NextResponse.redirect(new URL('/user-area/login', request.url));
       }
-      console.log('✅ User access granted');
       return NextResponse.next();
     }
 
-    // 🏢 COMPANY ROUTES - require company role (except main page and public profile alias)
+    // Company routes (allow public alias /company/profile)
     if (pathname === '/company/profile') {
-      // Public alias – má zobrazit stejný obsah jako /company
       return NextResponse.next();
     }
     if (pathname.startsWith('/company/')) {
       if (userRole !== 'company') {
-        console.log(`❌ Access denied: Company route requires company role (current: ${userRole})`);
         return NextResponse.redirect(new URL('/company', request.url));
       }
-      console.log('✅ Company access granted');
       return NextResponse.next();
     }
 
-    // 📄 PUBLIC ROUTES - allow everyone
-    console.log('🌐 Public route access');
+    // Public
     return NextResponse.next();
-
   } catch (error) {
     console.log('❌ Middleware error:', error);
     return NextResponse.next();
@@ -70,9 +74,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    '/admin/:path*',
-    '/user-area/:path*', 
-    '/company/:path*'
-  ]
+  matcher: ['/((?!_next|api|static|favicon.ico|robots.txt|sitemap.xml).*)'],
 };

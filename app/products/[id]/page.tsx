@@ -64,7 +64,7 @@ export default async function ProductPage({ params }: Props) {
               "@type": "Product",
               "name": product.name,
               "description": product.description,
-              "url": `https://comparee.ai/products/${product.id}`,
+              "url": `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/products/${product.id}`,
               "brand": {
                 "@type": "Brand",
                 "name": "Comparee.ai"

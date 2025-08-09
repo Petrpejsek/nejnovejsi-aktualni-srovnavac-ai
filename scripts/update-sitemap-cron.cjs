@@ -18,7 +18,7 @@ const http = require('http')
 
 // Configuration
 const CONFIG = {
-  baseUrl: process.env.NEXT_PUBLIC_BASE_URL || 'https://comparee.ai',
+  baseUrl: process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000',
   timeout: 30000, // 30 seconds timeout
   retries: 3
 }

@@ -7,14 +7,13 @@ import { authOptions } from '@/lib/auth'
 // GET /api/sitemap - Force regenerate sitemap
 // POST /api/sitemap - Force regenerate sitemap (admin only)
 
-// Base URL configuration
+// Base URL configuration (no fallback to comparee.ai)
 const getBaseUrl = () => {
-  if (process.env.NEXT_PUBLIC_BASE_URL) {
-    return process.env.NEXT_PUBLIC_BASE_URL
+  const base = process.env.NEXT_PUBLIC_BASE_URL
+  if (!base) {
+    throw new Error('NEXT_PUBLIC_BASE_URL is required for sitemap generation')
   }
-  return process.env.NODE_ENV === 'production' 
-    ? 'https://comparee.ai' 
-    : 'http://localhost:3000'
+  return base
 }
 
 // Function to generate complete sitemap
