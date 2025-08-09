@@ -6,6 +6,43 @@ import bcrypt from 'bcryptjs';
 
 // 🚀 DATABÁZOVÝ AUTH SYSTÉM - JEDEN ENDPOINT PRO VŠECHNY ROLE (admin, company, user)
 export const authOptions: NextAuthOptions = {
+  // Na produkci běžíme dočasně přes IP a HTTP → nepoužívat Secure cookies
+  useSecureCookies: (process.env.NEXTAUTH_URL || '').startsWith('https://'),
+  cookies: {
+    // Přepnutí názvů cookies dle protokolu (bez __Secure/__Host na HTTP)
+    sessionToken: {
+      name: (process.env.NEXTAUTH_URL || '').startsWith('https://')
+        ? '__Secure-next-auth.session-token'
+        : 'next-auth.session-token',
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: (process.env.NEXTAUTH_URL || '').startsWith('https://')
+      }
+    },
+    callbackUrl: {
+      name: (process.env.NEXTAUTH_URL || '').startsWith('https://')
+        ? '__Secure-next-auth.callback-url'
+        : 'next-auth.callback-url',
+      options: {
+        sameSite: 'lax',
+        path: '/',
+        secure: (process.env.NEXTAUTH_URL || '').startsWith('https://')
+      }
+    },
+    csrfToken: {
+      name: (process.env.NEXTAUTH_URL || '').startsWith('https://')
+        ? '__Host-next-auth.csrf-token'
+        : 'next-auth.csrf-token',
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: (process.env.NEXTAUTH_URL || '').startsWith('https://')
+      }
+    }
+  },
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
