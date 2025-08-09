@@ -13,7 +13,8 @@ const inter = Inter({ subsets: ['latin'] })
 export const metadata: Metadata = {
   title: 'Comparee.ai - Compare AI Tools',
   description: 'Compare features, prices, and reviews of the most popular AI tools.',
-  metadataBase: new URL('https://comparee.ai'),
+  // Použij dynamickou base podle env, fallback na localhost při dev/testu
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'),
   other: {
     'Cache-Control': 'no-store, no-cache, must-revalidate',
     'Pragma': 'no-cache',

@@ -374,7 +374,7 @@ async function updateSitemap(): Promise<void> {
 
 // Function to ping search engines
 async function pingSearchEngines(): Promise<void> {
-  const sitemapUrl = 'https://comparee.ai/sitemap.xml'
+  const sitemapUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/sitemap.xml`
   const pingUrls = [
     `https://www.google.com/ping?sitemap=${encodeURIComponent(sitemapUrl)}`,
     `https://www.bing.com/ping?sitemap=${encodeURIComponent(sitemapUrl)}`
@@ -637,7 +637,7 @@ async function handleAiFormatPayload(data: any) {
     }
 
     console.log('✅ AI Landing page successfully created and published')
-    console.log(`🚀 Available at: https://comparee.ai/landing/${payload.slug}`)
+    console.log(`🚀 Available at: ${(process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000')}/landing/${payload.slug}`)
 
     return NextResponse.json(response, { status: 201 })
     
@@ -795,7 +795,7 @@ async function handleLegacyFormatPayload(data: any) {
     }
 
     console.log('✅ Legacy Landing page successfully created and published')
-    console.log('🚀 Available at: https://comparee.ai/landing/' + uniqueSlug)
+    console.log('🚀 Available at: ' + `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/landing/${uniqueSlug}`)
 
     return NextResponse.json(response, { status: 201 })
 

@@ -56,7 +56,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     // Generate alternate language URLs
     const alternateLanguages: Record<string, string> = {};
     for (const locale of locales) {
-      alternateLanguages[locale] = `https://comparee.ai/${locale}/landing/${params.slug}`;
+      alternateLanguages[locale] = `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/${locale}/landing/${params.slug}`;
     }
     
     return {
@@ -64,13 +64,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: landingPage.metaDescription,
       keywords: landingPage.meta_keywords.join(', '),
       alternates: {
-        canonical: `https://comparee.ai/${params.lang}/landing/${params.slug}`,
+        canonical: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/${params.lang}/landing/${params.slug}`,
         languages: alternateLanguages,
       },
       openGraph: {
         title: landingPage.title,
         description: landingPage.metaDescription,
-        url: `https://comparee.ai/${params.lang}/landing/${params.slug}`,
+        url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/${params.lang}/landing/${params.slug}`,
         siteName: 'Comparee.ai',
         locale: langMeta.locale,
         type: 'article',
@@ -241,7 +241,7 @@ export default async function I18nLandingPage({ params }: Props) {
             key={locale}
             rel="alternate"
             hrefLang={locale}
-            href={`https://comparee.ai/${locale}/landing/${slug}`}
+            href={`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/${locale}/landing/${slug}`}
           />
         ))}
         
@@ -249,7 +249,7 @@ export default async function I18nLandingPage({ params }: Props) {
         <link
           rel="alternate"
           hrefLang="x-default"
-          href={`https://comparee.ai/cs/landing/${slug}`}
+          href={`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/cs/landing/${slug}`}
         />
       </head>
       
