@@ -122,6 +122,35 @@ export async function PATCH(request: NextRequest) {
       })
     }
 
+    if (action === 'cancel') {
+      // Zrušení již schváleného/aktivního PPC inzerenta – nastaví status na 'cancelled'
+      const updatedCompany = await prisma.company.update({
+        where: { id: companyId },
+        data: {
+          status: 'cancelled',
+          updatedAt: new Date()
+        }
+      })
+
+      // Pozastav všechny aktivní kampaně této firmy
+      try {
+        await prisma.campaign.updateMany({
+          where: { companyId, status: 'active' },
+          data: { status: 'paused' }
+        })
+      } catch (e) {
+        console.warn('Failed to pause active campaigns during cancel:', e)
+      }
+
+      console.log(`🛑 Admin cancelled advertiser company: ${updatedCompany.name} (${companyId})`)
+
+      return NextResponse.json({
+        success: true,
+        data: updatedCompany,
+        message: 'PPC Advertiser cancelled successfully'
+      })
+    }
+
     if (action === 'assign-product') {
       // Přiřazení produktu k již schválenému inzerentovi
       if (!assignedProductId) {
@@ -145,6 +174,25 @@ export async function PATCH(request: NextRequest) {
         success: true,
         data: updatedCompany,
         message: 'Product assigned successfully'
+      })
+    }
+
+    if (action === 'restore') {
+      // Obnovení zrušené firmy zpět na approved (bez produktů)
+      const updatedCompany = await prisma.company.update({
+        where: { id: companyId },
+        data: {
+          status: 'approved',
+          updatedAt: new Date()
+        }
+      })
+
+      console.log(`🔄 Admin restored advertiser company: ${updatedCompany.name} (${companyId})`)
+
+      return NextResponse.json({
+        success: true,
+        data: updatedCompany,
+        message: 'PPC Advertiser restored to approved'
       })
     }
 

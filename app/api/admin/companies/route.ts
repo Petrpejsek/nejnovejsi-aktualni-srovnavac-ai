@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
 
 const prisma = new PrismaClient()
 
@@ -7,6 +9,67 @@ const prisma = new PrismaClient()
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
+    const self = searchParams.get('self') === 'true'
+
+    // Self data for logged-in company
+    if (self) {
+      const session = await getServerSession(authOptions)
+      const email = (session as any)?.user?.email as string | undefined
+      if (!email) {
+        return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+      }
+
+      const company = await prisma.company.findFirst({
+        where: { email },
+        include: {
+          Campaign: {
+            select: {
+              id: true,
+              name: true,
+              status: true,
+              isApproved: true,
+              totalClicks: true,
+              totalImpressions: true,
+              totalSpent: true
+            }
+          }
+        }
+      })
+
+      if (!company) {
+        return NextResponse.json({ success: false, error: 'Company not found' }, { status: 404 })
+      }
+
+      const transactions = await prisma.billingRecord.findMany({
+        where: { companyId: company.id },
+        orderBy: { createdAt: 'desc' },
+        take: 20,
+        select: { id: true, type: true, amount: true, description: true, status: true, createdAt: true }
+      })
+
+      const thirtyDaysAgo = new Date()
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+      const monthlySpendAgg = await prisma.billingRecord.aggregate({
+        where: { companyId: company.id, type: 'spend', createdAt: { gte: thirtyDaysAgo } },
+        _sum: { amount: true }
+      })
+
+      return NextResponse.json({
+        company: {
+          id: company.id,
+          name: company.name,
+          balance: company.balance,
+          totalSpent: company.totalSpent ?? 0,
+          autoRecharge: company.autoRecharge ?? false,
+          autoRechargeAmount: company.autoRechargeAmount ?? null,
+          autoRechargeThreshold: company.autoRechargeThreshold ?? null
+        },
+        transactions,
+        monthlySpend: Math.round((monthlySpendAgg._sum.amount || 0) * 100) / 100,
+        campaigns: company.Campaign
+      })
+    }
+
     const status = searchParams.get('status') || 'all' // all, pending, active, suspended
     const page = parseInt(searchParams.get('page') || '1')
     const pageSize = parseInt(searchParams.get('pageSize') || '20')
@@ -178,6 +241,12 @@ export async function POST(request: NextRequest) {
       case 'reject':
         updateData = { status: 'rejected' }
         logMessage = `❌ Company rejected: ${company.name} (${company.email})`
+        break
+
+      case 'cancel':
+        // Zrušení dříve schválené firmy (bez mazání). Zaznamenáme stav 'cancelled'.
+        updateData = { status: 'cancelled' }
+        logMessage = `🛑 Company cancelled: ${company.name} (${company.email})`
         break
         
       default:

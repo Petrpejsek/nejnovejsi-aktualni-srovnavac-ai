@@ -80,7 +80,8 @@ export default function PrivacyPage() {
                   Contact Us
                 </h2>
                 <p className="text-gray-600">
-                  If you have any questions about this Privacy Policy, please contact us at privacy@example.com.
+                  If you have any questions about this Privacy Policy, please contact us at{' '}
+                  <a href="mailto:info@comparee.ai" className="text-purple-600 hover:text-purple-700">info@comparee.ai</a>.
                 </p>
               </section>
 

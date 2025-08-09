@@ -339,6 +339,8 @@ export default function CompanyRegisterForm({ onSuccess, onSwitchToLogin }: Comp
               errors.companyName ? 'border-red-300' : 'border-gray-300'
             }`}
             placeholder="Your company name"
+            onFocus={(e) => { e.currentTarget.placeholder = '' }}
+            onBlur={(e) => { if (!e.currentTarget.value) e.currentTarget.placeholder = 'Your company name' }}
           />
           {errors.companyName && <p className="text-red-500 text-xs mt-1">{errors.companyName}</p>}
         </div>
@@ -358,6 +360,8 @@ export default function CompanyRegisterForm({ onSuccess, onSwitchToLogin }: Comp
               errors.contactName ? 'border-red-300' : 'border-gray-300'
             }`}
             placeholder="Your full name"
+            onFocus={(e) => { e.currentTarget.placeholder = '' }}
+            onBlur={(e) => { if (!e.currentTarget.value) e.currentTarget.placeholder = 'Your full name' }}
           />
           {errors.contactName && <p className="text-red-500 text-xs mt-1">{errors.contactName}</p>}
         </div>
@@ -377,6 +381,8 @@ export default function CompanyRegisterForm({ onSuccess, onSwitchToLogin }: Comp
               errors.email ? 'border-red-300' : 'border-gray-300'
             }`}
             placeholder="your@company.com"
+            onFocus={(e) => { e.currentTarget.placeholder = '' }}
+            onBlur={(e) => { if (!e.currentTarget.value) e.currentTarget.placeholder = 'your@company.com' }}
           />
           {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
         </div>
@@ -397,6 +403,8 @@ export default function CompanyRegisterForm({ onSuccess, onSwitchToLogin }: Comp
                 errors.password ? 'border-red-300' : 'border-gray-300'
               }`}
               placeholder="Password"
+              onFocus={(e) => { e.currentTarget.placeholder = '' }}
+              onBlur={(e) => { if (!e.currentTarget.value) e.currentTarget.placeholder = 'Password' }}
             />
             <button
               type="button"
@@ -429,6 +437,8 @@ export default function CompanyRegisterForm({ onSuccess, onSwitchToLogin }: Comp
                 errors.confirmPassword ? 'border-red-300' : 'border-gray-300'
               }`}
               placeholder="Confirm"
+              onFocus={(e) => { e.currentTarget.placeholder = '' }}
+              onBlur={(e) => { if (!e.currentTarget.value) e.currentTarget.placeholder = 'Confirm' }}
             />
             <button
               type="button"
@@ -514,6 +524,8 @@ export default function CompanyRegisterForm({ onSuccess, onSwitchToLogin }: Comp
               errors.website ? 'border-red-300' : 'border-gray-300'
             }`}
             placeholder="www.yourcompany.com"
+            onFocus={(e) => { e.currentTarget.placeholder = '' }}
+            onBlur={(e) => { if (!e.currentTarget.value) e.currentTarget.placeholder = 'www.yourcompany.com' }}
           />
           {errors.website && <p className="text-red-500 text-xs mt-1">{errors.website}</p>}
         </div>

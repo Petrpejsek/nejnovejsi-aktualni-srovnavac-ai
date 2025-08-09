@@ -180,7 +180,9 @@ export default function ProductCard({
 
   const handleClick = async (productId: string) => {
     try {
-      await fetch('/api/clicks', {
+      const pagePath = typeof window !== 'undefined' ? window.location.pathname : undefined
+      const qp = pagePath ? `?pagePath=${encodeURIComponent(pagePath)}` : ''
+      await fetch(`/api/clicks${qp}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

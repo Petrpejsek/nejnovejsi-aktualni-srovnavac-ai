@@ -11,12 +11,9 @@ import {
   ListBulletIcon,
   ArrowUpIcon,
   ArrowDownIcon,
-  FireIcon,
-  StarIcon,
   SparklesIcon,
   CheckCircleIcon,
   XCircleIcon,
-  DocumentDuplicateIcon,
   Cog6ToothIcon
 } from '@heroicons/react/24/outline'
 import { TrophyIcon as TrophyFilledIcon } from '@heroicons/react/24/solid'
@@ -116,44 +113,12 @@ export default function TopListsAdmin() {
     }
   }
 
-  const handleDuplicate = async (categoryId: string) => {
-    const originalCategory = topLists.find(c => c.id === categoryId)
-    if (!originalCategory) return
-
-    try {
-      const response = await fetch('/api/top-lists', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          title: `${originalCategory.title} (Kopie)`,
-          description: originalCategory.description,
-          category: originalCategory.category,
-          products: originalCategory.products,
-          status: 'draft'
-        })
-      })
-
-      if (response.ok) {
-        fetchTopLists()
-      } else {
-        alert('Chyba při duplikování kategorie')
-      }
-    } catch (error) {
-      console.error('Error duplicating category:', error)
-      alert('Chyba při duplikování kategorie')
-    }
-  }
+  // duplicate action removed per request
 
   const stats = {
     total: topLists.length,
     published: topLists.filter(c => c.status === 'published').length,
-    draft: topLists.filter(c => c.status === 'draft').length,
-    totalClicks: topLists.reduce((sum, c) => sum + c.clicks, 0),
-    averageConversion: topLists.length > 0 
-      ? (topLists.reduce((sum, c) => sum + c.conversion, 0) / topLists.length).toFixed(1)
-      : '0.0'
+    draft: topLists.filter(c => c.status === 'draft').length
   }
 
   if (loading) {
@@ -224,7 +189,7 @@ export default function TopListsAdmin() {
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <DocumentDuplicateIcon className="h-6 w-6 text-yellow-500" />
+              <XCircleIcon className="h-6 w-6 text-yellow-500" />
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-500">Drafts</p>
@@ -233,29 +198,7 @@ export default function TopListsAdmin() {
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <FireIcon className="h-6 w-6 text-orange-500" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Total Clicks</p>
-              <p className="text-2xl font-semibold text-gray-900">{stats.totalClicks.toLocaleString()}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <StarIcon className="h-6 w-6 text-purple-500" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Avg Conversion</p>
-              <p className="text-2xl font-semibold text-gray-900">{stats.averageConversion}%</p>
-            </div>
-          </div>
-        </div>
+        {/* Removed mock performance counters (clicks/conversion) */}
       </div>
 
       {/* Filters */}
@@ -327,9 +270,7 @@ export default function TopListsAdmin() {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Tools
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Performance
-                </th>
+                {/* Performance removed to avoid mock data */}
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Status
                 </th>
@@ -359,12 +300,7 @@ export default function TopListsAdmin() {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-900">{category.products.length} nástrojů</div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm">
-                      <div className="text-gray-900">{category.clicks.toLocaleString()} kliků</div>
-                      <div className="text-gray-500">{category.conversion}% konverze</div>
-                    </div>
-                  </td>
+                  {/* Performance columns removed */}
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(category.status)}`}>
                       {category.status === 'published' ? 'Publikované' : 'Koncept'}
@@ -389,13 +325,7 @@ export default function TopListsAdmin() {
                       >
                         <PencilIcon className="w-4 h-4" />
                       </Link>
-                      <button
-                        onClick={() => handleDuplicate(category.id)}
-                        className="text-green-600 hover:text-green-800 p-1"
-                        title="Duplikovat"
-                      >
-                        <DocumentDuplicateIcon className="w-4 h-4" />
-                      </button>
+                      {/* Duplicate action removed */}
                       <button
                         onClick={() => handleDelete(category.id)}
                         className="text-red-600 hover:text-red-800 p-1"

@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import Link from 'next/link'
 import {
   ChartBarIcon,
   CurrencyDollarIcon,
@@ -59,6 +60,14 @@ interface CompanyStatistics {
     weekly: Array<{period: string, amount: number}>
     monthly: Array<{period: string, amount: number}>
   }
+  affiliate?: {
+    totalClicks: number
+    conversions: number
+    commission: number
+    conversionRate: number
+    topPartners: Array<{ partnerId: string; clicks: number; conversions: number; commission: number }>
+    topRefCodes: Array<{ refCode: string; clicks: number; conversions: number; commission: number }>
+  }
   timeframe: string
   generatedAt: string
 }
@@ -108,13 +117,7 @@ export default function CompanyStatisticsPage() {
     })
   }
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
-      </div>
-    )
-  }
+  // Zobrazuj skeleton místo celostránkového spinneru při prvním načtení
 
   if (error) {
     return (
@@ -130,7 +133,113 @@ export default function CompanyStatisticsPage() {
     )
   }
 
-  if (!statistics) return null
+  if (!statistics) {
+    return (
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 flex items-center">
+              <ChartBarIcon className="h-8 w-8 text-purple-600 mr-3" />
+              Firemní statistiky
+            </h1>
+            <p className="text-gray-600 mt-1">Komplexní přehled všech firem, kreditů a nastavení</p>
+          </div>
+          <div className="flex items-center space-x-2">
+            <label className="text-sm font-medium text-gray-700">Období:</label>
+            <select
+              value={timeframe}
+              onChange={(e) => setTimeframe(e.target.value)}
+              className="border border-gray-300 rounded-lg px-3 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 min-w-[120px]"
+            >
+              <option value="day">Denní</option>
+              <option value="week">Týdenní</option>
+              <option value="month">Měsíční</option>
+              <option value="quarter">Čtvrtletní</option>
+              <option value="year">Roční</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Overview skeleton */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="bg-white rounded-lg shadow p-6">
+              <div className="animate-pulse space-y-3">
+                <div className="h-6 w-10 bg-gray-200 rounded" />
+                <div className="h-4 w-24 bg-gray-200 rounded" />
+                <div className="h-8 w-32 bg-gray-200 rounded" />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Additional skeleton */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="bg-white rounded-lg shadow p-6">
+              <div className="animate-pulse space-y-3">
+                <div className="h-4 w-32 bg-gray-200 rounded" />
+                <div className="h-7 w-24 bg-gray-200 rounded" />
+                <div className="h-3 w-28 bg-gray-100 rounded" />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Detailed skeleton */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="bg-white rounded-lg shadow p-6">
+              <div className="animate-pulse space-y-2">
+                {Array.from({ length: 6 }).map((__, j) => (
+                  <div key={j} className="h-4 bg-gray-200 rounded w-full" />
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Top companies skeleton */}
+        <div className="bg-white rounded-lg shadow">
+          <div className="px-6 py-4 border-b border-gray-200">
+            <div className="h-5 w-48 bg-gray-200 rounded animate-pulse" />
+          </div>
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <tbody className="bg-white divide-y divide-gray-200">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <tr key={i} className="animate-pulse">
+                    {Array.from({ length: 5 }).map((__, j) => (
+                      <td key={j} className="px-6 py-4 whitespace-nowrap">
+                        <div className="h-4 bg-gray-200 rounded w-40" />
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Latest companies skeleton */}
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="space-y-3">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="flex justify-between items-center py-3 border-b border-gray-100 last:border-b-0">
+                <div className="h-4 w-40 bg-gray-200 rounded animate-pulse" />
+                <div className="h-4 w-24 bg-gray-200 rounded animate-pulse" />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="bg-gray-50 rounded-lg p-4">
+          <div className="h-4 w-64 bg-gray-200 rounded animate-pulse" />
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">
@@ -165,7 +274,7 @@ export default function CompanyStatisticsPage() {
 
       {/* Overview Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white rounded-lg shadow p-6">
+        <Link href="/admin/companies" target="_blank" rel="noopener noreferrer" className="bg-white rounded-lg shadow p-6 block hover:shadow-md transition-shadow">
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <BuildingOfficeIcon className="h-8 w-8 text-blue-600" />
@@ -177,7 +286,7 @@ export default function CompanyStatisticsPage() {
               </p>
             </div>
           </div>
-        </div>
+        </Link>
 
         <div className="bg-white rounded-lg shadow p-6">
           <div className="flex items-center">
@@ -193,7 +302,7 @@ export default function CompanyStatisticsPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow p-6">
+        <Link href="/admin/companies?filter=active" target="_blank" rel="noopener noreferrer" className="bg-white rounded-lg shadow p-6 block hover:shadow-md transition-shadow">
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <ArrowTrendingUpIcon className="h-8 w-8 text-purple-600" />
@@ -205,9 +314,9 @@ export default function CompanyStatisticsPage() {
               </p>
             </div>
           </div>
-        </div>
+        </Link>
 
-        <div className="bg-white rounded-lg shadow p-6">
+        <Link href="/admin/companies?filter=recent" target="_blank" rel="noopener noreferrer" className="bg-white rounded-lg shadow p-6 block hover:shadow-md transition-shadow">
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <UserGroupIcon className="h-8 w-8 text-orange-600" />
@@ -219,7 +328,7 @@ export default function CompanyStatisticsPage() {
               </p>
             </div>
           </div>
-        </div>
+        </Link>
       </div>
 
       {/* Additional Metrics Row */}
@@ -381,6 +490,65 @@ export default function CompanyStatisticsPage() {
           </div>
         </div>
       </div>
+
+      {/* Affiliate statistiky */}
+      {statistics.affiliate && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="bg-white rounded-lg shadow p-6">
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Affiliate – Přehled</h3>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">Celkem kliků</span>
+                <span className="text-lg font-semibold text-gray-900">{statistics.affiliate.totalClicks.toLocaleString()}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">Konverze</span>
+                <span className="text-lg font-semibold text-gray-900">{statistics.affiliate.conversions.toLocaleString()}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">Provize</span>
+                <span className="text-lg font-semibold text-green-700">{formatCurrency(statistics.affiliate.commission)}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">CR</span>
+                <span className="text-lg font-semibold text-purple-700">{statistics.affiliate.conversionRate.toFixed(1)}%</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg shadow p-6">
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Top partneři (kliknutí)</h3>
+            <div className="space-y-3">
+              {statistics.affiliate.topPartners.map((p) => (
+                <div key={p.partnerId} className="flex items-center justify-between text-sm">
+                  <span className="text-gray-700 truncate mr-4">{p.partnerId}</span>
+                  <div className="flex items-center gap-4">
+                    <span className="min-w-[60px] text-right">{p.clicks}</span>
+                    <span className="min-w-[60px] text-right">{p.conversions}</span>
+                    <span className="min-w-[80px] text-right">{formatCurrency(p.commission)}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg shadow p-6">
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Top ref kódy</h3>
+            <div className="space-y-3">
+              {statistics.affiliate.topRefCodes.map((r) => (
+                <div key={r.refCode} className="flex items-center justify-between text-sm">
+                  <span className="text-gray-700 truncate mr-4">{r.refCode}</span>
+                  <div className="flex items-center gap-4">
+                    <span className="min-w-[60px] text-right">{r.clicks}</span>
+                    <span className="min-w-[60px] text-right">{r.conversions}</span>
+                    <span className="min-w-[80px] text-right">{formatCurrency(r.commission)}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Top Spending Companies */}
       <div className="bg-white rounded-lg shadow">

@@ -1,60 +1,65 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import prisma from '@/lib/prisma'
 
 export async function GET(request: NextRequest) {
   try {
     // Získáme skutečné počty z databáze paralelně
     const [
+      // Products
       totalProducts,
+      activeProducts,
+      pendingProductChanges,
+      draftProducts,
+      // Click analytics
       totalClicks,
       uniqueVisitors,
+      // Users
+      totalUsers,
+      activeUsers,
+      // Companies
+      totalCompanies,
+      activeCompanies,
+      pendingCompanies,
+      verifiedCompanies,
+      // Landing pages
+      totalLandingPages,
+      // Company applications
       companyApplicationsStats
     ] = await Promise.all([
-      prisma.product.count(),
+      prisma.product.count({ where: { deletedAt: null } }),
+      prisma.product.count({ where: { isActive: true, deletedAt: null } }),
+      prisma.product.count({ where: { hasPendingChanges: true, changesStatus: 'pending', deletedAt: null } }),
+      prisma.product.count({ where: { isActive: false, deletedAt: null } }),
       prisma.click.count(),
-      prisma.click.groupBy({
-        by: ['visitorId'],
-        _count: true
-      }).then(visitors => visitors.length),
-      // Nové: Statistiky CompanyApplications - nyní aktivní
-      prisma.companyApplications.groupBy({
-        by: ['status'],
-        _count: true
-      })
+      prisma.click.groupBy({ by: ['visitorId'], _count: true }).then((rows) => rows.length),
+      prisma.user.count(),
+      prisma.user.count({ where: { isActive: true } }),
+      prisma.company.count(),
+      prisma.company.count({ where: { status: 'active' } }),
+      prisma.company.count({ where: { status: 'pending' } }),
+      prisma.company.count({ where: { isVerified: true } }),
+      prisma.landing_pages.count(),
+      prisma.companyApplications.groupBy({ by: ['status'], _count: true })
     ])
 
-    // Statistiky pro pending changes - rozlišíme nové produkty a úpravy
-    const pendingChangesResult = await prisma.$queryRaw`
+    // Statistiky pro pending changes - rozlišíme nové produkty vs úpravy (best effort, pouze z reálných dat)
+    const pendingChangesResult = await prisma.$queryRaw<any[]>`
       SELECT 
-        "imageApprovalStatus",
-        "adminNotes",
-        COUNT(*) as count 
-      FROM "Product" 
-      WHERE "hasPendingChanges" = true 
-      AND "changesStatus" = 'pending'
-      AND "deletedAt" IS NULL
-      GROUP BY "imageApprovalStatus", "adminNotes"
-    ` as Array<{imageApprovalStatus: string | null, adminNotes: string | null, count: bigint}>
-    
-    // Rozděl podle typu (nové produkty vs úpravy)
+        "imageApprovalStatus" as status,
+        COUNT(*)::int as count
+      FROM "Product"
+      WHERE "hasPendingChanges" = true AND "changesStatus" = 'pending' AND "deletedAt" IS NULL
+      GROUP BY "imageApprovalStatus"
+    `
+
     let newProductsPending = 0
     let productEditsPending = 0
-    
-    pendingChangesResult.forEach((item) => {
-      const count = Number(item.count)
-      const isNewProduct = item.imageApprovalStatus === 'NEW_PRODUCT' || 
-                          (item.adminNotes && item.adminNotes.includes('NEW PRODUCT'))
-      
-      if (isNewProduct) {
-        newProductsPending += count
-      } else {
-        productEditsPending += count
-      }
-    })
-    
-    const totalPendingChanges = newProductsPending + productEditsPending
+    for (const row of pendingChangesResult) {
+      const isNew = row.status === 'NEW_PRODUCT'
+      if (isNew) newProductsPending += Number(row.count || 0)
+      else productEditsPending += Number(row.count || 0)
+    }
+    const totalPendingChanges = Number(pendingProductChanges)
 
     // Spočítáme statistiky pro firemní aplikace s explicitními typy
     const companyStats: Record<string, number> = companyApplicationsStats.reduce((acc: Record<string, number>, item: { status: string; _count: number }) => {
@@ -62,36 +67,35 @@ export async function GET(request: NextRequest) {
       return acc
     }, { pending: 0, approved: 0, rejected: 0 })
 
-    // Vytvoříme statistiky s reálnými i statickými daty
+    // Vytvoříme statistiky pouze z reálných dat
     const stats = {
       products: {
         total: totalProducts,
-        active: totalProducts, // Pro nyní považujeme všechny produkty za aktivní
-        pending: 0,
-        draft: 0
+        active: activeProducts,
+        pending: totalPendingChanges,
+        draft: draftProducts
       },
       courses: {
-        total: 9, // Statické data - kurzy zatím nejsou v databázi
-        published: 5,
-        draft: 4,
-        enrolled: 2341
+        total: 0,
+        published: 0,
+        draft: 0,
+        enrolled: 0
       },
       companies: {
-        total: companyStats.pending + companyStats.approved + companyStats.rejected,
-        active: companyStats.approved,
-        pending: companyStats.pending,
-        verified: companyStats.approved,
-        rejected: companyStats.rejected
+        total: totalCompanies,
+        active: activeCompanies,
+        pending: pendingCompanies,
+        verified: verifiedCompanies
       },
       pages: {
-        total: 12, // Statické data - stránky zatím nejsou v databázi
-        published: 10,
-        draft: 2
+        total: totalLandingPages,
+        published: totalLandingPages,
+        draft: 0
       },
       users: {
-        total: 156, // Statické data - uživatelé zatím nejsou v databázi
-        active: 134,
-        companies: companyStats.approved
+        total: totalUsers,
+        active: activeUsers,
+        companies: activeCompanies
       },
       analytics: {
         totalClicks,

@@ -69,7 +69,8 @@ export default function TermsPage() {
                   Contact
                 </h2>
                 <p className="text-gray-600">
-                  If you have any questions about these terms, please contact us at info@example.com.
+                  If you have any questions about these terms, please contact us at{' '}
+                  <a href="mailto:info@comparee.ai" className="text-purple-600 hover:text-purple-700">info@comparee.ai</a>.
                 </p>
               </section>
 

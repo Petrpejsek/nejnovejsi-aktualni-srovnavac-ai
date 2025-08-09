@@ -13,6 +13,7 @@ export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormPr
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [rememberMe, setRememberMe] = useState(false)
 
   const router = useRouter()
 
@@ -34,6 +35,7 @@ export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormPr
           email,
           password,
           loginType,
+          rememberMe,
           redirect: false,
           callbackUrl: '/user-area'
         })
@@ -45,7 +47,8 @@ export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormPr
         result = await signIn('admin-credentials', { 
           email, 
           password,
-          loginType: 'admin'
+          loginType: 'admin',
+          rememberMe
         })
         
         console.log('🔐 Admin NextAuth signIn result:', result)
@@ -180,6 +183,27 @@ export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormPr
         </div>
 
         <div className="flex items-center justify-between">
+          <label className="flex items-center group cursor-pointer">
+            <input
+              type="checkbox"
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+              className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+            />
+            <span className="ml-2 text-sm text-gray-700 group-hover:text-gray-900">
+              Stay logged in
+            </span>
+            <div className="ml-1 group relative">
+              <svg className="w-4 h-4 text-gray-400 hover:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div className="invisible group-hover:visible absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 text-xs font-medium text-white bg-gray-900 rounded-lg shadow-sm z-10 whitespace-nowrap">
+                Extends login session to 30 days instead of 7 days
+                <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45"></div>
+              </div>
+            </div>
+          </label>
+
           <button
             type="button"
             onClick={() => {}} // TODO: Implement password reset

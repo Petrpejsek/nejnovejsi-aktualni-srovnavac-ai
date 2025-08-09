@@ -61,21 +61,30 @@ export default function CompanyAdminLayout({
     role: user?.role || 'unknown'
   })
 
-  // 🔥 POUŽÍVÁME MOCK DATA - starý JWT systém je kompletně vypnutý
+  // Reálná data o firmě (bez GA a bez domény)
   useEffect(() => {
-    if (isAuthenticated && isCompany && user) {
-      console.log('⚠️ LAYOUT POUŽÍVÁ MOCK DATA - starý JWT/billing systém je vypnutý')
-      setCompanyData({
-        name: user.name || 'Test Company',
-        balance: 1500.00,
-        logoUrl: "/api/placeholder/company-logo"
-      })
-      setLoading(false)
-    } else if (!authLoading && (!isAuthenticated || !isCompany)) {
-      // Pokud není přihlášený nebo není company, vyčistíme data
-      setCompanyData(null)
-      setLoading(false)
+    const load = async () => {
+      if (isAuthenticated && isCompany && user) {
+        try {
+          const resp = await fetch('/api/admin/companies?self=true', { cache: 'no-store' })
+          if (!resp.ok) throw new Error('Failed to load company info')
+          const data = await resp.json()
+          setCompanyData({
+            name: data?.company?.name || user.name || 'Company',
+            balance: data?.company?.balance ?? 0,
+            logoUrl: data?.company?.logoUrl || null
+          })
+        } catch (e) {
+          setCompanyData({ name: user.name || 'Company', balance: 0, logoUrl: null })
+        } finally {
+          setLoading(false)
+        }
+      } else if (!authLoading) {
+        setCompanyData(null)
+        setLoading(false)
+      }
     }
+    load()
   }, [isAuthenticated, isCompany, user, authLoading])
 
   // Real user data from NextAuth

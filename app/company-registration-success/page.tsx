@@ -143,7 +143,7 @@ export default function CompanyRegistrationSuccessPage() {
             Back to Homepage
           </Link>
           <a
-            href="mailto:business@comparee.ai?subject=Company Registration Follow-up"
+            href="mailto:info@comparee.ai?subject=Company%20Registration%20Follow-up"
             className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-all font-medium"
           >
             Contact Support
@@ -154,8 +154,8 @@ export default function CompanyRegistrationSuccessPage() {
         <div className="mt-8 text-center">
           <p className="text-sm text-gray-500">
             Questions about your application? Email us at{' '}
-            <a href="mailto:business@comparee.ai" className="text-purple-600 hover:text-purple-700">
-              business@comparee.ai
+            <a href="mailto:info@comparee.ai" className="text-purple-600 hover:text-purple-700">
+              info@comparee.ai
             </a>
           </p>
         </div>

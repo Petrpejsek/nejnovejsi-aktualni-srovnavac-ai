@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { 
   UserGroupIcon,
   PlusIcon,
@@ -35,13 +35,13 @@ interface Role {
 }
 
 interface User {
-  id: number
+  id: string
   email: string
   name: string
-  role: string
-  permissions: string[]
+  role?: string
+  permissions?: string[]
   isActive: boolean
-  lastLogin: string
+  lastLoginAt?: string | null
   createdAt: string
 }
 
@@ -51,6 +51,7 @@ export default function UsersAdmin() {
   const [showAddUser, setShowAddUser] = useState(false)
   const [newUserEmail, setNewUserEmail] = useState('')
   const [newUserRole, setNewUserRole] = useState('editor')
+  const [activeRole, setActiveRole] = useState<string>('super_admin')
 
   // Definice oprávnění
   const permissions: Permission[] = [
@@ -147,39 +148,35 @@ export default function UsersAdmin() {
     }
   ]
 
-  // Mock data uživatelů
-  const [users, setUsers] = useState<User[]>([
-    {
-      id: 1,
-      email: 'admin@example.com',
-      name: 'Petr Admin',
-      role: 'super_admin',
-      permissions: roles.find(r => r.id === 'super_admin')?.permissions || [],
-      isActive: true,
-      lastLogin: '2024-01-25 14:30',
-      createdAt: '2024-01-01'
-    },
-    {
-      id: 2,
-      email: 'editor@example.com',
-      name: 'Jana Editorka',
-      role: 'editor',
-      permissions: roles.find(r => r.id === 'editor')?.permissions || [],
-      isActive: true,
-      lastLogin: '2024-01-24 16:45',
-      createdAt: '2024-01-15'
-    },
-    {
-      id: 3,
-      email: 'moderator@example.com',
-      name: 'Milan Moderátor',
-      role: 'moderator',
-      permissions: roles.find(r => r.id === 'moderator')?.permissions || [],
-      isActive: false,
-      lastLogin: '2024-01-20 09:15',
-      createdAt: '2024-01-10'
+  // Reálná data z API (ADMIN ACCOUNTS)
+  const [users, setUsers] = useState<User[]>([])
+  const [loading, setLoading] = useState<boolean>(true)
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        // Zobrazuje ADMIN účty z tabulky Admin
+        const res = await fetch('/api/admin/admins', { cache: 'no-store' })
+        if (res.ok) {
+          const json = await res.json()
+          setUsers(json.data.admins.map((a: any) => ({
+            id: a.id,
+            email: a.email,
+            name: a.name || a.email.split('@')[0],
+            role: a.role,
+            isActive: a.isActive,
+            createdAt: new Date(a.createdAt).toISOString().split('T')[0],
+            lastLoginAt: a.lastLoginAt
+          })))
+        }
+      } catch (e) {
+        console.error('Failed to load users')
+      } finally {
+        setLoading(false)
+      }
     }
-  ])
+    load()
+  }, [])
 
   const filteredUsers = users.filter(user => {
     const matchesSearch = user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -189,44 +186,34 @@ export default function UsersAdmin() {
     return matchesSearch && matchesRole
   })
 
-  const getRoleInfo = (roleId: string) => {
-    return roles.find(r => r.id === roleId) || roles[4] // fallback to viewer
+  const getRoleInfo = (roleId?: string) => {
+    const found = roles.find(r => r.id === roleId)
+    return found || { id: 'unknown', name: 'Unknown', description: '', permissions: [], color: 'bg-gray-100 text-gray-800' }
   }
 
   const handleAddUser = () => {
-    if (!newUserEmail.trim()) return
-
-    const role = roles.find(r => r.id === newUserRole)
-    if (!role) return
-
-    const newUser: User = {
-      id: users.length + 1,
-      email: newUserEmail.trim(),
-      name: newUserEmail.split('@')[0],
-      role: newUserRole,
-      permissions: role.permissions,
-      isActive: true,
-      lastLogin: 'Nikdy',
-      createdAt: new Date().toISOString().split('T')[0]
-    }
-
-    setUsers([...users, newUser])
-    setNewUserEmail('')
-    setShowAddUser(false)
+    alert('Creating users from admin is disabled. Use public registration or seed script.')
   }
 
-  const handleToggleUserStatus = (userId: number) => {
-    setUsers(users.map(user => 
-      user.id === userId 
-        ? { ...user, isActive: !user.isActive }
-        : user
-    ))
+  const handleToggleUserStatus = async (userId: string) => {
+    try {
+      const target = users.find(u => u.id === userId)
+      if (!target) return
+      const res = await fetch('/api/admin/admins', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ adminId: userId, isActive: !target.isActive })
+      })
+      if (res.ok) {
+        setUsers(users.map(u => u.id === userId ? { ...u, isActive: !u.isActive } : u))
+      }
+    } catch (e) {
+      console.error('Failed to toggle user status')
+    }
   }
 
-  const handleDeleteUser = (userId: number) => {
-    if (confirm('Opravdu chcete smazat tohoto uživatele?')) {
-      setUsers(users.filter(user => user.id !== userId))
-    }
+  const handleDeleteUser = (userId: string) => {
+    alert('Deleting users is disabled for safety.')
   }
 
   const getCategoryIcon = (category: string) => {
@@ -255,6 +242,13 @@ export default function UsersAdmin() {
       viewer: users.filter(u => u.role === 'viewer').length
     }
   }
+
+  const rolesMap = Object.fromEntries(roles.map(r => [r.id, r])) as Record<string, Role>
+  const permissionsByCategory = permissions.reduce<Record<string, Permission[]>>((acc, p) => {
+    if (!acc[p.category]) acc[p.category] = []
+    acc[p.category].push(p)
+    return acc
+  }, {})
 
   return (
     <div className="space-y-6">
@@ -464,7 +458,7 @@ export default function UsersAdmin() {
                         </div>
                         <div>
                           <div className="text-sm font-medium text-gray-900">{user.name}</div>
-                          <div className="text-sm text-gray-500">{user.email}</div>
+                        <div className="text-sm text-gray-500">{user.email || ''}</div>
                         </div>
                       </div>
                     </td>
@@ -475,14 +469,14 @@ export default function UsersAdmin() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
-                        <div className={`w-2 h-2 rounded-full mr-2 ${user.isActive ? 'bg-green-400' : 'bg-red-400'}`}></div>
+                         <div className={`w-2 h-2 rounded-full mr-2 ${user.isActive ? 'bg-green-400' : 'bg-red-400'}`}></div>
                         <span className={`text-sm ${user.isActive ? 'text-green-800' : 'text-red-800'}`}>
                           {user.isActive ? 'Aktivní' : 'Neaktivní'}
                         </span>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {user.lastLogin}
+                       {user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleString('cs-CZ') : 'Nikdy'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex items-center space-x-2">
@@ -516,43 +510,59 @@ export default function UsersAdmin() {
         </div>
       </div>
 
-      {/* Permissions Overview */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-        <div className="p-6 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">Přehled oprávnění podle kategorií</h3>
-          <p className="text-sm text-gray-600 mt-1">Dostupná oprávnění v systému</p>
-        </div>
-        <div className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {['content', 'analytics', 'users', 'system'].map(category => {
-              const categoryPermissions = permissions.filter(p => p.category === category)
-              const categoryName = {
-                content: 'Obsah',
-                analytics: 'Analytics',
-                users: 'Uživatelé',
-                system: 'Systém'
-              }[category]
-
-              return (
-                <div key={category} className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    {getCategoryIcon(category)}
-                    <h4 className="font-medium text-gray-900">{categoryName}</h4>
-                  </div>
-                  <div className="space-y-2">
-                    {categoryPermissions.map(permission => (
-                      <div key={permission.id} className="text-sm">
-                        <div className="font-medium text-gray-900">{permission.name}</div>
-                        <div className="text-gray-500 text-xs">{permission.description}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )
-            })}
+      {/* Oprávnění dle role */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-gray-900">Oprávnění dle role</h2>
+          <div className="flex flex-wrap gap-2">
+            {roles.map(r => (
+              <button
+                key={r.id}
+                onClick={() => setActiveRole(r.id)}
+                className={`px-3 py-1.5 rounded-md text-sm border transition-colors ${
+                  activeRole === r.id
+                    ? 'bg-purple-600 text-white border-purple-600'
+                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                }`}
+                title={`${r.name}`}
+              >
+                {r.name}
+                <span className="ml-2 text-xs opacity-80">
+                  {rolesMap[r.id]?.permissions.length}
+                </span>
+              </button>
+            ))}
           </div>
         </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {(['content','analytics','users','system'] as const).map(category => {
+            const assignedIds = new Set(rolesMap[activeRole]?.permissions || [])
+            const assigned = (permissionsByCategory[category] || []).filter(p => assignedIds.has(p.id))
+            return (
+              <div key={category}>
+                <div className="flex items-center gap-2 text-gray-800 font-medium mb-2">
+                  {getCategoryIcon(category)}
+                  <span className="capitalize">{category}</span>
+                </div>
+                <ul className="space-y-1">
+                  {assigned.length === 0 && (
+                    <li className="text-sm text-gray-500">Žádná oprávnění</li>
+                  )}
+                  {assigned.map(p => (
+                    <li key={p.id} className="text-sm text-gray-700 flex items-center">
+                      <CheckIcon className="w-4 h-4 text-green-600 mr-2" />
+                      {p.name}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )
+          })}
+        </div>
       </div>
+
+      {/* Removed bottom static permissions overview per request */}
     </div>
   )
 } 

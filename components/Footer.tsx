@@ -31,12 +31,11 @@ export default function Footer() {
   const usefulLinks = [
     { name: 'About Us', href: '/about' },
     { name: 'How It Works', href: '/how-it-works' },
-    { name: 'AI Tool Directory', href: '/directory' },
-    { name: 'Submit Your Tool', href: '/submit' },
     { name: 'For Companies', href: '/company' },
     { name: 'Terms of Service', href: '/terms' },
     { name: 'Privacy Policy', href: '/privacy' },
-    { name: 'Contact Support', href: '/contact' }
+    // Contact Support should open the user's email client directly
+    { name: 'Contact Support', href: 'mailto:info@comparee.ai' }
   ]
 
   return (
@@ -81,15 +80,7 @@ export default function Footer() {
                 </div>
               ))}
             </div>
-            <Link 
-              href="/categories" 
-              className="inline-flex items-center text-sm text-purple-600 hover:text-purple-700 font-medium mt-4 group"
-            >
-              View all categories
-              <svg className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-              </svg>
-            </Link>
+            {/* Removed "View all categories" per request */}
           </div>
 
           {/* Column 3: Useful Links */}

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { 
   DocumentTextIcon,
   PlusIcon,
@@ -38,6 +39,10 @@ interface LandingPagesResponse {
 }
 
 export default function LandingPagesAdmin() {
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const tabParam = (searchParams?.get('tab') as 'manage' | 'create') || 'manage'
   const [landingPages, setLandingPages] = useState<LandingPage[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -213,19 +218,23 @@ export default function LandingPagesAdmin() {
             <div>
               <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
                 <DocumentTextIcon className="w-8 h-8 text-blue-600" />
-                Správa Landing Pages
+                Landing Pages
               </h1>
-              <p className="text-gray-600 mt-2">
-                Zobrazení a správa všech landing pages včetně i18n verzí
-              </p>
+              <div className="mt-3 bg-gray-100 inline-flex rounded-lg p-1">
+                <button
+                  onClick={() => router.replace(`${pathname}?tab=manage`, { scroll: false })}
+                  className={`px-4 py-2 text-sm rounded-md ${tabParam === 'manage' ? 'bg-white shadow' : 'text-gray-600 hover:text-gray-900'}`}
+                >
+                  Správa
+                </button>
+                <button
+                  onClick={() => router.replace(`${pathname}?tab=create`, { scroll: false })}
+                  className={`px-4 py-2 text-sm rounded-md ${tabParam === 'create' ? 'bg-white shadow' : 'text-gray-600 hover:text-gray-900'}`}
+                >
+                  Vytvořit
+                </button>
+              </div>
             </div>
-            <Link
-              href="/admin/create-landing"
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
-            >
-              <PlusIcon className="w-5 h-5" />
-              Přidat Landing Page
-            </Link>
           </div>
         </div>
 
@@ -249,6 +258,8 @@ export default function LandingPagesAdmin() {
           </div>
         )}
 
+        {tabParam === 'manage' && (
+        <>
         {/* Filters */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -503,6 +514,23 @@ export default function LandingPagesAdmin() {
                 Další
               </button>
             </div>
+          </div>
+        )}
+        </>
+        )}
+
+        {tabParam === 'create' && (
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <h2 className="text-xl font-semibold mb-4">Vytvořit Landing Page</h2>
+            <p className="text-gray-600 mb-4">Pro vytvoření nové landing page použij odkaz níže (otevře editor v nové záložce).</p>
+            <Link
+              href="/admin/create-landing"
+              target="_blank"
+              className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
+            >
+              <PlusIcon className="w-5 h-5" />
+              Otevřít editor (nová záložka)
+            </Link>
           </div>
         )}
       </div>

@@ -141,10 +141,12 @@ model Click {
   productId String
   visitorId String
   ipAddress String?
+  pagePath  String?
   createdAt DateTime @default(now())
 
   @@index([productId])
   @@index([visitorId])
+  @@index([pagePath])
 }
 
 model ClickHistory {
@@ -549,4 +551,19 @@ enum MonetizationMode {
   cpc
   affiliate
   hybrid
+}
+
+/// PageView – základ pro měření nejnavštěvovanějších stránek
+model PageView {
+  id         String   @id
+  path       String
+  visitorId  String?
+  referrer   String?
+  userAgent  String?
+  country    String?
+  createdAt  DateTime @default(now())
+
+  @@index([path])
+  @@index([createdAt])
+  @@index([visitorId])
 }

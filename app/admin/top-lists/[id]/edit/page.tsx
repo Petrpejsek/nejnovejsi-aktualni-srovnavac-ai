@@ -59,6 +59,7 @@ export default function EditTopListCategory() {
   const [saving, setSaving] = useState(false)
   const [category, setCategory] = useState<TopListCategory | null>(null)
   const [activeTab, setActiveTab] = useState('basic')
+  const [replaceIndex, setReplaceIndex] = useState<number | null>(null)
 
   // Load real data from API
   useEffect(() => {
@@ -109,6 +110,39 @@ export default function EditTopListCategory() {
         }
         
         setCategory(categoryData)
+
+        // Hydrate tools with real product data so admin sees actual products
+        const productIds: string[] = Array.isArray(data.products)
+          ? (data.products as string[]).slice(0, 20)
+          : []
+
+        if (productIds.length > 0) {
+          try {
+            const detailsResp = await fetch(`/api/products?ids=${productIds.join(',')}`)
+            if (detailsResp.ok) {
+              const details = await detailsResp.json()
+              const map: Map<string, any> = new Map((details as any[]).map((p: any) => [String(p.id), p as any]))
+              setCategory(prev => {
+                if (!prev) return prev
+                const hydrated = prev.tools.map(t => {
+                  const d: any = map.get(String(t.id)) as any
+                  if (!d) return t
+                  return {
+                    ...t,
+                    name: d.name || t.name,
+                    description: d.description || t.description,
+                    website: d.externalUrl || d.website || t.website,
+                    logo: d.imageUrl || d.logo || t.logo,
+                    tags: Array.isArray(d.tags) ? d.tags : t.tags,
+                  }
+                })
+                return { ...prev, tools: hydrated }
+              })
+            }
+          } catch (e) {
+            console.warn('Failed to hydrate tool details', e)
+          }
+        }
       } catch (error) {
         console.error('Error fetching category:', error)
       } finally {
@@ -617,6 +651,13 @@ export default function EditTopListCategory() {
                         ↓
                       </button>
                       <button
+                        onClick={() => setReplaceIndex(index)}
+                        className="p-1 text-blue-500 hover:text-blue-700"
+                        title="Nahradit jiným produktem"
+                      >
+                        Replace
+                      </button>
+                      <button
                         onClick={() => removeTool(index)}
                         className="p-1 text-red-400 hover:text-red-600"
                         title="Odstranit"
@@ -707,6 +748,43 @@ export default function EditTopListCategory() {
                       />
                     </div>
                   </div>
+                  {replaceIndex === index && (
+                    <div className="mt-4 border rounded-md p-4 bg-gray-50">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm text-gray-700">Nahradit položku #{tool.position}</span>
+                        <button
+                          type="button"
+                          onClick={() => setReplaceIndex(null)}
+                          className="text-sm text-gray-500 hover:text-gray-700"
+                        >
+                          Zavřít
+                        </button>
+                      </div>
+                      <ProductSelector
+                        onProductAdd={(product) => {
+                          const updated = [...category.tools]
+                          updated[index] = {
+                            id: product.id,
+                            name: product.name,
+                            description: product.description,
+                            website: product.website,
+                            pricing: product.pricing || 'Free',
+                            rating: product.rating || 0,
+                            reviews: product.reviews || 0,
+                            position: index + 1,
+                            category: category.title,
+                            tags: product.tags || [],
+                            logo: product.logo
+                          }
+                          setCategory({ ...category, tools: updated })
+                          setReplaceIndex(null)
+                        }}
+                        excludeIds={category.tools
+                          .map((t, i) => (i === index ? undefined : t.id))
+                          .filter((v): v is string => Boolean(v))}
+                      />
+                    </div>
+                  )}
                 </div>
               ))}
 

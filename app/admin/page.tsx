@@ -214,14 +214,7 @@ export default function AdminDashboard() {
       color: 'bg-orange-500',
       stats: `${dashboardStats.companies.total} firem`
     },
-    {
-      title: 'Stránky',
-      description: 'Editor statických stránek a SEO',
-      href: '/admin/pages',
-      icon: '📄',
-      color: 'bg-indigo-500',
-      stats: `${dashboardStats.pages.total} stránek`
-    },
+    // Legacy Pages odstraněny – správa je v Landing Pages
     {
       title: 'Uživatelé',
       description: 'Správa uživatelských účtů a oprávnění',

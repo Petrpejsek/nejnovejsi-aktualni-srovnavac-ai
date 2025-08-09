@@ -66,45 +66,11 @@ export default function CompanyDashboard() {
       
       try {
         setLoading(true)
-        
-        // 🔥 TEMPORARY - používáme mock data místo starých API endpointů
-        console.log('⚠️ POUŽÍVÁM MOCK DATA - starý JWT systém je vypnutý')
-        
-        const mockData = {
-          company: {
-            id: 'company1',
-            name: user?.name || 'Test Company',
-            balance: 1500.00,
-            totalSpent: 3240.50,
-            autoRecharge: true,
-            autoRechargeAmount: 500,
-            autoRechargeThreshold: 100
-          },
-          transactions: [
-            {
-              id: '1',
-              type: 'charge',
-              amount: 500,
-              description: 'Credit top-up',
-              status: 'completed',
-              createdAt: new Date().toISOString()
-            }
-          ],
-          monthlySpend: 890.25,
-          campaigns: [
-            {
-              id: '1',
-              name: 'Test kampaň',
-              status: 'active',
-              isApproved: true,
-              totalClicks: 150,
-              totalImpressions: 5000,
-              totalSpent: 285.50
-            }
-          ]
-        }
-
-        setDashboardData(mockData)
+        // Reálná data z admin API (žádné mocky)
+        const resp = await fetch('/api/admin/companies?self=true', { cache: 'no-store' })
+        if (!resp.ok) throw new Error('Failed to load company dashboard')
+        const data = await resp.json()
+        setDashboardData(data)
 
       } catch (err) {
         console.error('Error fetching dashboard data:', err)

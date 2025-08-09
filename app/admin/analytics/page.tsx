@@ -1,6 +1,8 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import CompanyStatistics from '@/app/admin/company-statistics/page'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { 
   ChartBarIcon,
   EyeIcon,
@@ -19,6 +21,10 @@ interface AnalyticsData {
 }
 
 export default function AnalyticsAdmin() {
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const tabParam = ((searchParams?.get('tab') as 'traffic' | 'companies') || 'traffic')
   const [analytics, setAnalytics] = useState<AnalyticsData>({
     totalClicks: 0,
     uniqueVisitors: 0
@@ -30,9 +36,12 @@ export default function AnalyticsAdmin() {
   useEffect(() => {
     const fetchAnalytics = async () => {
       try {
-        const response = await fetch('/api/clicks')
+        const response = await fetch(`/api/clicks?range=${timeRange}`)
         const data = await response.json()
-        setAnalytics(data)
+        setAnalytics({
+          totalClicks: data.totalClicks || 0,
+          uniqueVisitors: data.uniqueVisitors || 0
+        })
       } catch (error) {
         console.error('Error fetching analytics:', error)
       } finally {
@@ -41,54 +50,47 @@ export default function AnalyticsAdmin() {
     }
 
     fetchAnalytics()
-  }, [])
+  }, [timeRange])
 
-  // Reset analytics function
-  const resetAnalytics = async () => {
-    if (!confirm('Opravdu chcete vynulovat všechny statistiky kliků? Tato akce je nevratná.')) {
-      return
-    }
+  // Reset analytics – odstraněno z UI pro bezpečnost
 
-    try {
-      setLoading(true)
-      await fetch('/api/clicks', { method: 'DELETE' })
-      setAnalytics({ totalClicks: 0, uniqueVisitors: 0 })
-      alert('Statistiky byly vynulovány')
-    } catch (error) {
-      console.error('Error resetting analytics:', error)
-      alert('Chyba při vynulování statistik')
-    } finally {
-      setLoading(false)
-    }
-  }
+  // Reálná data – doplňkové metriky načteme z /api/admin-stats
+  const [additionalStats, setAdditionalStats] = useState({
+    products: { total: 0, views: 0, clicksToday: 0 },
+    courses: { total: 0, enrollments: 0, completionRate: 0 },
+    companies: { total: 0, active: 0, pendingApproval: 0 },
+    pages: { mostVisited: [] as Array<{ page: string; views: number; clicks: number; ctr?: number }>} 
+  })
 
-  // Mock additional data (později nahradit skutečnými daty)
-  const additionalStats = {
-    products: {
-      total: 235,
-      views: 15420,
-      clicksToday: 89
-    },
-    courses: {
-      total: 9,
-      enrollments: 2341,
-      completionRate: 78
-    },
-    companies: {
-      total: 45,
-      active: 38,
-      pendingApproval: 7
-    },
-    pages: {
-      mostVisited: [
-        { page: 'Homepage', views: 4532, clicks: 234 },
-        { page: 'AI Tools', views: 3421, clicks: 189 },
-        { page: 'Courses', views: 2876, clicks: 156 },
-        { page: 'Top Lists', views: 2341, clicks: 134 },
-        { page: 'Companies', views: 1987, clicks: 98 }
-      ]
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const [statsRes, mvRes] = await Promise.all([
+          fetch('/api/admin-stats', { cache: 'no-store' }),
+          fetch(`/api/admin/most-visited?range=${timeRange}`, { cache: 'no-store' })
+        ])
+        if (statsRes.ok) {
+          const data = await statsRes.json()
+          setAdditionalStats({
+            products: { total: data.products.total || 0, views: 0, clicksToday: 0 },
+            courses: { total: data.courses.total || 0, enrollments: 0, completionRate: 0 },
+            companies: { total: data.companies.total || 0, active: data.companies.active || 0, pendingApproval: data.companies.pending || 0 },
+            pages: { mostVisited: [] }
+          })
+        }
+        if (mvRes.ok) {
+          const mv = await mvRes.json()
+          setAdditionalStats(prev => ({
+            ...prev,
+            pages: { mostVisited: mv.items || [] }
+          }))
+        }
+      } catch (e) {
+        console.error('Failed to load admin stats for analytics page')
+      }
     }
-  }
+    load()
+  }, [timeRange])
 
   const timeRanges = [
     { value: '1d', label: 'Dnes' },
@@ -116,7 +118,21 @@ export default function AnalyticsAdmin() {
           </p>
         </div>
         
-        <div className="flex items-center gap-4">
+      <div className="flex items-center gap-4">
+          <div className="bg-gray-100 rounded-lg p-1">
+            <button
+              onClick={() => router.replace(`${pathname}?tab=traffic`, { scroll: false })}
+              className={`px-4 py-2 text-sm rounded-md ${tabParam === 'traffic' ? 'bg-white shadow' : 'text-gray-600 hover:text-gray-900'}`}
+            >
+              Návštěvnost & Kliky
+            </button>
+            <button
+              onClick={() => router.replace(`${pathname}?tab=companies`, { scroll: false })}
+              className={`px-4 py-2 text-sm rounded-md ${tabParam === 'companies' ? 'bg-white shadow' : 'text-gray-600 hover:text-gray-900'}`}
+            >
+              Firemní statistiky
+            </button>
+          </div>
           <select
             value={timeRange}
             onChange={(e) => setTimeRange(e.target.value)}
@@ -129,18 +145,14 @@ export default function AnalyticsAdmin() {
             ))}
           </select>
           
-          <button
-            onClick={resetAnalytics}
-            disabled={loading}
-            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
-          >
-            Vynulovat statistiky
-          </button>
+          {/* Reset statistik odstraněn kvůli bezpečnosti */}
         </div>
       </div>
 
-      {/* Main Analytics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      {tabParam === 'traffic' && (
+        <>
+        {/* Main Analytics Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
           <div className="flex items-center">
             <div className="flex-shrink-0">
@@ -151,9 +163,7 @@ export default function AnalyticsAdmin() {
               <p className="text-3xl font-bold text-gray-900">
                 {loading ? '...' : analytics.totalClicks.toLocaleString()}
               </p>
-              <p className="text-sm text-gray-600 mt-1">
-                +12% oproti minulému týdnu
-              </p>
+              {/* Odstraněn statický trend – bude doplněn reálnými porovnáními */}
             </div>
           </div>
         </div>
@@ -168,9 +178,7 @@ export default function AnalyticsAdmin() {
               <p className="text-3xl font-bold text-gray-900">
                 {loading ? '...' : analytics.uniqueVisitors.toLocaleString()}
               </p>
-              <p className="text-sm text-gray-600 mt-1">
-                +8% oproti minulému týdnu
-              </p>
+              {/* Odstraněn statický trend – bude doplněn reálnými porovnáními */}
             </div>
           </div>
         </div>
@@ -183,9 +191,11 @@ export default function AnalyticsAdmin() {
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-500">Conversion Rate</p>
               <p className="text-3xl font-bold text-gray-900">{conversionRate}%</p>
-              <p className="text-sm text-gray-600 mt-1">
-                {parseFloat(conversionRate) > 5 ? '+' : '-'}2% oproti minulému týdnu
+              <p className="text-xs text-gray-500 mt-1">
+                Definice: unikátní návštěvníci ÷ celkové kliky × 100
+                {loading ? '' : ` = ${analytics.uniqueVisitors.toLocaleString()} ÷ ${analytics.totalClicks.toLocaleString()} × 100`}
               </p>
+              <p className="text-[11px] text-gray-400">(ekvivalentně 100 ÷ průměrný počet kliků na návštěvníka)</p>
             </div>
           </div>
         </div>
@@ -198,15 +208,25 @@ export default function AnalyticsAdmin() {
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-500">Průměr. kliky/den</p>
               <p className="text-3xl font-bold text-gray-900">
-                {loading ? '...' : Math.round(analytics.totalClicks / 7).toLocaleString()}
+                {loading ? '...' : (() => {
+                  const days = { '1d': 1, '7d': 7, '30d': 30, '90d': 90 }[timeRange] ?? 7
+                  const val = days > 0 ? Math.round(analytics.totalClicks / days) : 0
+                  return val.toLocaleString()
+                })()}
               </p>
-              <p className="text-sm text-gray-600 mt-1">
-                Za posledních 7 dní
-              </p>
+              <p className="text-[11px] text-gray-400">(počítáno z vybraného období)</p>
             </div>
           </div>
         </div>
-      </div>
+        </div>
+        </>
+      )}
+
+      {tabParam === 'companies' && (
+        <div className="mt-4">
+          <CompanyStatistics />
+        </div>
+      )}
 
       {/* Content Analytics */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -303,7 +323,7 @@ export default function AnalyticsAdmin() {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {additionalStats.pages.mostVisited.map((page, index) => {
-                const ctr = ((page.clicks / page.views) * 100).toFixed(1)
+                const ctr = (page.ctr ?? ((page.views > 0 ? (page.clicks / page.views) * 100 : 0))).toFixed(1)
                 return (
                   <tr key={index} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -326,24 +346,7 @@ export default function AnalyticsAdmin() {
         </div>
       </div>
 
-      {/* Quick Insights */}
-      <div className="bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg p-6 text-white">
-        <h3 className="text-lg font-semibold mb-4">Rychlé pozorování</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-white bg-opacity-20 rounded-lg p-4">
-            <h4 className="font-medium mb-2">Nejaktivnější den</h4>
-            <p className="text-sm opacity-90">Úterý - 34% všech kliků</p>
-          </div>
-          <div className="bg-white bg-opacity-20 rounded-lg p-4">
-            <h4 className="font-medium mb-2">Špičková hodina</h4>
-            <p className="text-sm opacity-90">14:00-15:00 - 18% kliků</p>
-          </div>
-          <div className="bg-white bg-opacity-20 rounded-lg p-4">
-            <h4 className="font-medium mb-2">Růst tento měsíc</h4>
-            <p className="text-sm opacity-90">+23% oproti minulému měsíci</p>
-          </div>
-        </div>
-      </div>
+      {/* Quick Insights – dočasně odstraněno, dokud nebudou reálné metriky porovnání */}
     </div>
   )
 } 

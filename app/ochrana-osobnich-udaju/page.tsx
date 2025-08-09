@@ -62,7 +62,8 @@ export default function PrivacyPage() {
               5. Kontaktní údaje
             </h2>
             <p className="text-gray-600 mb-6">
-              Pro uplatnění vašich práv nebo dotazy ohledně zpracování osobních údajů nás kontaktujte na privacy@example.com.
+              Pro uplatnění vašich práv nebo dotazy ohledně zpracování osobních údajů nás kontaktujte na{' '}
+              <a href="mailto:info@comparee.ai" className="text-purple-600 hover:text-purple-700">info@comparee.ai</a>.
             </p>
 
             <div className="mt-8 p-4 bg-purple-50 rounded-[14px] text-sm text-gray-600">

@@ -1,5 +1,6 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
+import { Prisma } from '@prisma/client'
 import { cookies } from 'next/headers'
 
 export async function POST(request: Request) {
@@ -22,13 +23,25 @@ export async function POST(request: Request) {
     // Získáme IP adresu z requestu
     const ipAddress = request.headers.get('x-forwarded-for') || 'unknown'
 
-    // Uložíme klik do databáze
+    // Uložíme klik do databáze včetně aktuální cesty (pro CTR per page)
+    const url = new URL(request.url)
+    let pagePath = url.searchParams.get('pagePath') || undefined
+    if (!pagePath) {
+      const referer = request.headers.get('referer') || ''
+      if (referer) {
+        try {
+          const { pathname } = new URL(referer)
+          pagePath = pathname
+        } catch {}
+      }
+    }
     await prisma.click.create({
-      data: {
+      data: ({
         productId,
         visitorId,
         ipAddress,
-      },
+        pagePath: pagePath ?? null,
+      } as any)
     })
 
     return NextResponse.json({ success: true })
@@ -39,17 +52,34 @@ export async function POST(request: Request) {
 }
 
 // Endpoint pro získání statistik
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const totalClicks = await prisma.click.count()
+    // Volitelný časový rozsah
+    const { searchParams } = new URL(request.url)
+    const range = (searchParams.get('range') || '7d').toLowerCase()
+    const daysMap: Record<string, number> = { '1d': 1, '7d': 7, '30d': 30, '90d': 90 }
+    const days = daysMap[range] ?? 7
+
+    const since = new Date()
+    since.setDate(since.getDate() - days)
+
+    const whereClause = { createdAt: { gte: since } } as const
+
+    const totalClicks = await prisma.click.count({ where: whereClause })
     const uniqueVisitors = await prisma.click.groupBy({
       by: ['visitorId'],
+      where: whereClause,
       _count: true,
     })
+
+    const avgClicksPerDay = days > 0 ? Math.round(totalClicks / days) : 0
 
     return NextResponse.json({
       totalClicks,
       uniqueVisitors: uniqueVisitors.length,
+      avgClicksPerDay,
+      days,
+      range
     })
   } catch (error) {
     console.error('Error fetching stats:', error)

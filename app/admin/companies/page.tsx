@@ -62,7 +62,7 @@ interface AdvertiserCompany {
 }
 
 export default function CompaniesAdmin() {
-  const [activeTab, setActiveTab] = useState<'applications' | 'approved' | 'rejected'>('applications')
+  const [activeTab, setActiveTab] = useState<'applications' | 'approved' | 'rejected' | 'cancelled'>('applications')
   const [approvedSubTab, setApprovedSubTab] = useState<'with-product' | 'waiting-product' | 'future-categories'>('with-product')
   const [applications, setApplications] = useState<CompanyApplication[]>([])
   const [allProducts, setAllProducts] = useState<Product[]>([])
@@ -79,7 +79,8 @@ export default function CompaniesAdmin() {
   const [stats, setStats] = useState({
     totalPending: 0,
     totalApproved: 0,
-    totalRejected: 0
+    totalRejected: 0,
+    totalCancelled: 0
   })
 
   // Načtení aplikací z API
@@ -218,7 +219,7 @@ export default function CompaniesAdmin() {
   }
 
   // Zpracování schválení/zamítnutí s možností přiřazení produktu
-  const handleAction = async (applicationId: string, action: 'approve' | 'reject' | 'delete', notes?: string) => {
+  const handleAction = async (applicationId: string, action: 'approve' | 'reject' | 'delete' | 'cancel' | 'restore', notes?: string) => {
     setActionLoading(applicationId)
     
     try {
@@ -286,6 +287,34 @@ export default function CompaniesAdmin() {
             alert(`PPC inzerent byl úspěšně schválen${productMessage}`)
           } else {
             alert('Chyba při schvalování PPC inzerenta')
+          }
+        } else if (action === 'cancel') {
+          // Zrušení již schváleného/aktivního PPC inzerenta (status->cancelled)
+          const response = await fetch(`/api/admin/advertisers?id=${applicationId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'cancel' })
+          })
+          if (response.ok) {
+            await loadAdvertisers()
+            setSelectedApp(null)
+            alert('PPC inzerent byl zrušen (cancelled)')
+          } else {
+            alert('Chyba při rušení PPC inzerenta')
+          }
+        } else if (action === 'restore') {
+          // Obnovení zrušeného PPC inzerenta (status->approved)
+          const response = await fetch(`/api/admin/advertisers?id=${applicationId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'restore' })
+          })
+          if (response.ok) {
+            await loadAdvertisers()
+            setSelectedApp(null)
+            alert('PPC inzerent byl obnoven (approved)')
+          } else {
+            alert('Chyba při obnově PPC inzerenta')
           }
         }
         return
@@ -412,11 +441,16 @@ export default function CompaniesAdmin() {
       adv.status === 'rejected' && 
       !applications.some(app => app.id === adv.id)
     ).length
+    const ppcCancelled = advertisers.filter(adv => 
+      adv.status === 'cancelled' && 
+      !applications.some(app => app.id === adv.id)
+    ).length
     
     setStats({
       totalPending: standardPending + ppcPending,
       totalApproved: standardApproved + ppcApproved,
-      totalRejected: standardRejected + ppcRejected
+      totalRejected: standardRejected + ppcRejected,
+      totalCancelled: ppcCancelled
     })
   }
 
@@ -457,6 +491,7 @@ export default function CompaniesAdmin() {
       case 'pending': return 'bg-yellow-100 text-yellow-800'
       case 'approved': return 'bg-green-100 text-green-800'
       case 'rejected': return 'bg-red-100 text-red-800'
+      case 'cancelled': return 'bg-gray-200 text-gray-800'
       default: return 'bg-gray-100 text-gray-800'
     }
   }
@@ -466,6 +501,7 @@ export default function CompaniesAdmin() {
       case 'pending': return <ClockIcon className="w-3 h-3" />
       case 'approved': return <CheckIcon className="w-3 h-3" />
       case 'rejected': return <XMarkIcon className="w-3 h-3" />
+      case 'cancelled': return <XMarkIcon className="w-3 h-3" />
       default: return <ExclamationTriangleIcon className="w-3 h-3" />
     }
   }
@@ -636,6 +672,21 @@ export default function CompaniesAdmin() {
                 {stats.totalRejected}
               </span>
             </button>
+            <button
+              onClick={() => setActiveTab('cancelled')}
+              className={`${
+                activeTab === 'cancelled'
+                  ? 'border-purple-500 text-purple-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              } py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap`}
+            >
+              Zrušené firmy
+              {stats.totalCancelled > 0 && (
+                <span className="ml-2 bg-gray-200 text-gray-800 py-1 px-2 rounded-full text-xs">
+                  {stats.totalCancelled}
+                </span>
+              )}
+            </button>
           </nav>
         </div>
 
@@ -644,7 +695,8 @@ export default function CompaniesAdmin() {
           {(filteredApplications.length === 0 && advertisers.length === 0) || 
            (filteredApplications.length === 0 && activeTab === 'applications' && advertisers.filter(adv => adv.status === 'pending').length === 0) ||
            (filteredApplications.length === 0 && activeTab === 'approved' && advertisers.filter(adv => adv.status === 'approved' || adv.status === 'active').length === 0) ||
-           (filteredApplications.length === 0 && activeTab === 'rejected' && advertisers.filter(adv => adv.status === 'rejected').length === 0) ? (
+           (filteredApplications.length === 0 && activeTab === 'rejected' && advertisers.filter(adv => adv.status === 'rejected').length === 0) ||
+           (filteredApplications.length === 0 && activeTab === 'cancelled' && advertisers.filter(adv => adv.status === 'cancelled').length === 0) ? (
             <div className="text-center py-12">
               <BuildingOfficeIcon className="mx-auto h-12 w-12 text-gray-400" />
               <h3 className="mt-2 text-sm font-medium text-gray-900">Žádné aplikace</h3>
@@ -1165,6 +1217,28 @@ export default function CompaniesAdmin() {
                                       <CheckIcon className="w-4 h-4 mr-1" />
                                       Aktivní
                                     </span>
+                                    <button
+                                      onClick={() => {
+                                        setSelectedApp({
+                                          id: advertiser.id,
+                                          companyName: advertiser.name,
+                                          contactPerson: advertiser.contactPerson,
+                                          businessEmail: advertiser.email,
+                                          website: advertiser.website,
+                                          description: advertiser.description,
+                                          status: 'approved',
+                                          submittedAt: advertiser.createdAt,
+                                          isPPCAdvertiser: true,
+                                          assignedProductId: advertiser.assignedProductId
+                                        } as any)
+                                        handleAction(advertiser.id, 'cancel')
+                                      }}
+                                      disabled={actionLoading === advertiser.id}
+                                      className="inline-flex items-center px-3 py-1 border border-red-200 text-sm font-medium rounded-md text-red-700 bg-red-50 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
+                                    >
+                                      <XMarkIcon className="w-4 h-4 mr-1" />
+                                      Zrušit
+                                    </button>
                                   </div>
                                 </div>
                                 {advertiser.description && (
@@ -1486,8 +1560,260 @@ export default function CompaniesAdmin() {
                   ))}
                 </>
               )}
-            </>
-          )}
+
+              {/* Zrušené PPC Inzerenti - nový tab */}
+              {activeTab === 'cancelled' && advertisers.filter(adv => adv.status === 'cancelled').length > 0 && (
+                <>
+                  <div className="bg-gray-50 px-6 py-3">
+                    <h4 className="text-sm font-medium text-gray-900 flex items-center">
+                      <BuildingOfficeIcon className="h-4 w-4 mr-2" />
+                      Zrušené PPC firmy
+                    </h4>
+                  </div>
+                  {advertisers.filter(adv => adv.status === 'cancelled').map((advertiser) => (
+                    <div key={`cancelled-advertiser-${advertiser.id}`} className="p-6 bg-gray-50/60">
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center">
+                            <div className="flex-shrink-0">
+                              <BuildingOfficeIcon className="h-8 w-8 text-gray-500" />
+                            </div>
+                            <div className="ml-4 flex-1 min-w-0">
+                              <div className="flex items-center">
+                                <h3 className="text-lg font-medium text-gray-900 truncate">{advertiser.name}</h3>
+                                <span className="ml-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-200 text-gray-800">
+                                  <XMarkIcon className="w-3 h-3 mr-1" />
+                                  Zrušeno
+                                </span>
+                              </div>
+                              <div className="mt-1 flex items-center text-sm text-gray-500">
+                                <EnvelopeIcon className="flex-shrink-0 mr-1.5 h-4 w-4" />
+                                <span className="truncate">{advertiser.contactPerson} (</span>
+                                <a href={`mailto:${advertiser.email}`} className="text-purple-600 hover:text-purple-500 hover:underline">
+                                  {advertiser.email}
+                                </a>
+                                <span>)</span>
+                              </div>
+                              {advertiser.website && (
+                                <div className="mt-1 flex items-center text-sm text-gray-500">
+                                  <GlobeAltIcon className="flex-shrink-0 mr-1.5 h-4 w-4" />
+                                  <a href={advertiser.website} target="_blank" rel="noopener noreferrer" className="text-purple-600 hover:text-purple-500 truncate">
+                                    {advertiser.website}
+                                  </a>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <button
+                            onClick={() => {
+                              const name = advertiser.name
+                              if (!confirm(`Obnovit zrušenou firmu "${name}"?`)) return
+                              if (!confirm('Opravdu chcete obnovit? Stav se změní na Schváleno.')) return
+                              setSelectedApp({
+                                id: advertiser.id,
+                                companyName: advertiser.name,
+                                contactPerson: advertiser.contactPerson,
+                                businessEmail: advertiser.email,
+                                website: advertiser.website,
+                                description: advertiser.description,
+                                status: 'cancelled',
+                                submittedAt: advertiser.createdAt,
+                                isPPCAdvertiser: true,
+                                assignedProductId: advertiser.assignedProductId
+                              } as any)
+                              handleAction(advertiser.id, 'restore')
+                            }}
+                            className="inline-flex items-center px-3 py-1 border border-green-200 text-sm font-medium rounded-md text-green-700 bg-green-50 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                          >
+                            <CheckIcon className="w-4 h-4 mr-1" />
+                            Obnovit
+                          </button>
+                          <button
+                            onClick={() => {
+                              setSelectedApp({
+                                id: advertiser.id,
+                                companyName: advertiser.name,
+                                contactPerson: advertiser.contactPerson,
+                                businessEmail: advertiser.email,
+                                website: advertiser.website,
+                                description: advertiser.description,
+                                status: 'cancelled',
+                                submittedAt: advertiser.createdAt,
+                                isPPCAdvertiser: true,
+                                assignedProductId: advertiser.assignedProductId
+                              } as any)
+                            }}
+                            className="inline-flex items-center px-3 py-1 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                          >
+                            <EyeIcon className="w-4 h-4 mr-1" />
+                            Detail
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </>
+              )}
+                  {filteredApplications.length > 0 && (
+                    <div className="bg-red-50 px-6 py-3">
+                      <h4 className="text-sm font-medium text-red-900 flex items-center">
+                        <BuildingOfficeIcon className="h-4 w-4 mr-2" />
+                        Zamítnutí PPC Advertiseři
+                      </h4>
+                    </div>
+                  )}
+                  {advertisers.filter(adv => adv.status === 'rejected').map((advertiser) => (
+                    <div key={`rejected-advertiser-${advertiser.id}`} className="p-6 bg-red-50/30">
+                      <div 
+                        className="flex items-center justify-between cursor-pointer"
+                        onClick={() => {
+                          const appData = {
+                            id: advertiser.id,
+                            companyName: advertiser.name,
+                            contactPerson: advertiser.contactPerson,
+                            businessEmail: advertiser.email,
+                            website: advertiser.website,
+                            description: advertiser.description,
+                            status: 'rejected',
+                            submittedAt: advertiser.createdAt,
+                            isPPCAdvertiser: true,
+                            assignedProductId: advertiser.assignedProductId
+                          } as any;
+                          setSelectedApp(appData);
+                          // Automaticky spustí matching podle domény pro PPC inzerenty
+                          if (advertiser.website) {
+                            setTimeout(() => findMatchedProductsByDomain(advertiser.website!), 100);
+                          }
+                        }}
+                      >
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center">
+                            <div className="flex-shrink-0">
+                              <BuildingOfficeIcon className="h-8 w-8 text-red-500" />
+                            </div>
+                            <div className="ml-4 flex-1 min-w-0">
+                              <div className="flex items-center">
+                                <h3 className="text-lg font-medium text-gray-900 truncate">{advertiser.name}</h3>
+                                <span className="ml-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                  <XMarkIcon className="w-3 h-3 mr-1" />
+                                  Zamítnuto
+                                </span>
+                                {(() => {
+                                  const creditStatus = getCreditStatus(advertiser);
+                                  return (
+                                    <span className={`ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${creditStatus.color}`}>
+                                      <span className="mr-1">{creditStatus.icon}</span>
+                                      {creditStatus.label}
+                                    </span>
+                                  );
+                                })()}
+                                {advertiser.isVerified && (
+                                  <CheckCircleIcon className="h-4 w-4 text-green-500 ml-2" />
+                                )}
+                              </div>
+                              <div className="mt-1 flex items-center text-sm text-gray-500">
+                                <EnvelopeIcon className="flex-shrink-0 mr-1.5 h-4 w-4" />
+                                <span className="truncate">{advertiser.contactPerson} (</span>
+                                <a 
+                                  href={`mailto:${advertiser.email}`}
+                                  className="text-purple-600 hover:text-purple-500 hover:underline"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  {advertiser.email}
+                                </a>
+                                <span>)</span>
+                              </div>
+                              {advertiser.website && (
+                                <div className="mt-1 flex items-center text-sm text-gray-500">
+                                  <GlobeAltIcon className="flex-shrink-0 mr-1.5 h-4 w-4" />
+                                  <a 
+                                    href={advertiser.website} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className="text-purple-600 hover:text-purple-500 truncate"
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    {advertiser.website}
+                                  </a>
+                                </div>
+                              )}
+                              <div className="mt-1 flex items-center text-sm text-gray-500">
+                                <span>Registrováno: {new Date(advertiser.createdAt).toLocaleDateString('cs-CZ', { 
+                                  year: 'numeric', 
+                                  month: 'long', 
+                                  day: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })}</span>
+                                <span className="ml-3">Balance: ${advertiser.balance.toFixed(2)}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-2" onClick={(e) => e.stopPropagation()}>
+                          <button
+                            onClick={() => {
+                              // Nastavíme selectedApp před voláním handleAction
+                              const appData = {
+                                id: advertiser.id,
+                                companyName: advertiser.name,
+                                contactPerson: advertiser.contactPerson,
+                                businessEmail: advertiser.email,
+                                website: advertiser.website,
+                                description: advertiser.description,
+                                status: advertiser.status,
+                                submittedAt: advertiser.createdAt,
+                                isPPCAdvertiser: true,
+                                assignedProductId: advertiser.assignedProductId
+                              } as any;
+                              setSelectedApp(appData);
+                              handleAction(advertiser.id, 'approve');
+                            }}
+                            disabled={actionLoading === advertiser.id}
+                            className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
+                          >
+                            <CheckIcon className="w-4 h-4 mr-1" />
+                            Schválit
+                          </button>
+                          <button
+                            onClick={() => {
+                              if (window.confirm('Opravdu chcete trvale smazat tuto firmu? Tato akce je nevratná.')) {
+                                // Nastavíme selectedApp před voláním handleAction
+                                const appData = {
+                                  id: advertiser.id,
+                                  companyName: advertiser.name,
+                                  contactPerson: advertiser.contactPerson,
+                                  businessEmail: advertiser.email,
+                                  website: advertiser.website,
+                                  description: advertiser.description,
+                                  status: advertiser.status,
+                                  submittedAt: advertiser.createdAt,
+                                  isPPCAdvertiser: true,
+                                  assignedProductId: advertiser.assignedProductId
+                                } as any;
+                                setSelectedApp(appData);
+                                handleAction(advertiser.id, 'delete');
+                              }
+                            }}
+                            disabled={actionLoading === advertiser.id}
+                            className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
+                          >
+                            <XMarkIcon className="w-4 h-4 mr-1" />
+                            Smazat
+                          </button>
+                        </div>
+                      </div>
+                      {advertiser.description && (
+                        <div className="mt-3 ml-12">
+                          <p className="text-sm text-gray-600 line-clamp-2">{advertiser.description}</p>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </>
+              )}
         </div>
       </div>
 
@@ -1880,7 +2206,7 @@ export default function CompaniesAdmin() {
                   </button>
                 </div>
               ) : (
-                // Pro approved PPC inzerenty - pouze informativní
+                // Pro approved PPC inzerenty – správa produktu + možnost zrušit
                 <div className="mt-6 flex justify-end space-x-3">
                   <div className="flex items-center text-sm text-gray-500">
                     {selectedApp.assignedProductId ? (() => {
@@ -1918,6 +2244,13 @@ export default function CompaniesAdmin() {
                       {actionLoading === selectedApp.id ? 'Přiřazuji...' : 'Přiřadit produkt'}
                     </button>
                   )}
+                  <button
+                    onClick={() => handleAction(selectedApp.id, 'cancel')}
+                    disabled={actionLoading === selectedApp.id}
+                    className="inline-flex items-center px-3 py-1 border border-red-200 text-sm font-medium rounded-md text-red-700 bg-red-50 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
+                  >
+                    {actionLoading === selectedApp.id ? 'Ruším...' : 'Zrušit schválení'}
+                  </button>
                 </div>
               )
             ) : (

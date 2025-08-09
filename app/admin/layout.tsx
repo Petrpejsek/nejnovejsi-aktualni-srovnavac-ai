@@ -67,26 +67,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       icon: '🎁',
       current: pathname.startsWith('/admin/promotional-packages')
     },
+    // Firemní statistiky jsou nyní součástí záložek na /admin/analytics
+    // Stránky (legacy) odstraněny – správa řešena v Landing Pages
     {
-      name: 'Firemní statistiky',
-      href: '/admin/company-statistics',
-      icon: '📈',
-      current: pathname.startsWith('/admin/company-statistics')
-    },
-    {
-      name: 'Stránky',
-      href: '/admin/pages',
-      icon: '📄',
-      current: pathname.startsWith('/admin/pages')
-    },
-    {
-      name: 'Vytvořit Landing Page',
-      href: '/admin/create-landing',
-      icon: '🚀',
-      current: pathname.startsWith('/admin/create-landing')
-    },
-    {
-      name: 'Správa Landing Pages',
+      name: 'Landing Pages',
       href: '/admin/landing-pages',
       icon: '📝',
       current: pathname.startsWith('/admin/landing-pages')

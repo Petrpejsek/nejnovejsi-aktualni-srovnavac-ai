@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import Header from './Header'
 import Footer from './Footer'
@@ -14,6 +14,25 @@ export default function ClientLayout({
   const isCompanyAdmin = pathname?.startsWith('/company/')
   const isAdmin = pathname?.startsWith('/admin')
   const isCompanyPage = pathname === '/company' || pathname?.startsWith('/company/')
+
+  // Lightweight pageview logger (bez dopadu na admin sekce)
+  useEffect(() => {
+    if (!isAdmin && typeof window !== 'undefined') {
+      const controller = new AbortController()
+      const referrer = document.referrer || ''
+      const ua = navigator.userAgent || ''
+      fetch(`/api/pageview?path=${encodeURIComponent(pathname || '/')}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ referrer, userAgent: ua }),
+          signal: controller.signal,
+          cache: 'no-store'
+        }
+      ).catch(() => {})
+      return () => controller.abort()
+    }
+  }, [pathname, isAdmin])
 
   // Pokud jsme v admin sekci, nezobrazujeme Header ani Footer
   if (isAdmin) {

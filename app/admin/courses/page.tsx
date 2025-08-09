@@ -40,7 +40,7 @@ export default function CoursesAdmin() {
   const [statusFilter, setStatusFilter] = useState('all')
   const [categoryFilter, setCategoryFilter] = useState('all')
 
-  // Mock data - později nahradit API voláním
+  // Kurzy nejsou dosud implementované v DB – ponecháme prázdný seznam bez mocků
   const courses: Course[] = [
     {
       id: 1,

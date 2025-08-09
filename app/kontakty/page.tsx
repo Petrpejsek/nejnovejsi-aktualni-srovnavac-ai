@@ -19,17 +19,13 @@ export default function ContactPage() {
                 <h2 className="text-xl font-semibold text-gray-800 mb-4">
                   Email Contact
                 </h2>
-                <p className="text-gray-600 mb-2">
-                  For general inquiries:
-                </p>
-                <a href="mailto:info@example.com" className="text-purple-600 hover:text-purple-700">
-                  info@example.com
+                <p className="text-gray-600 mb-2">For general inquiries:</p>
+                <a href="mailto:info@comparee.ai" className="text-purple-600 hover:text-purple-700">
+                  info@comparee.ai
                 </a>
-                <p className="text-gray-600 mt-4 mb-2">
-                  For business cooperation:
-                </p>
-                <a href="mailto:business@example.com" className="text-purple-600 hover:text-purple-700">
-                  business@example.com
+                <p className="text-gray-600 mt-4 mb-2">For business cooperation:</p>
+                <a href="mailto:info@comparee.ai" className="text-purple-600 hover:text-purple-700">
+                  info@comparee.ai
                 </a>
               </div>
 

@@ -117,6 +117,8 @@ export default function CompanyLoginForm({ onSuccess, onSwitchToRegister }: Comp
               errors.email ? 'border-red-300' : 'border-gray-300'
             }`}
             placeholder="your@company.com"
+            onFocus={(e) => { e.currentTarget.placeholder = '' }}
+            onBlur={(e) => { if (!e.currentTarget.value) e.currentTarget.placeholder = 'your@company.com' }}
           />
           {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
         </div>
@@ -137,6 +139,8 @@ export default function CompanyLoginForm({ onSuccess, onSwitchToRegister }: Comp
                 errors.password ? 'border-red-300' : 'border-gray-300'
               }`}
               placeholder="Enter your password"
+              onFocus={(e) => { e.currentTarget.placeholder = '' }}
+              onBlur={(e) => { if (!e.currentTarget.value) e.currentTarget.placeholder = 'Enter your password' }}
             />
             <button
               type="button"
