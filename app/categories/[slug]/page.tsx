@@ -743,8 +743,8 @@ export default function CategoryPage() {
         <meta property="og:title" content={`${categoryData.title} | Comparee.ai`} />
         <meta property="og:description" content={categoryData.metaDescription} />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content={`https://comparee.ai/categories/${slug}`} />
-        <link rel="canonical" href={`https://comparee.ai/categories/${slug}`} />
+        <meta property="og:url" content={`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/categories/${slug}`} />
+        <link rel="canonical" href={`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/categories/${slug}`} />
         <meta name="robots" content="index, follow" />
       </Head>
 

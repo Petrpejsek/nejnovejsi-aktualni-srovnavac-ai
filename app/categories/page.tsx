@@ -20,10 +20,10 @@ export const metadata: Metadata = {
     title: 'All AI Tool Categories | Compare the Best AI Tools 2025',
     description: 'Explore all AI tool categories on Comparee.ai. Find the best AI tools for writing, image generation, automation, productivity, and more.',
     type: 'website',
-    url: 'https://comparee.ai/categories',
+    url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/categories`,
   },
   alternates: {
-    canonical: 'https://comparee.ai/categories'
+    canonical: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/categories`
   },
   robots: 'index, follow'
 }
@@ -192,14 +192,14 @@ export default async function CategoriesPage() {
     "@type": "ItemList",
     "name": "AI Tool Categories",
     "description": "Complete list of AI tool categories available on Comparee.ai",
-    "url": "https://comparee.ai/categories",
+     "url": `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/categories`,
     "numberOfItems": categories.length,
     "itemListElement": topCategories.map((category, index) => ({
       "@type": "ListItem",
       "position": index + 1,
       "name": category.name,
       "description": category.description,
-      "url": `https://comparee.ai/categories/${category.slug}`,
+       "url": `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/categories/${category.slug}`,
       "numberOfItems": category.productCount
     }))
   }

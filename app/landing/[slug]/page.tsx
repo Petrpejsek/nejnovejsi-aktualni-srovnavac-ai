@@ -55,10 +55,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       };
     }
     
+    const base = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
+    const canonicalUrl = `${base}/landing/${slug}`
+
     return {
       title: `${landingPage.title} | Comparee.ai`,
       description: landingPage.meta_description,
       keywords: typeof landingPage.meta_keywords === 'string' ? landingPage.meta_keywords : (landingPage.meta_keywords as any)?.join?.(', ') || '',
+      alternates: { canonical: canonicalUrl },
+      openGraph: { url: canonicalUrl },
     };
   } catch (error) {
     console.error('Error generating metadata:', error);

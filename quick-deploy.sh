@@ -52,7 +52,7 @@ sleep 10
 
 if ssh -i "$SSH_KEY" "$HETZNER_USER@$HETZNER_IP" "curl -f http://localhost:3000/api/health" >/dev/null 2>&1; then
     echo "✅ Application is running!"
-    echo "🌐 Available at: https://comparee.ai"
+    echo "🌐 Available at: ${NEXT_PUBLIC_BASE_URL:-http://localhost:3000}"
 else
     echo "⚠️ Health check failed. Check logs: ssh $HETZNER_USER@$HETZNER_IP 'pm2 logs'"
 fi

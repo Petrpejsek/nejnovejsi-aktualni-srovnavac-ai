@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: Props) {
       title: `${product.name} | comparee.ai`,
       description: product.description,
       alternates: {
-        canonical: `https://comparee.ai/products/${params.id}`,
+        canonical: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/products/${params.id}`,
       },
     };
   } catch (error) {

@@ -29,7 +29,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'All AI Tools - Browse & Compare 500+ AI Tools | Comparee.ai',
     description: 'Discover and compare 500+ AI tools across all categories. Find the best AI solutions for your needs.',
-    url: 'https://comparee.ai/products',
+    url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/products`,
     type: 'website'
   }
 }
@@ -112,7 +112,7 @@ export default async function ProductsPage() {
     "@type": "ItemList",
     "name": "All AI Tools",
     "description": "Complete directory of AI tools and software",
-    "url": "https://comparee.ai/products",
+    "url": `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/products`,
     "numberOfItems": totalProducts,
     "itemListElement": products.slice(0, 10).map((product, index) => ({
       "@type": "ListItem",
@@ -121,7 +121,7 @@ export default async function ProductsPage() {
         "@type": "Product",
         "name": product.name,
         "description": product.description,
-        "url": `https://comparee.ai/products/${product.id}`,
+        "url": `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/products/${product.id}`,
         "category": product.category,
         "offers": {
           "@type": "Offer",
@@ -141,7 +141,7 @@ export default async function ProductsPage() {
       />
 
       {/* Canonical Link */}
-      <link rel="canonical" href="https://comparee.ai/products" />
+      <link rel="canonical" href={`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/products`} />
 
       <main className="min-h-screen bg-gray-50">
         {/* Header Section */}
