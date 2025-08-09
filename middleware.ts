@@ -17,21 +17,21 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Enforce base URL if configured
-  const base = process.env.NEXT_PUBLIC_BASE_URL;
-  if (base) {
-    try {
-      const url = new URL(request.url);
+  // Canonicalize: pokud přijde požadavek na comparee.ai, přesměruj na NEXT_PUBLIC_BASE_URL
+  // Přístup na IP ponech bez redirectu
+  try {
+    const url = new URL(request.url);
+    const host = url.hostname.toLowerCase();
+    if (host === 'comparee.ai' || host === 'www.comparee.ai') {
+      const base = process.env.NEXT_PUBLIC_BASE_URL || 'http://23.88.98.49';
       const wanted = new URL(base);
-      if (url.hostname !== wanted.hostname || url.protocol !== wanted.protocol) {
-        url.protocol = wanted.protocol;
-        url.hostname = wanted.hostname;
-        url.port = wanted.port || '';
-        return NextResponse.redirect(url, { status: 308 });
-      }
-    } catch {
-      // ignore
+      url.protocol = wanted.protocol;
+      url.hostname = wanted.hostname;
+      url.port = wanted.port || '';
+      return NextResponse.redirect(url, { status: 308 });
     }
+  } catch {
+    // ignore
   }
 
   // Role-based access control
