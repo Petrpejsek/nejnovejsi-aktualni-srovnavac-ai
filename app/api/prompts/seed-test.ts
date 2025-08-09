@@ -13,8 +13,8 @@ export async function POST() {
     for (const c of cats) {
       await prisma.promptCategory.upsert({
         where: { slug: c.slug },
-        create: c,
-        update: { name: c.name, order: c.order },
+        create: { ...c, updatedAt: new Date() },
+        update: { name: c.name, order: c.order, updatedAt: new Date() },
       })
     }
 
@@ -70,8 +70,8 @@ export async function POST() {
     for (const s of samples) {
       await prisma.prompt.upsert({
         where: { slug: s.slug },
-        create: s as any,
-        update: { summary: s.summary, coverImage: s.coverImage, previewVideoUrl: s.previewVideoUrl },
+        create: { ...(s as any), updatedAt: new Date() },
+        update: { summary: s.summary, coverImage: s.coverImage, previewVideoUrl: s.previewVideoUrl, updatedAt: new Date() },
       })
     }
 
