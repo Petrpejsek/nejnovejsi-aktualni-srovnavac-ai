@@ -31,7 +31,7 @@ export default function Footer() {
   const usefulLinks = [
     { name: 'About Us', href: '/about' },
     { name: 'How It Works', href: '/how-it-works' },
-    { name: 'For Companies', href: '/company' },
+    { name: 'For Companies', href: '/advertise' },
     { name: 'Terms of Service', href: '/terms' },
     { name: 'Privacy Policy', href: '/privacy' },
     // Contact Support should open the user's email client directly

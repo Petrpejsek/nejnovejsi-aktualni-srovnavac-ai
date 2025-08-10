@@ -130,7 +130,7 @@ export default function CompanyLayout({
           <p className="text-gray-600 mb-4">Tato stránka je pouze pro přihlášené company účty.</p>
           <p className="text-sm text-gray-500">Aktuální role: {user?.role || 'žádná'}</p>
           <a 
-            href="/company" 
+            href="/advertise" 
             className="mt-4 inline-block px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
           >
             Přihlásit se

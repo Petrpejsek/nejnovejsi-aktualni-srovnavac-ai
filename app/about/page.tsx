@@ -120,7 +120,7 @@ export default function AboutPage() {
                     contact page
                   </Link>
                   . For vendors, see{' '}
-                  <Link className="text-purple-700 hover:text-purple-800 underline" href="/company">
+                  <Link className="text-purple-700 hover:text-purple-800 underline" href="/advertise">
                     For Companies
                   </Link>{' '}to get listed or update your product profile.
                 </p>

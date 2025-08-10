@@ -11,9 +11,9 @@ export default function ClientLayout({
   children: React.ReactNode
 }) {
   const pathname = usePathname()
-  const isCompanyAdmin = pathname?.startsWith('/company/')
+  const isCompanyAdmin = pathname?.startsWith('/company-admin') || pathname === '/company/dashboard'
   const isAdmin = pathname?.startsWith('/admin')
-  const isCompanyPage = pathname === '/company' || pathname?.startsWith('/company/')
+  const isCompanyPage = pathname === '/advertise'
 
   // Lightweight pageview logger (bez dopadu na admin sekce)
   useEffect(() => {
@@ -43,7 +43,7 @@ export default function ClientLayout({
     )
   }
 
-  // Na company stránce nezobrazujeme Header (pouze pro firmy)
+  // Na marketingové stránce pro firmy (advertise) nezobrazujeme Header (má vlastní CTA)
   if (isCompanyPage) {
     return (
       <div className="min-h-screen flex flex-col bg-white">

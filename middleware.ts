@@ -5,6 +5,19 @@ import { getToken } from 'next-auth/jwt';
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
+  // Early legacy route normalization (server-side redirects)
+  if (pathname === '/company') {
+    return NextResponse.redirect(new URL('/advertise', request.url));
+  }
+  if (pathname.startsWith('/company/')) {
+    const rest = pathname.replace(/^\/company/, '');
+    return NextResponse.redirect(new URL('/company-admin' + rest, request.url));
+  }
+  if (pathname === '/advertiser' || pathname.startsWith('/advertiser/')) {
+    const rest = pathname.replace(/^\/advertiser/, '');
+    return NextResponse.redirect(new URL('/company-admin' + rest, request.url));
+  }
+
   // Skip static and special files
   if (
     pathname.startsWith('/_next') ||

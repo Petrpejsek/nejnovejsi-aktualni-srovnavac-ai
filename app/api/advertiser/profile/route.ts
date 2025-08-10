@@ -1,44 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 // Force dynamic rendering
-export const runtime = 'nodejs'  
+export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 import { PrismaClient } from '@prisma/client'
-import jwt from 'jsonwebtoken'
+import { getToken } from 'next-auth/jwt'
 
 const prisma = new PrismaClient()
-
-// Ověření JWT tokenu
-function verifyToken(request: NextRequest) {
-  const token = request.cookies.get('advertiser-token')?.value
-  
-  if (!token) {
-    return null
-  }
-
-  try {
-    const decoded = jwt.verify(token, (() => { const v = process.env.JWT_SECRET; if (!v) throw new Error('JWT_SECRET is required'); return v })()) as any
-    return decoded
-  } catch (error) {
-    return null
-  }
-}
 
 // GET /api/advertiser/profile - načtení profilu firmy
 export async function GET(request: NextRequest) {
   try {
-    const user = verifyToken(request)
-    
-    if (!user) {
+    const token = await getToken({ req: request })
+
+    if (!token || token.role !== 'company' || !token.email) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized' },
         { status: 401 }
       )
     }
 
-    // Načtení profilu firmy
-    const company = await prisma.company.findUnique({
-      where: { id: user.companyId },
+    // Map email → companyId and load company profile
+    const company = await prisma.company.findFirst({
+      where: { email: token.email as string },
       select: {
         id: true,
         name: true,
@@ -82,9 +66,9 @@ export async function GET(request: NextRequest) {
 // PUT /api/advertiser/profile - aktualizace profilu firmy
 export async function PUT(request: NextRequest) {
   try {
-    const user = verifyToken(request)
-    
-    if (!user) {
+    const token = await getToken({ req: request })
+
+    if (!token || token.role !== 'company' || !token.email) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized' },
         { status: 401 }
@@ -111,9 +95,18 @@ export async function PUT(request: NextRequest) {
       )
     }
 
+    // Najdeme firmu podle emailu ze session
+    const company = await prisma.company.findFirst({ where: { email: token.email as string }, select: { id: true } })
+    if (!company) {
+      return NextResponse.json(
+        { success: false, error: 'Company not found' },
+        { status: 404 }
+      )
+    }
+
     // Aktualizace profilu
     const updatedCompany = await prisma.company.update({
-      where: { id: user.companyId },
+      where: { id: company.id },
       data: {
         name,
         contactPerson,

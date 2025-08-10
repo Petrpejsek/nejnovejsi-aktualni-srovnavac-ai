@@ -273,18 +273,24 @@ export default function CompanyDashboard() {
             <h3 className="text-sm font-medium text-gray-900">Quick Actions</h3>
           </div>
           <div className="flex-1 p-4 space-y-3">
-            <button className="w-full flex items-center justify-center px-3 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs font-medium rounded-md hover:from-purple-700 hover:to-pink-700 transition-colors">
+            <a href="/company-admin/billing" className="block w-full">
+              <button className="w-full flex items-center justify-center px-3 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs font-medium rounded-md hover:from-purple-700 hover:to-pink-700 transition-colors">
               <PlusIcon className="w-3 h-3 mr-2" />
               Add Funds
             </button>
+            </a>
+            <a href="/company-admin/products/add" className="block w-full">
             <button className="w-full flex items-center justify-center px-3 py-2 bg-white border border-gray-300 text-gray-700 text-xs font-medium rounded-md hover:bg-gray-50 transition-colors">
               <PlusIcon className="w-3 h-3 mr-2" />
               New Product
             </button>
+            </a>
+            <a href="/company-admin/analytics" className="block w-full">
             <button className="w-full flex items-center justify-center px-3 py-2 bg-white border border-gray-300 text-gray-700 text-xs font-medium rounded-md hover:bg-gray-50 transition-colors">
               <ChartBarIcon className="w-3 h-3 mr-2" />
               View Analytics
             </button>
+            </a>
           </div>
           
           {/* Upcoming charges preview */}

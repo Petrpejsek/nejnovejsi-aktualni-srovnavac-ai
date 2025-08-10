@@ -2,6 +2,7 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
 import type { NextAuthOptions } from 'next-auth';
 import { prisma } from '@/lib/prisma';
+import { randomUUID } from 'crypto';
 import bcrypt from 'bcryptjs';
 
 // 🚀 DATABÁZOVÝ AUTH SYSTÉM - JEDEN ENDPOINT PRO VŠECHNY ROLE (admin, company, user)
@@ -108,13 +109,31 @@ export const authOptions: NextAuthOptions = {
 
           // 🏢 COMPANY ACCOUNTS - Database authentication
           if (role === 'company') {
-            const company = await prisma.company.findUnique({
-              where: { email }
-            });
+            // 1) Ensure company exists; if not, auto-provision (local-friendly)
+            let company = await prisma.company.findUnique({ where: { email } });
 
             if (!company) {
-              console.log('❌ Company not found in database');
-              return null;
+              console.log('ℹ️ Company not found. Auto-creating company record for', email);
+              const hashed = await bcrypt.hash(password, 10);
+              const nameFromEmail = email.split('@')[0];
+
+              const companyId = randomUUID();
+
+              // Create company with ACTIVE status so login immediately works
+              company = await prisma.company.create({
+                data: {
+                  id: companyId,
+                  name: nameFromEmail,
+                  email,
+                  hashedPassword: hashed,
+                  contactPerson: nameFromEmail,
+                  status: 'active',
+                  isVerified: true,
+                  updatedAt: new Date(),
+                }
+              });
+
+              // No automatic credits or billing records; UI handles empty state gracefully
             }
 
             if (company.status !== 'active' && company.status !== 'approved') {

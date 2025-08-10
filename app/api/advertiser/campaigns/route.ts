@@ -29,13 +29,23 @@ async function verifyNextAuthToken(request: NextRequest) {
       role: token.role 
     })
     
-    // 🔥 TEMPORARY - přidáme mock companyId pro kompatibilitu se starým systémem
-    const userWithCompanyId = {
-      ...token,
-      companyId: 'company1' // Mock ID pro testování
+    // Map email → companyId to ensure API has consistent identifier
+    let companyId: string | null = null
+    try {
+      if (token.email) {
+        const company = await prisma.company.findFirst({ where: { email: token.email }, select: { id: true } })
+        companyId = company?.id || null
+      }
+    } catch (e) {
+      console.log('⚠️  [Campaigns] Failed to map email to companyId:', e)
     }
-    
-    return userWithCompanyId
+
+    if (!companyId) {
+      console.log('❌ [Campaigns] Company not found for email:', token.email)
+      return null
+    }
+
+    return { ...token, companyId }
   } catch (error) {
     console.log('❌ [Campaigns] NextAuth token verification failed:', error)
     return null

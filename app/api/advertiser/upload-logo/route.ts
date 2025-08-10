@@ -1,22 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { writeFile, mkdir } from 'fs/promises'
 import { join } from 'path'
-import jwt from 'jsonwebtoken'
+import { getToken } from 'next-auth/jwt'
+import { PrismaClient } from '@prisma/client'
+
+const prisma = new PrismaClient()
 
 export async function POST(request: NextRequest) {
   try {
-    // Verify JWT token
-    const token = request.cookies.get('advertiser-token')?.value
-    if (!token) {
+    // Verify NextAuth token
+    const token = await getToken({ req: request })
+    if (!token || token.role !== 'company' || !token.email) {
       return NextResponse.json({ success: false, error: 'Not authenticated' }, { status: 401 })
     }
 
-    let companyId: string
-    try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { companyId: string }
-      companyId = decoded.companyId
-    } catch (error) {
-      return NextResponse.json({ success: false, error: 'Invalid token' }, { status: 401 })
+    // Resolve companyId by email
+    const company = await prisma.company.findFirst({ where: { email: token.email as string }, select: { id: true } })
+    if (!company) {
+      return NextResponse.json({ success: false, error: 'Company not found' }, { status: 404 })
     }
 
     const formData = await request.formData()
@@ -54,7 +55,7 @@ export async function POST(request: NextRequest) {
 
     // Generate unique filename
     const fileExtension = file.name.split('.').pop()
-    const uniqueFilename = `${companyId}-${Date.now()}.${fileExtension}`
+    const uniqueFilename = `${company.id}-${Date.now()}.${fileExtension}`
     const filePath = join(uploadDir, uniqueFilename)
 
     // Convert file to buffer and save

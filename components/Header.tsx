@@ -28,7 +28,7 @@ export default function Header() {
   // Company admin/dashboard header = minimalist header
   const isCompanyAdminHeader = currentPath.startsWith('/company/dashboard') || currentPath.startsWith('/company-admin')
   // Company marketing/signup context = show company auth actions in header
-  const isCompanyContext = currentPath === '/company' || currentPath === '/company-registration-success'
+  const isCompanyContext = currentPath === '/advertise' || currentPath === '/company-registration-success' || currentPath === '/company'
 
   // Fetch user avatar when user is authenticated
   useEffect(() => {
@@ -163,7 +163,7 @@ export default function Header() {
                   AI Reels
                 </Link> */}
                 <Link 
-                  href="/company"
+                  href="/advertise"
                   className="text-gray-700 hover:text-gradient-primary font-medium transition-colors duration-200"
                 >
                   For AI Companies
@@ -370,7 +370,7 @@ export default function Header() {
                   AI Reels
                 </Link> */}
                 <Link 
-                  href="/company"
+                  href="/advertise"
                   onClick={closeMobileMenu}
                   className="text-gray-700 hover:text-gradient-primary font-medium transition-colors duration-200 py-2"
                 >

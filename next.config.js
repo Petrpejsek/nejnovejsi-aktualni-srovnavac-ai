@@ -60,6 +60,20 @@ const nextConfig = {
         ],
       },
     ]
+  },
+  async redirects() {
+    return [
+      // Canonicalize old advertiser/advertise routes to the current structure
+      { source: '/company', destination: '/advertise', permanent: true },
+      { source: '/company/dashboard', destination: '/company-admin', permanent: true },
+      { source: '/company/billing', destination: '/company-admin/billing', permanent: true },
+      { source: '/company/campaigns', destination: '/company-admin/campaigns', permanent: true },
+      { source: '/company/products', destination: '/company-admin/products', permanent: true },
+      { source: '/company/profile', destination: '/company-admin/profile', permanent: true },
+      { source: '/company/settings', destination: '/company-admin/profile', permanent: true },
+      { source: '/advertiser', destination: '/company-admin', permanent: true },
+      { source: '/advertiser/login', destination: '/company-admin/login', permanent: true },
+    ]
   }
 }
 

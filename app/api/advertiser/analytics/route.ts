@@ -4,32 +4,16 @@ import { NextRequest, NextResponse } from 'next/server'
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 import { PrismaClient } from '@prisma/client'
-import jwt from 'jsonwebtoken'
+import { getToken } from 'next-auth/jwt'
 
 const prisma = new PrismaClient()
-
-// Ověření JWT tokenu
-function verifyToken(request: NextRequest) {
-  const token = request.cookies.get('advertiser-token')?.value
-  
-  if (!token) {
-    return null
-  }
-
-  try {
-    const decoded = jwt.verify(token, (() => { const v = process.env.JWT_SECRET; if (!v) throw new Error('JWT_SECRET is required'); return v })()) as any
-    return decoded
-  } catch (error) {
-    return null
-  }
-}
 
 // GET /api/advertiser/analytics - načtení detailních analytics
 export async function GET(request: NextRequest) {
   try {
-    const user = verifyToken(request)
-    
-    if (!user) {
+    const token = await getToken({ req: request })
+
+    if (!token || token.role !== 'company' || !token.email) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized' },
         { status: 401 }
@@ -39,12 +23,26 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const period = searchParams.get('period') || '30d' // 7d, 30d, 90d
 
+    // Resolve company by email
+    const company = await prisma.company.findFirst({ where: { email: token.email as string }, select: { id: true } })
+    if (!company) {
+      return NextResponse.json({
+        success: true,
+        data: { summary: { totalSpend: 0, totalClicks: 0, totalImpressions: 0, averageCPC: 0, averageCTR: 0, activeCampaigns: 0 }, campaignPerformance: [], chartData: { clicksPerDay: [], impressionsPerDay: [], spendPerDay: [] } }
+      })
+    }
+
     // Načtení kampaní firmy
-    const campaigns = await prisma.campaign.findMany({
-      where: { companyId: user.companyId }
-    })
+    const campaigns = await prisma.campaign.findMany({ where: { companyId: company.id } })
 
     const campaignIds = campaigns.map(c => c.id)
+
+    if (campaignIds.length === 0) {
+      return NextResponse.json({
+        success: true,
+    data: { summary: { totalSpend: 0, totalClicks: 0, totalImpressions: 0, averageCPC: 0, averageCTR: 0, activeCampaigns: 0 }, campaignPerformance: [], chartData: { clicksPerDay: [], impressionsPerDay: [], spendPerDay: [] } }
+      })
+    }
 
     // Výpočet dat pro období
     let days = 30
@@ -107,16 +105,15 @@ export async function GET(request: NextRequest) {
       _count: { id: true }
     })
 
-    // Spend per day z billing records
-    const spendPerDay = await prisma.billingRecord.groupBy({
-      by: ['createdAt'],
+    // Spend per day – použijeme součet costPerClick z AdClick (spolehlivější než BillingRecord)
+    const spendPerDayClicks = await prisma.adClick.groupBy({
+      by: ['clickedAt'],
       where: {
-        companyId: user.companyId,
-        type: 'charge',
-        amount: { lt: 0 }, // Negative amounts are charges
-        createdAt: { gte: startDate }
+        campaignId: { in: campaignIds },
+        clickedAt: { gte: startDate },
+        isValidClick: true
       },
-      _sum: { amount: true }
+      _sum: { costPerClick: true }
     })
 
     // Performance by campaign
@@ -182,9 +179,9 @@ export async function GET(request: NextRequest) {
       impressions: item._count.id
     }))
 
-    const transformedSpendPerDay = spendPerDay.map(item => ({
-      date: item.createdAt.toISOString().split('T')[0],
-      spend: Math.abs(item._sum.amount || 0)
+    const transformedSpendPerDay = spendPerDayClicks.map(item => ({
+      date: item.clickedAt.toISOString().split('T')[0],
+      spend: Math.abs(item._sum.costPerClick || 0)
     }))
 
     return NextResponse.json({

@@ -342,7 +342,7 @@ export default function HowItWorksPage() {
                   Start Comparing Tools
                 </a>
                 <a 
-                  href="/company"
+                  href="/advertise"
                   className="border-2 border-white text-white font-semibold py-4 px-8 rounded-xl hover:bg-white hover:text-purple-600 transition-colors duration-200"
                 >
                   For Businesses

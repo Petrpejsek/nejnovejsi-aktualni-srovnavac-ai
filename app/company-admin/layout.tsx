@@ -12,11 +12,10 @@ import {
   WalletIcon,
   MegaphoneIcon,
   ChartBarIcon,
-  FilmIcon,
   AcademicCapIcon,
   EnvelopeIcon,
   TrophyIcon,
-  UsersIcon,
+  // UsersIcon,
   CogIcon,
   Bars3Icon,
   XMarkIcon,
@@ -33,12 +32,12 @@ const navigation = [
   { name: 'Analytics', href: '/company-admin/analytics', icon: ChartBarIcon },
   { name: 'Billing', href: '/company-admin/billing', icon: CreditCardIcon },
   // { name: 'Affiliate', href: '/company-admin/affiliate', icon: WalletIcon }, // Dočasně skryto - pouze PPC zatím
-  { name: 'Promotions', href: '/company-admin/promotions', icon: MegaphoneIcon },
-  { name: 'Reels', href: '/company-admin/reels', icon: FilmIcon },
-  { name: 'Courses', href: '/company-admin/courses', icon: AcademicCapIcon },
-  { name: 'Email Campaigns', href: '/company-admin/email', icon: EnvelopeIcon },
-  { name: 'Top Lists', href: '/company-admin/toplists', icon: TrophyIcon },
-  { name: 'Team', href: '/company-admin/team', icon: UsersIcon },
+  // { name: 'Promotions', href: '/company-admin/promotions', icon: MegaphoneIcon }, // temporarily hidden
+  // { name: 'Reels', href: '/company-admin/reels', icon: FilmIcon }, // temporarily hidden until feature is ready
+  // { name: 'Courses', href: '/company-admin/courses', icon: AcademicCapIcon }, // temporarily hidden
+  // { name: 'Email Campaigns', href: '/company-admin/email', icon: EnvelopeIcon }, // temporarily hidden
+  // { name: 'Top Lists', href: '/company-admin/toplists', icon: TrophyIcon }, // temporarily hidden
+  // { name: 'Team', href: '/company-admin/team', icon: UsersIcon }, // temporarily hidden
   { name: 'Settings', href: '/company-admin/settings', icon: CogIcon },
 ]
 
@@ -323,12 +322,12 @@ function getPageTitle(pathname: string): string {
     '/company-admin/products': 'Products',
     '/company-admin/campaigns': 'PPC Campaigns',
     '/company-admin/billing': 'Credits & Billing',
-    '/company-admin/promotions': 'Promotions',
-    '/company-admin/reels': 'Reels',
-    '/company-admin/courses': 'Courses',
-    '/company-admin/email': 'Email Campaigns',
-    '/company-admin/toplists': 'Top Lists',
-    '/company-admin/team': 'Team',
+    // '/company-admin/promotions': 'Promotions',
+    // '/company-admin/reels': 'Reels',
+    // '/company-admin/courses': 'Courses',
+    // '/company-admin/email': 'Email Campaigns',
+    // '/company-admin/toplists': 'Top Lists',
+    // '/company-admin/team': 'Team',
     '/company-admin/settings': 'Settings',
   }
   return routes[pathname as keyof typeof routes] || 'Admin Panel'
