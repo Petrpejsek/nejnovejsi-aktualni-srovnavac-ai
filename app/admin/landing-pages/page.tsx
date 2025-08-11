@@ -235,6 +235,16 @@ export default function LandingPagesAdmin() {
                 </button>
               </div>
             </div>
+            <div className="flex items-center">
+              <Link
+                href="/admin/create-landing"
+                target="_blank"
+                className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-sm"
+              >
+                <PlusIcon className="w-5 h-5" />
+                Vytvořit Landing Page
+              </Link>
+            </div>
           </div>
         </div>
 
@@ -398,7 +408,7 @@ export default function LandingPagesAdmin() {
                             {page.title}
                           </div>
                           <div className="text-sm text-gray-500">
-                            /{page.language}/landing/{page.slug}
+                            /landing/{page.slug}
                           </div>
                           {page.metaDescription && (
                             <div className="text-xs text-gray-400 mt-1 max-w-md truncate">
@@ -425,7 +435,7 @@ export default function LandingPagesAdmin() {
                         <div className="flex items-center justify-end space-x-2">
                           {/* View */}
                           <Link
-                            href={`/${page.language}/landing/${page.slug}`}
+                            href={`/landing/${page.slug}`}
                             target="_blank"
                             className="text-gray-400 hover:text-gray-600 p-1"
                             title="Zobrazit stránku"

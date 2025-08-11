@@ -243,14 +243,7 @@ export default async function I18nLandingPage({ params }: Props) {
         )}
 
         {/* Language alternates for search engines */}
-        {locales.map((locale) => (
-          <link
-            key={locale}
-            rel="alternate"
-            hrefLang={locale}
-            href={`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/${locale}/landing/${slug}`}
-          />
-        ))}
+        {/* i18n alternate links dočasně vypnuto – projekt používá zatím pouze EN layout bez prefixu */}
         
         {/* Default language alternate */}
         <link
