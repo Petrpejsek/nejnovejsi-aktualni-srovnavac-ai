@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import prisma from '@/lib/prisma';
 import dynamic from 'next/dynamic';
+import { autoLinkHtml, suggestAutolinkTags } from '@/lib/autolink'
 
 const AiAdvisor = dynamic(() => import('@/components/AiAdvisor'), {
   ssr: false,
@@ -18,7 +19,7 @@ const ProductCarousel = dynamic(() => import('@/components/ProductCarousel'), {
 const AdaptiveContentRenderer = dynamic(() => import('@/components/AdaptiveContentRenderer'), {
   ssr: false,
   loading: () => <div className="bg-gray-100 rounded-lg h-96 animate-pulse flex items-center justify-center">
-    <span className="text-gray-500">Načítám obsah...</span>
+    <span className="text-gray-500">Loading content...</span>
   </div>
 });
 
@@ -36,8 +37,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
     const landingPage = await prisma.landing_pages.findFirst({
       where: { 
-        slug: slug,
-        format: 'landing_page'
+        slug: slug
       },
       select: {
         title: true,
@@ -45,31 +45,42 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         meta_keywords: true,
         language: true,
         slug: true,
+        image_url: true,
+        visuals: true,
       },
     });
 
     if (!landingPage) {
       return {
-        title: 'Stránka nenalezena',
-        description: 'Požadovaná stránka nebyla nalezena.',
+        title: 'Page Not Found',
+        description: 'The requested page was not found.',
       };
     }
     
     const base = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
     const canonicalUrl = `${base}/landing/${slug}`
 
+    const ogImageUrl = (landingPage as any).image_url || undefined
+
     return {
       title: `${landingPage.title} | Comparee.ai`,
       description: landingPage.meta_description,
       keywords: typeof landingPage.meta_keywords === 'string' ? landingPage.meta_keywords : (landingPage.meta_keywords as any)?.join?.(', ') || '',
       alternates: { canonical: canonicalUrl },
-      openGraph: { url: canonicalUrl },
+      openGraph: {
+        url: canonicalUrl,
+        images: ogImageUrl ? [{ url: ogImageUrl }] : undefined,
+      },
+      twitter: {
+        card: 'summary_large_image',
+        images: ogImageUrl ? [ogImageUrl] : undefined,
+      },
     };
   } catch (error) {
     console.error('Error generating metadata:', error);
     return {
-      title: 'Chyba',
-      description: 'Došlo k chybě při načítání stránky.',
+      title: 'Error',
+      description: 'An error occurred while loading the page.',
     };
   }
 }
@@ -91,13 +102,34 @@ export default async function LandingPageDetail({ params }: Props) {
 
     const wordCount = landingPage.content_html.replace(/<[^>]*>/g, "").split(/\s+/).length;
 
-
+    // Připrav inline hero obrázek po prvním H2 (bez fallbacků)
+    const heroImage = ((landingPage as any).visuals as any)?.heroImage
+    const insertAfterFirstH2 = (html: string, snippet: string): string => {
+      // HTML H2
+      const htmlH2Pattern = /(<h2[\s\S]*?<\/h2>)/i
+      if (htmlH2Pattern.test(html)) {
+        return html.replace(htmlH2Pattern, `$1${snippet}`)
+      }
+      // Markdown H2 na začátku řádku
+      const mdH2Pattern = /(^##[^\n]*\n)/m
+      if (mdH2Pattern.test(html)) {
+        return html.replace(mdH2Pattern, `$1${snippet}`)
+      }
+      // Bez fallbacku – pokud není H2, ponecháme beze změny
+      return html
+    }
+    const figureSnippet = heroImage?.imageUrl
+      ? `\n<figure class=\"my-8\">\n  <img src=\"${heroImage.imageUrl}\" alt=\"${heroImage.imageAlt || ''}\" ${heroImage.imageWidth ? `width=\\\"${heroImage.imageWidth}\\\"` : ''} ${heroImage.imageHeight ? `height=\\\"${heroImage.imageHeight}\\\"` : ''} class=\"w-full h-auto rounded-xl\"/>\n  ${(heroImage.imageSourceName || heroImage.imageLicense) ? `<figcaption class=\\\"mt-2 text-sm text-slate-500\\\">${heroImage.imageSourceUrl && heroImage.imageSourceName ? `<a href=\\\"${heroImage.imageSourceUrl}\\\" target=\\\"_blank\\\" rel=\\\"noopener noreferrer\\\" class=\\\"underline\\\">${heroImage.imageSourceName}</a>` : (heroImage.imageSourceName || '')}${heroImage.imageLicense ? ` <span>· ${heroImage.imageLicense}</span>` : ''}</figcaption>` : ''}\n</figure>\n`
+      : ''
+    const baseHtml = landingPage.language === 'en' ? autoLinkHtml(landingPage.content_html, 'en') : landingPage.content_html
+    const composedContentHtml = heroImage?.imageUrl ? insertAfterFirstH2(baseHtml, figureSnippet) : baseHtml
+    const suggestedTags = landingPage.language === 'en' ? suggestAutolinkTags(composedContentHtml, 'en', 3) : []
 
     // Generuj dynamické tagy z obsahu
     return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
         
-        {/* Hero Section */}
+        {/* Hero Section (restored original gradient) */}
         <div className="relative overflow-hidden bg-white rounded-3xl shadow-2xl mx-4 mt-8 mb-16">
           <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-800 opacity-95"></div>
           <div className="relative px-8 py-20 sm:py-24 lg:py-32">
@@ -111,20 +143,20 @@ export default async function LandingPageDetail({ params }: Props) {
                 {landingPage.meta_description}
               </p>
               
-              <div className="flex flex-wrap gap-4 justify-center">
-                <div className="inline-flex items-center px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white text-sm">
-                  <span className="mr-2">⚡</span>
-                  Premium Content
+              {suggestedTags.length > 0 && (
+                <div className="flex flex-wrap gap-3 justify-center mt-2">
+                  {suggestedTags.map(tag => (
+                    <a
+                      key={tag.id}
+                      href={tag.url}
+                      className="inline-flex items-center px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white text-sm hover:bg-white/20 transition-colors"
+                      data-autolink-origin="hero-tags"
+                    >
+                      {tag.label}
+                    </a>
+                  ))}
                 </div>
-                <div className="inline-flex items-center px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white text-sm">
-                  <span className="mr-2">📈</span>
-                  Expert Analysis
-                </div>
-                <div className="inline-flex items-center px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white text-sm">
-                  <span className="mr-2">🔥</span>
-                  Latest Trends
-                </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
@@ -136,7 +168,7 @@ export default async function LandingPageDetail({ params }: Props) {
           <div className="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
             <div className="p-8 lg:p-12">
               <AdaptiveContentRenderer 
-                contentHtml={landingPage.content_html}
+                contentHtml={composedContentHtml}
                 comparisonTables={(landingPage.visuals as any)?.comparisonTables || []}
                 pricingTables={(landingPage.visuals as any)?.pricingTables || []}
                 featureTables={(landingPage.visuals as any)?.featureTables || []}
@@ -160,7 +192,7 @@ export default async function LandingPageDetail({ params }: Props) {
         {landingPage.faq && Array.isArray(landingPage.faq) && landingPage.faq.length > 0 && (
           <div className="max-w-7xl mx-auto px-4 mb-16">
             <div className="bg-white rounded-3xl shadow-xl border border-gray-100 p-8 lg:p-12">
-              <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Často kladené otázky</h2>
+              <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Frequently Asked Questions</h2>
               <div className="space-y-6">
                 {landingPage.faq.map((item: any, index: number) => (
                   <details key={index} className="group bg-gray-50 rounded-xl p-6 hover:bg-gray-100 transition-colors duration-200 border border-gray-200/50">
@@ -197,12 +229,12 @@ export default async function LandingPageDetail({ params }: Props) {
             <div className="relative p-8 lg:p-16 text-center text-white">
               <div className="text-5xl mb-6">🚀</div>
               <h2 className="text-4xl font-black mb-6 leading-tight">
-                <span className="bg-gradient-to-r from-yellow-200 to-orange-200 bg-clip-text text-transparent">
-                  Připraveni transformovat váš business?
-                </span>
+                  <span className="bg-gradient-to-r from-yellow-200 to-orange-200 bg-clip-text text-transparent">
+                    Ready to transform your business?
+                  </span>
               </h2>
               <p className="text-2xl text-blue-100 mb-12 font-medium">
-                Objevte stovky AI nástrojů v naší databázi
+                Discover hundreds of AI tools in our database
               </p>
               
               <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
@@ -210,7 +242,7 @@ export default async function LandingPageDetail({ params }: Props) {
                   href="/" 
                   className="group relative inline-flex items-center justify-center px-10 py-5 text-xl font-bold text-slate-800 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-2xl hover:from-yellow-500 hover:to-orange-600 transform hover:scale-105 transition-all duration-300 shadow-2xl"
                 >
-                  🔍 Prozkoumat AI nástroje
+                  🔍 Explore AI Tools
                 </a>
             </div>
           </div>

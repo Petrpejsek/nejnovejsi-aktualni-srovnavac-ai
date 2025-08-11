@@ -21,12 +21,13 @@ interface LandingPageData {
   metaDescription: string;
   meta_keywords: string[];
   schemaOrg?: string;
-  visuals?: any[];
+  visuals?: any;
   faq?: any[];
   format: string;
   publishedAt: Date;
   createdAt: Date;
   updatedAt: Date;
+  image_url?: string;
 }
 
 interface Visual {
@@ -59,6 +60,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       alternateLanguages[locale] = `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/${locale}/landing/${params.slug}`;
     }
     
+    const ogImageUrl = (landingPage as any).image_url || (landingPage as any).visuals?.heroImage?.imageUrl
+
     return {
       title: `${landingPage.title} | Comparee.ai`,
       description: landingPage.metaDescription,
@@ -76,11 +79,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         type: 'article',
         publishedTime: landingPage.publishedAt.toISOString(),
         modifiedTime: landingPage.updatedAt.toISOString(),
+        images: ogImageUrl ? [{ url: ogImageUrl }] : undefined,
       },
       twitter: {
         card: 'summary_large_image',
         title: landingPage.title,
         description: landingPage.metaDescription,
+        images: ogImageUrl ? [ogImageUrl] : undefined,
       },
       robots: {
         index: true,
@@ -135,12 +140,13 @@ async function getLandingPage(slug: string, language: Locale): Promise<LandingPa
       metaDescription: landingPage.meta_description,
       meta_keywords,
       schemaOrg: landingPage.schema_org || undefined,
-      visuals: landingPage.visuals ? (landingPage.visuals as any[]) : undefined,
+      visuals: landingPage.visuals ? (landingPage.visuals as any) : undefined,
       faq: landingPage.faq ? (landingPage.faq as any[]) : undefined,
       format: landingPage.format,
       publishedAt: landingPage.published_at,
       createdAt: landingPage.created_at,
       updatedAt: landingPage.updated_at,
+      image_url: (landingPage as any).image_url || undefined,
     };
   } catch (error) {
     console.error('Error fetching i18n landing page:', error);
@@ -212,9 +218,10 @@ export default async function I18nLandingPage({ params }: Props) {
 
   const faqSchema = generateFAQSchema();
   
-  // Filter visuals by position
-  const headerVisuals = landingPage.visuals?.filter((v: Visual) => v.position === 'header') || [];
-  const galleryVisuals = landingPage.visuals?.filter((v: Visual) => v.position === 'gallery') || [];
+  // Filter visuals by position (only if visuals is an array; otherwise keep empty)
+  const visualsArray: Visual[] = Array.isArray(landingPage.visuals) ? (landingPage.visuals as Visual[]) : []
+  const headerVisuals = visualsArray.filter((v: Visual) => v.position === 'header')
+  const galleryVisuals = visualsArray.filter((v: Visual) => v.position === 'gallery')
 
   return (
     <html lang={langMeta.htmlLang}>
@@ -291,18 +298,40 @@ export default async function I18nLandingPage({ params }: Props) {
           {/* Main Content */}
           <main className="max-w-4xl mx-auto px-4 py-8">
             <article className="bg-white rounded-xl shadow-lg overflow-hidden">
-              {/* Header Images */}
-              {headerVisuals.length > 0 && (
-                <div className="relative">
-                  <div className="aspect-video bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
-                    <div className="text-center text-white p-6">
-                      <h2 className="text-xl font-semibold mb-2">Visual Content</h2>
-                      <p className="text-blue-100">
-                        {headerVisuals[0].description || headerVisuals[0].image_prompt}
-                      </p>
-                    </div>
-                  </div>
-                </div>
+              {/* Hero image if provided via visuals.heroImage */}
+              {((landingPage as any).visuals as any)?.heroImage?.imageUrl && (
+                <figure className="relative w-full">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={(((landingPage as any).visuals as any).heroImage as any).imageUrl}
+                    alt={(((landingPage as any).visuals as any).heroImage as any).imageAlt || ''}
+                    width={(((landingPage as any).visuals as any).heroImage as any).imageWidth || undefined}
+                    height={(((landingPage as any).visuals as any).heroImage as any).imageHeight || undefined}
+                    className="w-full h-auto object-cover"
+                  />
+                  {(
+                    (((landingPage as any).visuals as any).heroImage as any).imageSourceName ||
+                    (((landingPage as any).visuals as any).heroImage as any).imageLicense
+                  ) && (
+                    <figcaption className="px-4 py-2 text-xs text-slate-500">
+                      {(((landingPage as any).visuals as any).heroImage as any).imageSourceUrl && (((landingPage as any).visuals as any).heroImage as any).imageSourceName ? (
+                        <a
+                          href={(((landingPage as any).visuals as any).heroImage as any).imageSourceUrl}
+                          className="underline hover:no-underline"
+                          rel="noopener noreferrer"
+                          target="_blank"
+                        >
+                          {(((landingPage as any).visuals as any).heroImage as any).imageSourceName || 'Source'}
+                        </a>
+                      ) : (
+                        <span>{(((landingPage as any).visuals as any).heroImage as any).imageSourceName}</span>
+                      )}
+                      {(((landingPage as any).visuals as any).heroImage as any).imageLicense && (
+                        <span className="ml-2">· {(((landingPage as any).visuals as any).heroImage as any).imageLicense}</span>
+                      )}
+                    </figcaption>
+                  )}
+                </figure>
               )}
 
               {/* Article Content */}

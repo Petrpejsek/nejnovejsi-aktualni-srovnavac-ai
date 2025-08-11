@@ -3,6 +3,7 @@
 import React, { useMemo } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import rehypeRaw from 'rehype-raw'
 import ProductCarousel from './ProductCarousel'
 import ComparisonTable, { ComparisonRow } from './ComparisonTable'
 
@@ -233,8 +234,12 @@ export default function AdaptiveContentRenderer({
   if (contentSections.length <= 1) {
     const cleanContent = contentHtml.replace(/<\/?article>/g, '').trim()
     
-    // Detekce zda je obsah HTML nebo Markdown
-    if (cleanContent.includes('<h1>') || cleanContent.includes('<h2>') || cleanContent.includes('<p>')) {
+    // Detekce zda je obsah HTML nebo Markdown – konzervativní: HTML jen podle blokových značek
+    if (
+      cleanContent.includes('<h1>') ||
+      cleanContent.includes('<h2>') ||
+      cleanContent.includes('<p>')
+    ) {
       // HTML obsah - použij dangerouslySetInnerHTML
       return (
         <div 
@@ -248,6 +253,7 @@ export default function AdaptiveContentRenderer({
       <div className="prose prose-lg max-w-none">
         <ReactMarkdown 
           remarkPlugins={[remarkGfm]}
+          rehypePlugins={[rehypeRaw]}
           components={{
             h1: ({children}) => (
               <h1 className="text-5xl font-black text-gray-900 mb-8 mt-12 leading-tight bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
@@ -363,8 +369,12 @@ export default function AdaptiveContentRenderer({
             (() => {
               const sectionContent = section.content.replace(/<\/?article>/g, '').trim()
               
-              // Detekce zda je obsah HTML nebo Markdown
-              if (sectionContent.includes('<h1>') || sectionContent.includes('<h2>') || sectionContent.includes('<p>')) {
+              // Detekce HTML v sekcích – konzervativní (jen hlavní bloky). Jinak render Markdown s rehype-raw
+              if (
+                sectionContent.includes('<h1>') ||
+                sectionContent.includes('<h2>') ||
+                sectionContent.includes('<p>')
+              ) {
                 // HTML obsah
                 return (
                   <div 
@@ -379,6 +389,7 @@ export default function AdaptiveContentRenderer({
             <div className="prose prose-lg max-w-none">
               <ReactMarkdown 
                 remarkPlugins={[remarkGfm]}
+                rehypePlugins={[rehypeRaw]}
                 components={{
                   h1: ({children}) => (
                     <h1 className="text-5xl font-black text-gray-900 mb-8 mt-12 leading-tight bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">

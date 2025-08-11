@@ -46,7 +46,19 @@ export default function ProductGrid({ selectedTags }: ProductGridProps = {}) {
   const [hasMore, setHasMore] = useState(true)
   const [totalProducts, setTotalProducts] = useState(0)
   const [savedProducts, setSavedProducts] = useState<Set<string>>(new Set())
-  const [compactView, setCompactView] = useState(false)
+  // Layout preference (persisted). Compute initial value synchronně (bez bliknutí):
+  // - pokud existuje uložená preference → použij ji
+  // - jinak: desktop (>= 1024px) = true (4 sloupce), mobil = false (1 sloupec)
+  const [compactView, setCompactView] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem('homepage_compact_view')
+        if (stored !== null) return stored === 'true'
+      } catch {}
+      return window.matchMedia('(min-width: 1024px)').matches
+    }
+    return false
+  })
   const PAGE_SIZE = 12
 
   const handleBookmarkChange = (productId: string, isBookmarked: boolean) => {
@@ -72,7 +84,7 @@ export default function ProductGrid({ selectedTags }: ProductGridProps = {}) {
     }
   }
 
-  // Persist and restore user layout preference (mobile/desktop)
+  // Obnovení uloženo pouze pokud preference existuje (nepřepisovat výchozí počáteční stav)
   useEffect(() => {
     try {
       const stored = localStorage.getItem('homepage_compact_view')
@@ -269,7 +281,7 @@ export default function ProductGrid({ selectedTags }: ProductGridProps = {}) {
         <div className={`grid gap-4 md:gap-6 items-stretch min-w-0 ${
           compactView
             ? 'grid-cols-1 xs:grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'
-            : 'grid-cols-1 xs:grid-cols-1 sm:grid-cols-1 md:grid-cols-3 lg:grid-cols-4'
+            : 'grid-cols-1 xs:grid-cols-1 sm:grid-cols-1 md:grid-cols-3 lg:grid-cols-3'
         }`}>
           {Array.from({ length: 12 }).map((_, index) => (
             <div key={index} className="bg-white rounded-lg shadow-md overflow-hidden min-w-0">
@@ -359,7 +371,7 @@ export default function ProductGrid({ selectedTags }: ProductGridProps = {}) {
       <div className={`grid gap-4 md:gap-6 items-stretch min-w-0 ${
         compactView
           ? 'grid-compact-mobile grid-cols-1 xs:grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'
-          : 'grid-cols-1 xs:grid-cols-1 sm:grid-cols-1 md:grid-cols-3 lg:grid-cols-4'
+          : 'grid-cols-1 xs:grid-cols-1 sm:grid-cols-1 md:grid-cols-3 lg:grid-cols-3'
       }`}>
         {filteredProducts.map((product, index) => {
           // Optimalizace pro first meaningful paint - první 6 produktů s priority loading

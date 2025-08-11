@@ -1,0 +1,12 @@
+{
+  "limits": { "maxPerPage": 6, "minWordsBetweenLinks": 180, "maxPerParagraph": 1 },
+  "rules": [
+    { "id": "ai-writing", "term": "AI writing", "aliases": ["AI copywriting", "AI writer", "content writing"], "url": "/categories/ai-writing", "maxPerPage": 1, "priority": 5, "newTab": false },
+    { "id": "image-generation", "term": "image generation", "aliases": ["AI images", "text to image", "image generator"], "url": "/categories/image-generation", "maxPerPage": 1, "priority": 5, "newTab": false },
+    { "id": "automation", "term": "automation", "aliases": ["workflow automation", "process automation"], "url": "/categories/automation", "maxPerPage": 1, "priority": 5, "newTab": false },
+    { "id": "video-generation", "term": "video generation", "aliases": ["AI video", "video creation"], "url": "/categories/video-generation", "maxPerPage": 1, "priority": 4, "newTab": false },
+    { "id": "productivity", "term": "productivity", "aliases": ["workflow efficiency", "productivity tools"], "url": "/categories/productivity", "maxPerPage": 1, "priority": 3, "newTab": false }
+  ]
+}
+
+

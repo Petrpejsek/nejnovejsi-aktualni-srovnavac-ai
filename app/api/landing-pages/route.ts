@@ -27,6 +27,13 @@ interface AiLandingPagePayload {
   summary?: string
   contentHtml: string // HTML or Markdown content
   imageUrl?: string
+  imageAlt?: string
+  imageSourceName?: string
+  imageSourceUrl?: string
+  imageLicense?: string
+  imageWidth?: number
+  imageHeight?: number
+  imageType?: string
   publishedAt?: string // ISO date string
   keywords: string[]
   category?: string
@@ -214,6 +221,37 @@ function validateAiPayload(data: any): { isValid: boolean, errors: string[], war
         errors.push('imageUrl must be a valid URL')
       }
     }
+  }
+
+  // Optional hero image metadata validation
+  if (data.imageAlt !== undefined && typeof data.imageAlt !== 'string') {
+    errors.push('imageAlt must be a string')
+  }
+  if (data.imageSourceName !== undefined && typeof data.imageSourceName !== 'string') {
+    errors.push('imageSourceName must be a string')
+  }
+  if (data.imageSourceUrl !== undefined) {
+    if (typeof data.imageSourceUrl !== 'string') {
+      errors.push('imageSourceUrl must be a string')
+    } else {
+      try {
+        new URL(data.imageSourceUrl)
+      } catch {
+        errors.push('imageSourceUrl must be a valid URL')
+      }
+    }
+  }
+  if (data.imageLicense !== undefined && typeof data.imageLicense !== 'string') {
+    errors.push('imageLicense must be a string')
+  }
+  if (data.imageWidth !== undefined && (typeof data.imageWidth !== 'number' || data.imageWidth <= 0)) {
+    errors.push('imageWidth must be a positive number')
+  }
+  if (data.imageHeight !== undefined && (typeof data.imageHeight !== 'number' || data.imageHeight <= 0)) {
+    errors.push('imageHeight must be a positive number')
+  }
+  if (data.imageType !== undefined && typeof data.imageType !== 'string') {
+    errors.push('imageType must be a string')
   }
 
   if (data.category !== undefined && typeof data.category !== 'string') {
@@ -465,6 +503,13 @@ async function handleAiFormatPayload(data: any) {
         summary: data.data.summary || data.summary,
         contentHtml: data.data.contentHtml || data.contentHtml,
         imageUrl: data.data.imageUrl || data.imageUrl,
+        imageAlt: data.data.imageAlt || data.imageAlt,
+        imageSourceName: data.data.imageSourceName || data.imageSourceName,
+        imageSourceUrl: data.data.imageSourceUrl || data.imageSourceUrl,
+        imageLicense: data.data.imageLicense || data.imageLicense,
+        imageWidth: data.data.imageWidth || data.imageWidth,
+        imageHeight: data.data.imageHeight || data.imageHeight,
+        imageType: data.data.imageType || data.imageType,
         publishedAt: data.data.publishedAt || data.publishedAt,
         keywords: data.data.meta?.keywords || data.meta?.keywords || data.data.keywords || data.keywords,
         category: data.data.category || data.category,
@@ -606,6 +651,18 @@ async function handleAiFormatPayload(data: any) {
         meta_keywords: JSON.stringify(payload.keywords),
         faq: payload.faq || undefined,
         visuals: JSON.parse(JSON.stringify({
+          heroImage: payload.imageUrl
+            ? {
+                imageUrl: payload.imageUrl,
+                imageAlt: payload.imageAlt,
+                imageSourceName: payload.imageSourceName,
+                imageSourceUrl: payload.imageSourceUrl,
+                imageLicense: payload.imageLicense,
+                imageWidth: payload.imageWidth,
+                imageHeight: payload.imageHeight,
+                imageType: payload.imageType
+              }
+            : undefined,
           comparisonTables: payload.comparisonTables || [],
           pricingTables: payload.pricingTables || [],
           featureTables: payload.featureTables || [],
