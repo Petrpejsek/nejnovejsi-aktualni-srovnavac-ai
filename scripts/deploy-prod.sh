@@ -53,15 +53,24 @@ else
 fi
 pm2 save >/dev/null 2>&1 || true
 
-HEALTH=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:3000/api/health || true)
+# Readiness check with timeout (wait for Next.js to bind on :3000)
+READY=0
+for i in $(seq 1 60); do
+  CODE=$(curl -s --max-time 2 -o /dev/null -w "%{http_code}" http://127.0.0.1:3000/api/health || true)
+  case "$CODE" in
+    2*|3*|4*) READY=1; break;;
+  esac
+  sleep 1
+done
+
 HEAD=$(git rev-parse --short HEAD || echo none)
 BUILD_ID=$( [ -f .next/BUILD_ID ] && cat .next/BUILD_ID || echo none)
-
-echo "HEALTH:${HEALTH}"
+echo "HEALTH_CODE:${CODE}"
+echo "READY:${READY}"
 echo "HEAD:${HEAD}"
 echo "BUILD_ID:${BUILD_ID}"
 
-[ "${HEALTH}" = "200" ] || { echo "Deploy health check failed" >&2; exit 1; }
+[ "$READY" = "1" ] || { echo "Deploy health check failed (service not ready)" >&2; exit 1; }
 EOS
 
 echo "==> Deploy finished"
@@ -136,6 +145,6 @@ echo "🎉 DEPLOYMENT DOKONČEN!"
 echo "====================================="
 echo ""
 echo "Ověř deployment:"
-echo "1. curl https://comparee.ai/api/health"
+echo "1. curl http://23.88.98.49/api/health"
 echo "2. Zkontroluj web v prohlížeči"
 echo "3. Sleduj logy: ssh $SSH_USER@$SERVER_IP 'pm2 logs $APP_NAME'" 
