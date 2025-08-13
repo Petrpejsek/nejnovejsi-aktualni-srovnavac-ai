@@ -2,7 +2,7 @@
 
 export const dynamic = 'force-dynamic'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, Suspense } from 'react'
 import CompanyStatistics from '@/app/admin/company-statistics/page'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { 
@@ -107,6 +107,7 @@ export default function AnalyticsAdmin() {
     : '0.0'
 
   return (
+    <Suspense fallback={<div className="p-6">Loading analytics…</div>}>
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between border-b border-gray-200 pb-4">
@@ -350,5 +351,6 @@ export default function AnalyticsAdmin() {
 
       {/* Quick Insights – dočasně odstraněno, dokud nebudou reálné metriky porovnání */}
     </div>
+    </Suspense>
   )
 } 

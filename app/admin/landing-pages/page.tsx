@@ -2,7 +2,7 @@
 
 export const dynamic = 'force-dynamic'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, Suspense } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { 
@@ -263,6 +263,7 @@ export default function LandingPagesAdmin() {
   }
 
   return (
+    <Suspense fallback={<div className="p-6">Loading landing pages…</div>}>
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
@@ -579,6 +580,7 @@ export default function LandingPagesAdmin() {
         )}
       </div>
     </div>
+    </Suspense>
   )
 }
 
