@@ -3,6 +3,7 @@ import prisma from '@/lib/prisma'
 import { v4 as uuidv4 } from 'uuid'
 import { isValidLocale, locales, defaultLocale } from '@/lib/i18n'
 import crypto from 'crypto'
+import sanitizeHtml from 'sanitize-html'
 
 // Remove invisible characters and common LLM watermark marks from raw JSON text
 // Important: Do NOT normalize whitespace for JSON payloads – it may change string
@@ -174,19 +175,15 @@ function validateAiPayload(data: any): { isValid: boolean, errors: string[], war
   const errors: string[] = []
   const warnings: string[] = []
 
-  // Required fields validation
+  // Validate only allowed fields: title, slug, language, contentHtml, keywords
   if (!data.title || typeof data.title !== 'string' || data.title.trim().length === 0) {
     errors.push('title is required and must be a non-empty string')
-  } else if (data.title.length > 200) {
-    warnings.push('title is longer than 200 characters, consider shortening for SEO')
   }
 
-  // Slug validation (only if provided)
-  if (data.slug) {
+  if (data.slug !== undefined) {
     if (typeof data.slug !== 'string' || data.slug.trim().length === 0) {
       errors.push('slug must be a non-empty string when provided')
     } else {
-      // Validate slug format
       const slugPattern = /^[a-z0-9-]+$/
       if (!slugPattern.test(data.slug)) {
         errors.push('slug must contain only lowercase letters, numbers, and hyphens')
@@ -197,128 +194,28 @@ function validateAiPayload(data: any): { isValid: boolean, errors: string[], war
     }
   }
 
-  if (!data.contentHtml || typeof data.contentHtml !== 'string' || data.contentHtml.trim().length === 0) {
-    errors.push('contentHtml is required and must be a non-empty string')
-  } else if (data.contentHtml.length < 100) {
-    warnings.push('contentHtml is shorter than 100 characters, consider adding more content for SEO')
-  }
-
-  if (!data.keywords || !Array.isArray(data.keywords) || data.keywords.length === 0) {
-    errors.push('keywords is required and must be a non-empty array')
-  } else {
-    // Validate each keyword
-    data.keywords.forEach((keyword: any, index: number) => {
-      if (!keyword || typeof keyword !== 'string' || keyword.trim().length === 0) {
-        errors.push(`keywords[${index}] must be a non-empty string`)
-      }
-    })
-    if (data.keywords.length > 20) {
-      warnings.push('more than 20 keywords provided, consider reducing for better SEO focus')
-    }
-  }
-
-  // Language validation (required for i18n support)
   if (!data.language || typeof data.language !== 'string' || data.language.trim().length === 0) {
     errors.push('language is required and must be a non-empty string')
   } else if (!isValidLocale(data.language)) {
     errors.push(`language must be one of: ${locales.join(', ')}`)
   }
 
-  // Optional fields validation
-  if (data.summary !== undefined) {
-    if (typeof data.summary !== 'string') {
-      errors.push('summary must be a string')
-    } else if (data.summary.length > 300) {
-      warnings.push('summary is longer than 300 characters, consider shortening for meta description')
-    }
+  if (!data.contentHtml || typeof data.contentHtml !== 'string' || data.contentHtml.trim().length === 0) {
+    errors.push('contentHtml is required and must be a non-empty string')
   }
 
-  if (data.imageUrl !== undefined) {
-    if (typeof data.imageUrl !== 'string') {
-      errors.push('imageUrl must be a string')
-    } else {
-      try {
-        new URL(data.imageUrl)
-      } catch {
-        errors.push('imageUrl must be a valid URL')
+  if (!Array.isArray(data.keywords) || data.keywords.length === 0) {
+    errors.push('keywords is required and must be a non-empty array of strings')
+  } else {
+    for (let i = 0; i < data.keywords.length; i++) {
+      const kw = data.keywords[i]
+      if (typeof kw !== 'string' || kw.trim().length === 0) {
+        errors.push(`keywords[${i}] must be a non-empty string`)
       }
     }
   }
 
-  // Optional hero image metadata validation
-  if (data.imageAlt !== undefined && typeof data.imageAlt !== 'string') {
-    errors.push('imageAlt must be a string')
-  }
-  if (data.imageSourceName !== undefined && typeof data.imageSourceName !== 'string') {
-    errors.push('imageSourceName must be a string')
-  }
-  if (data.imageSourceUrl !== undefined) {
-    if (typeof data.imageSourceUrl !== 'string') {
-      errors.push('imageSourceUrl must be a string')
-    } else {
-      try {
-        new URL(data.imageSourceUrl)
-      } catch {
-        errors.push('imageSourceUrl must be a valid URL')
-      }
-    }
-  }
-  if (data.imageLicense !== undefined && typeof data.imageLicense !== 'string') {
-    errors.push('imageLicense must be a string')
-  }
-  if (data.imageWidth !== undefined && (typeof data.imageWidth !== 'number' || data.imageWidth <= 0)) {
-    errors.push('imageWidth must be a positive number')
-  }
-  if (data.imageHeight !== undefined && (typeof data.imageHeight !== 'number' || data.imageHeight <= 0)) {
-    errors.push('imageHeight must be a positive number')
-  }
-  if (data.imageType !== undefined && typeof data.imageType !== 'string') {
-    errors.push('imageType must be a string')
-  }
-
-  if (data.category !== undefined && typeof data.category !== 'string') {
-    errors.push('category must be a string')
-  }
-
-  if (data.publishedAt !== undefined) {
-    if (typeof data.publishedAt !== 'string') {
-      errors.push('publishedAt must be an ISO date string')
-    } else {
-      try {
-        const date = new Date(data.publishedAt)
-        if (isNaN(date.getTime())) {
-          errors.push('publishedAt must be a valid ISO date string')
-        }
-      } catch {
-        errors.push('publishedAt must be a valid ISO date string')
-      }
-    }
-  }
-
-  if (data.faq !== undefined) {
-    if (!Array.isArray(data.faq)) {
-      errors.push('faq must be an array')
-    } else {
-      data.faq.forEach((item: any, index: number) => {
-        if (!item || typeof item !== 'object') {
-          errors.push(`faq[${index}] must be an object`)
-          return
-        }
-        if (!item.question || typeof item.question !== 'string' || item.question.trim().length === 0) {
-          errors.push(`faq[${index}].question is required and must be a non-empty string`)
-        }
-        if (!item.answer || typeof item.answer !== 'string' || item.answer.trim().length === 0) {
-          errors.push(`faq[${index}].answer is required and must be a non-empty string`)
-        }
-      })
-    }
-  }
-
-  return {
-    isValid: errors.length === 0,
-    errors,
-    warnings
-  }
+  return { isValid: errors.length === 0, errors, warnings }
 }
 
 // Legacy validation function for backward compatibility
@@ -547,22 +444,13 @@ export async function POST(request: NextRequest) {
     }
     
     const rawBody = await request.text()
-    // Keep original rawBody for HMAC verification; use sanitized for parsing + idempotency
-    const { sanitized: sanitizedBody, removedChars } = sanitizeIncomingJson(rawBody)
-    // Debug logging to diagnose JSON sanitation issues in production
+    // Parse JSON first, no regex on raw body
     try {
-      console.log('🧪 RAW LEN:', rawBody.length, 'RAW START:', rawBody.slice(0, 120))
-      console.log('🧪 SAN LEN:', sanitizedBody.length, 'SAN START:', sanitizedBody.slice(0, 120))
-    } catch {}
-    try {
-      rawData = JSON.parse(sanitizedBody)
+      rawData = JSON.parse(rawBody)
     } catch (e) {
-      const res = NextResponse.json({ error: 'Invalid JSON after sanitation' }, { status: 422 })
+      const res = NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
       res.headers.set('X-Request-Id', requestId)
       return res
-    }
-    if (removedChars > 0) {
-      console.log(`🧹 Sanitized JSON, removed ${removedChars} hidden characters`)
     }
     console.log('📋 Raw payload keys:', Object.keys(rawData))
 
@@ -611,7 +499,7 @@ export async function POST(request: NextRequest) {
 
     // Idempotency handling (only for AI format)
     const idemKey = request.headers.get('idempotency-key') || request.headers.get('Idempotency-Key')
-    const payloadHash = crypto.createHash('sha256').update(sanitizedBody).digest('hex')
+    const payloadHash = crypto.createHash('sha256').update(rawBody).digest('hex')
 
     if (isAiFormat && idemKey) {
       const existing = await prisma.idempotencyKey.findUnique({ where: { key: idemKey } })
@@ -768,6 +656,24 @@ async function handleAiFormatPayload(data: any, requestId: string) {
       keywordsCount: payload.keywords?.length
     })
 
+    // Whitelist sanitization only for contentHtml
+    payload.contentHtml = sanitizeHtml(payload.contentHtml || '', {
+      allowedTags: [
+        'p','br','strong','em','b','i','u','blockquote','code','pre',
+        'ul','ol','li','h1','h2','h3','h4','h5','h6','table','thead','tbody','tr','td','th','img','a','span'
+      ],
+      allowedAttributes: {
+        a: ['href','title','target','rel'],
+        img: ['src','alt','width','height'],
+        span: ['style']
+      },
+      allowedSchemes: ['http','https','mailto'],
+      transformTags: {
+        a: sanitizeHtml.simpleTransform('a', { rel: 'nofollow noopener noreferrer' })
+      },
+      allowProtocolRelative: false
+    })
+
     // Generate slug if not provided
     if (!payload.slug) {
       // Simple slug generation from title
@@ -871,9 +777,9 @@ async function handleAiFormatPayload(data: any, requestId: string) {
       }
     }
 
-    // Generate meta description from summary or content
+    // Generate meta description from summary or content (strip tags on sanitized HTML)
     const metaDescription = payload.summary || 
-      payload.contentHtml.replace(/<[^>]*>/g, '').substring(0, 160) + '...'
+      (payload.contentHtml || '').replace(/<[^>]*>/g, '').substring(0, 160) + '...'
 
     // Create landing page record with i18n support
     const landingPage = await prisma.landing_pages.create({

@@ -155,13 +155,7 @@ export default function TopListsSection() {
 
   // Pokud se načítá nebo je chyba, zobraž minimální UI
   if (loading) {
-    return (
-      <div className="mt-20 mb-12">
-        <div className="flex items-center justify-center py-16">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
-        </div>
-      </div>
-    )
+    return null
   }
 
   if (error || topLists.length === 0) {

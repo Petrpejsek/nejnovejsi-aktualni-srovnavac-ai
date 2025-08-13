@@ -9,58 +9,17 @@
     · optimizeServerReact
 
  ✓ Starting...
- ✓ Ready in 3.1s
+ ✓ Ready in 4.6s
  ○ Compiling /_not-found ...
- ✓ Compiled /_not-found in 6.2s (1013 modules)
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+ ✓ Compiled /_not-found in 2.1s (1013 modules)
  ⚠ Fast Refresh had to perform a full reload due to a runtime error.
- GET /_next/static/webpack/a8856e77b3a4a668.webpack.hot-update.json 404 in 7064ms
- ○ Compiling /admin/products ...
- ✓ Compiled /admin/products in 4.7s (855 modules)
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
-🔍 useAuth DEBUG: {
-  status: 'authenticated',
-  hasSession: true,
-  user: {
-    name: 'Super Admin',
-    email: 'admin@admin.com',
-    role: 'admin',
-    isAdmin: true
-  },
-  role: 'admin',
-  isAdmin: true
-}
-🔍 useAuth DEBUG: {
-  status: 'authenticated',
-  hasSession: true,
-  user: {
-    name: 'Super Admin',
-    email: 'admin@admin.com',
-    role: 'admin',
-    isAdmin: true
-  },
-  role: 'admin',
-  isAdmin: true
-}
- ⚠ Fast Refresh had to perform a full reload due to a runtime error.
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
- GET /admin/products 200 in 5257ms
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
- GET /.well-known/appspecific/com.chrome.devtools.json 404 in 150ms
- ✓ Compiled /api/admin-stats in 353ms (569 modules)
- GET /api/admin-stats 200 in 1694ms
- ✓ Compiled /api/auth/[...nextauth] in 249ms (545 modules)
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
- GET /api/auth/session 200 in 1427ms
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
- GET /api/auth/session 200 in 52ms
+ GET /_next/static/webpack/a8856e77b3a4a668.webpack.hot-update.json 404 in 3051ms
  ○ Compiling / ...
- ✓ Compiled / in 1032ms (944 modules)
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
- GET / 200 in 1497ms
- ✓ Compiled /api/products in 437ms (636 modules)
- ✓ Compiled (645 modules)
+ ✓ Compiled / in 935ms (927 modules)
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET / 200 in 1323ms
+ ✓ Compiled /api/product-count in 196ms (627 modules)
+ ✓ Compiled (633 modules)
 API: Processing request for products with params: {
   page: 1,
   pageSize: 12,
@@ -69,22 +28,16 @@ API: Processing request for products with params: {
   category: null,
   url: 'http://localhost:3000/api/products?page=1&pageSize=12&forHomepage=true'
 }
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
-📊 Product count loaded from database: 501
- GET /api/product-count 200 in 1434ms
- GET /api/products?categoriesOnly=true 200 in 1532ms
- POST /api/pageview?path=%2F 200 in 1594ms
-API: Successfully loaded 12 products (page 1, pageSize 12, total 500) - SORTED BY CREDIT + ACTIVE CAMPAIGNS
- ✓ Compiled /api/users/saved-products in 347ms (647 modules)
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
-🔧 Preventive check: Auto-paused campaigns with insufficient credit
- GET /api/products?page=1&pageSize=12&forHomepage=true 200 in 1941ms
+ GET /api/products?categoriesOnly=true 200 in 1165ms
 📊 API Optimalizace: Načítám 42 produktů místo 234 (limit: 3 per list)
- GET /api/users/profile 404 in 2229ms
- GET /api/top-lists?status=published&includeProducts=true&productsLimit=3 200 in 2314ms
- GET /api/users/saved-products 404 in 1065ms
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
- GET / 200 in 308ms
+ GET /api/top-lists?status=published&includeProducts=true&productsLimit=3 200 in 1361ms
+ POST /api/pageview?path=%2F 200 in 1634ms
+📊 Product count loaded from database: 501
+ GET /api/product-count 200 in 1674ms
+API: Successfully loaded 12 products (page 1, pageSize 12, total 500) - SORTED BY CREDIT + ACTIVE CAMPAIGNS
+🔧 Preventive check: Auto-paused campaigns with insufficient credit
+ GET /api/products?page=1&pageSize=12&forHomepage=true 200 in 2017ms
+ GET / 200 in 306ms
 API: Processing request for products with params: {
   page: 1,
   pageSize: 12,
@@ -93,77 +46,102 @@ API: Processing request for products with params: {
   category: null,
   url: 'http://localhost:3000/api/products?page=1&pageSize=12&forHomepage=true'
 }
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+ GET /api/products?categoriesOnly=true 200 in 255ms
+📊 API Optimalizace: Načítám 42 produktů místo 234 (limit: 3 per list)
 📊 Product count loaded from database: 501
- GET /api/product-count 200 in 307ms
- POST /api/pageview?path=%2F 200 in 320ms
- GET /api/products?categoriesOnly=true 200 in 353ms
+ GET /api/product-count 200 in 336ms
+ GET /api/top-lists?status=published&includeProducts=true&productsLimit=3 200 in 372ms
+ POST /api/pageview?path=%2F 200 in 404ms
 API: Successfully loaded 12 products (page 1, pageSize 12, total 500) - SORTED BY CREDIT + ACTIVE CAMPAIGNS
 🔧 Preventive check: Auto-paused campaigns with insufficient credit
- GET /api/products?page=1&pageSize=12&forHomepage=true 200 in 625ms
- GET /api/users/saved-products 404 in 789ms
- GET /api/users/profile 404 in 907ms
-📊 API Optimalizace: Načítám 42 produktů místo 234 (limit: 3 per list)
- GET /api/top-lists?status=published&includeProducts=true&productsLimit=3 200 in 815ms
+ GET /api/products?page=1&pageSize=12&forHomepage=true 200 in 581ms
+ ○ Compiling /auth/login ...
+ ✓ Compiled /auth/login in 675ms (987 modules)
+ GET /auth/login 200 in 1081ms
+ POST /api/pageview?path=%2Fauth%2Flogin 200 in 100ms
+ ✓ Compiled /api/auth/[...nextauth] in 269ms (639 modules)
+ GET /api/auth/providers 200 in 871ms
+ GET /api/auth/csrf 200 in 36ms
+🔍 Login attempt: admin@admin.com (role: admin)
+✅ Admin login successful
+✅ Credentials login approved
+🔍 JWT token created: {
+  email: 'admin@admin.com',
+  role: 'admin',
+  isAdmin: true,
+  rememberMe: undefined
+}
+ POST /api/auth/callback/credentials 200 in 798ms
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+ GET /api/auth/session 200 in 35ms
+ ✓ Compiled /admin in 265ms (641 modules)
+ ✓ Compiled in 526ms (357 modules)
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+ GET /api/users/profile 404 in 1526ms
+ ✓ Compiled /api/pageview/stats in 368ms (651 modules)
+ ✓ Compiled (653 modules)
+ GET /api/pageview/stats?prefix=%2F&range=today 200 in 878ms
+ GET /api/admin-stats 200 in 1503ms
+ ○ Compiling /admin/landing-pages ...
+ ✓ Compiled /admin/landing-pages in 1220ms (1036 modules)
+ GET /api/pageview/stats?prefix=%2Flanding%2F&range=all 200 in 210ms
+ ✓ Compiled /api/landing-pages in 333ms (672 modules)
+ GET /api/landing-pages?page=1&pageSize=20 200 in 676ms
 Browserslist: browsers data (caniuse-lite) is 6 months old. Please run:
   npx update-browserslist-db@latest
   Why you should do it regularly: https://github.com/browserslist/update-db#readme
- ✓ Compiled in 3.4s (1016 modules)
+ ✓ Compiled in 3.8s (984 modules)
 🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
- GET /?_rsc=r3yhw 200 in 219ms
- ✓ Compiled /api/admin-stats in 382ms (649 modules)
+ GET /admin/landing-pages?_rsc=bs7ya 200 in 208ms
+ ✓ Compiled in 1245ms (984 modules)
 🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
- GET /admin/products?_rsc=xdann 200 in 1033ms
- GET /api/admin-stats 200 in 1617ms
- ✓ Compiled in 1483ms (1018 modules)
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
- GET /?_rsc=r3yhw 200 in 159ms
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
- GET /admin/products?_rsc=xdann 200 in 238ms
- ✓ Compiled /user-area/login in 444ms (972 modules)
- ✓ Compiled /api/pageview in 491ms (638 modules)
- POST /api/pageview?path=%2Fuser-area%2Flogin 200 in 828ms
- ✓ Compiled /admin in 402ms (1001 modules)
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
-🔍 useAuth DEBUG: {
-  status: 'authenticated',
-  hasSession: true,
-  user: {
-    name: 'Super Admin',
-    email: 'admin@admin.com',
-    role: 'admin',
-    isAdmin: true
-  },
-  role: 'admin',
-  isAdmin: true
+ GET /admin/landing-pages?_rsc=bs7ya 200 in 126ms
+ ✓ Compiled /api/auth/[...nextauth] in 202ms (607 modules)
+ GET /api/auth/session 200 in 423ms
+ GET /auth/login 200 in 173ms
+ ✓ Compiled /api/pageview in 169ms (654 modules)
+ GET / 200 in 272ms
+Error logging pageview: PrismaClientKnownRequestError: 
+Invalid `prisma.pageView.create()` invocation:
+
+
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.
+    at Bn.handleRequestError (/Users/petrliesner/ai new new new/node_modules/@prisma/client/runtime/library.js:121:7362)
+    at Bn.handleAndLogRequestError (/Users/petrliesner/ai new new new/node_modules/@prisma/client/runtime/library.js:121:6686)
+    at Bn.request (/Users/petrliesner/ai new new new/node_modules/@prisma/client/runtime/library.js:121:6393)
+    at async l (/Users/petrliesner/ai new new new/node_modules/@prisma/client/runtime/library.js:130:9645)
+    at async POST (webpack-internal:///(rsc)/./app/api/pageview/route.ts:31:9)
+    at async /Users/petrliesner/ai new new new/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:57228
+    at async eT.execute (/Users/petrliesner/ai new new new/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:46851)
+    at async eT.handle (/Users/petrliesner/ai new new new/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:58760)
+    at async doRender (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1366:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1588:28)
+    at async DevServer.renderToResponseWithComponentsImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1496:28)
+    at async DevServer.renderPageComponent (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1924:24)
+    at async DevServer.renderToResponseImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1962:32)
+    at async DevServer.pipeImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:922:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/Users/petrliesner/ai new new new/node_modules/next/dist/server/next-server.js:272:17)
+    at async DevServer.handleRequestImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:818:17)
+    at async /Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/next-dev-server.js:339:20
+    at async Span.traceAsyncFn (/Users/petrliesner/ai new new new/node_modules/next/dist/trace/trace.js:154:20)
+    at async DevServer.handleRequest (/Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/next-dev-server.js:336:24)
+    at async invokeRender (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js:178:21)
+    at async handleRequest (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js:355:24)
+    at async requestHandlerImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js:379:13)
+    at async Server.requestListener (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/start-server.js:141:13) {
+  code: 'P1001',
+  clientVersion: '6.3.1',
+  meta: {
+    modelName: 'PageView',
+    database_host: 'localhost',
+    database_port: 5433
+  }
 }
- GET /admin 200 in 721ms
- ✓ Compiled /api/pageview/stats in 234ms (644 modules)
- GET /api/pageview/stats?prefix=%2F&range=today 200 in 523ms
- GET /api/admin-stats 200 in 566ms
- ○ Compiling /api/auth/[...nextauth] ...
- ✓ Compiled /api/auth/[...nextauth] in 647ms (648 modules)
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
- GET /api/auth/session 200 in 852ms
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
- GET /api/auth/session 200 in 170ms
- ○ Compiling /admin/companies ...
- ✓ Compiled /admin/companies in 1174ms (1033 modules)
- ✓ Compiled /api/products/all in 255ms (664 modules)
- ✓ Compiled (668 modules)
- GET /api/products/all 200 in 961ms
- GET /api/company-applications 200 in 1390ms
- GET /api/admin/advertisers 200 in 1427ms
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
- GET /api/auth/session 200 in 84ms
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
- GET /api/auth/session 200 in 86ms
- GET /api/admin-stats 200 in 515ms
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
- GET / 200 in 265ms
- ✓ Compiled /api/top-lists in 393ms (670 modules)
- ✓ Compiled (679 modules)
+ POST /api/pageview?path=%2Fauth%2Flogin 500 in 5305ms
+ ✓ Compiled /api/top-lists in 271ms (657 modules)
+ ✓ Compiled (661 modules)
 API: Processing request for products with params: {
   page: 1,
   pageSize: 12,
@@ -172,166 +150,750 @@ API: Processing request for products with params: {
   category: null,
   url: 'http://localhost:3000/api/products?page=1&pageSize=12&forHomepage=true'
 }
- GET /api/products?categoriesOnly=true 200 in 1468ms
-📊 Product count loaded from database: 501
- GET /api/product-count 200 in 1454ms
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
-API: Successfully loaded 12 products (page 1, pageSize 12, total 500) - SORTED BY CREDIT + ACTIVE CAMPAIGNS
- POST /api/pageview?path=%2F 200 in 134ms
-🔧 Preventive check: Auto-paused campaigns with insufficient credit
- GET /api/products?page=1&pageSize=12&forHomepage=true 200 in 1736ms
-📊 API Optimalizace: Načítám 42 produktů místo 234 (limit: 3 per list)
- GET /api/users/saved-products 404 in 2114ms
- GET /api/users/profile 404 in 2177ms
- GET /api/top-lists?status=published&includeProducts=true&productsLimit=3 200 in 2180ms
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
- GET /api/auth/session 200 in 84ms
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
- GET /api/auth/session 200 in 79ms
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
- GET /api/users/profile 404 in 1032ms
- GET /api/users/saved-products 404 in 1060ms
- ✓ Compiled in 1420ms (990 modules)
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
- GET /admin/companies?_rsc=18hb1 200 in 420ms
- GET /?_rsc=r3yhw 200 in 421ms
- ✓ Compiled /api/products in 354ms (655 modules)
-API: Processing request for products with params: {
-  page: 1,
-  pageSize: 12,
-  pageParam: '1',
-  pageSizeParam: '12',
-  category: null,
-  url: 'http://localhost:3000/api/products?page=1&pageSize=12&forHomepage=true'
+Error loading products: PrismaClientKnownRequestError: 
+Invalid `prisma.product.findMany()` invocation:
+
+
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.
+    at Bn.handleRequestError (/Users/petrliesner/ai new new new/node_modules/@prisma/client/runtime/library.js:121:7362)
+    at Bn.handleAndLogRequestError (/Users/petrliesner/ai new new new/node_modules/@prisma/client/runtime/library.js:121:6686)
+    at Bn.request (/Users/petrliesner/ai new new new/node_modules/@prisma/client/runtime/library.js:121:6393)
+    at async l (/Users/petrliesner/ai new new new/node_modules/@prisma/client/runtime/library.js:130:9645)
+    at async GET (webpack-internal:///(rsc)/./app/api/products/route.ts:58:29)
+    at async /Users/petrliesner/ai new new new/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:57228
+    at async eT.execute (/Users/petrliesner/ai new new new/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:46851)
+    at async eT.handle (/Users/petrliesner/ai new new new/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:58760)
+    at async doRender (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1366:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1588:28)
+    at async DevServer.renderToResponseWithComponentsImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1496:28)
+    at async DevServer.renderPageComponent (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1924:24)
+    at async DevServer.renderToResponseImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1962:32)
+    at async DevServer.pipeImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:922:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/Users/petrliesner/ai new new new/node_modules/next/dist/server/next-server.js:272:17)
+    at async DevServer.handleRequestImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:818:17)
+    at async /Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/next-dev-server.js:339:20
+    at async Span.traceAsyncFn (/Users/petrliesner/ai new new new/node_modules/next/dist/trace/trace.js:154:20)
+    at async DevServer.handleRequest (/Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/next-dev-server.js:336:24)
+    at async invokeRender (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js:178:21)
+    at async handleRequest (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js:355:24)
+    at async requestHandlerImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js:379:13)
+    at async Server.requestListener (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/start-server.js:141:13) {
+  code: 'P1001',
+  clientVersion: '6.3.1',
+  meta: {
+    modelName: 'Product',
+    database_host: 'localhost',
+    database_port: 5433
+  }
 }
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
- GET /?_rsc=r3yhw 200 in 142ms
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
- GET /admin/companies?_rsc=cmq55 200 in 174ms
-API: Successfully loaded 12 products (page 1, pageSize 12, total 500) - SORTED BY CREDIT + ACTIVE CAMPAIGNS
-🔧 Preventive check: Auto-paused campaigns with insufficient credit
- GET /api/products?page=1&pageSize=12&forHomepage=true 200 in 1348ms
- ✓ Compiled in 1128ms (990 modules)
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
- GET /?_rsc=r3yhw 200 in 195ms
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
- GET /admin/companies?_rsc=cmq55 200 in 251ms
- ✓ Compiled /api/auth/[...nextauth] in 208ms (611 modules)
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
- GET /api/auth/session 200 in 399ms
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
- GET /api/auth/session 200 in 67ms
- ○ Compiling /api/users/saved-products ...
- ✓ Compiled /api/users/saved-products in 1075ms (637 modules)
- ✓ Compiled (639 modules)
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
- GET /api/auth/session 200 in 1435ms
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
- GET /api/users/saved-products 200 in 2218ms
- GET /api/users/profile 200 in 2226ms
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
- GET /api/auth/session 200 in 519ms
- GET / 200 in 570ms
- ✓ Compiled /api/product-count in 490ms (663 modules)
- ✓ Compiled (667 modules)
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
-API: Processing request for products with params: {
-  page: 1,
-  pageSize: 12,
-  pageParam: '1',
-  pageSizeParam: '12',
-  category: null,
-  url: 'http://localhost:3000/api/products?page=1&pageSize=12&forHomepage=true'
+ GET /api/products?categoriesOnly=true 500 in 5787ms
+Error loading products: PrismaClientKnownRequestError: 
+Invalid `prisma.product.count()` invocation:
+
+
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.
+    at Bn.handleRequestError (/Users/petrliesner/ai new new new/node_modules/@prisma/client/runtime/library.js:121:7362)
+    at Bn.handleAndLogRequestError (/Users/petrliesner/ai new new new/node_modules/@prisma/client/runtime/library.js:121:6686)
+    at Bn.request (/Users/petrliesner/ai new new new/node_modules/@prisma/client/runtime/library.js:121:6393)
+    at async l (/Users/petrliesner/ai new new new/node_modules/@prisma/client/runtime/library.js:130:9645)
+    at async GET (webpack-internal:///(rsc)/./app/api/products/route.ts:169:31)
+    at async /Users/petrliesner/ai new new new/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:57228
+    at async eT.execute (/Users/petrliesner/ai new new new/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:46851)
+    at async eT.handle (/Users/petrliesner/ai new new new/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:58760)
+    at async doRender (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1366:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1588:28)
+    at async DevServer.renderToResponseWithComponentsImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1496:28)
+    at async DevServer.renderPageComponent (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1924:24)
+    at async DevServer.renderToResponseImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1962:32)
+    at async DevServer.pipeImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:922:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/Users/petrliesner/ai new new new/node_modules/next/dist/server/next-server.js:272:17)
+    at async DevServer.handleRequestImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:818:17)
+    at async /Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/next-dev-server.js:339:20
+    at async Span.traceAsyncFn (/Users/petrliesner/ai new new new/node_modules/next/dist/trace/trace.js:154:20)
+    at async DevServer.handleRequest (/Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/next-dev-server.js:336:24)
+    at async invokeRender (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js:178:21)
+    at async handleRequest (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js:355:24)
+    at async requestHandlerImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js:379:13)
+    at async Server.requestListener (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/start-server.js:141:13) {
+  code: 'P1001',
+  clientVersion: '6.3.1',
+  meta: {
+    modelName: 'Product',
+    database_host: 'localhost',
+    database_port: 5433
+  }
 }
- POST /api/pageview?path=%2F 200 in 1288ms
- GET /api/users/saved-products 404 in 1567ms
- ✓ Compiled /api/top-lists in 256ms (669 modules)
- GET /api/users/profile 404 in 1629ms
- GET /api/products?categoriesOnly=true 200 in 1706ms
-📊 Product count loaded from database: 501
- GET /api/product-count 200 in 1721ms
-API: Successfully loaded 12 products (page 1, pageSize 12, total 500) - SORTED BY CREDIT + ACTIVE CAMPAIGNS
-🔧 Preventive check: Auto-paused campaigns with insufficient credit
- GET /api/products?page=1&pageSize=12&forHomepage=true 200 in 2212ms
-📊 API Optimalizace: Načítám 42 produktů místo 234 (limit: 3 per list)
- GET /api/top-lists?status=published&includeProducts=true&productsLimit=3 200 in 1401ms
- ✓ Compiled /_not-found in 320ms (671 modules)
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
- GET /screenshots/nastroj_ai_homepage.png 404 in 589ms
- ✓ Compiled in 2.5s (990 modules)
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
- GET /?_rsc=r3yhw 200 in 611ms
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
- GET /admin/companies?_rsc=cmq55 200 in 713ms
- ✓ Compiled /api/products in 253ms (655 modules)
-API: Processing request for products with params: {
-  page: 1,
-  pageSize: 12,
-  pageParam: '1',
-  pageSizeParam: '12',
-  category: null,
-  url: 'http://localhost:3000/api/products?page=1&pageSize=12&forHomepage=true'
+ GET /api/products?page=1&pageSize=12&forHomepage=true 500 in 5745ms
+Error getting product count: PrismaClientKnownRequestError: 
+Invalid `prisma.product.count()` invocation:
+
+
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.
+    at Bn.handleRequestError (/Users/petrliesner/ai new new new/node_modules/@prisma/client/runtime/library.js:121:7362)
+    at Bn.handleAndLogRequestError (/Users/petrliesner/ai new new new/node_modules/@prisma/client/runtime/library.js:121:6686)
+    at Bn.request (/Users/petrliesner/ai new new new/node_modules/@prisma/client/runtime/library.js:121:6393)
+    at async l (/Users/petrliesner/ai new new new/node_modules/@prisma/client/runtime/library.js:130:9645)
+    at async GET (webpack-internal:///(rsc)/./app/api/product-count/route.ts:13:23)
+    at async /Users/petrliesner/ai new new new/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:57228
+    at async eT.execute (/Users/petrliesner/ai new new new/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:46851)
+    at async eT.handle (/Users/petrliesner/ai new new new/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:58760)
+    at async doRender (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1366:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1588:28)
+    at async DevServer.renderToResponseWithComponentsImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1496:28)
+    at async DevServer.renderPageComponent (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1924:24)
+    at async DevServer.renderToResponseImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1962:32)
+    at async DevServer.pipeImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:922:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/Users/petrliesner/ai new new new/node_modules/next/dist/server/next-server.js:272:17)
+    at async DevServer.handleRequestImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:818:17)
+    at async /Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/next-dev-server.js:339:20
+    at async Span.traceAsyncFn (/Users/petrliesner/ai new new new/node_modules/next/dist/trace/trace.js:154:20)
+    at async DevServer.handleRequest (/Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/next-dev-server.js:336:24)
+    at async invokeRender (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js:178:21)
+    at async handleRequest (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js:355:24)
+    at async requestHandlerImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js:379:13)
+    at async Server.requestListener (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/start-server.js:141:13) {
+  code: 'P1001',
+  clientVersion: '6.3.1',
+  meta: {
+    modelName: 'Product',
+    database_host: 'localhost',
+    database_port: 5433
+  }
 }
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
- GET /admin/companies?_rsc=cmq55 200 in 298ms
- GET /?_rsc=r3yhw 200 in 312ms
-API: Successfully loaded 12 products (page 1, pageSize 12, total 500) - SORTED BY CREDIT + ACTIVE CAMPAIGNS
-🔧 Preventive check: Auto-paused campaigns with insufficient credit
- GET /api/products?page=1&pageSize=12&forHomepage=true 200 in 949ms
- ✓ Compiled in 1053ms (1040 modules)
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
- GET /?_rsc=r3yhw 200 in 233ms
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
- GET /admin/companies?_rsc=cmq55 200 in 332ms
- ✓ Compiled in 3.2s (385 modules)
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
- GET /?_rsc=r3yhw 200 in 312ms
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
- GET /admin/companies?_rsc=cmq55 200 in 398ms
- ✓ Compiled in 6.1s (990 modules)
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
- GET /admin/companies?_rsc=cmq55 200 in 3532ms
- GET /?_rsc=r3yhw 200 in 3552ms
- ○ Compiling /api/auth/[...nextauth] ...
- ✓ Compiled /api/auth/[...nextauth] in 3.9s (611 modules)
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
- GET /api/auth/session 200 in 5025ms
- ○ Compiling /api/users/profile ...
- ✓ Compiled /api/products in 3.3s (637 modules)
- ✓ Compiled (663 modules)
-API: Processing request for products with params: {
-  page: 1,
-  pageSize: 12,
-  pageParam: '1',
-  pageSizeParam: '12',
-  category: null,
-  url: 'http://localhost:3000/api/products?categories=AI%20Tools,Productivity%20%26%20Organization&page=1&pageSize=12&forHomepage=true'
+Error fetching top lists: PrismaClientInitializationError: 
+Invalid `prisma.topList.findMany()` invocation:
+
+
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.
+    at Bn.handleRequestError (/Users/petrliesner/ai new new new/node_modules/@prisma/client/runtime/library.js:121:7663)
+    at Bn.handleAndLogRequestError (/Users/petrliesner/ai new new new/node_modules/@prisma/client/runtime/library.js:121:6686)
+    at Bn.request (/Users/petrliesner/ai new new new/node_modules/@prisma/client/runtime/library.js:121:6393)
+    at async l (/Users/petrliesner/ai new new new/node_modules/@prisma/client/runtime/library.js:130:9645)
+    at async GET (webpack-internal:///(rsc)/./app/api/top-lists/route.ts:31:26)
+    at async /Users/petrliesner/ai new new new/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:57228
+    at async eT.execute (/Users/petrliesner/ai new new new/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:46851)
+    at async eT.handle (/Users/petrliesner/ai new new new/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:58760)
+    at async doRender (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1366:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1588:28)
+    at async DevServer.renderToResponseWithComponentsImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1496:28)
+    at async DevServer.renderPageComponent (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1924:24)
+    at async DevServer.renderToResponseImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1962:32)
+    at async DevServer.pipeImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:922:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/Users/petrliesner/ai new new new/node_modules/next/dist/server/next-server.js:272:17)
+    at async DevServer.handleRequestImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:818:17)
+    at async /Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/next-dev-server.js:339:20
+    at async Span.traceAsyncFn (/Users/petrliesner/ai new new new/node_modules/next/dist/trace/trace.js:154:20)
+    at async DevServer.handleRequest (/Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/next-dev-server.js:336:24)
+    at async invokeRender (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js:178:21)
+    at async handleRequest (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js:355:24)
+    at async requestHandlerImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js:379:13)
+    at async Server.requestListener (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/start-server.js:141:13) {
+  clientVersion: '6.3.1',
+  errorCode: undefined
 }
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
- GET /api/auth/session 200 in 6339ms
-API: Successfully loaded 12 products (page 1, pageSize 12, total 216) - SORTED BY CREDIT + ACTIVE CAMPAIGNS
-🔧 Preventive check: Auto-paused campaigns with insufficient credit
- GET /api/products?categories=AI%20Tools,Productivity%20%26%20Organization&page=1&pageSize=12&forHomepage=true 200 in 7015ms
- GET /api/users/profile 404 in 7953ms
- GET /api/users/saved-products 404 in 7201ms
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
- GET /admin/companies?_rsc=cmq55 200 in 1120ms
- GET /?_rsc=r3yhw 200 in 1127ms
- ✓ Compiled in 4.8s (1048 modules)
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
- GET /admin/companies?_rsc=cmq55 200 in 1132ms
- GET /?_rsc=r3yhw 200 in 1151ms
-🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
- GET / 200 in 962ms
+ GET /api/top-lists?status=published&includeProducts=true&productsLimit=3 500 in 5748ms
+Error logging pageview: PrismaClientKnownRequestError: 
+Invalid `prisma.pageView.create()` invocation:
+
+
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.
+    at Bn.handleRequestError (/Users/petrliesner/ai new new new/node_modules/@prisma/client/runtime/library.js:121:7362)
+    at Bn.handleAndLogRequestError (/Users/petrliesner/ai new new new/node_modules/@prisma/client/runtime/library.js:121:6686)
+    at Bn.request (/Users/petrliesner/ai new new new/node_modules/@prisma/client/runtime/library.js:121:6393)
+    at async l (/Users/petrliesner/ai new new new/node_modules/@prisma/client/runtime/library.js:130:9645)
+    at async POST (webpack-internal:///(rsc)/./app/api/pageview/route.ts:31:9)
+    at async /Users/petrliesner/ai new new new/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:57228
+    at async eT.execute (/Users/petrliesner/ai new new new/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:46851)
+    at async eT.handle (/Users/petrliesner/ai new new new/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:58760)
+    at async doRender (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1366:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1588:28)
+    at async DevServer.renderToResponseWithComponentsImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1496:28)
+    at async DevServer.renderPageComponent (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1924:24)
+    at async DevServer.renderToResponseImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1962:32)
+    at async DevServer.pipeImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:922:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/Users/petrliesner/ai new new new/node_modules/next/dist/server/next-server.js:272:17)
+    at async DevServer.handleRequestImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:818:17)
+    at async /Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/next-dev-server.js:339:20
+    at async Span.traceAsyncFn (/Users/petrliesner/ai new new new/node_modules/next/dist/trace/trace.js:154:20)
+    at async DevServer.handleRequest (/Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/next-dev-server.js:336:24)
+    at async invokeRender (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js:178:21)
+    at async handleRequest (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js:355:24)
+    at async requestHandlerImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js:379:13)
+    at async Server.requestListener (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/start-server.js:141:13) {
+  code: 'P1001',
+  clientVersion: '6.3.1',
+  meta: {
+    modelName: 'PageView',
+    database_host: 'localhost',
+    database_port: 5433
+  }
+}
+ POST /api/pageview?path=%2F 500 in 5767ms
+Fallback count also failed: PrismaClientKnownRequestError: 
+Invalid `prisma.product.count()` invocation:
+
+
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.
+    at Bn.handleRequestError (/Users/petrliesner/ai new new new/node_modules/@prisma/client/runtime/library.js:121:7362)
+    at Bn.handleAndLogRequestError (/Users/petrliesner/ai new new new/node_modules/@prisma/client/runtime/library.js:121:6686)
+    at Bn.request (/Users/petrliesner/ai new new new/node_modules/@prisma/client/runtime/library.js:121:6393)
+    at async l (/Users/petrliesner/ai new new new/node_modules/@prisma/client/runtime/library.js:130:9645)
+    at async GET (webpack-internal:///(rsc)/./app/api/product-count/route.ts:29:35)
+    at async /Users/petrliesner/ai new new new/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:57228
+    at async eT.execute (/Users/petrliesner/ai new new new/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:46851)
+    at async eT.handle (/Users/petrliesner/ai new new new/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:58760)
+    at async doRender (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1366:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1588:28)
+    at async DevServer.renderToResponseWithComponentsImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1496:28)
+    at async DevServer.renderPageComponent (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1924:24)
+    at async DevServer.renderToResponseImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1962:32)
+    at async DevServer.pipeImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:922:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/Users/petrliesner/ai new new new/node_modules/next/dist/server/next-server.js:272:17)
+    at async DevServer.handleRequestImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:818:17)
+    at async /Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/next-dev-server.js:339:20
+    at async Span.traceAsyncFn (/Users/petrliesner/ai new new new/node_modules/next/dist/trace/trace.js:154:20)
+    at async DevServer.handleRequest (/Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/next-dev-server.js:336:24)
+    at async invokeRender (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js:178:21)
+    at async handleRequest (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js:355:24)
+    at async requestHandlerImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js:379:13)
+    at async Server.requestListener (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/start-server.js:141:13) {
+  code: 'P1001',
+  clientVersion: '6.3.1',
+  meta: {
+    modelName: 'Product',
+    database_host: 'localhost',
+    database_port: 5433
+  }
+}
+ GET /api/product-count 500 in 10775ms
+ ✓ Compiled in 1620ms (1040 modules)
+ GET /auth/login?_rsc=1mqyl 200 in 147ms
+ ✓ Compiled in 1567ms (990 modules)
+ GET /auth/login?_rsc=1mqyl 200 in 146ms
+ ✓ Compiled in 1239ms (990 modules)
+ GET /auth/login?_rsc=1mqyl 200 in 269ms
+ ✓ Compiled in 1985ms (972 modules)
+ GET /auth/login?_rsc=1mqyl 200 in 336ms
+ ✓ Compiled in 1478ms (986 modules)
+ GET /auth/login?_rsc=1mqyl 200 in 200ms
+ ✓ Compiled in 1142ms (986 modules)
+ GET /auth/login?_rsc=1mqyl 200 in 178ms
+ ✓ Compiled in 1771ms (986 modules)
+ GET /auth/login?_rsc=1mqyl 200 in 251ms
+ ✓ Compiled in 1022ms (382 modules)
+ GET /auth/login?_rsc=1mqyl 200 in 294ms
+ ✓ Compiled in 1837ms (986 modules)
+ GET /auth/login?_rsc=1mqyl 200 in 314ms
+ ✓ Compiled in 855ms (382 modules)
+ GET /auth/login?_rsc=1mqyl 200 in 237ms
+ ✓ Compiled in 1182ms (382 modules)
+ GET /auth/login?_rsc=1mqyl 200 in 90ms
+ ✓ Compiled in 867ms (382 modules)
+ GET /auth/login?_rsc=1mqyl 200 in 91ms
+ ✓ Compiled in 1638ms (382 modules)
+ GET /auth/login?_rsc=1mqyl 200 in 107ms
+ ✓ Compiled in 909ms (382 modules)
+ GET /auth/login?_rsc=1mqyl 200 in 109ms
+ ✓ Compiled in 856ms (382 modules)
+ GET /auth/login?_rsc=1mqyl 200 in 122ms
+ ✓ Compiled in 1345ms (986 modules)
+ GET /auth/login?_rsc=1mqyl 200 in 184ms
+ ○ Compiling /api/landing-pages ...
+ ⨯ ./app/api/landing-pages/route.ts:6:1
+Module not found: Can't resolve 'sanitize-html'
+[0m [90m 4 |[39m [36mimport[39m { isValidLocale[33m,[39m locales[33m,[39m defaultLocale } [36mfrom[39m [32m'@/lib/i18n'[39m[0m
+[0m [90m 5 |[39m [36mimport[39m crypto [36mfrom[39m [32m'crypto'[39m[0m
+[0m[31m[1m>[22m[39m[90m 6 |[39m [36mimport[39m sanitizeHtml [36mfrom[39m [32m'sanitize-html'[39m[0m
+[0m [90m   |[39m [31m[1m^[22m[39m[0m
+[0m [90m 7 |[39m[0m
+[0m [90m 8 |[39m [90m// Remove invisible characters and common LLM watermark marks from raw JSON text[39m[0m
+[0m [90m 9 |[39m [90m// Important: Do NOT normalize whitespace for JSON payloads – it may change string[39m[0m
+
+https://nextjs.org/docs/messages/module-not-found
+ ⨯ ./app/api/landing-pages/route.ts:6:1
+Module not found: Can't resolve 'sanitize-html'
+[0m [90m 4 |[39m [36mimport[39m { isValidLocale[33m,[39m locales[33m,[39m defaultLocale } [36mfrom[39m [32m'@/lib/i18n'[39m[0m
+[0m [90m 5 |[39m [36mimport[39m crypto [36mfrom[39m [32m'crypto'[39m[0m
+[0m[31m[1m>[22m[39m[90m 6 |[39m [36mimport[39m sanitizeHtml [36mfrom[39m [32m'sanitize-html'[39m[0m
+[0m [90m   |[39m [31m[1m^[22m[39m[0m
+[0m [90m 7 |[39m[0m
+[0m [90m 8 |[39m [90m// Remove invisible characters and common LLM watermark marks from raw JSON text[39m[0m
+[0m [90m 9 |[39m [90m// Important: Do NOT normalize whitespace for JSON payloads – it may change string[39m[0m
+
+https://nextjs.org/docs/messages/module-not-found
+ ⨯ ./app/api/landing-pages/route.ts:6:1
+Module not found: Can't resolve 'sanitize-html'
+[0m [90m 4 |[39m [36mimport[39m { isValidLocale[33m,[39m locales[33m,[39m defaultLocale } [36mfrom[39m [32m'@/lib/i18n'[39m[0m
+[0m [90m 5 |[39m [36mimport[39m crypto [36mfrom[39m [32m'crypto'[39m[0m
+[0m[31m[1m>[22m[39m[90m 6 |[39m [36mimport[39m sanitizeHtml [36mfrom[39m [32m'sanitize-html'[39m[0m
+[0m [90m   |[39m [31m[1m^[22m[39m[0m
+[0m [90m 7 |[39m[0m
+[0m [90m 8 |[39m [90m// Remove invisible characters and common LLM watermark marks from raw JSON text[39m[0m
+[0m [90m 9 |[39m [90m// Important: Do NOT normalize whitespace for JSON payloads – it may change string[39m[0m
+
+https://nextjs.org/docs/messages/module-not-found
+ ⨯ ./app/api/landing-pages/route.ts:6:1
+Module not found: Can't resolve 'sanitize-html'
+[0m [90m 4 |[39m [36mimport[39m { isValidLocale[33m,[39m locales[33m,[39m defaultLocale } [36mfrom[39m [32m'@/lib/i18n'[39m[0m
+[0m [90m 5 |[39m [36mimport[39m crypto [36mfrom[39m [32m'crypto'[39m[0m
+[0m[31m[1m>[22m[39m[90m 6 |[39m [36mimport[39m sanitizeHtml [36mfrom[39m [32m'sanitize-html'[39m[0m
+[0m [90m   |[39m [31m[1m^[22m[39m[0m
+[0m [90m 7 |[39m[0m
+[0m [90m 8 |[39m [90m// Remove invisible characters and common LLM watermark marks from raw JSON text[39m[0m
+[0m [90m 9 |[39m [90m// Important: Do NOT normalize whitespace for JSON payloads – it may change string[39m[0m
+
+https://nextjs.org/docs/messages/module-not-found
+ POST /api/landing-pages 500 in 4299ms
+ GET /auth/login 500 in 69ms
+ GET /_next/static/webpack/a8856e77b3a4a668.webpack.hot-update.json 500 in 28ms
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ GET /auth/login 500 in 68ms
+ ✓ Compiled /_error in 1816ms (1276 modules)
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ GET /_next/static/webpack/a8856e77b3a4a668.webpack.hot-update.json 404 in 544ms
+ GET /auth/login 200 in 142ms
+ ✓ Compiled /api/pageview in 457ms (723 modules)
+Error logging pageview: PrismaClientKnownRequestError: 
+Invalid `prisma.pageView.create()` invocation:
+
+
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.
+    at Bn.handleRequestError (/Users/petrliesner/ai new new new/node_modules/@prisma/client/runtime/library.js:121:7362)
+    at Bn.handleAndLogRequestError (/Users/petrliesner/ai new new new/node_modules/@prisma/client/runtime/library.js:121:6686)
+    at Bn.request (/Users/petrliesner/ai new new new/node_modules/@prisma/client/runtime/library.js:121:6393)
+    at async l (/Users/petrliesner/ai new new new/node_modules/@prisma/client/runtime/library.js:130:9645)
+    at async POST (webpack-internal:///(rsc)/./app/api/pageview/route.ts:31:9)
+    at async /Users/petrliesner/ai new new new/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:57228
+    at async eT.execute (/Users/petrliesner/ai new new new/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:46851)
+    at async eT.handle (/Users/petrliesner/ai new new new/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:58760)
+    at async doRender (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1366:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1588:28)
+    at async DevServer.renderToResponseWithComponentsImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1496:28)
+    at async DevServer.renderPageComponent (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1924:24)
+    at async DevServer.renderToResponseImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1962:32)
+    at async DevServer.pipeImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:922:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/Users/petrliesner/ai new new new/node_modules/next/dist/server/next-server.js:272:17)
+    at async DevServer.handleRequestImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:818:17)
+    at async /Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/next-dev-server.js:339:20
+    at async Span.traceAsyncFn (/Users/petrliesner/ai new new new/node_modules/next/dist/trace/trace.js:154:20)
+    at async DevServer.handleRequest (/Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/next-dev-server.js:336:24)
+    at async invokeRender (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js:178:21)
+    at async handleRequest (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js:355:24)
+    at async requestHandlerImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js:379:13)
+    at async Server.requestListener (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/start-server.js:141:13) {
+  code: 'P1001',
+  clientVersion: '6.3.1',
+  meta: {
+    modelName: 'PageView',
+    database_host: 'localhost',
+    database_port: 5433
+  }
+}
+ POST /api/pageview?path=%2Fauth%2Flogin 500 in 672ms
+📥 Received landing page creation request
+📋 Raw payload keys: [ 'title', 'language', 'keywords', 'contentHtml' ]
+🤖 Processing AI farma format
+📋 AI Payload received: {
+  title: 'Test LP',
+  slug: undefined,
+  hasContent: true,
+  contentLength: 41,
+  keywordsCount: 2
+}
+🔧 Generated slug: test-lp-183253
+⚠️ AI Validation warnings: [
+  'contentHtml is shorter than 100 characters, consider adding more content for SEO'
+]
+💥 Error in AI format handler: {
+  error: '\n' +
+    'Invalid `prisma.landing_pages.findUnique()` invocation:\n' +
+    '\n' +
+    '\n' +
+    "Can't reach database server at `localhost:5433`\n" +
+    '\n' +
+    'Please make sure your database server is running at `localhost:5433`.',
+  stack: 'PrismaClientKnownRequestError: \n' +
+    'Invalid `prisma.landing_pages.findUnique()` invocation:\n' +
+    '\n' +
+    '\n' +
+    "Can't reach database server at `localhost:5433`\n" +
+    '\n' +
+    'Please make sure your database server is running at `localhost:5433`.\n' +
+    '    at Bn.handleRequestError (/Users/petrliesner/ai new new new/node_modules/@prisma/client/runtime/library.js:121:7362)\n' +
+    '    at Bn.handleAndLogRequestError (/Users/petrliesner/ai new new new/node_modules/@prisma/client/runtime/library.js:121:6686)\n' +
+    '    at Bn.request (/Users/petrliesner/ai new new new/node_modules/@prisma/client/runtime/library.js:121:6393)\n' +
+    '    at async l (/Users/petrliesner/ai new new new/node_modules/@prisma/client/runtime/library.js:130:9645)\n' +
+    '    at async handleAiFormatPayload (webpack-internal:///(rsc)/./app/api/landing-pages/route.ts:793:30)\n' +
+    '    at async POST (webpack-internal:///(rsc)/./app/api/landing-pages/route.ts:553:30)\n' +
+    '    at async /Users/petrliesner/ai new new new/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:57228\n' +
+    '    at async eT.execute (/Users/petrliesner/ai new new new/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:46851)\n' +
+    '    at async eT.handle (/Users/petrliesner/ai new new new/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:58760)\n' +
+    '    at async doRender (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1366:42)\n' +
+    '    at async cacheEntry.responseCache.get.routeKind (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1588:28)\n' +
+    '    at async DevServer.renderToResponseWithComponentsImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1496:28)\n' +
+    '    at async DevServer.renderPageComponent (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1924:24)\n' +
+    '    at async DevServer.renderToResponseImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1962:32)\n' +
+    '    at async DevServer.pipeImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:922:25)\n' +
+    '    at async NextNodeServer.handleCatchallRenderRequest (/Users/petrliesner/ai new new new/node_modules/next/dist/server/next-server.js:272:17)\n' +
+    '    at async DevServer.handleRequestImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:818:17)\n' +
+    '    at async /Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/next-dev-server.js:339:20\n' +
+    '    at async Span.traceAsyncFn (/Users/petrliesner/ai new new new/node_modules/next/dist/trace/trace.js:154:20)\n' +
+    '    at async DevServer.handleRequest (/Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/next-dev-server.js:336:24)\n' +
+    '    at async invokeRender (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js:178:21)\n' +
+    '    at async handleRequest (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js:355:24)\n' +
+    '    at async requestHandlerImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js:379:13)\n' +
+    '    at async Server.requestListener (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/start-server.js:141:13)',
+  payload: { slug: undefined, title: 'Test LP...', contentLength: 41 }
+}
+❌ Unhandled Prisma error: P1001 
+Invalid `prisma.landing_pages.findUnique()` invocation:
+
+
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.
+⚠️ WebhookLog insert failed: PrismaClientKnownRequestError: 
+Invalid `prisma.webhookLog.create()` invocation:
+
+
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.
+    at Bn.handleRequestError (/Users/petrliesner/ai new new new/node_modules/@prisma/client/runtime/library.js:121:7362)
+    at Bn.handleAndLogRequestError (/Users/petrliesner/ai new new new/node_modules/@prisma/client/runtime/library.js:121:6686)
+    at Bn.request (/Users/petrliesner/ai new new new/node_modules/@prisma/client/runtime/library.js:121:6393)
+    at async l (/Users/petrliesner/ai new new new/node_modules/@prisma/client/runtime/library.js:130:9645)
+    at async POST (webpack-internal:///(rsc)/./app/api/landing-pages/route.ts:589:17)
+    at async /Users/petrliesner/ai new new new/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:57228
+    at async eT.execute (/Users/petrliesner/ai new new new/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:46851)
+    at async eT.handle (/Users/petrliesner/ai new new new/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:58760)
+    at async doRender (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1366:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1588:28)
+    at async DevServer.renderToResponseWithComponentsImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1496:28)
+    at async DevServer.renderPageComponent (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1924:24)
+    at async DevServer.renderToResponseImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1962:32)
+    at async DevServer.pipeImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:922:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/Users/petrliesner/ai new new new/node_modules/next/dist/server/next-server.js:272:17)
+    at async DevServer.handleRequestImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:818:17)
+    at async /Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/next-dev-server.js:339:20
+    at async Span.traceAsyncFn (/Users/petrliesner/ai new new new/node_modules/next/dist/trace/trace.js:154:20)
+    at async DevServer.handleRequest (/Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/next-dev-server.js:336:24)
+    at async invokeRender (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js:178:21)
+    at async handleRequest (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js:355:24)
+    at async requestHandlerImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js:379:13)
+    at async Server.requestListener (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/start-server.js:141:13) {
+  code: 'P1001',
+  clientVersion: '6.3.1',
+  meta: {
+    modelName: 'WebhookLog',
+    database_host: 'localhost',
+    database_port: 5433
+  }
+}
+ POST /api/landing-pages 500 in 106ms
+ ✓ Compiled in 935ms (569 modules)
+ GET /auth/login?_rsc=1mqyl 200 in 287ms
+ ✓ Compiled in 2.2s (1207 modules)
+ GET /auth/login?_rsc=1mqyl 200 in 497ms
+ ✓ Compiled in 1176ms (569 modules)
+ GET /auth/login?_rsc=1mqyl 200 in 77ms
+ ✓ Compiled /api/landing-pages in 346ms (719 modules)
+📥 Received landing page creation request
+📋 Raw payload keys: [ 'title', 'language', 'keywords', 'contentHtml' ]
+🤖 Processing AI farma format
+📋 AI Payload received: {
+  title: 'Test LP',
+  slug: undefined,
+  hasContent: true,
+  contentLength: 41,
+  keywordsCount: 2
+}
+🔧 Generated slug: test-lp-183623
+💥 Error in AI format handler: {
+  error: '\n' +
+    'Invalid `prisma.landing_pages.findUnique()` invocation:\n' +
+    '\n' +
+    '\n' +
+    "Can't reach database server at `localhost:5433`\n" +
+    '\n' +
+    'Please make sure your database server is running at `localhost:5433`.',
+  stack: 'PrismaClientKnownRequestError: \n' +
+    'Invalid `prisma.landing_pages.findUnique()` invocation:\n' +
+    '\n' +
+    '\n' +
+    "Can't reach database server at `localhost:5433`\n" +
+    '\n' +
+    'Please make sure your database server is running at `localhost:5433`.\n' +
+    '    at Bn.handleRequestError (/Users/petrliesner/ai new new new/node_modules/@prisma/client/runtime/library.js:121:7362)\n' +
+    '    at Bn.handleAndLogRequestError (/Users/petrliesner/ai new new new/node_modules/@prisma/client/runtime/library.js:121:6686)\n' +
+    '    at Bn.request (/Users/petrliesner/ai new new new/node_modules/@prisma/client/runtime/library.js:121:6393)\n' +
+    '    at async l (/Users/petrliesner/ai new new new/node_modules/@prisma/client/runtime/library.js:130:9645)\n' +
+    '    at async handleAiFormatPayload (webpack-internal:///(rsc)/./app/api/landing-pages/route.ts:699:30)\n' +
+    '    at async POST (webpack-internal:///(rsc)/./app/api/landing-pages/route.ts:459:30)\n' +
+    '    at async /Users/petrliesner/ai new new new/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:57228\n' +
+    '    at async eT.execute (/Users/petrliesner/ai new new new/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:46851)\n' +
+    '    at async eT.handle (/Users/petrliesner/ai new new new/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:58760)\n' +
+    '    at async doRender (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1366:42)\n' +
+    '    at async cacheEntry.responseCache.get.routeKind (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1588:28)\n' +
+    '    at async DevServer.renderToResponseWithComponentsImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1496:28)\n' +
+    '    at async DevServer.renderPageComponent (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1924:24)\n' +
+    '    at async DevServer.renderToResponseImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1962:32)\n' +
+    '    at async DevServer.pipeImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:922:25)\n' +
+    '    at async NextNodeServer.handleCatchallRenderRequest (/Users/petrliesner/ai new new new/node_modules/next/dist/server/next-server.js:272:17)\n' +
+    '    at async DevServer.handleRequestImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:818:17)\n' +
+    '    at async /Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/next-dev-server.js:339:20\n' +
+    '    at async Span.traceAsyncFn (/Users/petrliesner/ai new new new/node_modules/next/dist/trace/trace.js:154:20)\n' +
+    '    at async DevServer.handleRequest (/Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/next-dev-server.js:336:24)\n' +
+    '    at async invokeRender (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js:178:21)\n' +
+    '    at async handleRequest (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js:355:24)\n' +
+    '    at async requestHandlerImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js:379:13)\n' +
+    '    at async Server.requestListener (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/start-server.js:141:13)',
+  payload: { slug: undefined, title: 'Test LP...', contentLength: 41 }
+}
+❌ Unhandled Prisma error: P1001 
+Invalid `prisma.landing_pages.findUnique()` invocation:
+
+
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.
+⚠️ WebhookLog insert failed: PrismaClientKnownRequestError: 
+Invalid `prisma.webhookLog.create()` invocation:
+
+
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.
+    at Bn.handleRequestError (/Users/petrliesner/ai new new new/node_modules/@prisma/client/runtime/library.js:121:7362)
+    at Bn.handleAndLogRequestError (/Users/petrliesner/ai new new new/node_modules/@prisma/client/runtime/library.js:121:6686)
+    at Bn.request (/Users/petrliesner/ai new new new/node_modules/@prisma/client/runtime/library.js:121:6393)
+    at async l (/Users/petrliesner/ai new new new/node_modules/@prisma/client/runtime/library.js:130:9645)
+    at async POST (webpack-internal:///(rsc)/./app/api/landing-pages/route.ts:495:17)
+    at async /Users/petrliesner/ai new new new/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:57228
+    at async eT.execute (/Users/petrliesner/ai new new new/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:46851)
+    at async eT.handle (/Users/petrliesner/ai new new new/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:58760)
+    at async doRender (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1366:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1588:28)
+    at async DevServer.renderToResponseWithComponentsImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1496:28)
+    at async DevServer.renderPageComponent (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1924:24)
+    at async DevServer.renderToResponseImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1962:32)
+    at async DevServer.pipeImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:922:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/Users/petrliesner/ai new new new/node_modules/next/dist/server/next-server.js:272:17)
+    at async DevServer.handleRequestImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:818:17)
+    at async /Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/next-dev-server.js:339:20
+    at async Span.traceAsyncFn (/Users/petrliesner/ai new new new/node_modules/next/dist/trace/trace.js:154:20)
+    at async DevServer.handleRequest (/Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/next-dev-server.js:336:24)
+    at async invokeRender (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js:178:21)
+    at async handleRequest (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js:355:24)
+    at async requestHandlerImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js:379:13)
+    at async Server.requestListener (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/start-server.js:141:13) {
+  code: 'P1001',
+  clientVersion: '6.3.1',
+  meta: {
+    modelName: 'WebhookLog',
+    database_host: 'localhost',
+    database_port: 5433
+  }
+}
+ POST /api/landing-pages 500 in 630ms
+ GET /auth/login?_rsc=1mqyl 200 in 159ms
+ ✓ Compiled in 1455ms (1288 modules)
+ GET /auth/login?_rsc=1mqyl 200 in 233ms
+ ✓ Compiled in 1744ms (1288 modules)
+ GET /auth/login?_rsc=1mqyl 200 in 87ms
+📥 Received landing page creation request
+📋 Raw payload keys: [ 'title', 'language', 'keywords', 'contentHtml' ]
+🤖 Processing AI farma format
+📋 AI Payload received: {
+  title: 'LP webhook',
+  slug: undefined,
+  hasContent: true,
+  contentLength: 16,
+  keywordsCount: 2
+}
+🔧 Generated slug: lp-webhook-184144
+💾 AI Landing page created with ID: 23bdd8a7-e325-4da1-999b-13059817ff5a
+⚠️ NEXT_PUBLIC_BASE_URL not set; skipping search engine ping
+✅ AI Landing page successfully created and published
+ℹ️ Set NEXT_PUBLIC_BASE_URL to print public URL
+❌ Error updating sitemap: Error: NEXT_PUBLIC_BASE_URL is required
+    at eval (webpack-internal:///(rsc)/./app/api/landing-pages/route.ts:201:27)
+    at updateSitemap (webpack-internal:///(rsc)/./app/api/landing-pages/route.ts:203:11)
+⚠️ WebhookLog insert failed: PrismaClientKnownRequestError: 
+Invalid `prisma.webhookLog.create()` invocation:
+
+
+The table `public.WebhookLog` does not exist in the current database.
+    at Bn.handleRequestError (/Users/petrliesner/ai new new new/node_modules/@prisma/client/runtime/library.js:121:7362)
+    at Bn.handleAndLogRequestError (/Users/petrliesner/ai new new new/node_modules/@prisma/client/runtime/library.js:121:6686)
+    at Bn.request (/Users/petrliesner/ai new new new/node_modules/@prisma/client/runtime/library.js:121:6393)
+    at async l (/Users/petrliesner/ai new new new/node_modules/@prisma/client/runtime/library.js:130:9645)
+    at async POST (webpack-internal:///(rsc)/./app/api/landing-pages/route.ts:495:17)
+    at async /Users/petrliesner/ai new new new/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:57228
+    at async eT.execute (/Users/petrliesner/ai new new new/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:46851)
+    at async eT.handle (/Users/petrliesner/ai new new new/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:58760)
+    at async doRender (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1366:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1588:28)
+    at async DevServer.renderToResponseWithComponentsImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1496:28)
+    at async DevServer.renderPageComponent (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1924:24)
+    at async DevServer.renderToResponseImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1962:32)
+    at async DevServer.pipeImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:922:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/Users/petrliesner/ai new new new/node_modules/next/dist/server/next-server.js:272:17)
+    at async DevServer.handleRequestImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:818:17)
+    at async /Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/next-dev-server.js:339:20
+    at async Span.traceAsyncFn (/Users/petrliesner/ai new new new/node_modules/next/dist/trace/trace.js:154:20)
+    at async DevServer.handleRequest (/Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/next-dev-server.js:336:24)
+    at async invokeRender (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js:178:21)
+    at async handleRequest (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js:355:24)
+    at async requestHandlerImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js:379:13)
+    at async Server.requestListener (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/start-server.js:141:13) {
+  code: 'P2021',
+  clientVersion: '6.3.1',
+  meta: { modelName: 'WebhookLog', table: 'public.WebhookLog' }
+}
+ POST /api/landing-pages 201 in 518ms
+ ✓ Compiled in 2.3s (1207 modules)
+ GET /auth/login?_rsc=1mqyl 200 in 153ms
+ ✓ Compiled in 2.7s (1207 modules)
+ GET /auth/login?_rsc=1mqyl 200 in 139ms
+ ✓ Compiled in 922ms (1193 modules)
+ ○ Compiling /api/top-lists ...
+ ✓ Compiled /api/top-lists in 661ms (666 modules)
+ GET /api/top-lists?status=published 200 in 1307ms
+ ○ Compiling /api/products ...
+ ✓ Compiled /api/products in 695ms (690 modules)
+API: Loading products by IDs: [
+  '22091e2d-c3a9-4a2f-9610-339e235899fc',
+  '3f5412d1-7010-4748-8f0c-ac2fa531d54d',
+  'c384350e-3cc9-40fd-8412-c7a8cc7a5e34'
+]
+API: Loading products by IDs: [
+  '03ef92a6-ba21-4977-9543-f9ed13eda22c',
+  'bf67f36f-edb2-4747-9144-97d973349577',
+  'a7d39507-0ad3-4775-9990-56fe95c20681'
+]
+API: Loading products by IDs: [
+  '9154f6ed-b9ac-4cec-a8ac-9c5000db19c8',
+  '1f595974-65ad-4f62-bfa4-605c080cf10f',
+  '9a477695-8446-4166-969c-23250a6cec31'
+]
+API: Loading products by IDs: [
+  '80d695d6-e815-4ab0-862a-80c6c82b0b2b',
+  'e3218aaa-2eb0-4b86-94a6-47e9f2453a99',
+  '2e5876d4-618d-4348-8aab-b27997e357ff'
+]
+API: Loading products by IDs: [ '293863b8-2689-45fd-b4f3-c5c5187eae92' ]
+API: Loading products by IDs: [
+  '630f3316-d7fa-41b4-8b3d-4090cfc3ee13',
+  'a7d39507-0ad3-4775-9990-56fe95c20681',
+  'c8f47c35-de36-42b5-a078-876e82b3428f'
+]
+API: Loading products by IDs: [
+  '1d0fa52a-d77e-4760-a728-b435c9dab069',
+  '95f1af2d-c453-4ffd-968f-d3a4b6962d16',
+  'a7d39507-0ad3-4775-9990-56fe95c20681'
+]
+API: Loading products by IDs: [
+  '86ec630a-cb1a-4aa1-911b-eac9f013fee5',
+  '5329aaa9-fc89-4014-bde3-9c99ab5e7779',
+  '304a8acc-9e7f-4d75-ae93-85d16a1ab373'
+]
+API: Loading products by IDs: [ '7fc311df-fa1b-4415-a2bb-6e4f9a0d942b' ]
+API: Loading products by IDs: [
+  'e29c2ee8-3239-4d59-983f-f64caa125188',
+  '7c4ad4dc-a804-4198-91aa-059c8411c30f',
+  '7616f824-cb56-467b-b81c-c4939587d321'
+]
+API: Loading products by IDs: [
+  '7c4ad4dc-a804-4198-91aa-059c8411c30f',
+  'a9fa4030-debf-4ddc-bf20-897726fd7cae',
+  'cf243411-8690-4c8f-807e-14d99b14abff'
+]
+API: Loading products by IDs: [
+  '74e9729e-d439-4ad9-9ffe-a1cf5b9df344',
+  'b721220d-e22d-43dd-a6e9-9f3c1717cd1f',
+  'e29c2ee8-3239-4d59-983f-f64caa125188'
+]
+API: Loading products by IDs: [
+  'c228e879-afcc-4e09-97ba-8f94f24b4108',
+  '0faf3410-db39-4a8b-890b-d4a5f326fd52'
+]
+API: Loading products by IDs: [
+  'bdfe9413-294f-4d16-8116-4999ceb5906e',
+  '4f87db2d-f25e-45e6-8acf-51031f9390fd',
+  '317db9fa-bc58-4bd7-b928-773ae25f00bd'
+]
+API: Loading products by IDs: [
+  '3c3eb5bc-aafb-43fd-8d24-d331999a174f',
+  '4f374ccd-5c1a-405b-afad-50f9c1a698cc'
+]
+API: Loading products by IDs: [
+  '4f374ccd-5c1a-405b-afad-50f9c1a698cc',
+  '3c3eb5bc-aafb-43fd-8d24-d331999a174f'
+]
+API: Loading products by IDs: [
+  '1f595974-65ad-4f62-bfa4-605c080cf10f',
+  '0bff98ce-d097-4778-ba78-85f551d78429',
+  '6bb1de90-48c6-409a-9725-927911ca079d'
+]
+API: Loading products by IDs: [
+  '89bdf474-2cd2-4b3c-a55e-861e793280b0',
+  'cb95e407-271b-4122-a0a7-6d57cad1b1db',
+  '6a3c60d8-3cde-4c4b-ade9-4f685be08b72'
+]
+API: Loading products by IDs: [
+  'dbab24bf-0b0b-4245-9eba-b1fabb5f8346',
+  'cbfcb592-158d-452f-b314-4b8267e2e116'
+]
+API: Successfully loaded 3 products by IDs
+ GET /api/products?ids=7c4ad4dc-a804-4198-91aa-059c8411c30f,a9fa4030-debf-4ddc-bf20-897726fd7cae,cf243411-8690-4c8f-807e-14d99b14abff 200 in 1249ms
+API: Successfully loaded 3 products by IDs
+ GET /api/products?ids=e29c2ee8-3239-4d59-983f-f64caa125188,7c4ad4dc-a804-4198-91aa-059c8411c30f,7616f824-cb56-467b-b81c-c4939587d321 200 in 1270ms
+API: Successfully loaded 3 products by IDs
+ GET /api/products?ids=03ef92a6-ba21-4977-9543-f9ed13eda22c,bf67f36f-edb2-4747-9144-97d973349577,a7d39507-0ad3-4775-9990-56fe95c20681 200 in 1381ms
+API: Successfully loaded 1 products by IDs
+ GET /api/products?ids=293863b8-2689-45fd-b4f3-c5c5187eae92 200 in 1342ms
+API: Successfully loaded 3 products by IDs
+ GET /api/products?ids=1d0fa52a-d77e-4760-a728-b435c9dab069,95f1af2d-c453-4ffd-968f-d3a4b6962d16,a7d39507-0ad3-4775-9990-56fe95c20681 200 in 1314ms
+API: Successfully loaded 3 products by IDs
+ GET /api/products?ids=80d695d6-e815-4ab0-862a-80c6c82b0b2b,e3218aaa-2eb0-4b86-94a6-47e9f2453a99,2e5876d4-618d-4348-8aab-b27997e357ff 200 in 1455ms
+API: Successfully loaded 2 products by IDs
+ GET /api/products?ids=3c3eb5bc-aafb-43fd-8d24-d331999a174f,4f374ccd-5c1a-405b-afad-50f9c1a698cc 200 in 1328ms
+API: Successfully loaded 3 products by IDs
+ GET /api/products?ids=1f595974-65ad-4f62-bfa4-605c080cf10f,0bff98ce-d097-4778-ba78-85f551d78429,6bb1de90-48c6-409a-9725-927911ca079d 200 in 1306ms
+API: Successfully loaded 3 products by IDs
+API: Successfully loaded 2 products by IDs
+ GET /api/products?ids=4f374ccd-5c1a-405b-afad-50f9c1a698cc,3c3eb5bc-aafb-43fd-8d24-d331999a174f 200 in 1371ms
+API: Successfully loaded 3 products by IDs
+ GET /api/products?ids=89bdf474-2cd2-4b3c-a55e-861e793280b0,cb95e407-271b-4122-a0a7-6d57cad1b1db,6a3c60d8-3cde-4c4b-ade9-4f685be08b72 200 in 1313ms
+API: Successfully loaded 2 products by IDs
+ GET /api/products?ids=dbab24bf-0b0b-4245-9eba-b1fabb5f8346,cbfcb592-158d-452f-b314-4b8267e2e116 200 in 1710ms
+API: Successfully loaded 3 products by IDs
+ GET /api/products?ids=22091e2d-c3a9-4a2f-9610-339e235899fc,3f5412d1-7010-4748-8f0c-ac2fa531d54d,c384350e-3cc9-40fd-8412-c7a8cc7a5e34 200 in 1603ms
+API: Successfully loaded 3 products by IDs
+ GET /api/products?ids=9154f6ed-b9ac-4cec-a8ac-9c5000db19c8,1f595974-65ad-4f62-bfa4-605c080cf10f,9a477695-8446-4166-969c-23250a6cec31 200 in 1601ms
+API: Successfully loaded 3 products by IDs
+ GET /api/products?ids=630f3316-d7fa-41b4-8b3d-4090cfc3ee13,a7d39507-0ad3-4775-9990-56fe95c20681,c8f47c35-de36-42b5-a078-876e82b3428f 200 in 1557ms
+API: Successfully loaded 3 products by IDs
+ GET /api/products?ids=86ec630a-cb1a-4aa1-911b-eac9f013fee5,5329aaa9-fc89-4014-bde3-9c99ab5e7779,304a8acc-9e7f-4d75-ae93-85d16a1ab373 200 in 1547ms
+API: Successfully loaded 1 products by IDs
+ GET /api/products?ids=7fc311df-fa1b-4415-a2bb-6e4f9a0d942b 200 in 1555ms
+API: Successfully loaded 3 products by IDs
+ GET /api/products?ids=74e9729e-d439-4ad9-9ffe-a1cf5b9df344,b721220d-e22d-43dd-a6e9-9f3c1717cd1f,e29c2ee8-3239-4d59-983f-f64caa125188 200 in 1534ms
+API: Successfully loaded 2 products by IDs
+ GET /api/products?ids=c228e879-afcc-4e09-97ba-8f94f24b4108,0faf3410-db39-4a8b-890b-d4a5f326fd52 200 in 1530ms
+ GET /api/products?ids=bdfe9413-294f-4d16-8116-4999ceb5906e,4f87db2d-f25e-45e6-8acf-51031f9390fd,317db9fa-bc58-4bd7-b928-773ae25f00bd 200 in 1527ms
