@@ -21,7 +21,8 @@ export default function Modal({ isOpen, onClose, children, title, size = 'md' }:
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Overlay */}
       <div 
-        className="fixed inset-0 bg-black/30 backdrop-blur-sm transition-opacity"
+        className="fixed inset-0 bg-black/30 backdrop-blur-sm transition-opacity pointer-events-none"
+        aria-hidden="true"
         onClick={onClose}
       />
       

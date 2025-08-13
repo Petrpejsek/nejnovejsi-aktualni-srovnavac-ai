@@ -13,6 +13,17 @@ body {
   background: #ffffff;
 }
 
+/* Prevent initial flash by fading in body content smoothly */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+html, body {
+  opacity: 1;
+  animation: fadeIn 120ms ease-out;
+}
+
 /* Gradient text utility */
 .text-gradient-primary {
   background: linear-gradient(135deg, #7c3aed 0%, #ec4899 100%);
