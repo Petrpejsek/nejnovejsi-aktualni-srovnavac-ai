@@ -46,7 +46,8 @@ const nextConfig = {
   }),
   // Konfigurace pro statické soubory na Vercel
   trailingSlash: false,
-  assetPrefix: process.env.NODE_ENV === 'production' ? (process.env.NEXT_PUBLIC_ASSET_PREFIX ?? (function(){ throw new Error('NEXT_PUBLIC_ASSET_PREFIX is required in production'); })()) : '',
+  // In production we default to no assetPrefix unless explicitly provided via NEXT_PUBLIC_ASSET_PREFIX
+  assetPrefix: process.env.NEXT_PUBLIC_ASSET_PREFIX || '',
   // Výslovně označit screenshoty jako statické assets
   async headers() {
     return [
