@@ -20,7 +20,7 @@ export default async function Home() {
       WHERE "isActive" = true AND "name" IS NOT NULL AND "name" != ''
       ORDER BY RANDOM()
       LIMIT 12`
-    initialProducts = rows.map(r => ({ ...r, price: Number(r.price) || 0 }))
+    initialProducts = Array.isArray(rows) ? rows.map(r => ({ ...r, price: Number(r.price) || 0 })) : []
   } catch {}
 
   return (
