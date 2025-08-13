@@ -897,3 +897,516 @@ API: Successfully loaded 3 products by IDs
 API: Successfully loaded 2 products by IDs
  GET /api/products?ids=c228e879-afcc-4e09-97ba-8f94f24b4108,0faf3410-db39-4a8b-890b-d4a5f326fd52 200 in 1530ms
  GET /api/products?ids=bdfe9413-294f-4d16-8116-4999ceb5906e,4f87db2d-f25e-45e6-8acf-51031f9390fd,317db9fa-bc58-4bd7-b928-773ae25f00bd 200 in 1527ms
+ ✓ Compiled in 3.5s (1207 modules)
+ ⨯ Error: Cannot find module './8948.js'
+Require stack:
+- /Users/petrliesner/ai new new new/.next/server/webpack-runtime.js
+- /Users/petrliesner/ai new new new/.next/server/app/auth/login/page.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/require.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/load-components.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/build/utils.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/hot-middleware.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/hot-reloader-webpack.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/start-server.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1225:15)
+    at /Users/petrliesner/ai new new new/node_modules/next/dist/server/require-hook.js:55:36
+    at Module._load (node:internal/modules/cjs/loader:1051:27)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at mod.require (/Users/petrliesner/ai new new new/node_modules/next/dist/server/require-hook.js:65:28)
+    at require (node:internal/modules/helpers:179:18)
+    at __webpack_require__.f.require (/Users/petrliesner/ai new new new/.next/server/webpack-runtime.js:198:28)
+    at /Users/petrliesner/ai new new new/.next/server/webpack-runtime.js:111:40
+    at Array.reduce (<anonymous>)
+    at __webpack_require__.e (/Users/petrliesner/ai new new new/.next/server/webpack-runtime.js:110:67)
+    at Array.map (<anonymous>)
+    at __webpack_require__.X (/Users/petrliesner/ai new new new/.next/server/webpack-runtime.js:162:22)
+    at /Users/petrliesner/ai new new new/.next/server/app/auth/login/page.js:1:5755
+    at Object.<anonymous> (/Users/petrliesner/ai new new new/.next/server/app/auth/login/page.js:1:5822)
+    at Module._compile (node:internal/modules/cjs/loader:1469:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)
+    at Module.load (node:internal/modules/cjs/loader:1288:32)
+    at Module._load (node:internal/modules/cjs/loader:1104:12)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at mod.require (/Users/petrliesner/ai new new new/node_modules/next/dist/server/require-hook.js:65:28)
+    at require (node:internal/modules/helpers:179:18)
+    at requirePage (/Users/petrliesner/ai new new new/node_modules/next/dist/server/require.js:109:84)
+    at /Users/petrliesner/ai new new new/node_modules/next/dist/server/load-components.js:103:84
+    at async loadComponentsImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/load-components.js:103:26)
+    at async DevServer.findPageComponentsImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/next-server.js:714:36)
+    at async DevServer.findPageComponents (/Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/next-dev-server.js:577:20)
+    at async DevServer.renderPageComponent (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1910:24)
+    at async DevServer.renderToResponseImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1962:32)
+    at async DevServer.pipeImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:922:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/Users/petrliesner/ai new new new/node_modules/next/dist/server/next-server.js:272:17)
+    at async DevServer.handleRequestImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:818:17)
+    at async /Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/next-dev-server.js:339:20
+    at async Span.traceAsyncFn (/Users/petrliesner/ai new new new/node_modules/next/dist/trace/trace.js:154:20)
+    at async DevServer.handleRequest (/Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/next-dev-server.js:336:24)
+    at async invokeRender (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js:178:21)
+    at async handleRequest (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js:355:24)
+    at async requestHandlerImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js:379:13)
+    at async Server.requestListener (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/start-server.js:141:13) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [
+    '/Users/petrliesner/ai new new new/.next/server/webpack-runtime.js',
+    '/Users/petrliesner/ai new new new/.next/server/app/auth/login/page.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/require.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/load-components.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/build/utils.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/hot-middleware.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/hot-reloader-webpack.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/start-server.js'
+  ],
+  page: '/auth/login'
+}
+ ○ Compiling /_error ...
+ ✓ Compiled /_error in 1108ms (1193 modules)
+ ⨯ Error: Cannot find module './1682.js'
+Require stack:
+- /Users/petrliesner/ai new new new/.next/server/webpack-runtime.js
+- /Users/petrliesner/ai new new new/.next/server/pages/_document.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/require.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/load-components.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/build/utils.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/hot-middleware.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/hot-reloader-webpack.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/start-server.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1225:15)
+    at /Users/petrliesner/ai new new new/node_modules/next/dist/server/require-hook.js:55:36
+    at Module._load (node:internal/modules/cjs/loader:1051:27)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at mod.require (/Users/petrliesner/ai new new new/node_modules/next/dist/server/require-hook.js:65:28)
+    at require (node:internal/modules/helpers:179:18)
+    at __webpack_require__.f.require (/Users/petrliesner/ai new new new/.next/server/webpack-runtime.js:198:28)
+    at /Users/petrliesner/ai new new new/.next/server/webpack-runtime.js:111:40
+    at Array.reduce (<anonymous>)
+    at __webpack_require__.e (/Users/petrliesner/ai new new new/.next/server/webpack-runtime.js:110:67)
+    at Array.map (<anonymous>)
+    at __webpack_require__.X (/Users/petrliesner/ai new new new/.next/server/webpack-runtime.js:162:22)
+    at /Users/petrliesner/ai new new new/.next/server/pages/_document.js:1:340
+    at Object.<anonymous> (/Users/petrliesner/ai new new new/.next/server/pages/_document.js:1:383)
+    at Module._compile (node:internal/modules/cjs/loader:1469:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)
+    at Module.load (node:internal/modules/cjs/loader:1288:32)
+    at Module._load (node:internal/modules/cjs/loader:1104:12)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at mod.require (/Users/petrliesner/ai new new new/node_modules/next/dist/server/require-hook.js:65:28)
+    at require (node:internal/modules/helpers:179:18)
+    at requirePage (/Users/petrliesner/ai new new new/node_modules/next/dist/server/require.js:109:84)
+    at /Users/petrliesner/ai new new new/node_modules/next/dist/server/load-components.js:72:65
+    at async Promise.all (index 0)
+    at async loadComponentsImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/load-components.js:71:33)
+    at async DevServer.findPageComponentsImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/next-server.js:714:36) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [
+    '/Users/petrliesner/ai new new new/.next/server/webpack-runtime.js',
+    '/Users/petrliesner/ai new new new/.next/server/pages/_document.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/require.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/load-components.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/build/utils.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/hot-middleware.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/hot-reloader-webpack.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/start-server.js'
+  ]
+}
+Error: Cannot find module './8948.js'
+Require stack:
+- /Users/petrliesner/ai new new new/.next/server/webpack-runtime.js
+- /Users/petrliesner/ai new new new/.next/server/app/auth/login/page.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/require.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/load-components.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/build/utils.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/hot-middleware.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/hot-reloader-webpack.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/start-server.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1225:15)
+    at /Users/petrliesner/ai new new new/node_modules/next/dist/server/require-hook.js:55:36
+    at Module._load (node:internal/modules/cjs/loader:1051:27)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at mod.require (/Users/petrliesner/ai new new new/node_modules/next/dist/server/require-hook.js:65:28)
+    at require (node:internal/modules/helpers:179:18)
+    at __webpack_require__.f.require (/Users/petrliesner/ai new new new/.next/server/webpack-runtime.js:198:28)
+    at /Users/petrliesner/ai new new new/.next/server/webpack-runtime.js:111:40
+    at Array.reduce (<anonymous>)
+    at __webpack_require__.e (/Users/petrliesner/ai new new new/.next/server/webpack-runtime.js:110:67)
+    at Array.map (<anonymous>)
+    at __webpack_require__.X (/Users/petrliesner/ai new new new/.next/server/webpack-runtime.js:162:22)
+    at /Users/petrliesner/ai new new new/.next/server/app/auth/login/page.js:1:5755
+    at Object.<anonymous> (/Users/petrliesner/ai new new new/.next/server/app/auth/login/page.js:1:5822)
+    at Module._compile (node:internal/modules/cjs/loader:1469:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)
+    at Module.load (node:internal/modules/cjs/loader:1288:32)
+    at Module._load (node:internal/modules/cjs/loader:1104:12)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at mod.require (/Users/petrliesner/ai new new new/node_modules/next/dist/server/require-hook.js:65:28)
+    at require (node:internal/modules/helpers:179:18)
+    at requirePage (/Users/petrliesner/ai new new new/node_modules/next/dist/server/require.js:109:84)
+    at /Users/petrliesner/ai new new new/node_modules/next/dist/server/load-components.js:103:84
+    at async loadComponentsImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/load-components.js:103:26)
+    at async DevServer.findPageComponentsImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/next-server.js:714:36)
+    at async DevServer.findPageComponents (/Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/next-dev-server.js:577:20)
+    at async DevServer.renderPageComponent (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1910:24)
+    at async DevServer.renderToResponseImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1962:32)
+    at async DevServer.pipeImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:922:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/Users/petrliesner/ai new new new/node_modules/next/dist/server/next-server.js:272:17)
+    at async DevServer.handleRequestImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:818:17)
+    at async /Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/next-dev-server.js:339:20
+    at async Span.traceAsyncFn (/Users/petrliesner/ai new new new/node_modules/next/dist/trace/trace.js:154:20)
+    at async DevServer.handleRequest (/Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/next-dev-server.js:336:24)
+    at async invokeRender (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js:178:21)
+    at async handleRequest (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js:355:24)
+    at async requestHandlerImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js:379:13)
+    at async Server.requestListener (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/start-server.js:141:13) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [
+    '/Users/petrliesner/ai new new new/.next/server/webpack-runtime.js',
+    '/Users/petrliesner/ai new new new/.next/server/app/auth/login/page.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/require.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/load-components.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/build/utils.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/hot-middleware.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/hot-reloader-webpack.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/start-server.js'
+  ],
+  page: '/auth/login'
+}
+ ⨯ Error: Cannot find module './1682.js'
+Require stack:
+- /Users/petrliesner/ai new new new/.next/server/webpack-runtime.js
+- /Users/petrliesner/ai new new new/.next/server/pages/_document.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/require.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/load-components.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/build/utils.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/hot-middleware.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/hot-reloader-webpack.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/start-server.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1225:15)
+    at /Users/petrliesner/ai new new new/node_modules/next/dist/server/require-hook.js:55:36
+    at Module._load (node:internal/modules/cjs/loader:1051:27)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at mod.require (/Users/petrliesner/ai new new new/node_modules/next/dist/server/require-hook.js:65:28)
+    at require (node:internal/modules/helpers:179:18)
+    at __webpack_require__.f.require (/Users/petrliesner/ai new new new/.next/server/webpack-runtime.js:198:28)
+    at /Users/petrliesner/ai new new new/.next/server/webpack-runtime.js:111:40
+    at Array.reduce (<anonymous>)
+    at __webpack_require__.e (/Users/petrliesner/ai new new new/.next/server/webpack-runtime.js:110:67)
+    at Array.map (<anonymous>)
+    at __webpack_require__.X (/Users/petrliesner/ai new new new/.next/server/webpack-runtime.js:162:22)
+    at /Users/petrliesner/ai new new new/.next/server/pages/_document.js:1:340
+    at Object.<anonymous> (/Users/petrliesner/ai new new new/.next/server/pages/_document.js:1:383)
+    at Module._compile (node:internal/modules/cjs/loader:1469:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)
+    at Module.load (node:internal/modules/cjs/loader:1288:32)
+    at Module._load (node:internal/modules/cjs/loader:1104:12)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at mod.require (/Users/petrliesner/ai new new new/node_modules/next/dist/server/require-hook.js:65:28)
+    at require (node:internal/modules/helpers:179:18)
+    at requirePage (/Users/petrliesner/ai new new new/node_modules/next/dist/server/require.js:109:84)
+    at /Users/petrliesner/ai new new new/node_modules/next/dist/server/load-components.js:72:65
+    at async Promise.all (index 0)
+    at async loadComponentsImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/load-components.js:71:33)
+    at async DevServer.findPageComponentsImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/next-server.js:714:36) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [
+    '/Users/petrliesner/ai new new new/.next/server/webpack-runtime.js',
+    '/Users/petrliesner/ai new new new/.next/server/pages/_document.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/require.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/load-components.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/build/utils.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/hot-middleware.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/hot-reloader-webpack.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/start-server.js'
+  ]
+}
+Error: ENOENT: no such file or directory, open '/Users/petrliesner/ai new new new/.next/fallback-build-manifest.json'
+    at readFileSync (node:fs:449:20)
+    at loadManifest (/Users/petrliesner/ai new new new/node_modules/next/dist/server/load-manifest.js:36:52)
+    at loadManifestWithRetries (/Users/petrliesner/ai new new new/node_modules/next/dist/server/load-components.js:40:51)
+    at async loadDefaultErrorComponentsImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/load-default-error-components.js:30:24)
+    at async DevServer.getFallbackErrorComponents (/Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/next-dev-server.js:594:16)
+    at async DevServer.renderErrorToResponseImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:2203:40)
+    at async pipe.req.req (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:2056:30)
+    at async DevServer.pipeImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:922:25)
+    at async /Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/next-dev-server.js:339:20
+    at async Span.traceAsyncFn (/Users/petrliesner/ai new new new/node_modules/next/dist/trace/trace.js:154:20)
+    at async DevServer.handleRequest (/Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/next-dev-server.js:336:24)
+    at async invokeRender (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js:178:21)
+    at async requestHandlerImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js:391:24)
+    at async Server.requestListener (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/start-server.js:141:13) {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/petrliesner/ai new new new/.next/fallback-build-manifest.json'
+}
+ ⨯ Error: Cannot find module './8948.js'
+Require stack:
+- /Users/petrliesner/ai new new new/.next/server/webpack-runtime.js
+- /Users/petrliesner/ai new new new/.next/server/pages/_document.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/require.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/load-components.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/build/utils.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/hot-middleware.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/hot-reloader-webpack.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/start-server.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1225:15)
+    at /Users/petrliesner/ai new new new/node_modules/next/dist/server/require-hook.js:55:36
+    at Module._load (node:internal/modules/cjs/loader:1051:27)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at mod.require (/Users/petrliesner/ai new new new/node_modules/next/dist/server/require-hook.js:65:28)
+    at require (node:internal/modules/helpers:179:18)
+    at __webpack_require__.f.require (/Users/petrliesner/ai new new new/.next/server/webpack-runtime.js:198:28)
+    at /Users/petrliesner/ai new new new/.next/server/webpack-runtime.js:111:40
+    at Array.reduce (<anonymous>)
+    at __webpack_require__.e (/Users/petrliesner/ai new new new/.next/server/webpack-runtime.js:110:67)
+    at Array.map (<anonymous>)
+    at __webpack_require__.X (/Users/petrliesner/ai new new new/.next/server/webpack-runtime.js:162:22)
+    at /Users/petrliesner/ai new new new/.next/server/app/auth/login/page.js:1:5755
+    at Object.<anonymous> (/Users/petrliesner/ai new new new/.next/server/app/auth/login/page.js:1:5822)
+    at Module._compile (node:internal/modules/cjs/loader:1469:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)
+    at Module.load (node:internal/modules/cjs/loader:1288:32)
+    at Module._load (node:internal/modules/cjs/loader:1104:12)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at mod.require (/Users/petrliesner/ai new new new/node_modules/next/dist/server/require-hook.js:65:28)
+    at require (node:internal/modules/helpers:179:18)
+    at requirePage (/Users/petrliesner/ai new new new/node_modules/next/dist/server/require.js:109:84)
+    at /Users/petrliesner/ai new new new/node_modules/next/dist/server/load-components.js:103:84
+    at async loadComponentsImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/load-components.js:103:26)
+    at async DevServer.findPageComponentsImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/next-server.js:714:36)
+    at async DevServer.findPageComponents (/Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/next-dev-server.js:577:20)
+    at async DevServer.renderPageComponent (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1910:24)
+    at async DevServer.renderToResponseImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1962:32)
+    at async DevServer.pipeImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:922:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/Users/petrliesner/ai new new new/node_modules/next/dist/server/next-server.js:272:17)
+    at async DevServer.handleRequestImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:818:17)
+    at async /Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/next-dev-server.js:339:20
+    at async Span.traceAsyncFn (/Users/petrliesner/ai new new new/node_modules/next/dist/trace/trace.js:154:20)
+    at async DevServer.handleRequest (/Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/next-dev-server.js:336:24)
+    at async invokeRender (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js:178:21)
+    at async handleRequest (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js:355:24)
+    at async requestHandlerImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js:379:13)
+    at async Server.requestListener (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/start-server.js:141:13) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [
+    '/Users/petrliesner/ai new new new/.next/server/webpack-runtime.js',
+    '/Users/petrliesner/ai new new new/.next/server/pages/_document.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/require.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/load-components.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/build/utils.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/hot-middleware.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/hot-reloader-webpack.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/start-server.js'
+  ],
+  page: '/auth/login'
+}
+ ⨯ Error: Cannot find module './1682.js'
+Require stack:
+- /Users/petrliesner/ai new new new/.next/server/webpack-runtime.js
+- /Users/petrliesner/ai new new new/.next/server/pages/_document.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/require.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/load-components.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/build/utils.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/hot-middleware.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/hot-reloader-webpack.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/start-server.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1225:15)
+    at /Users/petrliesner/ai new new new/node_modules/next/dist/server/require-hook.js:55:36
+    at Module._load (node:internal/modules/cjs/loader:1051:27)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at mod.require (/Users/petrliesner/ai new new new/node_modules/next/dist/server/require-hook.js:65:28)
+    at require (node:internal/modules/helpers:179:18)
+    at __webpack_require__.f.require (/Users/petrliesner/ai new new new/.next/server/webpack-runtime.js:198:28)
+    at /Users/petrliesner/ai new new new/.next/server/webpack-runtime.js:111:40
+    at Array.reduce (<anonymous>)
+    at __webpack_require__.e (/Users/petrliesner/ai new new new/.next/server/webpack-runtime.js:110:67)
+    at Array.map (<anonymous>)
+    at __webpack_require__.X (/Users/petrliesner/ai new new new/.next/server/webpack-runtime.js:162:22)
+    at /Users/petrliesner/ai new new new/.next/server/pages/_document.js:1:340
+    at Object.<anonymous> (/Users/petrliesner/ai new new new/.next/server/pages/_document.js:1:383)
+    at Module._compile (node:internal/modules/cjs/loader:1469:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)
+    at Module.load (node:internal/modules/cjs/loader:1288:32)
+    at Module._load (node:internal/modules/cjs/loader:1104:12)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at mod.require (/Users/petrliesner/ai new new new/node_modules/next/dist/server/require-hook.js:65:28)
+    at require (node:internal/modules/helpers:179:18)
+    at requirePage (/Users/petrliesner/ai new new new/node_modules/next/dist/server/require.js:109:84)
+    at /Users/petrliesner/ai new new new/node_modules/next/dist/server/load-components.js:72:65
+    at async Promise.all (index 0)
+    at async loadComponentsImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/load-components.js:71:33)
+    at async DevServer.findPageComponentsImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/next-server.js:714:36) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [
+    '/Users/petrliesner/ai new new new/.next/server/webpack-runtime.js',
+    '/Users/petrliesner/ai new new new/.next/server/pages/_document.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/require.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/load-components.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/build/utils.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/hot-middleware.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/hot-reloader-webpack.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/start-server.js'
+  ]
+}
+Error: Cannot find module './8948.js'
+Require stack:
+- /Users/petrliesner/ai new new new/.next/server/webpack-runtime.js
+- /Users/petrliesner/ai new new new/.next/server/pages/_document.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/require.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/load-components.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/build/utils.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/hot-middleware.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/hot-reloader-webpack.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/start-server.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1225:15)
+    at /Users/petrliesner/ai new new new/node_modules/next/dist/server/require-hook.js:55:36
+    at Module._load (node:internal/modules/cjs/loader:1051:27)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at mod.require (/Users/petrliesner/ai new new new/node_modules/next/dist/server/require-hook.js:65:28)
+    at require (node:internal/modules/helpers:179:18)
+    at __webpack_require__.f.require (/Users/petrliesner/ai new new new/.next/server/webpack-runtime.js:198:28)
+    at /Users/petrliesner/ai new new new/.next/server/webpack-runtime.js:111:40
+    at Array.reduce (<anonymous>)
+    at __webpack_require__.e (/Users/petrliesner/ai new new new/.next/server/webpack-runtime.js:110:67)
+    at Array.map (<anonymous>)
+    at __webpack_require__.X (/Users/petrliesner/ai new new new/.next/server/webpack-runtime.js:162:22)
+    at /Users/petrliesner/ai new new new/.next/server/app/auth/login/page.js:1:5755
+    at Object.<anonymous> (/Users/petrliesner/ai new new new/.next/server/app/auth/login/page.js:1:5822)
+    at Module._compile (node:internal/modules/cjs/loader:1469:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)
+    at Module.load (node:internal/modules/cjs/loader:1288:32)
+    at Module._load (node:internal/modules/cjs/loader:1104:12)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at mod.require (/Users/petrliesner/ai new new new/node_modules/next/dist/server/require-hook.js:65:28)
+    at require (node:internal/modules/helpers:179:18)
+    at requirePage (/Users/petrliesner/ai new new new/node_modules/next/dist/server/require.js:109:84)
+    at /Users/petrliesner/ai new new new/node_modules/next/dist/server/load-components.js:103:84
+    at async loadComponentsImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/load-components.js:103:26)
+    at async DevServer.findPageComponentsImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/next-server.js:714:36)
+    at async DevServer.findPageComponents (/Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/next-dev-server.js:577:20)
+    at async DevServer.renderPageComponent (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1910:24)
+    at async DevServer.renderToResponseImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:1962:32)
+    at async DevServer.pipeImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:922:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/Users/petrliesner/ai new new new/node_modules/next/dist/server/next-server.js:272:17)
+    at async DevServer.handleRequestImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:818:17)
+    at async /Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/next-dev-server.js:339:20
+    at async Span.traceAsyncFn (/Users/petrliesner/ai new new new/node_modules/next/dist/trace/trace.js:154:20)
+    at async DevServer.handleRequest (/Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/next-dev-server.js:336:24)
+    at async invokeRender (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js:178:21)
+    at async handleRequest (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js:355:24)
+    at async requestHandlerImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js:379:13)
+    at async Server.requestListener (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/start-server.js:141:13) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [
+    '/Users/petrliesner/ai new new new/.next/server/webpack-runtime.js',
+    '/Users/petrliesner/ai new new new/.next/server/pages/_document.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/require.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/load-components.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/build/utils.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/hot-middleware.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/hot-reloader-webpack.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/start-server.js'
+  ],
+  page: '/auth/login'
+}
+ ⨯ Error: Cannot find module './1682.js'
+Require stack:
+- /Users/petrliesner/ai new new new/.next/server/webpack-runtime.js
+- /Users/petrliesner/ai new new new/.next/server/pages/_document.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/require.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/load-components.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/build/utils.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/hot-middleware.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/hot-reloader-webpack.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js
+- /Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/start-server.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1225:15)
+    at /Users/petrliesner/ai new new new/node_modules/next/dist/server/require-hook.js:55:36
+    at Module._load (node:internal/modules/cjs/loader:1051:27)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at mod.require (/Users/petrliesner/ai new new new/node_modules/next/dist/server/require-hook.js:65:28)
+    at require (node:internal/modules/helpers:179:18)
+    at __webpack_require__.f.require (/Users/petrliesner/ai new new new/.next/server/webpack-runtime.js:198:28)
+    at /Users/petrliesner/ai new new new/.next/server/webpack-runtime.js:111:40
+    at Array.reduce (<anonymous>)
+    at __webpack_require__.e (/Users/petrliesner/ai new new new/.next/server/webpack-runtime.js:110:67)
+    at Array.map (<anonymous>)
+    at __webpack_require__.X (/Users/petrliesner/ai new new new/.next/server/webpack-runtime.js:162:22)
+    at /Users/petrliesner/ai new new new/.next/server/pages/_document.js:1:340
+    at Object.<anonymous> (/Users/petrliesner/ai new new new/.next/server/pages/_document.js:1:383)
+    at Module._compile (node:internal/modules/cjs/loader:1469:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)
+    at Module.load (node:internal/modules/cjs/loader:1288:32)
+    at Module._load (node:internal/modules/cjs/loader:1104:12)
+    at Module.require (node:internal/modules/cjs/loader:1311:19)
+    at mod.require (/Users/petrliesner/ai new new new/node_modules/next/dist/server/require-hook.js:65:28)
+    at require (node:internal/modules/helpers:179:18)
+    at requirePage (/Users/petrliesner/ai new new new/node_modules/next/dist/server/require.js:109:84)
+    at /Users/petrliesner/ai new new new/node_modules/next/dist/server/load-components.js:72:65
+    at async Promise.all (index 0)
+    at async loadComponentsImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/load-components.js:71:33)
+    at async DevServer.findPageComponentsImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/next-server.js:714:36) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [
+    '/Users/petrliesner/ai new new new/.next/server/webpack-runtime.js',
+    '/Users/petrliesner/ai new new new/.next/server/pages/_document.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/require.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/load-components.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/build/utils.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/hot-middleware.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/hot-reloader-webpack.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js',
+    '/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/start-server.js'
+  ]
+}
+Error: ENOENT: no such file or directory, open '/Users/petrliesner/ai new new new/.next/fallback-build-manifest.json'
+    at readFileSync (node:fs:449:20)
+    at loadManifest (/Users/petrliesner/ai new new new/node_modules/next/dist/server/load-manifest.js:36:52)
+    at loadManifestWithRetries (/Users/petrliesner/ai new new new/node_modules/next/dist/server/load-components.js:40:51)
+    at async loadDefaultErrorComponentsImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/load-default-error-components.js:30:24)
+    at async DevServer.getFallbackErrorComponents (/Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/next-dev-server.js:594:16)
+    at async DevServer.renderErrorToResponseImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:2203:40)
+    at async pipe.req.req (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:2056:30)
+    at async DevServer.pipeImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/base-server.js:922:25)
+    at async /Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/next-dev-server.js:339:20
+    at async Span.traceAsyncFn (/Users/petrliesner/ai new new new/node_modules/next/dist/trace/trace.js:154:20)
+    at async DevServer.handleRequest (/Users/petrliesner/ai new new new/node_modules/next/dist/server/dev/next-dev-server.js:336:24)
+    at async invokeRender (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js:178:21)
+    at async requestHandlerImpl (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/router-server.js:391:24)
+    at async Server.requestListener (/Users/petrliesner/ai new new new/node_modules/next/dist/server/lib/start-server.js:141:13) {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/petrliesner/ai new new new/.next/fallback-build-manifest.json'
+}
+ GET /auth/login 500 in 761ms
+ GET /auth/login 500 in 238ms
