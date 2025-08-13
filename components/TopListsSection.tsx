@@ -107,7 +107,7 @@ export default function TopListsSection() {
         for (const list of data || []) {
           if (list.productsData && list.productsData.length > 0) {
             // Vezmi jen první 3 produkty pro preview
-            productsData[list.id] = list.productsData.slice(0, 3)
+            productsData[list.id] = Array.isArray(list.productsData) ? list.productsData.slice(0, 3) : []
           } else {
             productsData[list.id] = []
           }

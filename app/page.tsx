@@ -1,5 +1,3 @@
-'use client'
-
 import React from 'react'
 import AiAdvisor from '../components/AiAdvisor'
 import ProductGridWrapper from '../components/ProductGridWrapper'
