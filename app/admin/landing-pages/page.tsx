@@ -45,6 +45,14 @@ interface LandingPagesResponse {
 }
 
 export default function LandingPagesAdmin() {
+  return (
+    <Suspense fallback={<div className="p-6">Loading landing pages…</div>}>
+      <LandingPagesAdminContent />
+    </Suspense>
+  )
+}
+
+function LandingPagesAdminContent() {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()

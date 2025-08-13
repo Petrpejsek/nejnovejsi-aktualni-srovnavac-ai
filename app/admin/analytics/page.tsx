@@ -23,6 +23,14 @@ interface AnalyticsData {
 }
 
 export default function AnalyticsAdmin() {
+  return (
+    <Suspense fallback={<div className="p-6">Loading analytics…</div>}>
+      <AnalyticsAdminContent />
+    </Suspense>
+  )
+}
+
+function AnalyticsAdminContent() {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -53,8 +61,6 @@ export default function AnalyticsAdmin() {
 
     fetchAnalytics()
   }, [timeRange])
-
-  // Reset analytics – odstraněno z UI pro bezpečnost
 
   // Reálná data – doplňkové metriky načteme z /api/admin-stats
   const [additionalStats, setAdditionalStats] = useState({
@@ -107,7 +113,6 @@ export default function AnalyticsAdmin() {
     : '0.0'
 
   return (
-    <Suspense fallback={<div className="p-6">Loading analytics…</div>}>
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between border-b border-gray-200 pb-4">
@@ -351,6 +356,5 @@ export default function AnalyticsAdmin() {
 
       {/* Quick Insights – dočasně odstraněno, dokud nebudou reálné metriky porovnání */}
     </div>
-    </Suspense>
   )
 } 
