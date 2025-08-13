@@ -8,7 +8,7 @@ import { v4 as uuidv4 } from 'uuid'
 export const dynamic = 'force-dynamic'
 
 // GET - Načíst historii kliků uživatele
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
     
@@ -29,28 +29,39 @@ export async function GET() {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
-    // PŘÍMÝ DOTAZ s userId místo User relation
-    const clickHistory = await prisma.clickHistory.findMany({
+    // Pagination params: default first page 10, subsequent pages typically 20
+    const search = request.nextUrl.searchParams
+    const skip = Number.parseInt(search.get('skip') || '0', 10)
+    const takeParam = search.get('take')
+    const take = Number.isNaN(Number.parseInt(takeParam || '', 10))
+      ? (skip === 0 ? 10 : 20)
+      : Math.max(1, Number.parseInt(takeParam as string, 10))
+
+    // Direct query by userId
+    const [itemsPlusOne, total] = await Promise.all([
+      prisma.clickHistory.findMany({
       where: {
-        userId: user.id  // Přímý vztah místo User relation
+        userId: user.id
       },
-      orderBy: {
-        clickedAt: 'desc'
-      },
-      take: 50
-    })
+      orderBy: [
+        { clickedAt: 'desc' },
+        { id: 'desc' }
+      ],
+      skip,
+      take: take + 1
+      }),
+      prisma.clickHistory.count({ where: { userId: user.id } })
+    ])
 
-    console.log(`🔧 DEBUG: Found ${clickHistory.length} clicks for userId: ${user.id}`)
-    if (clickHistory.length > 0) {
-      console.log('🔧 DEBUG: First click:', clickHistory[0])
-    }
+    const hasMore = itemsPlusOne.length > take
+    const items = hasMore ? itemsPlusOne.slice(0, take) : itemsPlusOne
+    const nextSkip = hasMore ? skip + take : null
 
-    // VŽDY vrátíme pole, i když je prázdné
-    return NextResponse.json(clickHistory || [])
+    return NextResponse.json({ items, hasMore, nextSkip, total })
   } catch (error) {
     console.error('🔧 DEBUG: Error loading click history:', error)
     // I při chybě vrátíme prázdné pole místo error
-    return NextResponse.json([])
+    return NextResponse.json({ items: [], hasMore: false, nextSkip: null, total: 0 })
   }
 }
 

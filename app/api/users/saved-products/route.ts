@@ -26,10 +26,29 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
-    const savedProducts = await prisma.savedProduct.findMany({
-      where: { userId: user.id },
-      orderBy: { savedAt: 'desc' }
-    })
+    // Pagination params: 10 on first page, 20 on subsequent loads
+    const search = new URL(request.url).searchParams
+    const skip = Number.parseInt(search.get('skip') || '0', 10)
+    const takeParam = search.get('take')
+    const take = Number.isNaN(Number.parseInt(takeParam || '', 10))
+      ? (skip === 0 ? 10 : 20)
+      : Math.max(1, Number.parseInt(takeParam as string, 10))
+
+    const [rowsPlusOne, total] = await Promise.all([
+      prisma.savedProduct.findMany({
+        where: { userId: user.id },
+        orderBy: [
+          { savedAt: 'desc' },
+          { id: 'desc' }
+        ],
+        skip,
+        take: take + 1
+      }),
+      prisma.savedProduct.count({ where: { userId: user.id } })
+    ])
+
+    const hasMore = rowsPlusOne.length > take
+    const savedProducts = hasMore ? rowsPlusOne.slice(0, take) : rowsPlusOne
 
     // Načítáme kompletní data pro každý uložený produkt
     const enrichedProducts = await Promise.all(
@@ -72,7 +91,7 @@ export async function GET(request: NextRequest) {
       })
     )
 
-    return NextResponse.json(enrichedProducts)
+    return NextResponse.json({ items: enrichedProducts, hasMore, nextSkip: hasMore ? skip + take : null, total })
     
   } catch (error) {
     console.error('Error fetching saved products:', error)

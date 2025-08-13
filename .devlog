@@ -1,0 +1,337 @@
+
+> muj-web@0.1.0 dev
+> next dev -p 3000
+
+  ▲ Next.js 14.2.24
+  - Local:        http://localhost:3000
+  - Environments: .env.local, .env.development, .env
+  - Experiments (use with caution):
+    · optimizeServerReact
+
+ ✓ Starting...
+ ✓ Ready in 3.1s
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 6.2s (1013 modules)
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET /_next/static/webpack/a8856e77b3a4a668.webpack.hot-update.json 404 in 7064ms
+ ○ Compiling /admin/products ...
+ ✓ Compiled /admin/products in 4.7s (855 modules)
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+🔍 useAuth DEBUG: {
+  status: 'authenticated',
+  hasSession: true,
+  user: {
+    name: 'Super Admin',
+    email: 'admin@admin.com',
+    role: 'admin',
+    isAdmin: true
+  },
+  role: 'admin',
+  isAdmin: true
+}
+🔍 useAuth DEBUG: {
+  status: 'authenticated',
+  hasSession: true,
+  user: {
+    name: 'Super Admin',
+    email: 'admin@admin.com',
+    role: 'admin',
+    isAdmin: true
+  },
+  role: 'admin',
+  isAdmin: true
+}
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+ GET /admin/products 200 in 5257ms
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 150ms
+ ✓ Compiled /api/admin-stats in 353ms (569 modules)
+ GET /api/admin-stats 200 in 1694ms
+ ✓ Compiled /api/auth/[...nextauth] in 249ms (545 modules)
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+ GET /api/auth/session 200 in 1427ms
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+ GET /api/auth/session 200 in 52ms
+ ○ Compiling / ...
+ ✓ Compiled / in 1032ms (944 modules)
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+ GET / 200 in 1497ms
+ ✓ Compiled /api/products in 437ms (636 modules)
+ ✓ Compiled (645 modules)
+API: Processing request for products with params: {
+  page: 1,
+  pageSize: 12,
+  pageParam: '1',
+  pageSizeParam: '12',
+  category: null,
+  url: 'http://localhost:3000/api/products?page=1&pageSize=12&forHomepage=true'
+}
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+📊 Product count loaded from database: 501
+ GET /api/product-count 200 in 1434ms
+ GET /api/products?categoriesOnly=true 200 in 1532ms
+ POST /api/pageview?path=%2F 200 in 1594ms
+API: Successfully loaded 12 products (page 1, pageSize 12, total 500) - SORTED BY CREDIT + ACTIVE CAMPAIGNS
+ ✓ Compiled /api/users/saved-products in 347ms (647 modules)
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+🔧 Preventive check: Auto-paused campaigns with insufficient credit
+ GET /api/products?page=1&pageSize=12&forHomepage=true 200 in 1941ms
+📊 API Optimalizace: Načítám 42 produktů místo 234 (limit: 3 per list)
+ GET /api/users/profile 404 in 2229ms
+ GET /api/top-lists?status=published&includeProducts=true&productsLimit=3 200 in 2314ms
+ GET /api/users/saved-products 404 in 1065ms
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+ GET / 200 in 308ms
+API: Processing request for products with params: {
+  page: 1,
+  pageSize: 12,
+  pageParam: '1',
+  pageSizeParam: '12',
+  category: null,
+  url: 'http://localhost:3000/api/products?page=1&pageSize=12&forHomepage=true'
+}
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+📊 Product count loaded from database: 501
+ GET /api/product-count 200 in 307ms
+ POST /api/pageview?path=%2F 200 in 320ms
+ GET /api/products?categoriesOnly=true 200 in 353ms
+API: Successfully loaded 12 products (page 1, pageSize 12, total 500) - SORTED BY CREDIT + ACTIVE CAMPAIGNS
+🔧 Preventive check: Auto-paused campaigns with insufficient credit
+ GET /api/products?page=1&pageSize=12&forHomepage=true 200 in 625ms
+ GET /api/users/saved-products 404 in 789ms
+ GET /api/users/profile 404 in 907ms
+📊 API Optimalizace: Načítám 42 produktů místo 234 (limit: 3 per list)
+ GET /api/top-lists?status=published&includeProducts=true&productsLimit=3 200 in 815ms
+Browserslist: browsers data (caniuse-lite) is 6 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+ ✓ Compiled in 3.4s (1016 modules)
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+ GET /?_rsc=r3yhw 200 in 219ms
+ ✓ Compiled /api/admin-stats in 382ms (649 modules)
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+ GET /admin/products?_rsc=xdann 200 in 1033ms
+ GET /api/admin-stats 200 in 1617ms
+ ✓ Compiled in 1483ms (1018 modules)
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+ GET /?_rsc=r3yhw 200 in 159ms
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+ GET /admin/products?_rsc=xdann 200 in 238ms
+ ✓ Compiled /user-area/login in 444ms (972 modules)
+ ✓ Compiled /api/pageview in 491ms (638 modules)
+ POST /api/pageview?path=%2Fuser-area%2Flogin 200 in 828ms
+ ✓ Compiled /admin in 402ms (1001 modules)
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+🔍 useAuth DEBUG: {
+  status: 'authenticated',
+  hasSession: true,
+  user: {
+    name: 'Super Admin',
+    email: 'admin@admin.com',
+    role: 'admin',
+    isAdmin: true
+  },
+  role: 'admin',
+  isAdmin: true
+}
+ GET /admin 200 in 721ms
+ ✓ Compiled /api/pageview/stats in 234ms (644 modules)
+ GET /api/pageview/stats?prefix=%2F&range=today 200 in 523ms
+ GET /api/admin-stats 200 in 566ms
+ ○ Compiling /api/auth/[...nextauth] ...
+ ✓ Compiled /api/auth/[...nextauth] in 647ms (648 modules)
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+ GET /api/auth/session 200 in 852ms
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+ GET /api/auth/session 200 in 170ms
+ ○ Compiling /admin/companies ...
+ ✓ Compiled /admin/companies in 1174ms (1033 modules)
+ ✓ Compiled /api/products/all in 255ms (664 modules)
+ ✓ Compiled (668 modules)
+ GET /api/products/all 200 in 961ms
+ GET /api/company-applications 200 in 1390ms
+ GET /api/admin/advertisers 200 in 1427ms
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+ GET /api/auth/session 200 in 84ms
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+ GET /api/auth/session 200 in 86ms
+ GET /api/admin-stats 200 in 515ms
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+ GET / 200 in 265ms
+ ✓ Compiled /api/top-lists in 393ms (670 modules)
+ ✓ Compiled (679 modules)
+API: Processing request for products with params: {
+  page: 1,
+  pageSize: 12,
+  pageParam: '1',
+  pageSizeParam: '12',
+  category: null,
+  url: 'http://localhost:3000/api/products?page=1&pageSize=12&forHomepage=true'
+}
+ GET /api/products?categoriesOnly=true 200 in 1468ms
+📊 Product count loaded from database: 501
+ GET /api/product-count 200 in 1454ms
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+API: Successfully loaded 12 products (page 1, pageSize 12, total 500) - SORTED BY CREDIT + ACTIVE CAMPAIGNS
+ POST /api/pageview?path=%2F 200 in 134ms
+🔧 Preventive check: Auto-paused campaigns with insufficient credit
+ GET /api/products?page=1&pageSize=12&forHomepage=true 200 in 1736ms
+📊 API Optimalizace: Načítám 42 produktů místo 234 (limit: 3 per list)
+ GET /api/users/saved-products 404 in 2114ms
+ GET /api/users/profile 404 in 2177ms
+ GET /api/top-lists?status=published&includeProducts=true&productsLimit=3 200 in 2180ms
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+ GET /api/auth/session 200 in 84ms
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+ GET /api/auth/session 200 in 79ms
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+ GET /api/users/profile 404 in 1032ms
+ GET /api/users/saved-products 404 in 1060ms
+ ✓ Compiled in 1420ms (990 modules)
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+ GET /admin/companies?_rsc=18hb1 200 in 420ms
+ GET /?_rsc=r3yhw 200 in 421ms
+ ✓ Compiled /api/products in 354ms (655 modules)
+API: Processing request for products with params: {
+  page: 1,
+  pageSize: 12,
+  pageParam: '1',
+  pageSizeParam: '12',
+  category: null,
+  url: 'http://localhost:3000/api/products?page=1&pageSize=12&forHomepage=true'
+}
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+ GET /?_rsc=r3yhw 200 in 142ms
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+ GET /admin/companies?_rsc=cmq55 200 in 174ms
+API: Successfully loaded 12 products (page 1, pageSize 12, total 500) - SORTED BY CREDIT + ACTIVE CAMPAIGNS
+🔧 Preventive check: Auto-paused campaigns with insufficient credit
+ GET /api/products?page=1&pageSize=12&forHomepage=true 200 in 1348ms
+ ✓ Compiled in 1128ms (990 modules)
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+ GET /?_rsc=r3yhw 200 in 195ms
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+ GET /admin/companies?_rsc=cmq55 200 in 251ms
+ ✓ Compiled /api/auth/[...nextauth] in 208ms (611 modules)
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+ GET /api/auth/session 200 in 399ms
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+ GET /api/auth/session 200 in 67ms
+ ○ Compiling /api/users/saved-products ...
+ ✓ Compiled /api/users/saved-products in 1075ms (637 modules)
+ ✓ Compiled (639 modules)
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+ GET /api/auth/session 200 in 1435ms
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+ GET /api/users/saved-products 200 in 2218ms
+ GET /api/users/profile 200 in 2226ms
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+ GET /api/auth/session 200 in 519ms
+ GET / 200 in 570ms
+ ✓ Compiled /api/product-count in 490ms (663 modules)
+ ✓ Compiled (667 modules)
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+API: Processing request for products with params: {
+  page: 1,
+  pageSize: 12,
+  pageParam: '1',
+  pageSizeParam: '12',
+  category: null,
+  url: 'http://localhost:3000/api/products?page=1&pageSize=12&forHomepage=true'
+}
+ POST /api/pageview?path=%2F 200 in 1288ms
+ GET /api/users/saved-products 404 in 1567ms
+ ✓ Compiled /api/top-lists in 256ms (669 modules)
+ GET /api/users/profile 404 in 1629ms
+ GET /api/products?categoriesOnly=true 200 in 1706ms
+📊 Product count loaded from database: 501
+ GET /api/product-count 200 in 1721ms
+API: Successfully loaded 12 products (page 1, pageSize 12, total 500) - SORTED BY CREDIT + ACTIVE CAMPAIGNS
+🔧 Preventive check: Auto-paused campaigns with insufficient credit
+ GET /api/products?page=1&pageSize=12&forHomepage=true 200 in 2212ms
+📊 API Optimalizace: Načítám 42 produktů místo 234 (limit: 3 per list)
+ GET /api/top-lists?status=published&includeProducts=true&productsLimit=3 200 in 1401ms
+ ✓ Compiled /_not-found in 320ms (671 modules)
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+ GET /screenshots/nastroj_ai_homepage.png 404 in 589ms
+ ✓ Compiled in 2.5s (990 modules)
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+ GET /?_rsc=r3yhw 200 in 611ms
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+ GET /admin/companies?_rsc=cmq55 200 in 713ms
+ ✓ Compiled /api/products in 253ms (655 modules)
+API: Processing request for products with params: {
+  page: 1,
+  pageSize: 12,
+  pageParam: '1',
+  pageSizeParam: '12',
+  category: null,
+  url: 'http://localhost:3000/api/products?page=1&pageSize=12&forHomepage=true'
+}
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+ GET /admin/companies?_rsc=cmq55 200 in 298ms
+ GET /?_rsc=r3yhw 200 in 312ms
+API: Successfully loaded 12 products (page 1, pageSize 12, total 500) - SORTED BY CREDIT + ACTIVE CAMPAIGNS
+🔧 Preventive check: Auto-paused campaigns with insufficient credit
+ GET /api/products?page=1&pageSize=12&forHomepage=true 200 in 949ms
+ ✓ Compiled in 1053ms (1040 modules)
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+ GET /?_rsc=r3yhw 200 in 233ms
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+ GET /admin/companies?_rsc=cmq55 200 in 332ms
+ ✓ Compiled in 3.2s (385 modules)
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+ GET /?_rsc=r3yhw 200 in 312ms
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+ GET /admin/companies?_rsc=cmq55 200 in 398ms
+ ✓ Compiled in 6.1s (990 modules)
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+ GET /admin/companies?_rsc=cmq55 200 in 3532ms
+ GET /?_rsc=r3yhw 200 in 3552ms
+ ○ Compiling /api/auth/[...nextauth] ...
+ ✓ Compiled /api/auth/[...nextauth] in 3.9s (611 modules)
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+ GET /api/auth/session 200 in 5025ms
+ ○ Compiling /api/users/profile ...
+ ✓ Compiled /api/products in 3.3s (637 modules)
+ ✓ Compiled (663 modules)
+API: Processing request for products with params: {
+  page: 1,
+  pageSize: 12,
+  pageParam: '1',
+  pageSizeParam: '12',
+  category: null,
+  url: 'http://localhost:3000/api/products?categories=AI%20Tools,Productivity%20%26%20Organization&page=1&pageSize=12&forHomepage=true'
+}
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+ GET /api/auth/session 200 in 6339ms
+API: Successfully loaded 12 products (page 1, pageSize 12, total 216) - SORTED BY CREDIT + ACTIVE CAMPAIGNS
+🔧 Preventive check: Auto-paused campaigns with insufficient credit
+ GET /api/products?categories=AI%20Tools,Productivity%20%26%20Organization&page=1&pageSize=12&forHomepage=true 200 in 7015ms
+ GET /api/users/profile 404 in 7953ms
+ GET /api/users/saved-products 404 in 7201ms
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+ GET /admin/companies?_rsc=cmq55 200 in 1120ms
+ GET /?_rsc=r3yhw 200 in 1127ms
+ ✓ Compiled in 4.8s (1048 modules)
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+ GET /admin/companies?_rsc=cmq55 200 in 1132ms
+ GET /?_rsc=r3yhw 200 in 1151ms
+🔍 Session created: { email: 'admin@admin.com', role: 'admin', isAdmin: true }
+ GET / 200 in 962ms

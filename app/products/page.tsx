@@ -36,29 +36,35 @@ export const metadata: Metadata = {
 
 async function getInitialData() {
   try {
-    // Get initial products (first page)
-    const products = await prisma.product.findMany({
-      where: {
-        isActive: true
-      },
-      orderBy: [
-        { name: 'asc' }
-      ],
-      take: 24, // Initial page size
-      select: {
-        id: true,
-        name: true,
-        description: true,
-        price: true,
-        category: true,
-        imageUrl: true,
-        tags: true,
-        externalUrl: true,
-        hasTrial: true,
-        createdAt: true,
-        updatedAt: true
-      }
-    })
+    // Get initial products (first page) – zachováme priority dle kreditu/kampaně
+    const products = await prisma.$queryRaw`
+      SELECT 
+        p."id",
+        p."name",
+        p."description",
+        p."price",
+        p."category",
+        p."imageUrl",
+        p."tags",
+        p."externalUrl",
+        p."hasTrial",
+        p."createdAt",
+        p."updatedAt",
+        CASE 
+          WHEN EXISTS (
+            SELECT 1 FROM "Campaign" camp 
+            JOIN "Company" co ON co."id" = camp."companyId"
+            WHERE camp."productId" = p."id"::text
+              AND camp."status" = 'active'
+              AND camp."isApproved" = true
+              AND co."balance" >= camp."bidAmount"
+          ) THEN 1 ELSE 0
+        END AS has_priority
+      FROM "Product" p
+      WHERE p."isActive" = true AND p."name" IS NOT NULL AND p."name" != ''
+      ORDER BY has_priority DESC, RANDOM()
+      LIMIT 24
+    ` as any[]
 
     // Get total count
     const totalProducts = await prisma.product.count({
@@ -86,7 +92,7 @@ async function getInitialData() {
     }))
 
     return {
-      products: products.map(product => ({
+      products: products.map((product: any) => ({
         ...product,
         price: Number(product.price) || 0
       })),

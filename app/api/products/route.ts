@@ -145,6 +145,10 @@ export async function GET(request: NextRequest) {
       const pageParam = searchParams.get('page');
       const pageSizeParam = searchParams.get('pageSize');
       const categoryParam = searchParams.get('category');
+      const categoriesParam = searchParams.get('categories'); // comma-separated list of categories
+      const categoriesList = categoriesParam
+        ? categoriesParam.split(',').map((c) => c.trim()).filter((c) => c.length > 0)
+        : []
       const forHomepage = searchParams.get('forHomepage') === 'true'; // optimalizace pro homepage
       
       const page = pageParam ? parseInt(pageParam, 10) : 1;
@@ -173,7 +177,9 @@ export async function GET(request: NextRequest) {
           not: '' 
         }  // Filtruj produkty s prázdnými názvy
       };
-      if (categoryParam) {
+      if (categoriesList.length > 0) {
+        whereClause.category = { in: categoriesList };
+      } else if (categoryParam) {
         whereClause.category = categoryParam;
       }
       
@@ -182,37 +188,62 @@ export async function GET(request: NextRequest) {
         where: whereClause
       });
       
-      // NEW ALGORITHM: Get products sorted by company credit balance AND active campaign
-      // Only products with sufficient credit for bid amount + active campaign get priority
+      // NEW ALGORITHM (fixed): Prioritize products whose assigned company has active approved campaign
+      // and sufficient credit. Source of credit: billing_accounts.credit_balance OR fallback Company.balance.
       const rawProducts = await prisma.$queryRaw`
         SELECT 
           p.*,
-          COALESCE(c."balance", 0) as company_balance,
-          c."id" as company_id,
-          c."name" as company_name,
+          c."id"  AS company_id,
+          c."name" AS company_name,
+          COALESCE(ba."credit_balance", c."balance", 0) AS effective_balance,
           CASE 
             WHEN EXISTS (
-              SELECT 1 FROM "Campaign" camp 
-              WHERE camp."productId" = p."id"::text
-              AND camp."companyId" = c."id" 
-              AND camp."status" = 'active' 
-              AND camp."isApproved" = true
-              AND c."balance" >= camp."bidAmount"  -- Dostatek kreditu na bid
-            ) THEN c."balance"
-            ELSE 0
-          END as effective_balance
+              SELECT 1
+              FROM "Campaign" camp
+              WHERE camp."productId" = p."id"
+                AND camp."companyId" = c."id"
+                AND camp."status" = 'active'
+                AND camp."isApproved" = true
+                AND COALESCE(ba."credit_balance", c."balance", 0) >= camp."bidAmount"
+            ) THEN 1 ELSE 0
+          END AS has_campaign,
+          CASE 
+            WHEN EXISTS (
+              SELECT 1
+              FROM "monetization_configs" mc
+              WHERE mc."is_active" = true
+                AND mc."monetizable_id" = p."id"
+                AND mc."monetizable_type" IN ('product', 'Product')
+                AND mc."mode" IN ('affiliate', 'hybrid')
+            ) THEN 1 ELSE 0
+          END AS has_affiliate
         FROM "Product" p
-        LEFT JOIN "Company" c ON p."changesSubmittedBy" = c."id"
+        LEFT JOIN "Company" c ON c."assignedProductId" = p."id"
+        LEFT JOIN "billing_accounts" ba ON ba."partner_id" = c."id"
         WHERE p."isActive" = true
-        AND p."name" IS NOT NULL 
-        AND p."name" != ''
-        ${categoryParam ? Prisma.sql`AND p."category" = ${categoryParam}` : Prisma.empty}
+          AND p."name" IS NOT NULL 
+          AND p."name" != ''
+          ${categoriesList.length > 0
+            ? Prisma.sql`AND p."category" IN (${Prisma.join(categoriesList)})`
+            : (categoryParam ? Prisma.sql`AND p."category" = ${categoryParam}` : Prisma.empty)
+          }
         ORDER BY 
-          effective_balance DESC,  -- Nejvyšší kredit + aktivní kampaň s dostatečným kreditem první
-          RANDOM()                 -- Náhodně v rámci stejného kreditu/bez kreditu
+          has_campaign DESC,
+          has_affiliate DESC,
+          CASE WHEN (CASE 
+            WHEN EXISTS (
+              SELECT 1
+              FROM "Campaign" camp
+              WHERE camp."productId" = p."id"
+                AND camp."companyId" = c."id"
+                AND camp."status" = 'active'
+                AND camp."isApproved" = true
+                AND COALESCE(ba."credit_balance", c."balance", 0) >= camp."bidAmount"
+            ) THEN 1 ELSE 0 END) = 1 THEN COALESCE(ba."credit_balance", c."balance", 0) ELSE 0 END DESC,
+          RANDOM()
         LIMIT ${validPageSize}
         OFFSET ${skip}
-      ` as (Product & { company_balance: number; company_id: string | null; company_name: string | null; effective_balance: number })[];
+      ` as (Product & { company_id: string | null; company_name: string | null; effective_balance: number; has_campaign: number; has_affiliate: number })[];
       
       // Clean products and enhance with screenshots before sending
       const products = rawProducts.map(product => {

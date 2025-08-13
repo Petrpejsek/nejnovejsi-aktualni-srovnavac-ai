@@ -5,22 +5,22 @@ import { isValidLocale, locales, defaultLocale } from '@/lib/i18n'
 import crypto from 'crypto'
 
 // Remove invisible characters and common LLM watermark marks from raw JSON text
+// Important: Do NOT normalize whitespace for JSON payloads – it may change string
+// literals and break parsing. Only strip truly invisible/control characters.
 function sanitizeIncomingJson(rawJsonText: string): { sanitized: string, removedChars: number } {
   const originalLength = rawJsonText.length
   let cleaned = rawJsonText
     // BOM + zero-width characters
-    .replace(/[\uFEFF\u200B-\u200D\u2060-\u206F]/g, '')
+    .replace(/\uFEFF/g, '')
+    .replace(/[\u200B-\u200D\u2060-\u206F]/g, '')
     // Invisible separators and formatting marks
     .replace(/[\u180E\u061C\u2066-\u2069]/g, '')
     // Soft hyphen + misc control chars sometimes used as watermarks
     .replace(/[\u00AD\u034F\u115F\u1160\u17B4\u17B5]/g, '')
-    // Variation selectors
-    .replace(/[\uFE00-\uFE0F\uE0100-\uE01EF]/g, '')
+    // Variation selectors (BMP + supplementary plane) – requires Unicode flag
+    .replace(/[\uFE00-\uFE0F\u{E0100}-\u{E01EF}]/gu, '')
     // Remaining control characters except tab/newline/carriage-return
     .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F]/g, '')
-    // Normalize excessive whitespace
-    .replace(/\s+/g, ' ')
-    .trim()
 
   return { sanitized: cleaned, removedChars: originalLength - cleaned.length }
 }

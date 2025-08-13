@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { FiUser, FiStar, FiSettings, FiHeart, FiZap, FiCalendar, FiMail, FiClock, FiBookmark, FiRefreshCw, FiTrash2 } from 'react-icons/fi'
+import { FiUser, FiStar, FiSettings, FiHeart, FiZap, FiCalendar, FiMail, FiClock, FiBookmark, FiRefreshCw, FiTrash2, FiCamera } from 'react-icons/fi'
 import Modal from '@/components/Modal'
 import LoginForm from '@/components/LoginForm'
 import RegisterForm from '@/components/RegisterForm'
@@ -127,6 +127,10 @@ function UserAreaContent() {
   })
   
   const [savedProducts, setSavedProducts] = useState<SavedProduct[]>([])
+  const [savedNextSkip, setSavedNextSkip] = useState<number | null>(null)
+  const [savedHasMore, setSavedHasMore] = useState(false)
+  const [savedTotal, setSavedTotal] = useState<number>(0)
+  const [isLoadingMoreSaved, setIsLoadingMoreSaved] = useState(false)
   const [showClearAllModal, setShowClearAllModal] = useState(false)
   const [clearAllStep, setClearAllStep] = useState(1)
   const [clearingAll, setClearingAll] = useState(false)
@@ -169,6 +173,10 @@ function UserAreaContent() {
   // Loading states pro lepší UX
   const [isLoadingProducts, setIsLoadingProducts] = useState(true)
   const [isLoadingHistory, setIsLoadingHistory] = useState(true)
+  const [historyNextSkip, setHistoryNextSkip] = useState<number | null>(null)
+  const [historyHasMore, setHistoryHasMore] = useState(false)
+  const [historyTotal, setHistoryTotal] = useState<number>(0)
+  const [isLoadingMoreHistory, setIsLoadingMoreHistory] = useState(false)
 
   // Nastavení aktivní záložky podle URL parametru
   useEffect(() => {
@@ -275,17 +283,21 @@ function UserAreaContent() {
         setDisplayName(profile.name || '')
       }
 
-      // Načteme historii kliků SAMOSTATNĚ
-      const clickHistoryResponse = await fetch('/api/users/click-history')
+      // Načteme historii kliků s výchozí stránkou 10 položek
+      const clickHistoryResponse = await fetch('/api/users/click-history?skip=0')
       if (clickHistoryResponse.ok) {
-        const clickHistoryData = await clickHistoryResponse.json()
-        setClickHistory(clickHistoryData || [])
+        const payload = await clickHistoryResponse.json()
+        const items = Array.isArray(payload) ? payload : (payload.items || [])
+        setClickHistory(items)
+        setHistoryNextSkip(payload.nextSkip ?? null)
+        setHistoryHasMore(Boolean(payload.hasMore))
+        setHistoryTotal(typeof payload.total === 'number' ? payload.total : items.length)
         setIsLoadingHistory(false)
-        
-        // Cache pro click history
+
+        // Cache pro click history (pouze aktuálně načtené položky)
         if (typeof window !== 'undefined' && session?.user?.email) {
           const clickHistoryCacheKey = `clickHistory_${session.user.email}`
-          localStorage.setItem(clickHistoryCacheKey, JSON.stringify(clickHistoryData || []))
+          localStorage.setItem(clickHistoryCacheKey, JSON.stringify(items))
           console.log('💾 Click history cached for user:', session.user.email)
         }
       }
@@ -304,22 +316,22 @@ function UserAreaContent() {
     }
 
     try {
-      const response = await fetch('/api/users/saved-products')
+      const response = await fetch('/api/users/saved-products?skip=0')
       console.log('📡 API Response status:', response.status)
       
       if (response.ok) {
-        const data = await response.json()
-        console.log('📊 Raw API data:', data)
-        console.log('✅ Saved products loaded successfully:', Array.isArray(data) ? data.length : 0)
-        
-        // API vrací přímo array, ne objekt s products property
-        const products = Array.isArray(data) ? data : []
+        const payload = await response.json()
+        const products = Array.isArray(payload) ? payload : (payload.items || [])
+        setSavedNextSkip(payload.nextSkip ?? null)
+        setSavedHasMore(Boolean(payload.hasMore))
+        setSavedTotal(typeof payload.total === 'number' ? payload.total : products.length)
+        console.log('✅ Saved products loaded successfully:', products.length)
         setSavedProducts(products)
         
         // Aktualizujeme user data count
         setUserData(prev => ({
           ...prev,
-          savedProducts: products.length
+          savedProducts: typeof payload.total === 'number' ? payload.total : products.length
         }))
         
         // Uložení do cache
@@ -1149,9 +1161,11 @@ function UserAreaContent() {
                 <p className="text-gray-600">Welcome back, {userData.name || 'User'}!</p>
               </div>
               <div className="flex items-center space-x-3">
-                <div className={`px-3 py-1 rounded-full text-sm font-medium ${getLevelColor(userData.level)}`}>
-                  {userData.level}
-                </div>
+                {userData.level && userData.level !== 'Beginner' && (
+                  <div className={`px-3 py-1 rounded-full text-sm font-medium ${getLevelColor(userData.level)}`}>
+                    {userData.level}
+                  </div>
+                )}
                 {userData.premium && (
                   <div className="flex items-center space-x-2 bg-gradient-to-r from-yellow-400 to-yellow-500 text-white px-3 py-1 rounded-full text-sm font-medium">
                     <FiStar className="w-4 h-4" />
@@ -1207,7 +1221,7 @@ function UserAreaContent() {
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
-                History ({clickHistory.length})
+                History ({historyTotal})
               </button>
               <button
                 onClick={() => setActiveTab('email-preferences')}
@@ -1482,7 +1496,9 @@ function UserAreaContent() {
                       </div>
                     </div>
                     <div className="mt-4 pt-4 border-t border-gray-100">
-                      <span className="text-sm text-gray-600">Level: {userData.level}</span>
+                      {userData.level && userData.level !== 'Beginner' && (
+                        <span className="text-sm text-gray-600">Level: {userData.level}</span>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -1617,7 +1633,7 @@ function UserAreaContent() {
             <div className="max-w-4xl">
               <div className="bg-white rounded-lg shadow-sm p-6">
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-semibold text-gray-900">Saved Products ({savedProducts.length})</h2>
+                  <h2 className="text-xl font-semibold text-gray-900">Saved Products ({savedTotal})</h2>
                   {savedProducts.length > 0 && (
                     <button
                       onClick={handleClearAll}
@@ -1741,7 +1757,7 @@ function UserAreaContent() {
                         </div>
                       ))}
                     </div>
-                  ) : (
+                   ) : (
                     <div className="text-center py-12">
                       <FiBookmark className="w-12 h-12 text-gray-300 mx-auto mb-4" />
                       <h3 className="text-lg font-medium text-gray-900 mb-2">No saved products yet</h3>
@@ -1751,6 +1767,42 @@ function UserAreaContent() {
                         className="px-6 py-3 bg-gradient-primary text-white rounded-lg hover-gradient-primary transition-all"
                       >
                         Explore AI Tools
+                      </button>
+                    </div>
+                  )}
+                  {/* Load more */}
+                  {savedHasMore && (
+                    <div className="mt-6 text-center">
+                      <button
+                        onClick={async () => {
+                          if (savedNextSkip == null || isLoadingMoreSaved) return
+                          const remaining = Math.max(0, savedTotal - savedProducts.length)
+                          const nextCount = Math.min(20, remaining)
+                          if (nextCount <= 0) return
+                          setIsLoadingMoreSaved(true)
+                          try {
+                            const res = await fetch(`/api/users/saved-products?skip=${savedNextSkip}&take=${nextCount}`)
+                            if (!res.ok) return
+                            const payload = await res.json()
+                            const items = payload.items || []
+                            setSavedProducts(prev => [...prev, ...items])
+                            setSavedNextSkip(payload.nextSkip ?? null)
+                            setSavedHasMore(Boolean(payload.hasMore))
+                            setSavedTotal(typeof payload.total === 'number' ? payload.total : savedTotal)
+
+                            if (typeof window !== 'undefined' && session?.user?.email) {
+                              const cacheKey = `savedProducts_${session.user.email}`
+                              const current = JSON.parse(localStorage.getItem(cacheKey) || '[]')
+                              localStorage.setItem(cacheKey, JSON.stringify([...current, ...items]))
+                            }
+                          } finally {
+                            setIsLoadingMoreSaved(false)
+                          }
+                        }}
+                        disabled={isLoadingMoreSaved}
+                        className={`px-4 py-2 rounded-md text-sm ${isLoadingMoreSaved ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-gray-100 hover:bg-gray-200 text-gray-800'}`}
+                      >
+                        {isLoadingMoreSaved ? 'Loading…' : `Load more (${Math.min(20, Math.max(0, savedTotal - savedProducts.length))})`}
                       </button>
                     </div>
                   )}
@@ -1900,6 +1952,41 @@ function UserAreaContent() {
           {activeTab === 'settings' && (
             <div className="max-w-4xl">
               <div className="space-y-6">
+                {/* Profile Card - same as Overview for avatar editing */}
+                <div className="bg-white rounded-lg shadow-sm p-6">
+                  <div className="text-center">
+                    <div
+                      className="relative w-16 h-16 mx-auto mb-4 cursor-pointer group"
+                      onClick={() => setShowAvatarModal(true)}
+                    >
+                      {avatarUrl ? (
+                        <img
+                          src={avatarUrl}
+                          alt="Profile"
+                          className="w-16 h-16 rounded-full object-cover group-hover:opacity-75 transition-opacity"
+                        />
+                      ) : (
+                        <div className="w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center text-white font-bold text-xl group-hover:opacity-75 transition-opacity">
+                          {getInitials(userData.name, userData.email)}
+                        </div>
+                      )}
+                      <div className="absolute inset-0 rounded-full bg-black bg-opacity-20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                      </div>
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900">{userData.name || 'User'}</h3>
+                    <p className="text-sm text-gray-600 mb-2">{userData.email}</p>
+                    <div className="flex items-center justify-center space-x-4 text-sm text-gray-500">
+                      <div className="flex items-center space-x-1">
+                        <FiCalendar className="w-4 h-4" />
+                        <span>Joined {userData.joinDate}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
                 {/* User Profile Settings */}
                 <div className="bg-white rounded-lg shadow-sm p-6">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">Profile Information</h3>
@@ -1957,7 +2044,9 @@ function UserAreaContent() {
                     </div>
                     <div className="pt-4 border-t border-gray-100">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-600">Account Level: {userData.level}</span>
+                        {userData.level && userData.level !== 'Beginner' && (
+                          <span className="text-sm text-gray-600">Account Level: {userData.level}</span>
+                        )}
                         <span className="text-sm text-gray-600">Points: {userData.points}</span>
                       </div>
                     </div>
@@ -2039,22 +2128,7 @@ function UserAreaContent() {
                   </form>
                 </div>
 
-                {/* Email Settings */}
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Email Preferences</h3>
-                  <div className="space-y-4">
-                    <div className="text-center py-6">
-                      <p className="text-gray-600 mb-3">More detailed email preferences are available in the</p>
-                      <button
-                        onClick={() => setActiveTab('email-preferences')}
-                        className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                      >
-                        <FiMail className="w-4 h-4 mr-2" />
-                        Email Preferences
-                      </button>
-                    </div>
-                  </div>
-                </div>
+                {/* Email Settings card intentionally removed from Settings tab */}
               </div>
             </div>
           )}
@@ -2340,6 +2414,43 @@ function UserAreaContent() {
                       </svg>
                       <p className="text-gray-500 text-lg font-medium">No history yet</p>
                       <p className="text-sm text-gray-400 mt-2">Start exploring AI tools to build your click history</p>
+                    </div>
+                  )}
+                  {/* Load more */}
+                  {historyHasMore && (
+                    <div className="mt-6 text-center">
+                      <button
+                        onClick={async () => {
+                          if (historyNextSkip == null || isLoadingMoreHistory) return
+                          const remaining = Math.max(0, historyTotal - clickHistory.length)
+                          const nextCount = Math.min(20, remaining)
+                          if (nextCount <= 0) return
+                          setIsLoadingMoreHistory(true)
+                          try {
+                            const res = await fetch(`/api/users/click-history?skip=${historyNextSkip}&take=${nextCount}`)
+                            if (!res.ok) return
+                            const payload = await res.json()
+                            const items = payload.items || []
+                            setClickHistory(prev => [...prev, ...items])
+                            setHistoryNextSkip(payload.nextSkip ?? null)
+                            setHistoryHasMore(Boolean(payload.hasMore))
+                            setHistoryTotal(typeof payload.total === 'number' ? payload.total : historyTotal)
+
+                            // Update cache (append)
+                            if (typeof window !== 'undefined' && session?.user?.email) {
+                              const clickHistoryCacheKey = `clickHistory_${session.user.email}`
+                              const current = JSON.parse(localStorage.getItem(clickHistoryCacheKey) || '[]')
+                              localStorage.setItem(clickHistoryCacheKey, JSON.stringify([...current, ...items]))
+                            }
+                          } finally {
+                            setIsLoadingMoreHistory(false)
+                          }
+                        }}
+                        disabled={isLoadingMoreHistory}
+                        className={`px-4 py-2 rounded-md text-sm ${isLoadingMoreHistory ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-gray-100 hover:bg-gray-200 text-gray-800'}`}
+                      >
+                        {isLoadingMoreHistory ? 'Loading…' : `Load more (${Math.min(20, Math.max(0, historyTotal - clickHistory.length))})`}
+                      </button>
                     </div>
                   )}
                 </div>

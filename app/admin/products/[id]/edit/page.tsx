@@ -344,10 +344,13 @@ export default function AdminProductEditPage({ params }: { params: { id: string 
 
       if (response.ok) {
         const result = await response.json()
-        setImagePreview(result.imageUrl)
+        // UI preview s cache-bustingem, uložení do DB bez query parametru
+        const storageUrl = result.imageUrl as string
+        const displayUrl = `${storageUrl}?v=${Date.now()}`
+        setImagePreview(displayUrl)
         setProduct(prev => ({
           ...prev,
-          imageUrl: result.imageUrl, // V super adminu se nastaví přímo jako hlavní obrázek
+          imageUrl: displayUrl, // zobrazíme okamžitě s cache bustingem
           pendingImageUrl: null,
           imageApprovalStatus: null
         }))
@@ -357,7 +360,7 @@ export default function AdminProductEditPage({ params }: { params: { id: string 
           try {
             const updatedData = {
               ...product,
-              imageUrl: result.imageUrl,
+              imageUrl: storageUrl, // do DB ukládáme čistou cestu bez cache-busteru
               pendingImageUrl: null,
               imageApprovalStatus: null,
               tags: JSON.stringify(product.tags),

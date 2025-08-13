@@ -6,11 +6,28 @@ export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
   // Early redirects
-  // EN-only: /en/landing/* -> /landing/*
-  const enLanding = pathname.match(/^\/en\/landing\/(.+)$/)
-  if (enLanding) {
-    const slug = enLanding[1]
+  // Normalize any i18n landing to non-prefixed variant: /{lang}/landing/* -> /landing/*
+  const i18nLanding = pathname.match(/^\/(cs|en|de|fr|es)\/landing\/(.+)$/)
+  if (i18nLanding) {
+    const slug = i18nLanding[2]
     return NextResponse.redirect(new URL(`/landing/${slug}`, request.url), 308)
+  }
+
+  // If accessing only language root -> redirect to homepage
+  const langRoot = pathname.match(/^\/(cs|en|de|fr|es)\/?$/)
+  if (langRoot) {
+    return NextResponse.redirect(new URL('/', request.url), 308)
+  }
+
+  // If accessing /{lang}/landing without slug -> redirect to homepage
+  const langLandingRoot = pathname.match(/^\/(cs|en|de|fr|es)\/landing\/?$/)
+  if (langLandingRoot) {
+    return NextResponse.redirect(new URL('/', request.url), 308)
+  }
+
+  // If accessing /landing (no slug) -> redirect to homepage
+  if (pathname === '/landing' || pathname === '/landing/') {
+    return NextResponse.redirect(new URL('/', request.url), 308)
   }
 
   // Legacy route normalization (server-side redirects)

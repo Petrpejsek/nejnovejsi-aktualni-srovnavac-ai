@@ -25,9 +25,9 @@ interface Product {
 }
 
 // SearchParamsHandler component to handle URL search params
+// Wrap handler in Suspense boundary – Next 14 dev requires Suspense when using useSearchParams
 function SearchParamsHandler({ onSearchTermChange }: { onSearchTermChange: (term: string) => void }) {
   const searchParams = useSearchParams()
-  
   useEffect(() => {
     const searchQuery = searchParams?.get('search') || null
     if (searchQuery) {
@@ -37,7 +37,6 @@ function SearchParamsHandler({ onSearchTermChange }: { onSearchTermChange: (term
       window.history.replaceState({}, '', url.toString())
     }
   }, [searchParams, onSearchTermChange])
-  
   return null
 }
 

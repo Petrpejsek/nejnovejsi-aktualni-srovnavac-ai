@@ -1,5 +1,6 @@
 import React from 'react'
 import type { Metadata } from 'next'
+import type { Session } from 'next-auth'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import './landing-pages.css'
@@ -27,7 +28,13 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  const session = await getServerSession(authOptions)
+  let session: Session | null = null
+  try {
+    session = await getServerSession(authOptions)
+  } catch (error) {
+    console.log('⚠️ getServerSession failed, continuing as guest:', (error as Error)?.message)
+    session = null
+  }
 
   return (
     <html lang="en">

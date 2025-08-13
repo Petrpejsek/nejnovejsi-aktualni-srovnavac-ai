@@ -124,7 +124,8 @@ export default function ProductsClient({ initialProducts, initialTotalProducts, 
   const [allProducts, setAllProducts] = useState<Product[]>(initialProducts)
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
-  const [sortBy, setSortBy] = useState<string>('name')
+  // 'relevance' zachová pořadí z API/SSR (priorita kredit + kampaň)
+  const [sortBy, setSortBy] = useState<string>('relevance')
   const [currentPage, setCurrentPage] = useState(1)
   const [loading, setLoading] = useState(false)
   const [hasLoadedAll, setHasLoadedAll] = useState(false)
@@ -176,21 +177,23 @@ export default function ProductsClient({ initialProducts, initialTotalProducts, 
       filtered = filtered.filter(product => product.category === selectedCategory)
     }
 
-    // Sort products
-    filtered = [...filtered].sort((a, b) => {
-      switch (sortBy) {
-        case 'name':
-          return a.name.localeCompare(b.name)
-        case 'price-low':
-          return a.price - b.price
-        case 'price-high':
-          return b.price - a.price
-        case 'newest':
-          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        default:
-          return 0
-      }
-    })
+    // Sort products (pokud není 'relevance')
+    if (sortBy !== 'relevance') {
+      filtered = [...filtered].sort((a, b) => {
+        switch (sortBy) {
+          case 'name':
+            return a.name.localeCompare(b.name)
+          case 'price-low':
+            return a.price - b.price
+          case 'price-high':
+            return b.price - a.price
+          case 'newest':
+            return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          default:
+            return 0
+        }
+      })
+    }
 
     return filtered
   }, [allProducts, searchTerm, selectedCategory, sortBy])
@@ -250,7 +253,8 @@ export default function ProductsClient({ initialProducts, initialTotalProducts, 
             onChange={(e) => setSortBy(e.target.value)}
             className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
           >
-            <option value="name">Sort by Name</option>
+            <option value="relevance">Recommended</option>
+            <option value="name">Name (A→Z)</option>
             <option value="price-low">Price: Low to High</option>
             <option value="price-high">Price: High to Low</option>
             <option value="newest">Newest First</option>
