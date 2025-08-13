@@ -13,16 +13,7 @@ body {
   background: #ffffff;
 }
 
-/* Prevent initial flash by fading in body content smoothly */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-html, body {
-  opacity: 1;
-  animation: fadeIn 120ms ease-out;
-}
+/* Remove initial fade-in to avoid any gray flash */
 
 /* Gradient text utility */
 .text-gradient-primary {
