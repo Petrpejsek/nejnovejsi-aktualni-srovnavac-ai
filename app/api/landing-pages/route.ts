@@ -549,6 +549,11 @@ export async function POST(request: NextRequest) {
     const rawBody = await request.text()
     // Keep original rawBody for HMAC verification; use sanitized for parsing + idempotency
     const { sanitized: sanitizedBody, removedChars } = sanitizeIncomingJson(rawBody)
+    // Debug logging to diagnose JSON sanitation issues in production
+    try {
+      console.log('🧪 RAW LEN:', rawBody.length, 'RAW START:', rawBody.slice(0, 120))
+      console.log('🧪 SAN LEN:', sanitizedBody.length, 'SAN START:', sanitizedBody.slice(0, 120))
+    } catch {}
     try {
       rawData = JSON.parse(sanitizedBody)
     } catch (e) {
