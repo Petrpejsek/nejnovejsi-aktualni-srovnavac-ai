@@ -20,7 +20,27 @@ export default async function Home() {
       WHERE "isActive" = true AND "name" IS NOT NULL AND "name" != ''
       ORDER BY RANDOM()
       LIMIT 12`
-    initialProducts = Array.isArray(rows) ? rows.map(r => ({ ...r, price: Number(r.price) || 0 })) : []
+    initialProducts = Array.isArray(rows) ? rows.map(r => {
+      let parsedTags: string[] = []
+      try {
+        if (typeof r.tags === 'string') {
+          parsedTags = JSON.parse(r.tags)
+        } else if (Array.isArray(r.tags)) {
+          parsedTags = r.tags
+        }
+      } catch {}
+      return {
+        id: r.id,
+        name: r.name,
+        description: r.description ?? '',
+        price: Number(r.price) || 0,
+        category: r.category ?? '',
+        imageUrl: r.imageUrl,
+        tags: parsedTags,
+        externalUrl: r.externalUrl,
+        hasTrial: Boolean(r.hasTrial)
+      }
+    }) : []
   } catch {}
 
   return (
