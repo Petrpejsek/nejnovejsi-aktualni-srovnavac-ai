@@ -3,19 +3,34 @@
 import React from 'react'
 import AiAdvisor from '../components/AiAdvisor'
 import ProductGridWrapper from '../components/ProductGridWrapper'
+import { prisma } from '@/lib/prisma'
 // import ReelsCarousel from '../components/ReelsCarousel' // Dočasně skryto - pro budoucí použití
 import TopListsSection from '../components/TopListsSection'
 import NewsletterSignup from '../components/NewsletterSignup'
 // import PromptsSection from '../components/PromptsSection' // Temporarily hidden
 // import AiCoursesCarousel from '../components/AiCoursesCarousel' // Dočasně skryto - pro budoucí použití
 
-export default function Home() {
+export default async function Home() {
+  // SSR: načti první várku produktů pro rychlý render bez skeletonu
+  let initialProducts: any[] = []
+  try {
+    const rows = await prisma.$queryRaw<any[]>`
+      SELECT "id", "name", COALESCE("description", '') as description, COALESCE("price", 0) as price,
+             COALESCE("category", '') as category, "imageUrl", COALESCE("tags", '[]') as tags, "externalUrl",
+             COALESCE("hasTrial", false) as "hasTrial"
+      FROM "Product"
+      WHERE "isActive" = true AND "name" IS NOT NULL AND "name" != ''
+      ORDER BY RANDOM()
+      LIMIT 12`
+    initialProducts = rows.map(r => ({ ...r, price: Number(r.price) || 0 }))
+  } catch {}
+
   return (
     <main className="container mx-auto px-4 py-8 bg-white">
       <div className="max-w-7xl mx-auto bg-white">
         <AiAdvisor />
         <div className="mt-2">
-          <ProductGridWrapper />
+          <ProductGridWrapper initialProducts={initialProducts} />
         </div>
         {/* Dočasně skryto - ReelsCarousel pro budoucí použití */}
         {/* <div className="mt-2">

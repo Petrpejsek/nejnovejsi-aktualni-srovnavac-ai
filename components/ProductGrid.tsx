@@ -19,6 +19,8 @@ interface Product {
 
 interface ProductGridProps {
   selectedTags?: Set<string>;
+  initialProducts?: Product[];
+  initialTotalProducts?: number;
 }
 
 const IconTwoColumns = () => (
@@ -36,15 +38,15 @@ const IconOneColumn = () => (
   </svg>
 );
 
-export default function ProductGrid({ selectedTags }: ProductGridProps = {}) {
+export default function ProductGrid({ selectedTags, initialProducts, initialTotalProducts }: ProductGridProps = {}) {
   const { data: session, status } = useSession()
-  const [products, setProducts] = useState<Product[]>([])
-  const [loading, setLoading] = useState(true)
+  const [products, setProducts] = useState<Product[]>(() => initialProducts || [])
+  const [loading, setLoading] = useState(() => !initialProducts)
   const [loadingMore, setLoadingMore] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [hasMore, setHasMore] = useState(true)
-  const [totalProducts, setTotalProducts] = useState(0)
+  const [totalProducts, setTotalProducts] = useState(initialTotalProducts || 0)
   const [savedProducts, setSavedProducts] = useState<Set<string>>(new Set())
   // Layout preference (persisted). Compute initial value synchronně (bez bliknutí):
   // - pokud existuje uložená preference → použij ji
@@ -132,6 +134,12 @@ export default function ProductGrid({ selectedTags }: ProductGridProps = {}) {
     let isMounted = true
     
     const loadProducts = async () => {
+      if (initialProducts && initialProducts.length > 0) {
+        // Data už dorazila ze serveru; vynecháme první fetch
+        setHasMore(totalProducts > products.length)
+        setLoading(false)
+        return
+      }
       try {
         const response = await fetch(`${window.location.origin}/api/products?page=1&pageSize=${PAGE_SIZE}&forHomepage=true`, {
           method: 'GET',

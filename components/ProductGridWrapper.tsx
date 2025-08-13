@@ -27,7 +27,7 @@ declare global {
   }
 }
 
-export default function ProductGridWrapper() {
+export default function ProductGridWrapper({ initialProducts }: { initialProducts?: any[] }) {
   // Globální optimistické funkce pro stránky s ProductCards
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -72,5 +72,5 @@ export default function ProductGridWrapper() {
     }
   }, [])
 
-  return <ProductGrid />
+  return <ProductGrid initialProducts={initialProducts as any} initialTotalProducts={initialProducts?.length || 0} />
 } 
