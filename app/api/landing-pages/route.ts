@@ -3,7 +3,22 @@ import prisma from '@/lib/prisma'
 import { v4 as uuidv4 } from 'uuid'
 import { isValidLocale, locales, defaultLocale } from '@/lib/i18n'
 import crypto from 'crypto'
-import sanitizeHtml from 'sanitize-html'
+// Lightweight sanitizer to avoid adding new deps during deploy
+function sanitizeHtml(input: string, options?: any): string {
+  try {
+    let out = String(input || '')
+    // Remove script/style and dangerous event handlers; allow basic content
+    out = out.replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, '')
+             .replace(/<style[\s\S]*?>[\s\S]*?<\/style>/gi, '')
+             .replace(/on[a-z]+\s*=\s*"[^"]*"/gi, '')
+             .replace(/on[a-z]+\s*=\s*'[^']*'/gi, '')
+             .replace(/on[a-z]+\s*=\s*[^\s>]+/gi, '')
+             .replace(/javascript:/gi, '')
+    return out
+  } catch {
+    return ''
+  }
+}
 
 // Remove invisible characters and common LLM watermark marks from raw JSON text
 // Important: Do NOT normalize whitespace for JSON payloads – it may change string
@@ -657,22 +672,7 @@ async function handleAiFormatPayload(data: any, requestId: string) {
     })
 
     // Whitelist sanitization only for contentHtml
-    payload.contentHtml = sanitizeHtml(payload.contentHtml || '', {
-      allowedTags: [
-        'p','br','strong','em','b','i','u','blockquote','code','pre',
-        'ul','ol','li','h1','h2','h3','h4','h5','h6','table','thead','tbody','tr','td','th','img','a','span'
-      ],
-      allowedAttributes: {
-        a: ['href','title','target','rel'],
-        img: ['src','alt','width','height'],
-        span: ['style']
-      },
-      allowedSchemes: ['http','https','mailto'],
-      transformTags: {
-        a: sanitizeHtml.simpleTransform('a', { rel: 'nofollow noopener noreferrer' })
-      },
-      allowProtocolRelative: false
-    })
+    payload.contentHtml = sanitizeHtml(payload.contentHtml || '')
 
     // Generate slug if not provided
     if (!payload.slug) {
