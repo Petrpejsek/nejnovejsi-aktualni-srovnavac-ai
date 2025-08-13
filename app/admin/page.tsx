@@ -66,6 +66,8 @@ export default function AdminDashboard() {
   const [refreshing, setRefreshing] = useState(false)
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
   const [previousPendingCount, setPreviousPendingCount] = useState<number>(0)
+  const [trafficRange, setTrafficRange] = useState<'today'|'yesterday'|'7d'|'30d'|'max'>('today')
+  const [trafficTotal, setTrafficTotal] = useState<number | null>(null)
 
   // Fetch skutečných dat z API
   const fetchStats = async (isRefresh = false) => {
@@ -158,6 +160,22 @@ export default function AdminDashboard() {
 
     return () => clearInterval(interval)
   }, [])
+
+  // Load visits for dashboard traffic card
+  useEffect(() => {
+    const controller = new AbortController()
+    const load = async () => {
+      try {
+        const res = await fetch(`/api/pageview/stats?prefix=${encodeURIComponent('/')}&range=${trafficRange === 'max' ? 'all' : trafficRange}`,
+          { signal: controller.signal })
+        if (!res.ok) return
+        const data = await res.json()
+        setTrafficTotal(typeof data.total === 'number' ? data.total : 0)
+      } catch {}
+    }
+    load()
+    return () => controller.abort()
+  }, [trafficRange])
 
   // Pokud ještě načítáme data, zobrazíme loading stav
   if (loading || !dashboardStats) {
@@ -557,6 +575,32 @@ export default function AdminDashboard() {
                 </div>
               </Link>
             ))}
+            {/* 6. kontejner: Návštěvnost s dropdownem */}
+            <div className="relative group bg-white p-6 border border-gray-200 rounded-lg hover:border-purple-300 transition-colors">
+              <div>
+                <span className="rounded-lg inline-flex p-3 text-white bg-indigo-500">
+                  <span className="text-xl">📈</span>
+                </span>
+              </div>
+              <div className="mt-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-medium text-gray-900">Návštěvnost</h3>
+                  <select
+                    value={trafficRange}
+                    onChange={(e)=>setTrafficRange(e.target.value as any)}
+                    className="min-w-[160px] text-sm border rounded-md px-3 py-1.5"
+                  >
+                    <option value="today">Dnes</option>
+                    <option value="yesterday">Včera</option>
+                    <option value="7d">7 dní</option>
+                    <option value="30d">30 dní</option>
+                    <option value="max">Max</option>
+                  </select>
+                </div>
+                <p className="mt-2 text-3xl font-semibold text-gray-900">{trafficTotal ?? '—'}</p>
+                <p className="text-xs text-gray-500 mt-1">Součet z PageView pro vybrané období</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>

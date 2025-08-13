@@ -531,11 +531,74 @@ model landing_pages {
   created_at       DateTime @default(now())
   updated_at       DateTime
 
+  // Back relation to ping queue
+  pings            LandingPingQueue[]
+
   @@unique([slug, language], map: "slug_language")
   @@index([category])
   @@index([language])
   @@index([published_at])
   @@index([slug])
+}
+
+/// Queue of scheduled search engine pings for landing pages
+model LandingPingQueue {
+  id          String   @id @default(uuid())
+  landingId   String
+  engine      String   // 'google_sitemap' | 'bing_sitemap' | 'indexnow'
+  status      String   @default("scheduled") // 'scheduled' | 'sent' | 'failed'
+  scheduledAt DateTime
+  sentAt      DateTime?
+  httpStatus  Int?
+  responseMs  Int?
+  error       String?
+  attempts    Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  landing     landing_pages @relation(fields: [landingId], references: [id], onDelete: Cascade)
+
+  @@index([landingId])
+  @@index([engine])
+  @@index([status, scheduledAt])
+}
+
+/// Idempotency – ukládá výsledky úspěšných POST požadavků pro bezpečné opakování
+model IdempotencyKey {
+  id           String   @id @default(uuid())
+  key          String   @unique
+  payloadHash  String
+  slug         String?
+  language     String?
+  statusCode   Int
+  response     Json
+  createdAt    DateTime @default(now())
+  expiresAt    DateTime
+
+  @@index([expiresAt])
+}
+
+/// Webhook/ingest logging – diagnostika příchozích požadavků
+model WebhookLog {
+  id                String   @id @default(uuid())
+  requestId         String
+  method            String
+  endpoint          String
+  statusCode        Int
+  idempotencyKey    String?
+  slug              String?
+  language          String?
+  error             String?
+  details           Json?
+  secretId          String?
+  payloadHash       String?
+  signatureValid    Boolean?
+  signatureTimestamp String?
+  createdAt         DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([endpoint])
+  @@index([statusCode])
 }
 
 enum ConversionType {

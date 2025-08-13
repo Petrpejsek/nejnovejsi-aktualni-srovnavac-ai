@@ -81,6 +81,18 @@ ai new new new/
 - **PostgreSQL** - relační databáze
 
 ### Databázové modely (nejdůležitější):
+## 🌐 Ingest landing pages (shrnutí)
+
+- Endpoint: `POST /api/landing-pages`
+- Auth: `x-webhook-secret` (+ volitelně `x-secret-id: primary|secondary` pro dual‑active rotaci)
+- Anti‑replay (volitelné): `X-Signature-Timestamp` + `X-Signature` (sha256 HMAC nad `timestamp + "\n" + rawBody`)
+- Idempotence: `Idempotency-Key` (UUID v4), TTL 30 dní, replay vrací stejnou 2xx odpověď + `Idempotency-Replayed: true`
+- Payload: AI Farma JSON (`title`, `contentHtml`, `keywords`, `language`, …). `keywords` přijímáme i v `meta.keywords`.
+- 409 slug+language = hard fail bez auto‑oprav.
+- BASE URL: z `NEXT_PUBLIC_BASE_URL` (žádné fallbacky).
+
+Detailní specifikace a cURL příklady: viz `docs/landing-ingest.md`.
+
 
 **Product** - AI nástroje
 - Základní info (název, popis, cena, URL)

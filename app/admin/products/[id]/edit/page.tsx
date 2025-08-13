@@ -2,7 +2,6 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import Image from 'next/image'
 import { 
   ArrowLeftIcon, 
   PhotoIcon, 
@@ -780,12 +779,13 @@ export default function AdminProductEditPage({ params }: { params: { id: string 
                     </button>
                   </div>
                   <div className="relative inline-block">
-                    <Image
+                    <img
                       src={getImageUrl(product.imageUrl)}
                       alt={product.name}
                       width={200}
                       height={150}
-                      className="rounded-lg object-cover"
+                      className="rounded-lg object-cover border border-gray-200"
+                      onError={(e)=>{(e.currentTarget as HTMLImageElement).src = '/img/placeholder.svg'}}
                     />
                   </div>
                 </div>
@@ -915,12 +915,13 @@ export default function AdminProductEditPage({ params }: { params: { id: string 
                     </button>
                   </div>
                   <div className="relative inline-block">
-                    <Image
+                    <img
                       src={getImageUrl(imagePreview)}
                       alt="Preview"
                       width={200}
                       height={150}
-                      className="rounded-lg object-cover"
+                      className="rounded-lg object-cover border border-gray-200"
+                      onError={(e)=>{(e.currentTarget as HTMLImageElement).src = '/img/placeholder.svg'}}
                     />
                     <div className="absolute inset-0 bg-green-500 bg-opacity-20 rounded-lg flex items-center justify-center">
                       <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-medium">

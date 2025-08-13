@@ -62,7 +62,7 @@ interface AdvertiserCompany {
 }
 
 export default function CompaniesAdmin() {
-  const [activeTab, setActiveTab] = useState<'applications' | 'approved' | 'rejected' | 'cancelled'>('applications')
+  const [activeTab, setActiveTab] = useState<'applications' | 'approved' | 'rejected' | 'cancelled'>('approved')
   const [approvedSubTab, setApprovedSubTab] = useState<'with-product' | 'waiting-product' | 'future-categories'>('with-product')
   const [applications, setApplications] = useState<CompanyApplication[]>([])
   const [allProducts, setAllProducts] = useState<Product[]>([])
@@ -1213,6 +1213,12 @@ export default function CompaniesAdmin() {
                                     </div>
                                   </div>
                                   <div className="flex items-center space-x-2" onClick={(e) => e.stopPropagation()}>
+                                    <Link
+                                      href={`/admin/companies/${advertiser.id}/monetization`}
+                                      className="inline-flex items-center px-3 py-1 border border-blue-200 text-sm font-medium rounded-md text-blue-700 bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                                    >
+                                      Maxi‑detail firmy
+                                    </Link>
                                     <span className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-green-800 bg-green-100">
                                       <CheckIcon className="w-4 h-4 mr-1" />
                                       Aktivní
@@ -1845,6 +1851,14 @@ export default function CompaniesAdmin() {
                   );
                 })()}
               </div>
+              <div className="flex items-center gap-2">
+                <a
+                  href={`/admin/companies/${selectedApp.id}/monetization`}
+                  className="inline-flex items-center px-3 py-1.5 border border-purple-300 text-sm font-medium rounded-md text-purple-700 bg-purple-50 hover:bg-purple-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+                  title="Maxi detail firmy – monetization"
+                >
+                  🔎 Maxi detail firmy
+                </a>
               <button
                 onClick={() => {
                   setSelectedApp(null)
@@ -1855,6 +1869,7 @@ export default function CompaniesAdmin() {
               >
                 <XMarkIcon className="w-6 h-6" />
               </button>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

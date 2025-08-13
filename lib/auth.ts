@@ -4,6 +4,7 @@ import type { NextAuthOptions } from 'next-auth';
 import { prisma } from '@/lib/prisma';
 import { randomUUID } from 'crypto';
 import bcrypt from 'bcryptjs';
+// NOTE: Using NextAuth default JWT encode/decode for stability
 
 // 🚀 DATABÁZOVÝ AUTH SYSTÉM - JEDEN ENDPOINT PRO VŠECHNY ROLE (admin, company, user)
 export const authOptions: NextAuthOptions = {
@@ -104,7 +105,7 @@ export const authOptions: NextAuthOptions = {
               email: admin.email,
               role: 'admin',
               isAdmin: true
-            };
+            } as any;
           }
 
           // 🏢 COMPANY ACCOUNTS - Database authentication
@@ -165,7 +166,7 @@ export const authOptions: NextAuthOptions = {
               email: company.email,
               role: 'company',
               isAdmin: false
-            };
+            } as any;
           }
 
           // 👤 USER ACCOUNTS - Database authentication
@@ -209,7 +210,7 @@ export const authOptions: NextAuthOptions = {
               email: user.email,
               role: 'user',
               isAdmin: false
-            };
+            } as any;
           }
 
           console.log('❌ Unknown role:', role);
@@ -224,8 +225,9 @@ export const authOptions: NextAuthOptions = {
   ],
   session: {
     strategy: "jwt",
-    maxAge: 2 * 60 * 60, // 2 hours
+    maxAge: 2 * 60 * 60, // 2 hours by default
   },
+  // Using default jwt encode/decode (no custom overrides)
   pages: {
     signIn: '/auth/login', // Default admin login page
   },
@@ -248,17 +250,24 @@ export const authOptions: NextAuthOptions = {
         // Set role from user object
         token.role = (user as any).role || 'user';
         token.isAdmin = Boolean((user as any).isAdmin);
+        // Přeneseme rememberMe z authorize na token (pro možnou budoucí logiku)
+        if ((user as any).rememberMe !== undefined) {
+          (token as any).rememberMe = Boolean((user as any).rememberMe);
+          // Pokud je zapnuto rememberMe, rozšíříme session maxAge skrze callback redirect (cookie lifespan necháme default)
+        }
         
         // Google OAuth users are always 'user' role
         if (account?.provider === 'google') {
           token.role = 'user';
           token.isAdmin = false;
+          (token as any).rememberMe = false;
         }
         
         console.log('🔍 JWT token created:', { 
           email: user.email, 
           role: token.role, 
-          isAdmin: token.isAdmin
+          isAdmin: token.isAdmin,
+          rememberMe: (token as any).rememberMe
         });
       }
       return token;

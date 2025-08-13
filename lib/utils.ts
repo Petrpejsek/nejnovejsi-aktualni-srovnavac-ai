@@ -88,13 +88,7 @@ export function trackProductClick(product: {
 
   console.log('🚀 Opening product:', product.id)
 
-  // PŘÍMÉ OTEVŘENÍ - používáme přímo externalUrl produktu
-  if (product.externalUrl) {
-    openInNewTab(product.externalUrl)
-  } else {
-    console.log('❌ Product has no externalUrl:', product.id)
-    return
-  }
+  // PŘÍMÉ OTEVŘENÍ – nejprve pošli tracking, pak otevři novou kartu (aby session/cookie zůstal dostupný)
 
   // Optimistic update pro click history - okamžitě
   if (typeof window !== 'undefined' && window.addToClickHistory) {
@@ -142,34 +136,35 @@ export function trackProductClick(product: {
     })
   }
 
-  function sendTrackingFetch() {
+  async function sendTrackingFetch() {
     const trackData = { productId: product.id }
     
-    fetch('/api/ads/click', {
+    try {
+      const ppcResponse = await fetch('/api/ads/click', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(trackData),
       keepalive: true  // Zajistí odeslání i když se stránka zavře
-    }).then(async ppcResponse => {
+      })
+
       if (ppcResponse.ok) {
         const ppcResult = await ppcResponse.json()
         console.log('💰 PPC click successful (fetch):', ppcResult)
-        
-        if (ppcResult.budgetWarning) {
-          console.log('⚠️ Budget warning:', ppcResult.budgetWarning)
-        }
       } else {
         console.log('⚠️ PPC click failed, using free tracking:', ppcResponse.status)
-        // Fallback na bezplatný tracking pomocí POST (spolehlivější než GET)
-        sendFallbackTracking()
+        await sendFallbackTracking()
       }
-    }).catch(error => {
+    } catch (error) {
       console.log('⚠️ PPC click error, using free tracking fallback:', error)
-      // Pokus o fallback tracking pomocí POST
-      sendFallbackTracking()
-    })
+      await sendFallbackTracking()
+    }
+    
+    // Otevři až po pokusu o tracking (minimalizuje ztrátu session při přesměrování)
+    if (product.externalUrl) {
+      openInNewTab(product.externalUrl)
+    }
   }
 }
 
@@ -179,7 +174,7 @@ export function trackProductClick(product: {
  */
 export function getImageUrl(imageUrl: string | null | undefined): string {
   if (!imageUrl) {
-    return ''
+    return '/img/placeholder.svg'
   }
 
   // Pokud je to už absolutní URL, vrať ji tak jak je

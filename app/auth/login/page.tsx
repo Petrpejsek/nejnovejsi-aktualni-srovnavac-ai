@@ -8,6 +8,7 @@ import Link from 'next/link'
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  // Revert: bez rememberMe na této stránce (řeší se v modalu/komponentě pokud je potřeba)
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
@@ -96,6 +97,8 @@ export default function LoginPage() {
                 />
               </div>
             </div>
+
+            {/* Remember me odebrán */}
 
             {error && (
               <div className="rounded-md bg-red-50 p-4">

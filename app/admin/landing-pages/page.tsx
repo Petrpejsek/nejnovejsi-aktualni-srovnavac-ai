@@ -26,6 +26,10 @@ interface LandingPage {
   publishedAt: string
   createdAt: string
   updatedAt: string
+  pingStatus?: 'scheduled' | 'sent' | 'failed' | 'not_scheduled'
+  pingScheduledAt?: string | null
+  pingSentAt?: string | null
+  pingHttpStatus?: number | null
 }
 
 interface LandingPagesResponse {
@@ -49,6 +53,7 @@ export default function LandingPagesAdmin() {
   const [successMessage, setSuccessMessage] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
   const [languageFilter, setLanguageFilter] = useState('all')
+  const [pingFilter, setPingFilter] = useState<'all' | 'not_scheduled' | 'scheduled' | 'sent' | 'failed'>('all')
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
@@ -56,6 +61,7 @@ export default function LandingPagesAdmin() {
   // Bulk selection states
   const [selectedPages, setSelectedPages] = useState<Set<string>>(new Set())
   const [bulkDeleteConfirm, setBulkDeleteConfirm] = useState(false)
+
 
   // Load landing pages from API
   useEffect(() => {
@@ -89,6 +95,49 @@ export default function LandingPagesAdmin() {
     } finally {
       setLoading(false)
     }
+  }
+
+  // (total visits handled in TopStats component)
+
+  function VisitsCellStyles() {
+    return (
+      <style jsx global>{`
+        .visits-chip { display:inline-flex;align-items:center;gap:6px;padding:2px 8px;border-radius:9999px;border:1px solid #e5e7eb;background:#f9fafb;color:#111827;font-size:12px }
+        .visits-chip svg { width:14px;height:14px;color:#6b7280 }
+      `}</style>
+    )
+  }
+
+  function VisitsCell({ slug }: { slug: string }) {
+    const [range, setRange] = useState<'all' | '7d' | '28d'>('all')
+    const [count, setCount] = useState<number | null>(null)
+    useEffect(() => {
+      const controller = new AbortController()
+      const load = async () => {
+        try {
+          const res = await fetch(`/api/pageview/stats?path=${encodeURIComponent(`/landing/${slug}`)}&range=${range}`, { signal: controller.signal })
+          if (!res.ok) return
+          const data = await res.json()
+          const c = data?.counts?.[`/landing/${slug}`] ?? 0
+          setCount(c)
+        } catch {}
+      }
+      load()
+      return () => controller.abort()
+    }, [slug, range])
+    return (
+      <div className="flex items-center gap-2">
+        <span className="visits-chip" title={`Pageviews (${range})`}>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 5c-7.633 0-11 7-11 7s3.367 7 11 7 11-7 11-7-3.367-7-11-7zm0 12a5 5 0 110-10 5 5 0 010 10zm0-2a3 3 0 100-6 3 3 0 000 6z"/></svg>
+          {count ?? '—'}
+        </span>
+        <select value={range} onChange={e => setRange(e.target.value as any)} className="text-xs border rounded px-1 py-0.5">
+          <option value="all">All</option>
+          <option value="7d">7d</option>
+          <option value="28d">28d</option>
+        </select>
+      </div>
+    )
   }
 
   const handleDelete = async (id: string, title: string) => {
@@ -183,8 +232,9 @@ export default function LandingPagesAdmin() {
     const matchesSearch = page.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          page.slug.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesLanguage = languageFilter === 'all' || page.language === languageFilter
+    const matchesPing = pingFilter === 'all' || (page.pingStatus || 'not_scheduled') === pingFilter
     
-    return matchesSearch && matchesLanguage
+    return matchesSearch && matchesLanguage && matchesPing
   })
 
   const getLanguageFlag = (lang: string) => {
@@ -198,8 +248,10 @@ export default function LandingPagesAdmin() {
     return flags[lang] || '🌐'
   }
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('cs-CZ', {
+  const formatDate = (d: any) => {
+    const date = typeof d === 'string' ? new Date(d) : d instanceof Date ? d : null
+    if (!date || isNaN(date.getTime())) return '—'
+    return date.toLocaleDateString('cs-CZ', {
       day: '2-digit',
       month: '2-digit', 
       year: 'numeric',
@@ -210,7 +262,7 @@ export default function LandingPagesAdmin() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
         {/* Header */}
         <div className="mb-8">
@@ -270,42 +322,40 @@ export default function LandingPagesAdmin() {
 
         {tabParam === 'manage' && (
         <>
-        {/* Filters */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            
-            {/* Search */}
-            <div className="relative">
-              <MagnifyingGlassIcon className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Hledat podle názvu nebo slug..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-
-            {/* Language Filter */}
-            <div className="relative">
-              <LanguageIcon className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+        {/* Visits cell component */}
+        <VisitsCellStyles />
+        {/* Top bar: Pages count + Total visits + Filters (one line) */}
+        <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
+          <div className="flex flex-wrap items-center gap-6">
+            <TopStats pagesCount={filteredPages.length} />
+            <div className="flex items-center gap-2 text-sm">
+              <span className="text-gray-600">Language</span>
               <select
                 value={languageFilter}
                 onChange={(e) => setLanguageFilter(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
+                className="min-w-[140px] px-3 py-1.5 border rounded-md"
               >
-                <option value="all">Všechny jazyky</option>
-                <option value="cs">🇨🇿 Čeština</option>
-                <option value="en">🇬🇧 Angličtina</option>
-                <option value="de">🇩🇪 Němčina</option>
-                <option value="fr">🇫🇷 Francouzština</option>
-                <option value="es">🇪🇸 Španělština</option>
+                <option value="all">All</option>
+                <option value="en">English</option>
+                <option value="cs">Czech</option>
+                <option value="de">German</option>
+                <option value="fr">French</option>
+                <option value="es">Spanish</option>
               </select>
             </div>
-
-            {/* Stats */}
-            <div className="text-sm text-gray-600 flex items-center">
-              Celkem: <span className="font-medium ml-1">{filteredPages.length}</span> landing pages
+            <div className="flex items-center gap-2 text-sm">
+              <span className="text-gray-600">Ping</span>
+              <select
+                value={pingFilter}
+                onChange={(e) => setPingFilter(e.target.value as any)}
+                className="min-w-[180px] px-3 py-1.5 border rounded-md"
+              >
+                <option value="all">All</option>
+                <option value="not_scheduled">Not scheduled</option>
+                <option value="scheduled">Scheduled</option>
+                <option value="sent">Sent</option>
+                <option value="failed">Failed</option>
+              </select>
             </div>
           </div>
         </div>
@@ -360,8 +410,8 @@ export default function LandingPagesAdmin() {
 
         {/* Landing Pages Table */}
         {!loading && (
-          <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-            <div className="overflow-x-auto">
+            <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+            <div className="w-full">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
@@ -377,17 +427,14 @@ export default function LandingPagesAdmin() {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Název & Slug
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Jazyk
-                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[320px]">Ping</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[260px]">Index</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[160px]">Visits</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Vytvořeno
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Publikováno
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Akce
                     </th>
                   </tr>
                 </thead>
@@ -410,6 +457,21 @@ export default function LandingPagesAdmin() {
                           <div className="text-sm text-gray-500">
                             /landing/{page.slug}
                           </div>
+                          {/* Inline actions + language chip vpravo od koše */}
+                          <div className="mt-2 flex items-center gap-2 text-sm">
+                            <Link href={`/landing/${page.slug}`} target="_blank" className="text-gray-400 hover:text-gray-600 p-1" title="Zobrazit">
+                              <EyeIcon className="w-4 h-4" />
+                            </Link>
+                            <Link href={`/admin/landing-pages/${page.id}/edit`} className="text-blue-600 hover:text-blue-800 p-1" title="Upravit">
+                              <PencilIcon className="w-4 h-4" />
+                            </Link>
+                            <button onClick={() => handleDelete(page.id, page.title)} className="text-red-600 hover:text-red-800 p-1" title="Smazat">
+                              <TrashIcon className="w-4 h-4" />
+                            </button>
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] bg-blue-50 text-blue-800 border border-blue-200 ml-1">
+                              {getLanguageFlag(page.language)} {page.language.toUpperCase()}
+                            </span>
+                          </div>
                           {page.metaDescription && (
                             <div className="text-xs text-gray-400 mt-1 max-w-md truncate">
                               {page.metaDescription}
@@ -417,61 +479,31 @@ export default function LandingPagesAdmin() {
                           )}
                         </div>
                       </td>
+                      
+                      {/* Ping – do implementace queue neutrální stav */}
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                          {getLanguageFlag(page.language)} {page.language.toUpperCase()}
+                        <span className="inline-flex items-center gap-1 px-2 py-1 text-xs rounded-full bg-gray-50 text-gray-700 border border-gray-200" title="Ping není naplánován">
+                          — Not scheduled
                         </span>
+                      </td>
+                      {/* Index – placeholder pro budoucí GSC stav */}
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="inline-flex items-center gap-1 px-2 py-1 text-xs rounded-full bg-gray-50 text-gray-700 border border-gray-200" title="Index status zatím bez GSC">
+                          Pending
+                        </span>
+                      </td>
+                      {/* Visits – živé číslo přes /api/pageview/stats */}
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <VisitsCell slug={page.slug} />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         <div className="flex items-center gap-1">
                           <CalendarIcon className="w-4 h-4" />
-                          {formatDate(page.createdAt)}
+                          {formatDate((page as any).created_at)}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {formatDate(page.publishedAt)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <div className="flex items-center justify-end space-x-2">
-                          {/* View */}
-                          <Link
-                            href={`/landing/${page.slug}`}
-                            target="_blank"
-                            className="text-gray-400 hover:text-gray-600 p-1"
-                            title="Zobrazit stránku"
-                          >
-                            <EyeIcon className="w-4 h-4" />
-                          </Link>
-                          
-                          {/* Edit */}
-                          <Link
-                            href={`/admin/landing-pages/${page.id}/edit`}
-                            className="text-blue-600 hover:text-blue-800 p-1"
-                            title="Upravit"
-                          >
-                            <PencilIcon className="w-4 h-4" />
-                          </Link>
-                          
-                          {/* Delete */}
-                          <button
-                            onClick={() => handleDelete(page.id, page.title)}
-                            className={`p-1 ${deleteConfirm === page.id 
-                              ? 'text-red-800 bg-red-100 rounded' 
-                              : 'text-red-600 hover:text-red-800'}`}
-                            title={deleteConfirm === page.id ? 'Potvrdit smazání' : 'Smazat'}
-                          >
-                            <TrashIcon className="w-4 h-4" />
-                          </button>
-                          
-                          {deleteConfirm === page.id && (
-                            <button
-                              onClick={() => setDeleteConfirm(null)}
-                              className="text-gray-400 hover:text-gray-600 text-xs px-2"
-                            >
-                              Zrušit
-                            </button>
-                          )}
-                        </div>
+                        {formatDate((page as any).published_at)}
                       </td>
                     </tr>
                   ))}
@@ -543,6 +575,50 @@ export default function LandingPagesAdmin() {
             </Link>
           </div>
         )}
+      </div>
+    </div>
+  )
+}
+
+function TopStats({ pagesCount }: { pagesCount: number }) {
+  const [range, setRange] = React.useState<'all' | '7d' | '28d'>('all')
+  const [total, setTotal] = React.useState<number | null>(null)
+  React.useEffect(() => {
+    const controller = new AbortController()
+    const load = async () => {
+      try {
+        const res = await fetch(`/api/pageview/stats?prefix=${encodeURIComponent('/landing/')}&range=${range}`,
+          { signal: controller.signal })
+        if (!res.ok) return
+        const data = await res.json()
+        setTotal(typeof data.total === 'number' ? data.total : 0)
+      } catch {}
+    }
+    load()
+    return () => controller.abort()
+  }, [range])
+
+  return (
+    <div className="flex items-center gap-8 text-sm">
+      <div>
+        <span className="text-gray-600">Pages:</span>
+        <span className="ml-2 font-semibold">{pagesCount}</span>
+      </div>
+      <div className="flex items-center gap-3">
+        <span className="text-gray-600">Total visits:</span>
+        <span className="font-semibold">{total ?? '—'}</span>
+        <label className="flex items-center gap-2">
+          <span className="text-gray-600">Range</span>
+          <select
+            value={range}
+            onChange={(e) => setRange(e.target.value as any)}
+            className="min-w-[120px] text-sm border border-gray-300 rounded-md px-3 py-1.5"
+          >
+            <option value="all">All</option>
+            <option value="7d">7d</option>
+            <option value="28d">28d</option>
+          </select>
+        </label>
       </div>
     </div>
   )

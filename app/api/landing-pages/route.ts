@@ -2,6 +2,28 @@ import { NextResponse, NextRequest } from 'next/server'
 import prisma from '@/lib/prisma'
 import { v4 as uuidv4 } from 'uuid'
 import { isValidLocale, locales, defaultLocale } from '@/lib/i18n'
+import crypto from 'crypto'
+
+// Remove invisible characters and common LLM watermark marks from raw JSON text
+function sanitizeIncomingJson(rawJsonText: string): { sanitized: string, removedChars: number } {
+  const originalLength = rawJsonText.length
+  let cleaned = rawJsonText
+    // BOM + zero-width characters
+    .replace(/[\uFEFF\u200B-\u200D\u2060-\u206F]/g, '')
+    // Invisible separators and formatting marks
+    .replace(/[\u180E\u061C\u2066-\u2069]/g, '')
+    // Soft hyphen + misc control chars sometimes used as watermarks
+    .replace(/[\u00AD\u034F\u115F\u1160\u17B4\u17B5]/g, '')
+    // Variation selectors
+    .replace(/[\uFE00-\uFE0F\uE0100-\uE01EF]/g, '')
+    // Remaining control characters except tab/newline/carriage-return
+    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F]/g, '')
+    // Normalize excessive whitespace
+    .replace(/\s+/g, ' ')
+    .trim()
+
+  return { sanitized: cleaned, removedChars: originalLength - cleaned.length }
+}
 
 // TypeScript interfaces for the AI farma API with i18n support
 interface TableRow {
@@ -412,7 +434,12 @@ async function updateSitemap(): Promise<void> {
 
 // Function to ping search engines
 async function pingSearchEngines(): Promise<void> {
-  const sitemapUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/sitemap.xml`
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
+  if (!baseUrl) {
+    console.warn('⚠️ NEXT_PUBLIC_BASE_URL not set; skipping search engine ping')
+    return
+  }
+  const sitemapUrl = `${baseUrl}/sitemap.xml`
   const pingUrls = [
     `https://www.google.com/ping?sitemap=${encodeURIComponent(sitemapUrl)}`,
     `https://www.bing.com/ping?sitemap=${encodeURIComponent(sitemapUrl)}`
@@ -439,22 +466,99 @@ async function pingSearchEngines(): Promise<void> {
 
 // POST /api/landing-pages - Create a new landing page
 export async function POST(request: NextRequest) {
+  // Ensure requestId and rawData are available in catch scope
+  let requestId = crypto.randomUUID()
+  let rawData: any
   try {
     console.log('📥 Received landing page creation request')
     
-    // Optional webhook security for production
-    const webhookSecret = request.headers.get('x-webhook-secret')
-    const expectedSecret = process.env.WEBHOOK_SECRET
-    
-    if (expectedSecret && webhookSecret !== expectedSecret) {
-      console.log('❌ Invalid webhook secret')
-      return NextResponse.json(
-        { error: 'Unauthorized webhook call' },
-        { status: 401 }
-      )
+    // Optional webhook security for production with dual-active rotation
+    const providedSecret = request.headers.get('x-webhook-secret') || ''
+    const providedSecretId = (request.headers.get('x-secret-id') || '').toLowerCase()
+    const primarySecret = process.env.WEBHOOK_SECRET
+    const secondarySecret = process.env.WEBHOOK_SECRET_SECONDARY
+    let verifiedSecretValue: string | null = null
+    let verifiedSecretId: 'primary' | 'secondary' | null = null
+
+    if (primarySecret || secondarySecret) {
+      if (!providedSecret) {
+        console.log('❌ Missing x-webhook-secret while secrets are configured')
+        const res = NextResponse.json(
+          { error: 'Unauthorized webhook call' },
+          { status: 401 }
+        )
+        res.headers.set('X-Request-Id', requestId)
+        return res
+      }
+
+      if (providedSecretId) {
+        if ((providedSecretId === 'primary' || providedSecretId === '1')) {
+          if (!primarySecret || providedSecret !== primarySecret) {
+            console.log('❌ Invalid primary x-webhook-secret')
+            const res = NextResponse.json(
+              { error: 'Unauthorized webhook call' },
+              { status: 401 }
+            )
+            res.headers.set('X-Request-Id', requestId)
+            res.headers.set('X-Secret-Id', 'primary')
+            return res
+          }
+          verifiedSecretValue = primarySecret
+          verifiedSecretId = 'primary'
+        } else if ((providedSecretId === 'secondary' || providedSecretId === '2')) {
+          if (!secondarySecret || providedSecret !== secondarySecret) {
+            console.log('❌ Invalid secondary x-webhook-secret')
+            const res = NextResponse.json(
+              { error: 'Unauthorized webhook call' },
+              { status: 401 }
+            )
+            res.headers.set('X-Request-Id', requestId)
+            res.headers.set('X-Secret-Id', 'secondary')
+            return res
+          }
+          verifiedSecretValue = secondarySecret
+          verifiedSecretId = 'secondary'
+        } else {
+          console.log('❌ Unknown x-secret-id')
+          const res = NextResponse.json(
+            { error: 'Unauthorized webhook call' },
+            { status: 401 }
+          )
+          res.headers.set('X-Request-Id', requestId)
+          return res
+        }
+      } else {
+        if (primarySecret && providedSecret === primarySecret) {
+          verifiedSecretValue = primarySecret
+          verifiedSecretId = 'primary'
+        } else if (secondarySecret && providedSecret === secondarySecret) {
+          verifiedSecretValue = secondarySecret
+          verifiedSecretId = 'secondary'
+        } else {
+          console.log('❌ Invalid x-webhook-secret (no x-secret-id)')
+          const res = NextResponse.json(
+            { error: 'Unauthorized webhook call' },
+            { status: 401 }
+          )
+          res.headers.set('X-Request-Id', requestId)
+          return res
+        }
+      }
     }
     
-    const rawData = await request.json()
+    const rawBody = await request.text()
+    // Keep original rawBody for HMAC verification; use sanitized for parsing + idempotency
+    const { sanitized: sanitizedBody, removedChars } = sanitizeIncomingJson(rawBody)
+    try {
+      rawData = JSON.parse(sanitizedBody)
+    } catch (e) {
+      const res = NextResponse.json({ error: 'Invalid JSON after sanitation' }, { status: 422 })
+      res.headers.set('X-Request-Id', requestId)
+      return res
+    }
+    if (removedChars > 0) {
+      console.log(`🧹 Sanitized JSON, removed ${removedChars} hidden characters`)
+    }
     console.log('📋 Raw payload keys:', Object.keys(rawData))
 
     // Detect payload format (AI farma vs legacy)
@@ -469,28 +573,156 @@ export async function POST(request: NextRequest) {
     
     const isAiFormat = (hasContentHtml && hasKeywords) && !hasLegacyContentHtml
     
+    // Optional HMAC signature (anti‑replay). Only verify if both headers present and secret configured
+    try {
+      const sigHeader = request.headers.get('x-signature') || ''
+      const tsHeader = request.headers.get('x-signature-timestamp') || ''
+      const haveSig = sigHeader.length > 0 && tsHeader.length > 0
+      if (haveSig && verifiedSecretValue) {
+        const maxSkewSec = 300
+        const tsSec = parseInt(tsHeader, 10)
+        if (!Number.isFinite(tsSec) || Math.abs(Math.floor(Date.now() / 1000) - tsSec) > maxSkewSec) {
+          const res = NextResponse.json({ error: 'Invalid signature timestamp' }, { status: 401 })
+          res.headers.set('X-Request-Id', requestId)
+          return res
+        }
+        const provided = sigHeader.startsWith('sha256=') ? sigHeader.slice(7) : sigHeader
+        const hmac = crypto
+          .createHmac('sha256', verifiedSecretValue)
+          .update(`${tsHeader}\n${rawBody}`)
+          .digest('hex')
+        if (!crypto.timingSafeEqual(Buffer.from(provided), Buffer.from(hmac))) {
+          const res = NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
+          res.headers.set('X-Request-Id', requestId)
+          return res
+        }
+      }
+    } catch (e) {
+      console.error('⚠️ Signature verification error:', e)
+      const res = NextResponse.json({ error: 'Signature verification failed' }, { status: 401 })
+      res.headers.set('X-Request-Id', requestId)
+      return res
+    }
+
+    // Idempotency handling (only for AI format)
+    const idemKey = request.headers.get('idempotency-key') || request.headers.get('Idempotency-Key')
+    const payloadHash = crypto.createHash('sha256').update(sanitizedBody).digest('hex')
+
+    if (isAiFormat && idemKey) {
+      const existing = await prisma.idempotencyKey.findUnique({ where: { key: idemKey } })
+      if (existing) {
+        if (existing.payloadHash !== payloadHash) {
+          const res = NextResponse.json(
+            { error: 'Idempotency Mismatch', details: 'Payload differs for the same Idempotency-Key' },
+            { status: 409 }
+          )
+          res.headers.set('X-Request-Id', requestId)
+          res.headers.set('Idempotency-Key', idemKey)
+          return res
+        }
+        // Replayed – return saved response
+        const res = NextResponse.json(existing.response as any, { status: existing.statusCode })
+        res.headers.set('Idempotency-Replayed', 'true')
+        res.headers.set('Idempotency-Key', idemKey)
+        res.headers.set('X-Request-Id', requestId)
+        return res
+      }
+    }
+
     if (isAiFormat) {
       console.log('🤖 Processing AI farma format')
-      return await handleAiFormatPayload(rawData)
+      const response = await handleAiFormatPayload(rawData, requestId)
+      // Save idempotency record if key present and success
+      if (idemKey && response?.status === 201) {
+        try {
+          const body = await response.clone().json()
+          const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days
+          await prisma.idempotencyKey.create({
+            data: {
+              key: idemKey,
+              payloadHash,
+              slug: body?.slug || null,
+              language: body?.language || null,
+              statusCode: 201,
+              response: body,
+              expiresAt,
+            }
+          })
+          // Async cleanup of expired keys (best-effort)
+          prisma.idempotencyKey.deleteMany({ where: { expiresAt: { lt: new Date() } } })
+            .catch((err) => console.error('⚠️ Idempotency cleanup failed:', err))
+        } catch (e) {
+          console.error('⚠️ Failed to persist idempotency record:', e)
+        }
+      }
+      if (idemKey) {
+        response.headers.set('Idempotency-Key', idemKey)
+      }
+      response.headers.set('X-Request-Id', requestId)
+      // Persist webhook log (best-effort, non-blocking)
+      try {
+        await prisma.webhookLog.create({
+          data: {
+            requestId,
+            method: 'POST',
+            endpoint: '/api/landing-pages',
+            statusCode: response.status,
+            idempotencyKey: idemKey || null,
+            slug: (rawData?.slug || rawData?.data?.slug) || null,
+            language: (rawData?.language || rawData?.data?.language) || null,
+            secretId: verifiedSecretId || undefined,
+            payloadHash,
+            signatureValid: undefined,
+            signatureTimestamp: request.headers.get('x-signature-timestamp') || undefined,
+          }
+        })
+      } catch (e) {
+        console.warn('⚠️ WebhookLog insert failed:', e)
+      }
+      return response
     } else {
       console.log('🔄 Processing legacy format')
-      return await handleLegacyFormatPayload(rawData)
+      return await handleLegacyFormatPayload(rawData, requestId)
     }
 
   } catch (error) {
     console.error('💥 Error in POST handler:', error)
-    return NextResponse.json(
+    const res = NextResponse.json(
       { 
         error: 'Failed to process request', 
         details: error instanceof Error ? error.message : 'Unknown error'
       },
       { status: 500 }
     )
+    res.headers.set('X-Request-Id', requestId)
+    // Persist error log (best-effort)
+    try {
+      await prisma.webhookLog.create({
+        data: {
+          requestId,
+          method: 'POST',
+          endpoint: '/api/landing-pages',
+          statusCode: 500,
+          idempotencyKey: request.headers.get('idempotency-key') || request.headers.get('Idempotency-Key') || undefined,
+          slug: (rawData as any)?.slug || (rawData as any)?.data?.slug || undefined,
+          language: (rawData as any)?.language || (rawData as any)?.data?.language || undefined,
+          error: error instanceof Error ? error.message : 'Unknown error',
+          details: undefined,
+          secretId: undefined,
+          payloadHash: undefined,
+          signatureValid: undefined,
+          signatureTimestamp: request.headers.get('x-signature-timestamp') || undefined,
+        }
+      })
+    } catch (e) {
+      console.warn('⚠️ WebhookLog error insert failed:', e)
+    }
+    return res
   }
 }
 
 // Handle AI farma format payload
-async function handleAiFormatPayload(data: any) {
+async function handleAiFormatPayload(data: any, requestId: string) {
   try {
     // Extract payload - check if data is in 'data' object or at root level
     let payload: AiLandingPagePayload
@@ -567,7 +799,7 @@ async function handleAiFormatPayload(data: any) {
           contentLength: payload.contentHtml?.length
         }
       })
-      return NextResponse.json(
+      const res = NextResponse.json(
         { 
           error: 'Validation failed', 
           details: validation.errors,
@@ -575,6 +807,8 @@ async function handleAiFormatPayload(data: any) {
         },
         { status: 422 } // 422 Unprocessable Entity for validation errors
       )
+      res.headers.set('X-Request-Id', requestId)
+      return res
     }
     
     // Log warnings if any
@@ -694,9 +928,15 @@ async function handleAiFormatPayload(data: any) {
     }
 
     console.log('✅ AI Landing page successfully created and published')
-    console.log(`🚀 Available at: ${(process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000')}/landing/${payload.slug}`)
+    if (process.env.NEXT_PUBLIC_BASE_URL) {
+      console.log(`🚀 Available at: ${process.env.NEXT_PUBLIC_BASE_URL}/landing/${payload.slug}`)
+    } else {
+      console.log('ℹ️ Set NEXT_PUBLIC_BASE_URL to print public URL')
+    }
 
-    return NextResponse.json(response, { status: 201 })
+    const res = NextResponse.json(response, { status: 201 })
+    res.headers.set('X-Request-Id', requestId)
+    return res
     
   } catch (error) {
     console.error('💥 Error in AI format handler:', {
@@ -714,8 +954,8 @@ async function handleAiFormatPayload(data: any) {
       const prismaError = error as any
       
       switch (prismaError.code) {
-        case 'P2002': // Unique constraint violation
-          return NextResponse.json(
+        case 'P2002': { // Unique constraint violation
+          const res = NextResponse.json(
             { 
               error: 'Slug and language conflict', 
               details: 'A landing page with this slug and language combination already exists',
@@ -723,40 +963,49 @@ async function handleAiFormatPayload(data: any) {
             },
             { status: 409 }
           )
-        
-        case 'P2025': // Record not found
-          return NextResponse.json(
+          res.headers.set('X-Request-Id', requestId)
+          return res
+        }
+        case 'P2025': { // Record not found
+          const res = NextResponse.json(
             { 
               error: 'Database error', 
               details: 'Referenced record not found'
             },
             { status: 400 }
           )
-        
-        default:
+          res.headers.set('X-Request-Id', requestId)
+          return res
+        }
+        default: {
           console.error('❌ Unhandled Prisma error:', prismaError.code, prismaError.message)
-          return NextResponse.json(
+          const res = NextResponse.json(
             { 
               error: 'Database error', 
               details: 'An internal database error occurred'
             },
             { status: 500 }
           )
+          res.headers.set('X-Request-Id', requestId)
+          return res
+        }
       }
     }
 
     // Handle validation errors that slipped through
     if (error instanceof Error && error.message.includes('validation')) {
-      return NextResponse.json(
+      const res = NextResponse.json(
         { 
           error: 'Validation error', 
           details: error.message
         },
         { status: 422 }
       )
+      res.headers.set('X-Request-Id', requestId)
+      return res
     }
 
-    return NextResponse.json(
+    const res = NextResponse.json(
       { 
         error: 'Failed to create landing page', 
         details: error instanceof Error ? error.message : 'An unexpected error occurred',
@@ -764,11 +1013,13 @@ async function handleAiFormatPayload(data: any) {
       },
       { status: 500 }
     )
+    res.headers.set('X-Request-Id', requestId)
+    return res
   }
 }
 
 // Handle legacy format payload (backward compatibility)
-async function handleLegacyFormatPayload(data: any) {
+async function handleLegacyFormatPayload(data: any, requestId: string) {
   try {
     const payload = data as LandingPagePayload
     console.log('📋 Legacy Payload received:', { 
@@ -783,13 +1034,15 @@ async function handleLegacyFormatPayload(data: any) {
     const validation = validateLegacyPayload(payload)
     if (!validation.isValid) {
       console.log('❌ Legacy Validation failed:', validation.errors)
-      return NextResponse.json(
+      const res = NextResponse.json(
         { 
           error: 'Validation failed', 
           details: validation.errors 
         },
         { status: 400 }
       )
+      res.headers.set('X-Request-Id', requestId)
+      return res
     }
 
     // Generate or use provided slug
@@ -854,7 +1107,9 @@ async function handleLegacyFormatPayload(data: any) {
     console.log('✅ Legacy Landing page successfully created and published')
     console.log('🚀 Available at: ' + `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/landing/${uniqueSlug}`)
 
-    return NextResponse.json(response, { status: 201 })
+    const res = NextResponse.json(response, { status: 201 })
+    res.headers.set('X-Request-Id', requestId)
+    return res
 
   } catch (error) {
     console.error('💥 Error in legacy format handler:', error)
@@ -862,23 +1117,27 @@ async function handleLegacyFormatPayload(data: any) {
     // Handle specific Prisma errors
     if (error && typeof error === 'object' && 'code' in error) {
       if ((error as any).code === 'P2002') {
-        return NextResponse.json(
+        const res = NextResponse.json(
           { 
             error: 'Slug conflict', 
             details: 'A landing page with this slug already exists' 
           },
           { status: 409 }
         )
+        res.headers.set('X-Request-Id', requestId)
+        return res
       }
     }
 
-    return NextResponse.json(
+    const res = NextResponse.json(
       { 
         error: 'Failed to create landing page', 
         details: error instanceof Error ? error.message : 'Unknown error'
       },
       { status: 500 }
     )
+    res.headers.set('X-Request-Id', requestId)
+    return res
   }
 }
 
@@ -897,21 +1156,49 @@ export async function GET(request: NextRequest) {
           slug: true,
           title: true,
           language: true,
-                  meta_description: true,
-        format: true,
-        published_at: true,
-        created_at: true,
-        updated_at: true
-      },
-      orderBy: { created_at: 'desc' },
+          meta_description: true,
+          format: true,
+          published_at: true,
+          created_at: true,
+          updated_at: true
+        },
+        orderBy: { created_at: 'desc' },
         skip,
         take: pageSize
       }),
       prisma.landing_pages.count()
     ])
 
+    // Augment with latest ping status per landing (real data, no fallbacks)
+    const withPing = await Promise.all(
+      landingPages.map(async (lp) => {
+        try {
+      const ping = await prisma.landingPingQueue.findFirst({
+            where: { landingId: lp.id },
+            orderBy: [{ scheduledAt: 'desc' }, { createdAt: 'desc' }]
+          })
+          return {
+            ...lp,
+            pingStatus: (ping?.status as 'scheduled' | 'sent' | 'failed' | undefined) ?? 'not_scheduled',
+            pingScheduledAt: ping?.scheduledAt ?? null,
+            pingSentAt: ping?.sentAt ?? null,
+            pingHttpStatus: ping?.httpStatus ?? null,
+          }
+        } catch {
+          // If ping queue is not yet available, still return the page data
+          return {
+            ...lp,
+            pingStatus: 'not_scheduled' as const,
+            pingScheduledAt: null,
+            pingSentAt: null,
+            pingHttpStatus: null,
+          }
+        }
+      })
+    )
+
     return NextResponse.json({
-      landingPages,
+      landingPages: withPing,
       pagination: {
         page,
         pageSize,

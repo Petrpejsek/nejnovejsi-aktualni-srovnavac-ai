@@ -104,15 +104,13 @@ async function generateSitemap(): Promise<string> {
     <priority>0.3</priority>
   </url>`
 
-    // Add landing pages (with i18n support)
+    // Add landing pages – EN only layout without language prefix
     console.log('📝 Adding landing pages to sitemap...')
     landingPages.forEach(page => {
       const lastmod = page.updated_at.toISOString().split('T')[0]
-      
-      // i18n URL format: /[lang]/landing/[slug]
       sitemapContent += `
   <url>
-    <loc>${baseUrl}/${page.language}/landing/${encodeURIComponent(page.slug)}</loc>
+    <loc>${baseUrl}/landing/${encodeURIComponent(page.slug)}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>

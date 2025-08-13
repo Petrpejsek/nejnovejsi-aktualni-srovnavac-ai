@@ -28,6 +28,7 @@
     "fix-imageurl": "node --loader ts-node/esm scripts/fix-imageUrl-database.js",
     "check-screenshots": "node --loader ts-node/esm scripts/check-screenshot-status.js",
     "fix-screenshots": "node --loader ts-node/esm scripts/fix-missing-screenshots.js",
+    "images:convert-webp": "node --loader ts-node/esm scripts/convert-existing-images-to-webp.ts",
     "prepare": "husky install",
     "deploy:prod": "bash scripts/deploy-prod.sh"
   },

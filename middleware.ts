@@ -5,7 +5,15 @@ import { getToken } from 'next-auth/jwt';
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
-  // Early legacy route normalization (server-side redirects)
+  // Early redirects
+  // EN-only: /en/landing/* -> /landing/*
+  const enLanding = pathname.match(/^\/en\/landing\/(.+)$/)
+  if (enLanding) {
+    const slug = enLanding[1]
+    return NextResponse.redirect(new URL(`/landing/${slug}`, request.url), 308)
+  }
+
+  // Legacy route normalization (server-side redirects)
   if (pathname === '/company') {
     return NextResponse.redirect(new URL('/advertise', request.url));
   }

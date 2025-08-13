@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic'
 // POST /api/ads/click - zpracování kliku na reklamu
 export async function POST(request: NextRequest) {
   try {
-    const { productId, campaignId } = await request.json()
+    const { productId, campaignId, skipHistory } = await request.json()
 
     console.log('💰 PPC Click API called:', { productId, campaignId })
 
@@ -255,33 +255,35 @@ export async function POST(request: NextRequest) {
       return adClick
     })
 
-    // 5. Zaznamenáme také do obecných kliků pro statistiky
-    try {
-      const session = await getServerSession(authOptions)
-      
-      if (session?.user?.email) {
-        const user = await prisma.user.findUnique({
-          where: { email: session.user.email }
-        })
-
-        if (user) {
-          await prisma.clickHistory.create({
-            data: {
-              id: uuidv4(),
-              userId: user.id,
-              productId,
-              productName: product.name,
-              category: product.category,
-              imageUrl: product.imageUrl,
-              price: product.price,
-              externalUrl: product.externalUrl || ''
-            }
+    // 5. Zaznamenáme také do obecných kliků pro statistiky (pokud není explicitně požadováno vynechání)
+    if (!skipHistory) {
+      try {
+        const session = await getServerSession(authOptions)
+        
+        if (session?.user?.email) {
+          const user = await prisma.user.findUnique({
+            where: { email: session.user.email }
           })
+
+          if (user) {
+            await prisma.clickHistory.create({
+              data: {
+                id: uuidv4(),
+                userId: user.id,
+                productId,
+                productName: product.name,
+                category: product.category,
+                imageUrl: product.imageUrl,
+                price: product.price,
+                externalUrl: product.externalUrl || ''
+              }
+            })
+          }
         }
+      } catch (trackingError) {
+        console.log('📊 Non-critical tracking error:', trackingError)
+        // Pokračujeme i pokud se tracking nepovede
       }
-    } catch (trackingError) {
-      console.log('📊 Non-critical tracking error:', trackingError)
-      // Pokračujeme i pokud se tracking nepovede
     }
 
     console.log('✅ PPC click processed successfully:', {

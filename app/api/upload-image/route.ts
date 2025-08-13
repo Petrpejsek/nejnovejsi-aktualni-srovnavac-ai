@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { writeFile } from 'fs/promises'
+import { writeFile, mkdir } from 'fs/promises'
 import { join } from 'path'
+import sharp from 'sharp'
 
 export async function POST(request: NextRequest) {
   try {
@@ -22,11 +23,20 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
-    // Validace typu souboru
+    // Validace typu souboru a přípony
     if (!file.type.startsWith('image/')) {
       return NextResponse.json({
         success: false,
         error: 'Soubor musí být obrázek'
+      }, { status: 400 })
+    }
+
+    const allowedExt = ['jpg','jpeg','png','webp']
+    const ext = (file.name.split('.').pop() || '').toLowerCase()
+    if (ext && !allowedExt.includes(ext)) {
+      return NextResponse.json({
+        success: false,
+        error: 'Povolené přípony: .jpg, .jpeg, .png, .webp'
       }, { status: 400 })
     }
 
@@ -46,28 +56,33 @@ export async function POST(request: NextRequest) {
       .slice(0, 50)
 
     const timestamp = Date.now()
-    const fileExtension = file.name.split('.').pop() || 'jpg'
-    const fileName = `${sanitizedProductName}-${timestamp}.${fileExtension}`
+    const fileNameBase = `${sanitizedProductName}-${timestamp}`
 
     // Cesta k uložení souboru
     const uploadDir = join(process.cwd(), 'public', 'screenshots')
-    const filePath = join(uploadDir, fileName)
+    await mkdir(uploadDir, { recursive: true })
 
     // Převod souboru na buffer
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
 
-    // Uložení souboru
-    await writeFile(filePath, buffer)
+    // Konverze do WebP (kvalita 85)
+    const webpBuffer = await sharp(buffer)
+      .webp({ quality: 85 })
+      .toBuffer()
 
-    const imageUrl = `/screenshots/${fileName}`
+    const webpName = `${fileNameBase}.webp`
+    const filePath = join(uploadDir, webpName)
+    await writeFile(filePath, webpBuffer)
+
+    const imageUrl = `/screenshots/${webpName}`
 
     console.log(`📁 Obrázek nahrán: ${imageUrl}`)
 
     return NextResponse.json({
       success: true,
       imageUrl,
-      fileName,
+      fileName: webpName,
       message: 'Obrázek byl úspěšně nahrán'
     })
 

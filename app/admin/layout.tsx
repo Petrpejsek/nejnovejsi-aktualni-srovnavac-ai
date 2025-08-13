@@ -67,6 +67,18 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       icon: '🎁',
       current: pathname.startsWith('/admin/promotional-packages')
     },
+    {
+      name: 'CPC',
+      href: '/admin/cpc',
+      icon: '💵',
+      current: pathname.startsWith('/admin/cpc')
+    },
+    {
+      name: 'Affiliate',
+      href: '/admin/affiliate',
+      icon: '🤝',
+      current: pathname.startsWith('/admin/affiliate')
+    },
     // Firemní statistiky jsou nyní součástí záložek na /admin/analytics
     // Stránky (legacy) odstraněny – správa řešena v Landing Pages
     {
@@ -74,6 +86,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       href: '/admin/landing-pages',
       icon: '📝',
       current: pathname.startsWith('/admin/landing-pages')
+    },
+    {
+      name: 'Ingest Logs',
+      href: '/admin/ingest-logs',
+      icon: '🧾',
+      current: pathname.startsWith('/admin/ingest-logs')
     },
     {
       name: 'Analytics',
@@ -259,7 +277,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         
         <main className="flex-1">
           <div className="py-6">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
+            <div className="max-w-[1920px] mx-auto px-4 sm:px-6 md:px-8">
               {children}
             </div>
           </div>

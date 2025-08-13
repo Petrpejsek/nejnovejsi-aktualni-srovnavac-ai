@@ -10,6 +10,7 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const self = searchParams.get('self') === 'true'
+    const companyId = searchParams.get('companyId')
 
     // Self data for logged-in company
     if (self) {
@@ -67,6 +68,64 @@ export async function GET(request: NextRequest) {
         transactions,
         monthlySpend: Math.round((monthlySpendAgg._sum.amount || 0) * 100) / 100,
         campaigns: company.Campaign
+      })
+    }
+
+    // Jednoduché načtení jedné firmy podle ID (pro hlavičky v detailu)
+    if (companyId) {
+      const company = await prisma.company.findUnique({ 
+        where: { id: companyId },
+        include: {
+          Campaign: {
+            select: { id: true, name: true, status: true, totalSpent: true }
+          },
+          BillingRecord: {
+            where: { type: 'recharge' },
+            orderBy: { createdAt: 'desc' },
+            take: 1,
+            select: { createdAt: true, amount: true }
+          }
+        }
+      })
+      if (!company) {
+        return NextResponse.json({ success: false, error: 'Company not found' }, { status: 404 })
+      }
+      
+      // Calculate spend trends
+      const now = new Date()
+      const ranges = [
+        { days: 7, key: '7d' },
+        { days: 30, key: '30d' }, 
+        { days: 90, key: '90d' }
+      ]
+      
+      const spendTrends = await Promise.all(
+        ranges.map(async ({ days, key }) => {
+          const startDate = new Date(now.getTime() - days * 24 * 60 * 60 * 1000)
+          const spend = await prisma.billingRecord.aggregate({
+            where: { 
+              companyId, 
+              type: 'spend', 
+              createdAt: { gte: startDate } 
+            },
+            _sum: { amount: true }
+          })
+          return { period: key, amount: Number(spend._sum.amount || 0) }
+        })
+      )
+      
+      const lastRecharge = company.BillingRecord[0]
+      
+      return NextResponse.json({ 
+        success: true, 
+        data: { 
+          companies: [{
+            ...company,
+            spendTrends,
+            lastRechargeAt: lastRecharge?.createdAt,
+            lastRechargeAmount: lastRecharge?.amount
+          }] 
+        } 
       })
     }
 
@@ -356,3 +415,88 @@ export async function DELETE(request: NextRequest) {
     )
   }
 } 
+
+// PUT /api/admin/companies - částečná aktualizace firmy (admin)
+export async function PUT(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions)
+    const role = (session as any)?.user?.role
+    if (!role || role !== 'admin') {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const body = await request.json()
+    const companyId = body?.companyId as string | undefined
+    const updates = (body?.updates || {}) as Record<string, any>
+
+    if (!companyId) {
+      return NextResponse.json({ success: false, error: 'companyId is required' }, { status: 400 })
+    }
+
+    // Whitelist povolených polí k úpravě
+    const allowedFields = new Set([
+      'name',
+      'contactPerson',
+      'website',
+      'description',
+      'logoUrl',
+      'taxId',
+      'billingAddress',
+      'billingCountry',
+      'status',
+      'autoRecharge',
+      'autoRechargeAmount',
+      'autoRechargeThreshold',
+      'assignedProductId',
+    ])
+
+    // Postavit objekt data pouze s povolenými poli
+    const data: Record<string, any> = {}
+    for (const [key, value] of Object.entries(updates)) {
+      if (!allowedFields.has(key)) continue
+      if (value === undefined) continue
+      if (['autoRechargeAmount', 'autoRechargeThreshold'].includes(key)) {
+        const num = Number(value)
+        data[key] = isNaN(num) ? null : num
+      } else if (key === 'autoRecharge') {
+        data[key] = Boolean(value)
+      } else {
+        data[key] = value
+      }
+    }
+
+    if (Object.keys(data).length === 0) {
+      return NextResponse.json({ success: false, error: 'No valid fields to update' }, { status: 400 })
+    }
+
+    const updated = await prisma.company.update({
+      where: { id: companyId },
+      data,
+      select: {
+        id: true,
+        name: true,
+        contactPerson: true,
+        website: true,
+        description: true,
+        logoUrl: true,
+        taxId: true,
+        billingAddress: true,
+        billingCountry: true,
+        status: true,
+        autoRecharge: true,
+        autoRechargeAmount: true,
+        autoRechargeThreshold: true,
+        assignedProductId: true,
+        updatedAt: true,
+      }
+    })
+
+    return NextResponse.json({ success: true, data: updated })
+  } catch (error) {
+    console.error('Error updating company (PUT):', error)
+    return NextResponse.json(
+      { success: false, error: 'Failed to update company' },
+      { status: 500 }
+    )
+  }
+}
