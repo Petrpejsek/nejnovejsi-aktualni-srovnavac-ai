@@ -274,42 +274,9 @@ export default function ProductGrid({ selectedTags, initialProducts, initialTota
       )
     : products
 
-  // Skeleton loader pro lepší UX během prvního načítání
+  // Na homepage nechceme žádný skeleton – pokud se ještě načítá, nevracej nic
   if (loading) {
-    return (
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <div className="h-8 bg-gray-200 rounded w-48 animate-pulse"></div>
-          <div className="flex gap-2">
-            <div className="h-10 w-10 bg-gray-200 rounded animate-pulse"></div>
-            <div className="h-10 w-10 bg-gray-200 rounded animate-pulse"></div>
-          </div>
-        </div>
-        
-        <div className={`grid gap-4 md:gap-6 items-stretch min-w-0 ${
-          compactView
-            ? 'grid-cols-1 xs:grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'
-            : 'grid-cols-1 xs:grid-cols-1 sm:grid-cols-1 md:grid-cols-3 lg:grid-cols-3'
-        }`}>
-          {Array.from({ length: 12 }).map((_, index) => (
-            <div key={index} className="bg-white rounded-lg shadow-md overflow-hidden min-w-0">
-              <div className="aspect-[16/9] bg-gray-200 animate-pulse"></div>
-              <div className="p-4 space-y-3">
-                <div className="h-6 bg-gray-200 rounded animate-pulse"></div>
-                <div className="space-y-2">
-                  <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
-                  <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse"></div>
-                </div>
-                <div className="flex gap-2">
-                  <div className="h-6 w-16 bg-gray-200 rounded-full animate-pulse"></div>
-                  <div className="h-6 w-12 bg-gray-200 rounded-full animate-pulse"></div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    )
+    return null
   }
 
   if (error) {
