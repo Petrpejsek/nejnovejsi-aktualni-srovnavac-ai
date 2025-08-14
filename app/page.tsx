@@ -1,4 +1,5 @@
 import React from 'react'
+import { headers } from 'next/headers'
 import AiAdvisor from '../components/AiAdvisor'
 import ProductGridWrapper from '../components/ProductGridWrapper'
 // import ReelsCarousel from '../components/ReelsCarousel' // Dočasně skryto - pro budoucí použití
@@ -11,11 +12,24 @@ export default async function Home() {
   // SSR: načti první várku produktů přes interní API, aby se sjednotil zdroj dat s klientem
   let initialProducts: any[] = []
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
-    const res = await fetch(
+    // Robustní určení base URL: ENV > forwarded host/proto > localhost
+    const hdrs = headers()
+    const forwardedHost = hdrs.get('x-forwarded-host') || hdrs.get('host') || '127.0.0.1:3000'
+    const forwardedProto = hdrs.get('x-forwarded-proto') || 'http'
+    const computedBase = `${forwardedProto}://${forwardedHost}`
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || computedBase
+
+    // Primární dotaz na interní API
+    let res = await fetch(
       `${baseUrl}/api/products?forHomepage=true&page=1&pageSize=12`,
       { cache: 'no-store', headers: { 'Content-Type': 'application/json' } }
     )
+
+    // Fallback na localhost, pokud první pokus selže (např. špatná BASE_URL/SSL)
+    if (!res.ok) {
+      const fallbackUrl = `http://127.0.0.1:3000/api/products?forHomepage=true&page=1&pageSize=12`
+      res = await fetch(fallbackUrl, { cache: 'no-store', headers: { 'Content-Type': 'application/json' } })
+    }
     if (res.ok) {
       const data = await res.json()
       if (data && Array.isArray(data.products)) {
