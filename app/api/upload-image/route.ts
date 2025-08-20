@@ -3,11 +3,22 @@ import { writeFile, mkdir } from 'fs/promises'
 import { join } from 'path'
 import sharp from 'sharp'
 
+// Force Node.js runtime and disable static optimization for multipart handling
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
+
 export async function POST(request: NextRequest) {
   try {
+    console.log('UPLOAD: start')
     const formData = await request.formData()
     const file = formData.get('image') as File
     const productName = formData.get('productName') as string
+    console.log('UPLOAD: received formData', {
+      hasFile: !!file,
+      fileType: file ? (file as any).type : undefined,
+      fileSize: file ? (file as any).size : undefined,
+      productNamePresent: !!productName
+    })
 
     if (!file) {
       return NextResponse.json({
@@ -65,15 +76,18 @@ export async function POST(request: NextRequest) {
     // Převod souboru na buffer
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
+    console.log('UPLOAD: buffer created', { size: buffer.length })
 
     // Konverze do WebP (kvalita 85)
     const webpBuffer = await sharp(buffer)
       .webp({ quality: 85 })
       .toBuffer()
+    console.log('UPLOAD: webp created', { size: webpBuffer.length })
 
     const webpName = `${fileNameBase}.webp`
     const filePath = join(uploadDir, webpName)
     await writeFile(filePath, webpBuffer)
+    console.log('UPLOAD: file written', { filePath })
 
     const imageUrl = `/screenshots/${webpName}`
 
@@ -90,7 +104,8 @@ export async function POST(request: NextRequest) {
     console.error('❌ Chyba při nahrávání obrázku:', error)
     return NextResponse.json({
       success: false,
-      error: 'Chyba při nahrávání souboru'
+      error: 'Chyba při nahrávání souboru',
+      errorDetails: error instanceof Error ? error.message : String(error)
     }, { status: 500 })
   }
 } 
