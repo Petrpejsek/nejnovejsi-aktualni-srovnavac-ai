@@ -78,8 +78,8 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(bytes)
     console.log('UPLOAD: buffer created', { size: buffer.length })
 
-    // Konverze do WebP (kvalita 85)
-    const webpBuffer = await sharp(buffer)
+    // Konverze do WebP (kvalita 85) s tolerantním dekódováním (na některých PNG může libspng selhat)
+    const webpBuffer = await sharp(buffer, { failOnError: false })
       .webp({ quality: 85 })
       .toBuffer()
     console.log('UPLOAD: webp created', { size: webpBuffer.length })
