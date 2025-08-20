@@ -21,46 +21,28 @@ export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormPr
     e.preventDefault()
     
     try {
-      // 🔍 Detekce typu uživatele podle emailu
-      const isAdminEmail = email === 'admin@admin.com'
-      const loginType = isAdminEmail ? 'admin' : 'user'
-      
-      console.log(`🔍 LoginForm: Detected loginType '${loginType}' for email: ${email}`)
-      
-      // Pro různé loginType používáme různé NextAuth endpointy
-      let result = null;
-      if (loginType === 'user') {
-        // Pro běžné uživatele - používáme defaultní NextAuth endpoint (jednodušší)
-        result = await signIn('credentials', {
-          email,
-          password,
-          loginType,
-          rememberMe,
-          redirect: false,
-          callbackUrl: '/user-area'
-        })
-      } else {
-        // ✅ ADMIN LOGIN - používáme NextAuth admin-credentials provider  
-        console.log('🔐 Admin login: Using NextAuth admin-credentials provider')
-        
-        // ✅ EXPLICITNÍ FORMAT podle NextAuth dokumentace
-        result = await signIn('admin-credentials', { 
-          email, 
-          password,
-          loginType: 'admin',
-          rememberMe
-        })
-        
-        console.log('🔐 Admin NextAuth signIn result:', result)
-      }
+      // 🔍 Detekce kontextu: pokud jsme v /admin, přihlašujeme jako admin; jinak user
+      const isAdminContext = typeof window !== 'undefined' && window.location.pathname.startsWith('/admin')
+      const role = isAdminContext ? 'admin' : 'user'
+      console.log(`🔍 LoginForm: Detected role '${role}' for email: ${email}`)
+
+      // ✅ Jednotný provider 'credentials' – backend rozlišuje podle credentials.role
+      const result = await signIn('credentials', {
+        email,
+        password,
+        role,
+        rememberMe,
+        redirect: false,
+        callbackUrl: role === 'admin' ? '/admin' : '/user-area'
+      })
       
       if (result?.ok) {
-        console.log(`✅ LoginForm: Login successful for ${loginType} user: ${email}`)
+        console.log(`✅ LoginForm: Login successful for ${role}: ${email}`)
         
         // Zavřít modal před navigací
         onSuccess?.()
         
-        if (loginType === 'user') {
+        if (role === 'user') {
           // Pro user použij router.push
           setTimeout(() => {
             router.push('/user-area')
