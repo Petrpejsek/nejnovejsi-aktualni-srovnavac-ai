@@ -86,7 +86,10 @@ export async function PUT(
     const session = await getServerSession(authOptions)
     const companyUser = verifyCompanyToken(request)
     
-    const isSuperAdmin = session?.user?.email === 'admin@admin.com'
+    // Robust admin detection: respect session role/isAdmin, keep legacy email fallback
+    const isSessionAdmin = Boolean((session as any)?.user?.isAdmin) || (session as any)?.user?.role === 'admin'
+    const isLegacyEmailAdmin = (session as any)?.user?.email === 'admin@admin.com'
+    const isSuperAdmin = isSessionAdmin || isLegacyEmailAdmin
     const isCompanyAdmin = !!companyUser && !isSuperAdmin
     
     // Dočasně povolit v development režimu bez autentifikace pro admin rozhraní
@@ -98,6 +101,8 @@ export async function PUT(
         isCompanyAdmin, 
         isDevelopmentAdmin,
         sessionEmail: session?.user?.email,
+        sessionRole: (session as any)?.user?.role,
+        sessionIsAdmin: (session as any)?.user?.isAdmin,
         referer: request.headers.get('referer')
       })
       return NextResponse.json(
@@ -109,7 +114,10 @@ export async function PUT(
     console.log('🔧 DEBUG: Authorization passed', { 
       isSuperAdmin, 
       isCompanyAdmin, 
-      isDevelopmentAdmin 
+      isDevelopmentAdmin,
+      sessionEmail: session?.user?.email,
+      sessionRole: (session as any)?.user?.role,
+      sessionIsAdmin: (session as any)?.user?.isAdmin
     })
     
     // Aktuální produkt
