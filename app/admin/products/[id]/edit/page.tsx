@@ -199,6 +199,7 @@ export default function AdminProductEditPage({ params }: { params: { id: string 
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify(dataToSave),
       })
 
@@ -375,6 +376,7 @@ export default function AdminProductEditPage({ params }: { params: { id: string 
               headers: {
                 'Content-Type': 'application/json',
               },
+              credentials: 'include',
               body: JSON.stringify(updatedData),
             })
 
