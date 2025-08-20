@@ -8,6 +8,7 @@ import {
   ChevronLeftIcon, ChevronRightIcon, PlusIcon,
   StarIcon, EyeIcon, ShoppingCartIcon, CheckCircleIcon, UserCircleIcon
 } from '@heroicons/react/24/outline'
+import { getImageUrl } from '@/lib/utils'
 
 type Prompt = {
   id: string
@@ -192,7 +193,7 @@ function Row({ title, categorySlug }: { title: string; categorySlug: string }) {
                 )}
                 {hovered.prompt.coverImage && (
                   <div className="w-full rounded-lg overflow-hidden bg-gray-100">
-                    <img src={hovered.prompt.coverImage} alt={hovered.prompt.title} className="w-full h-auto max-h-[36vh] object-contain" />
+                    <img src={getImageUrl(hovered.prompt.coverImage)} alt={hovered.prompt.title} className="w-full h-auto max-h-[36vh] object-contain" />
                   </div>
                 )}
               </div>

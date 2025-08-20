@@ -13,6 +13,7 @@ import {
   PhotoIcon,
   Cog6ToothIcon
 } from '@heroicons/react/24/outline'
+import { getImageUrl } from '@/lib/utils'
 
 interface TopListCategory {
   id: string
@@ -922,7 +923,7 @@ function ProductSelector({ onProductAdd, excludeIds }: ProductSelectorProps) {
             <div className="flex items-start justify-between mb-3">
               <div className="flex items-center gap-3">
                 {product.logo ? (
-                  <img src={product.logo} alt={product.name} className="w-8 h-8 rounded" />
+                  <img src={getImageUrl(product.logo)} alt={product.name} className="w-8 h-8 rounded" />
                 ) : (
                   <div className="w-8 h-8 bg-gray-200 rounded flex items-center justify-center text-xs font-medium">
                     {product.name[0]}
