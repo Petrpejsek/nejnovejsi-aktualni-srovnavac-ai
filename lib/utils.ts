@@ -190,13 +190,38 @@ export function getImageUrl(imageUrl: string | null | undefined): string {
   // Pro relativní cesty (např. /screenshots/image.png)
   if (imageUrl.startsWith('/')) {
     const assetPrefix = process.env.NEXT_PUBLIC_ASSET_PREFIX || ''
-    
-    // Na produkci s assetPrefix kombinuj prefix s cestou
+
+    // Preferuj same-origin URL, aby nedocházelo k mixed content (HTTPS stránka → HTTP asset)
+    // a k blokaci přes CSP na cross-origin. Asset prefix použij jen pokud je bezpečný a shodný s původem.
     if (assetPrefix && process.env.NODE_ENV === 'production') {
-      return `${assetPrefix}${imageUrl}`
+      try {
+        if (typeof window !== 'undefined') {
+          const pageOrigin = window.location.origin
+          const pageProtocol = window.location.protocol
+          const prefixUrl = new URL(assetPrefix, pageOrigin)
+
+          // Zabraň mixed content: nikdy nepřepínej na http: na https: stránce
+          if (pageProtocol === 'https:' && prefixUrl.protocol === 'http:') {
+            return imageUrl
+          }
+
+          // Použij prefix jen pokud je stejného původu (vyhne se CSP/CORS problémům)
+          if (prefixUrl.origin === pageOrigin) {
+            // Normalizuj trailing slash
+            const normalizedPrefix = prefixUrl.toString().replace(/\/$/, '')
+            return `${normalizedPrefix}${imageUrl}`
+          }
+
+          // V ostatních případech raději vrať relativní cestu (same-origin)
+          return imageUrl
+        }
+      } catch {
+        // Při chybě parsování prefixu vrať bezpečně relativní cestu
+        return imageUrl
+      }
     }
-    
-    // Lokálně nebo bez assetPrefix vrať relativní cestu
+
+    // Lokálně nebo bez bezpečného prefixu vrať relativní cestu
     return imageUrl
   }
 
