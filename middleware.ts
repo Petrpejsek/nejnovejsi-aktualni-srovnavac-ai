@@ -80,7 +80,10 @@ export async function middleware(request: NextRequest) {
     // Admin routes
     if (pathname.startsWith('/admin')) {
       if (userRole !== 'admin') {
-        return NextResponse.redirect(new URL('/auth/login', request.url));
+        const url = new URL('/auth/login', request.url);
+        url.searchParams.set('role', 'admin');
+        url.searchParams.set('next', pathname + (request.nextUrl.search || ''));
+        return NextResponse.redirect(url);
       }
       return NextResponse.next();
     }
