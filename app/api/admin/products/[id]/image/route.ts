@@ -15,8 +15,12 @@ export async function POST(
 ) {
   try {
     const session = await getServerSession(authOptions)
-    const isSuperAdmin = Boolean((session as any)?.user?.isAdmin) || (session as any)?.user?.role === 'admin'
-    if (!isSuperAdmin) {
+    console.log('admin image upload - session:', session?.user)
+    
+    // Allow admin users (same logic as original upload-image)
+    const isAdmin = session?.user?.role === 'admin' || (session?.user as any)?.isAdmin
+    if (!isAdmin) {
+      console.log('admin image upload - unauthorized, user role:', session?.user?.role)
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 

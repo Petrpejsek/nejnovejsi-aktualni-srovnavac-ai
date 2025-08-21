@@ -345,8 +345,8 @@ const handleImageUpload = async (file: File) => {
     formData.append('image', file)
     formData.append('productName', product.name || 'product')
 
-    // Always use atomic admin endpoint
-    const response = await fetch(`/api/admin/products/${params.id}/image`, {
+          // Use working upload-image endpoint + auto-save
+      const response = await fetch('/api/upload-image', {
       method: 'POST',
       body: formData,
       credentials: 'include'
@@ -358,29 +358,46 @@ const handleImageUpload = async (file: File) => {
     }
 
     const result = await response.json()
-    if (result.success && result.imageUrl) {
-      // Force refresh product from server to get latest state
-      try {
-        const productResponse = await fetch(`/api/products/${params.id}`, {
-          credentials: 'include',
-          cache: 'no-store'
-        })
-        
-        if (productResponse.ok) {
-          const freshProduct = await productResponse.json()
-          setProduct(freshProduct)
-        }
-      } catch (refreshError) {
-        console.warn('Failed to refresh product:', refreshError)
-        // Fallback to local update
-        setProduct(prev => ({ ...prev, imageUrl: result.imageUrl }))
-      }
+    if (result.imageUrl) {
+      // Auto-save to product immediately
+      const storageUrl = result.imageUrl
+      const displayUrl = `${storageUrl}?v=${Date.now()}`
       
-      // Update preview with cache busting
-      const displayUrl = `${result.imageUrl}?v=${Date.now()}`
+      // Update UI immediately
+      setProduct(prev => ({ ...prev, imageUrl: storageUrl }))
       setImagePreview(displayUrl)
       
-      setSuccessMessage('📸 Obrázek byl úspěšně nahrán!')
+      // Auto-save to database
+      try {
+        const updatedData = {
+          ...product,
+          imageUrl: storageUrl,
+          pendingImageUrl: null,
+          imageApprovalStatus: null,
+          tags: JSON.stringify(product.tags),
+          advantages: JSON.stringify(product.advantages),
+          disadvantages: JSON.stringify(product.disadvantages),
+          videoUrls: JSON.stringify(product.videoUrls),
+          pricingInfo: JSON.stringify(product.pricingInfo)
+        }
+        
+        const saveResponse = await fetch(`/api/products/${params.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(updatedData),
+        })
+        
+        if (saveResponse.ok) {
+          setSuccessMessage('📸 Obrázek byl úspěšně nahrán a uložen!')
+        } else {
+          setSuccessMessage('📸 Obrázek nahrán, ale nepodařilo se uložit do DB')
+        }
+      } catch (saveError) {
+        console.error('Save error:', saveError)
+        setSuccessMessage('📸 Obrázek nahrán, ale chyba při ukládání')
+      }
+      
       setTimeout(() => setSuccessMessage(null), 3000)
     } else {
       throw new Error('Server nevrátil platnou URL obrázku')
