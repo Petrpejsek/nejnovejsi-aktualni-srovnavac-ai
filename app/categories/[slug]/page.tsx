@@ -747,6 +747,35 @@ export default function CategoryPage() {
         <link rel="canonical" href={`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/categories/${slug}`} />
         <meta name="robots" content="index, follow" />
       </Head>
+      {/* JSON-LD structured data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'CollectionPage',
+            name: `${categoryData.title} | Comparee.ai`,
+            description: categoryData.metaDescription,
+            mainEntity: {
+              '@type': 'ItemList',
+              itemListElement: products.slice(0, 10).map((p, idx) => ({
+                '@type': 'ListItem',
+                position: idx + 1,
+                url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/products/${p.id}`,
+                name: p.name
+              }))
+            },
+            breadcrumb: {
+              '@type': 'BreadcrumbList',
+              itemListElement: [
+                { '@type': 'ListItem', position: 1, name: 'Home', item: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}` },
+                { '@type': 'ListItem', position: 2, name: 'Categories', item: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/categories` },
+                { '@type': 'ListItem', position: 3, name: categoryName, item: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/categories/${slug}` }
+              ]
+            }
+          })
+        }}
+      />
 
       <main className="min-h-screen bg-gray-50">
         {/* Header Section */}

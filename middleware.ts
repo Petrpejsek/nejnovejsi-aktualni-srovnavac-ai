@@ -55,21 +55,28 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Canonicalize: pokud přijde požadavek na comparee.ai, přesměruj na NEXT_PUBLIC_BASE_URL
-  // Přístup na IP ponech bez redirectu
-  try {
-    const url = new URL(request.url);
-    const host = url.hostname.toLowerCase();
-    if (host === 'comparee.ai' || host === 'www.comparee.ai') {
-      const base = process.env.NEXT_PUBLIC_BASE_URL || 'http://23.88.98.49';
-      const wanted = new URL(base);
-      url.protocol = wanted.protocol;
-      url.hostname = wanted.hostname;
-      url.port = wanted.port || '';
-      return NextResponse.redirect(url, { status: 308 });
+  // Canonicalize: pokud přijde požadavek na comparee.ai, přesměruj na NEXT_PUBLIC_BASE_URL (jen v produkci)
+  // Přístup na IP ponech bez redirectu, v developmentu nikdy nedělej doménové redirecty
+  if (process.env.NODE_ENV === 'production') {
+    try {
+      const url = new URL(request.url);
+      const host = url.hostname.toLowerCase();
+      const isLocalHost = host === 'localhost' || host === '127.0.0.1' || host.endsWith('.local');
+      if (!isLocalHost && (host === 'comparee.ai' || host === 'www.comparee.ai')) {
+        const base = process.env.NEXT_PUBLIC_BASE_URL;
+        if (!base) {
+          // Bez BASE_URL nedělej doménové redirecty
+          return NextResponse.next();
+        }
+        const wanted = new URL(base);
+        url.protocol = wanted.protocol;
+        url.hostname = wanted.hostname;
+        url.port = wanted.port || '';
+        return NextResponse.redirect(url, { status: 308 });
+      }
+    } catch {
+      // ignore
     }
-  } catch {
-    // ignore
   }
 
   // Role-based access control
@@ -107,8 +114,17 @@ export async function middleware(request: NextRequest) {
       return NextResponse.next();
     }
 
-    // Public
-    return NextResponse.next();
+    // Public + bezpečnostní X-Robots-Tag pro interní cesty
+    const res = NextResponse.next();
+    if (
+      pathname.startsWith('/new-search') ||
+      pathname.startsWith('/ai-tools-test') ||
+      pathname.startsWith('/test') ||
+      pathname.startsWith('/simple-test')
+    ) {
+      res.headers.set('X-Robots-Tag', 'noindex, follow');
+    }
+    return res;
   } catch (error) {
     console.log('❌ Middleware error:', error);
     return NextResponse.next();

@@ -325,74 +325,86 @@ export default function AdminProductEditPage({ params }: { params: { id: string 
     }
   }
 
-// Simplified upload function - replace lines 328-407 in edit/page.tsx
-
-const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  if (e.target.files && e.target.files[0]) {
-    handleImageUpload(e.target.files[0])
-  }
-  // Clear input to allow re-uploading same file
-  e.target.value = ''
-}
-
-const handleImageUpload = async (file: File) => {
-  setIsUploadingImage(true)
-  setErrorMessage(null)
-  setSuccessMessage(null)
-  
-  try {
-    const formData = new FormData()
-    formData.append('image', file)
-    formData.append('productName', product.name || 'product')
-
-    // Always use atomic admin endpoint
-    const response = await fetch(`/api/admin/products/${params.id}/image`, {
-      method: 'POST',
-      body: formData,
-      credentials: 'include'
-    })
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ error: 'Network error' }))
-      throw new Error(errorData.error || `HTTP ${response.status}`)
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      handleImageUpload(e.target.files[0])
     }
+  }
 
-    const result = await response.json()
-    if (result.success && result.imageUrl) {
-      // Force refresh product from server to get latest state
-      try {
-        const productResponse = await fetch(`/api/products/${params.id}`, {
-          credentials: 'include',
-          cache: 'no-store'
-        })
+  const handleImageUpload = async (file: File) => {
+    setIsUploadingImage(true)
+    try {
+      const formData = new FormData()
+      formData.append('image', file)
+      formData.append('productName', product.name || 'product')
+
+      // Prefer atomic admin endpoint on production
+      const target = process.env.NODE_ENV === 'production'
+        ? `/api/admin/products/${params.id}/image`
+        : '/api/upload-image'
+      const response = await fetch(target, {
+        method: 'POST',
+        body: formData,
+        credentials: 'include'
+      })
+
+      if (response.ok) {
+        const result = await response.json()
+        // UI preview s cache-bustingem
+        const storageUrl = (result.imageUrl as string) || product.imageUrl || ''
+        const displayUrl = `${storageUrl}?v=${Date.now()}`
+        setImagePreview(displayUrl)
+        setProduct(prev => ({ ...prev, imageUrl: displayUrl, pendingImageUrl: null, imageApprovalStatus: null }))
         
-        if (productResponse.ok) {
-          const freshProduct = await productResponse.json()
-          setProduct(freshProduct)
+        // Pokud běžíme v produkci (atomic endpoint), není třeba druhý request
+        if (process.env.NODE_ENV !== 'production') {
+          setTimeout(async () => {
+            try {
+              const updatedData = {
+                ...product,
+                imageUrl: storageUrl,
+                pendingImageUrl: null,
+                imageApprovalStatus: null,
+                tags: JSON.stringify(product.tags),
+                advantages: JSON.stringify(product.advantages),
+                disadvantages: JSON.stringify(product.disadvantages),
+                videoUrls: JSON.stringify(product.videoUrls),
+                pricingInfo: JSON.stringify(product.pricingInfo)
+              }
+              const saveResponse = await fetch(`/api/products/${params.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify(updatedData),
+              })
+              if (saveResponse.ok) {
+                setSuccessMessage('📸 Obrázek byl úspěšně nahrán a uložen!')
+                setTimeout(() => setSuccessMessage(null), 5000)
+              } else if (saveResponse.status === 401) {
+                setErrorMessage('Session expired. Please log in again (401).')
+              } else {
+                const errText = await saveResponse.text()
+                setErrorMessage(`Save failed (${saveResponse.status}): ${errText}`)
+              }
+            } catch (error) {
+              console.error('Error auto-saving product with new image:', error)
+            }
+          }, 100)
+        } else {
+          setSuccessMessage('📸 Obrázek byl úspěšně nahrán a uložen!')
+          setTimeout(() => setSuccessMessage(null), 5000)
         }
-      } catch (refreshError) {
-        console.warn('Failed to refresh product:', refreshError)
-        // Fallback to local update
-        setProduct(prev => ({ ...prev, imageUrl: result.imageUrl }))
+      } else {
+        const errorData = await response.json()
+        setErrorMessage(errorData.error || 'Chyba při nahrávání obrázku')
       }
-      
-      // Update preview with cache busting
-      const displayUrl = `${result.imageUrl}?v=${Date.now()}`
-      setImagePreview(displayUrl)
-      
-      setSuccessMessage('📸 Obrázek byl úspěšně nahrán!')
-      setTimeout(() => setSuccessMessage(null), 3000)
-    } else {
-      throw new Error('Server nevrátil platnou URL obrázku')
+    } catch (error) {
+      console.error('Error uploading image:', error)
+      setErrorMessage('Chyba při nahrávání obrázku')
+    } finally {
+      setIsUploadingImage(false)
     }
-  } catch (error) {
-    console.error('Upload error:', error)
-    setErrorMessage(`Chyba při nahrávání: ${error instanceof Error ? error.message : 'Neznámá chyba'}`)
-    setTimeout(() => setErrorMessage(null), 5000)
-  } finally {
-    setIsUploadingImage(false)
   }
-}
 
   const handleRemoveCurrentImage = () => {
     setProduct(prev => ({

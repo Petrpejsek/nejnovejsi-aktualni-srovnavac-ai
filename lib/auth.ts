@@ -8,43 +8,8 @@ import bcrypt from 'bcryptjs';
 
 // 🚀 DATABÁZOVÝ AUTH SYSTÉM - JEDEN ENDPOINT PRO VŠECHNY ROLE (admin, company, user)
 export const authOptions: NextAuthOptions = {
-  // Na produkci běžíme dočasně přes IP a HTTP → nepoužívat Secure cookies
+  // Přenecháme správu cookies NextAuth defaultům (zajišťuje správné __Secure- názvy na HTTPS)
   useSecureCookies: (process.env.NEXTAUTH_URL || '').startsWith('https://'),
-  cookies: {
-    // Přepnutí názvů cookies dle protokolu (bez __Secure/__Host na HTTP)
-    sessionToken: {
-      name: (process.env.NEXTAUTH_URL || '').startsWith('https://')
-        ? '__Secure-next-auth.session-token'
-        : 'next-auth.session-token',
-      options: {
-        httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-        secure: (process.env.NEXTAUTH_URL || '').startsWith('https://')
-      }
-    },
-    callbackUrl: {
-      name: (process.env.NEXTAUTH_URL || '').startsWith('https://')
-        ? '__Secure-next-auth.callback-url'
-        : 'next-auth.callback-url',
-      options: {
-        sameSite: 'lax',
-        path: '/',
-        secure: (process.env.NEXTAUTH_URL || '').startsWith('https://')
-      }
-    },
-    csrfToken: {
-      name: (process.env.NEXTAUTH_URL || '').startsWith('https://')
-        ? '__Host-next-auth.csrf-token'
-        : 'next-auth.csrf-token',
-      options: {
-        httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-        secure: (process.env.NEXTAUTH_URL || '').startsWith('https://')
-      }
-    }
-  },
   providers: [
     // Enable Google only if properly configured in env (prevents local dev crashes)
     ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
@@ -237,7 +202,10 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     // Force correct callback/base URL in production to avoid stale domain issues
     async redirect({ url, baseUrl }) {
-      const forced = process.env.NEXTAUTH_URL || process.env.NEXTAUTH_CALLBACK_URL || 'http://localhost:3000'
+      // V developmentu vždy drž localhost
+      const devBase = 'http://localhost:3000'
+      const envBase = process.env.NEXTAUTH_URL || process.env.NEXTAUTH_CALLBACK_URL
+      const forced = process.env.NODE_ENV === 'development' ? devBase : (envBase || devBase)
       // Only allow relative or same-origin redirects
       try {
         const u = new URL(url, forced)

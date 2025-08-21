@@ -17,12 +17,12 @@ export const metadata: Metadata = {
     'automation software',
     'compare AI software',
   ],
-  alternates: { canonical: 'http://23.88.98.49/about' },
+  alternates: { canonical: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://23.88.98.49'}/about` },
   openGraph: {
     title: 'About comparee.ai | Your Trusted Guide to AI Tools',
     description:
       'We analyze and compare AI tools across categories and help you make fast, confident choices with clear rankings and expert insights.',
-    url: 'http://23.88.98.49/about',
+    url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://23.88.98.49'}/about`,
     siteName: 'comparee.ai',
     type: 'website',
   },

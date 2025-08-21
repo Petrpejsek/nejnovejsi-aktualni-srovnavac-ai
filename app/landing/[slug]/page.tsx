@@ -125,9 +125,49 @@ export default async function LandingPageDetail({ params }: Props) {
     const composedContentHtml = heroImage?.imageUrl ? insertAfterFirstH2(baseHtml, figureSnippet) : baseHtml
     const suggestedTags = landingPage.language === 'en' ? suggestAutolinkTags(composedContentHtml, 'en', 3) : []
 
+    // JSON-LD structured data
+    const base = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
+    const canonicalUrl = `${base}/landing/${slug}`
+    const ldArticle = {
+      '@context': 'https://schema.org',
+      '@type': 'Article',
+      headline: landingPage.title,
+      description: landingPage.meta_description,
+      inLanguage: landingPage.language,
+      mainEntityOfPage: canonicalUrl,
+      image: (landingPage as any).image_url || undefined,
+      datePublished: landingPage.published_at || new Date().toISOString(),
+      dateModified: landingPage.updated_at || new Date().toISOString(),
+      author: { '@type': 'Organization', name: 'Comparee.ai' },
+      publisher: { '@type': 'Organization', name: 'Comparee.ai' }
+    }
+    const ldBreadcrumb = {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: base },
+        { '@type': 'ListItem', position: 2, name: 'Landing', item: `${base}/landing` },
+        { '@type': 'ListItem', position: 3, name: landingPage.title, item: canonicalUrl }
+      ]
+    }
+    const ldFAQ = Array.isArray(landingPage.faq) && landingPage.faq.length > 0 ? {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: (landingPage.faq as any[]).map((f: any) => ({
+        '@type': 'Question',
+        name: f.question,
+        acceptedAnswer: { '@type': 'Answer', text: f.answer }
+      }))
+    } : null
+
     // Generuj dynamické tagy z obsahu
     return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ldArticle) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ldBreadcrumb) }} />
+        {ldFAQ ? (
+          <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ldFAQ) }} />
+        ) : null}
         
         {/* Hero Section (restored original gradient) */}
         <div className="relative overflow-hidden bg-white rounded-3xl shadow-2xl mx-4 mt-8 mb-16">

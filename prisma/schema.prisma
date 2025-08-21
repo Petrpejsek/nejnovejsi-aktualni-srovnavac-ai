@@ -682,3 +682,98 @@ model PromptReview {
   @@index([promptId])
   @@index([rating])
 }
+
+/// Outbound CPC click logs for redirector /r
+model ClicksCpc {
+  click_id          String   @id
+  partner_id        String
+  offer_id          String
+  client_id         String?
+  ga_session_id     String?
+  ga_session_number Int?
+  destination_domain String
+  utm_source        String?
+  utm_medium        String?
+  utm_campaign      String?
+  gclid             String?
+  dclid             String?
+  wbraid            String?
+  gbraid            String?
+  referer           String?
+  ip_hash           String?
+  ua                String?
+  cpc_value_minor   BigInt
+  currency          String
+  created_at        DateTime @default(now()) @db.Timestamptz(6)
+
+  @@map("clicks_cpc")
+}
+
+/// Affiliate network postbacks (server-to-server)
+model AffiliatePostback {
+  id                   String   @id @default(uuid())
+  partner_id           String
+  offer_id             String?
+  click_id             String
+  network_txn_id       String
+  status               String
+  payout_value_minor   BigInt
+  currency             String
+  raw_payload          Json
+  approved_at          DateTime?
+  created_at           DateTime @default(now()) @db.Timestamptz(6)
+
+  @@unique([partner_id, network_txn_id])
+  @@map("affiliate_postbacks")
+}
+
+/// GA4 aggregated timeseries for /admin dashboards
+model Ga4Timeseries {
+  date_time            DateTime @db.Timestamptz(6)
+  channel_group        String
+  source               String
+  medium               String
+  campaign             String
+  landing_path         String
+  device               String
+  users                Int      @default(0)
+  sessions             Int      @default(0)
+  engaged_sessions     Int      @default(0)
+  engagement_rate      Float    @default(0)
+  pageviews            Int      @default(0)
+  conversions_total    Int      @default(0)
+  click_outs           Int      @default(0)
+  sign_ups             Int      @default(0)
+  activations          Int      @default(0)
+  affiliate_conversions Int     @default(0)
+  revenue_minor        BigInt?  @default(0)
+  ad_cost_minor        BigInt?  @default(0)
+  cpc_minor            BigInt?  @default(0)
+
+  @@id([date_time, channel_group, source, medium, campaign, landing_path, device])
+  @@map("ga4_timeseries")
+}
+
+/// Monetization partners registry
+model Partner {
+  id        String   @id
+  name      String
+  active    Boolean  @default(true)
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+
+  @@map("partners")
+}
+
+/// Offers registry with CPC value configuration
+model Offer {
+  id               String  @id
+  partner_id       String
+  cpc_value_minor  BigInt
+  currency         String
+  target_domain    String?
+  active           Boolean @default(true)
+  created_at       DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([partner_id])
+  @@map("offers")
+}
