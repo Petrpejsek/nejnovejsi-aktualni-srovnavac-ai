@@ -213,7 +213,7 @@ export const authOptions: NextAuthOptions = {
         if (target.origin === base.origin) return target.toString()
 
         // 3) Explicitly allow localhost/127.0.0.1 targets (useful when running prod build locally)
-        const isLocalHost = (h) => h === 'localhost' || h === '127.0.0.1' || h.endsWith('.local')
+        const isLocalHost = (h: string) => h === 'localhost' || h === '127.0.0.1' || h.endsWith('.local')
         if (isLocalHost(target.hostname)) return target.toString()
 
         // 4) If our base is localhost, prefer staying on base (avoid jumping to production domain)
