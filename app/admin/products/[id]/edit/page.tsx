@@ -345,8 +345,8 @@ const handleImageUpload = async (file: File) => {
     formData.append('image', file)
     formData.append('productName', product.name || 'product')
 
-          // Use working upload-image endpoint + auto-save
-      const response = await fetch('/api/upload-image', {
+          // Use atomic admin endpoint that also updates DB
+      const response = await fetch(`/api/admin/products/${params.id}/image`, {
       method: 'POST',
       body: formData,
       credentials: 'include'
@@ -363,40 +363,12 @@ const handleImageUpload = async (file: File) => {
       const storageUrl = result.imageUrl
       const displayUrl = `${storageUrl}?v=${Date.now()}`
       
-      // Update UI immediately
-      setProduct(prev => ({ ...prev, imageUrl: storageUrl }))
+      // Update UI immediately and clear any pending flags
+      setProduct(prev => ({ ...prev, imageUrl: storageUrl, pendingImageUrl: null, imageApprovalStatus: null }))
       setImagePreview(displayUrl)
       
-      // Auto-save to database
-      try {
-        const updatedData = {
-          ...product,
-          imageUrl: storageUrl,
-          pendingImageUrl: null,
-          imageApprovalStatus: null,
-          tags: JSON.stringify(product.tags),
-          advantages: JSON.stringify(product.advantages),
-          disadvantages: JSON.stringify(product.disadvantages),
-          videoUrls: JSON.stringify(product.videoUrls),
-          pricingInfo: JSON.stringify(product.pricingInfo)
-        }
-        
-        const saveResponse = await fetch(`/api/products/${params.id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify(updatedData),
-        })
-        
-        if (saveResponse.ok) {
-          setSuccessMessage('📸 Obrázek byl úspěšně nahrán a uložen!')
-        } else {
-          setSuccessMessage('📸 Obrázek nahrán, ale nepodařilo se uložit do DB')
-        }
-      } catch (saveError) {
-        console.error('Save error:', saveError)
-        setSuccessMessage('📸 Obrázek nahrán, ale chyba při ukládání')
-      }
+      // Atomic endpoint already saved to DB
+      setSuccessMessage('📸 Obrázek byl úspěšně nahrán!')
       
       setTimeout(() => setSuccessMessage(null), 3000)
     } else {

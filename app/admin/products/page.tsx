@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useCallback, useRef, Suspense } from 'react'
+import { getImageUrl } from '@/lib/utils'
 import { useSearchParams } from 'next/navigation'
 
 interface Product {
@@ -392,9 +393,10 @@ function ProductsAdminPageContent() {
                   >
                     {product.imageUrl && (
                       <img 
-                        src={product.imageUrl} 
+                        src={getImageUrl(product.imageUrl)} 
                         alt={product.name}
                         className="w-full h-32 object-cover rounded mb-3"
+                        onError={(e)=>{(e.currentTarget as HTMLImageElement).src = '/img/placeholder.svg'}}
                       />
                     )}
                     <h4 className="font-medium text-gray-900 mb-2">{product.name}</h4>

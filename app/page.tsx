@@ -11,13 +11,15 @@ import NewsletterSignup from '../components/NewsletterSignup'
 export default async function Home() {
   // SSR: načti první várku produktů přes interní API, aby se sjednotil zdroj dat s klientem
   let initialProducts: any[] = []
+  let initialTotalProducts = 0
   try {
     // Robustní určení base URL: ENV > forwarded host/proto > localhost
     const hdrs = headers()
     const forwardedHost = hdrs.get('x-forwarded-host') || hdrs.get('host') || '127.0.0.1:3000'
     const forwardedProto = hdrs.get('x-forwarded-proto') || 'http'
     const computedBase = `${forwardedProto}://${forwardedHost}`
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || computedBase
+    const isLocal = forwardedHost.toLowerCase().startsWith('localhost') || forwardedHost.startsWith('127.0.0.1')
+    const baseUrl = isLocal ? computedBase : (process.env.NEXT_PUBLIC_BASE_URL || computedBase)
 
     // Primární dotaz na interní API
     let res = await fetch(
@@ -51,6 +53,9 @@ export default async function Home() {
             hasTrial: Boolean(p.hasTrial)
           }
         })
+        if (data.pagination && typeof data.pagination.totalProducts === 'number') {
+          initialTotalProducts = data.pagination.totalProducts
+        }
       }
     }
   } catch {}
@@ -60,7 +65,7 @@ export default async function Home() {
       <div className="max-w-7xl mx-auto bg-white">
         <AiAdvisor />
         <div className="mt-2">
-          <ProductGridWrapper initialProducts={initialProducts} />
+          <ProductGridWrapper initialProducts={initialProducts} initialTotalProducts={initialTotalProducts} />
         </div>
         {/* Dočasně skryto - ReelsCarousel pro budoucí použití */}
         {/* <div className="mt-2">

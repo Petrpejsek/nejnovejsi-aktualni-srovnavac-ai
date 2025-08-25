@@ -41,6 +41,12 @@ export async function GET(
 
     if (!config || !config.is_active) {
       console.log('❌ No active monetization config found')
+      // Fallback: bezpečný organický redirect na původní URL produktu
+      const organicUrl = await getOriginalUrl(monetizableType, monetizableId)
+      if (organicUrl) {
+        console.log('➡️ Organic redirect (no monetization):', organicUrl)
+        return NextResponse.redirect(organicUrl, { status: 302 })
+      }
       return NextResponse.json({ error: 'Not monetized' }, { status: 404 })
     }
 
@@ -192,7 +198,8 @@ async function trackCPCClick(
 
 async function getOriginalUrl(monetizableType: string, monetizableId: string): Promise<string | null> {
   try {
-    if (monetizableType === 'Product' || monetizableType === 'Tool') {
+    const type = (monetizableType || '').toLowerCase()
+    if (type === 'product' || type === 'tool') {
       const product = await prisma.product.findUnique({
         where: { id: monetizableId },
         select: { externalUrl: true }
