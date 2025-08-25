@@ -47,6 +47,7 @@ export async function middleware(request: NextRequest) {
   if (
     pathname.startsWith('/_next') ||
     pathname.startsWith('/static') ||
+    pathname.startsWith('/screenshots') ||
     pathname.startsWith('/favicon') ||
     pathname === '/robots.txt' ||
     pathname === '/sitemap.xml' ||
@@ -132,5 +133,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!_next|api|static|favicon.ico|robots.txt|sitemap.xml).*)'],
+  matcher: ['/((?!_next|api|static|screenshots|favicon.ico|robots.txt|sitemap.xml).*)'],
 };
