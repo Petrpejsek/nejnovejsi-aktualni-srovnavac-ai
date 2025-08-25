@@ -230,6 +230,25 @@ function validateAiPayload(data: any): { isValid: boolean, errors: string[], war
     }
   }
 
+  // Validate optional FAQ – must be an array of objects with non-empty question/answer
+  if (typeof data.faq !== 'undefined') {
+    if (!Array.isArray(data.faq)) {
+      errors.push('faq must be an array of objects {question, answer}')
+    } else {
+      const malformed: number[] = []
+      for (let i = 0; i < data.faq.length; i++) {
+        const item = data.faq[i]
+        const ok = item && typeof item === 'object'
+          && typeof item.question === 'string' && item.question.trim().length > 0
+          && typeof item.answer === 'string' && item.answer.trim().length > 0
+        if (!ok) malformed.push(i)
+      }
+      if (malformed.length > 0) {
+        errors.push(`faq items malformed at indices: ${malformed.join(', ')}`)
+      }
+    }
+  }
+
   return { isValid: errors.length === 0, errors, warnings }
 }
 
@@ -258,6 +277,25 @@ function validateLegacyPayload(data: any): { isValid: boolean, errors: string[] 
 
   if (!data.content_html || typeof data.content_html !== 'string') {
     errors.push('content_html is required and must be a string')
+  }
+
+  // Validate optional FAQ – must be an array of objects with non-empty question/answer
+  if (typeof data.faq !== 'undefined') {
+    if (!Array.isArray(data.faq)) {
+      errors.push('faq must be an array of objects {question, answer}')
+    } else {
+      const malformed: number[] = []
+      for (let i = 0; i < data.faq.length; i++) {
+        const item = data.faq[i]
+        const ok = item && typeof item === 'object'
+          && typeof item.question === 'string' && item.question.trim().length > 0
+          && typeof item.answer === 'string' && item.answer.trim().length > 0
+        if (!ok) malformed.push(i)
+      }
+      if (malformed.length > 0) {
+        errors.push(`faq items malformed at indices: ${malformed.join(', ')}`)
+      }
+    }
   }
 
   return {

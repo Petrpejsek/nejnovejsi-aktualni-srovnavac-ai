@@ -200,20 +200,29 @@ export const authOptions: NextAuthOptions = {
     signIn: '/auth/login', // Default admin login page
   },
   callbacks: {
-    // Force correct callback/base URL in production to avoid stale domain issues
+    // Safer redirect: keep current origin when possible to prevent localhost → comparee.ai jumps
     async redirect({ url, baseUrl }) {
-      // V developmentu vždy drž localhost
-      const devBase = 'http://localhost:3000'
-      const envBase = process.env.NEXTAUTH_URL || process.env.NEXTAUTH_CALLBACK_URL
-      const forced = process.env.NODE_ENV === 'development' ? devBase : (envBase || devBase)
-      // Only allow relative or same-origin redirects
       try {
-        const u = new URL(url, forced)
-        const allowedBase = new URL(forced)
-        if (u.origin === allowedBase.origin) return u.toString()
-        return allowedBase.toString()
+        // 1) Allow relative redirects → stay on current origin (prevents host changes on localhost)
+        if (url.startsWith('/')) return url
+
+        const target = new URL(url, baseUrl)
+        const base = new URL(baseUrl)
+
+        // 2) Same-origin → allow
+        if (target.origin === base.origin) return target.toString()
+
+        // 3) Explicitly allow localhost/127.0.0.1 targets (useful when running prod build locally)
+        const isLocalHost = (h: string) => h === 'localhost' || h === '127.0.0.1' || h.endsWith('.local')
+        if (isLocalHost(target.hostname)) return target.toString()
+
+        // 4) If our base is localhost, prefer staying on base (avoid jumping to production domain)
+        if (isLocalHost(base.hostname)) return base.toString()
+
+        // 5) Fallback: keep baseUrl (prevents open redirects)
+        return base.toString()
       } catch {
-        return forced
+        return baseUrl
       }
     },
     async jwt({ token, user, account }) {
