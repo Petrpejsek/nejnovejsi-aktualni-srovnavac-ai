@@ -17,8 +17,9 @@ export async function POST(
     const session = await getServerSession(authOptions)
     console.log('admin image upload - session:', session?.user)
     
-    // Allow admin users (same logic as original upload-image)
-    const isAdmin = session?.user?.role === 'admin' || (session?.user as any)?.isAdmin
+    // Allow admin users (same logic as original upload-image) + legacy email fallback
+    const legacyEmailAdmin = (session as any)?.user?.email === 'admin@admin.com'
+    const isAdmin = legacyEmailAdmin || session?.user?.role === 'admin' || (session?.user as any)?.isAdmin
     if (!isAdmin) {
       console.log('admin image upload - unauthorized, user role:', session?.user?.role)
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -35,8 +36,8 @@ export async function POST(
     if (!file.type.startsWith('image/')) {
       return NextResponse.json({ success: false, error: 'Soubor musí být obrázek' }, { status: 400 })
     }
-    if (file.size > 5 * 1024 * 1024) {
-      return NextResponse.json({ success: false, error: 'Soubor je příliš velký (maximum 5MB)' }, { status: 400 })
+    if (file.size > 10 * 1024 * 1024) {
+      return NextResponse.json({ success: false, error: 'Soubor je příliš velký (maximum 10MB)' }, { status: 400 })
     }
 
     const sanitizedProductName = productName

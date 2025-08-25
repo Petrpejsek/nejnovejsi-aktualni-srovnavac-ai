@@ -110,8 +110,8 @@ export default function EditProductModal({ product, onClose, onSave }: EditProdu
       return
     }
 
-    if (file.size > 5 * 1024 * 1024) {
-      alert('Obrázek je příliš velký (max 5MB)')
+    if (file.size > 10 * 1024 * 1024) {
+      alert('Obrázek je příliš velký (max 10MB)')
       return
     }
 
@@ -122,6 +122,8 @@ export default function EditProductModal({ product, onClose, onSave }: EditProdu
       setImagePreview(e.target?.result as string)
     }
     reader.readAsDataURL(file)
+    // Reset input value to allow re-selecting the same file (Safari/Chrome)
+    event.target.value = ''
   }
 
   const uploadImage = async () => {
