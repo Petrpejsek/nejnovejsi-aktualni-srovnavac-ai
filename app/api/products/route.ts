@@ -224,8 +224,8 @@ export async function GET(request: NextRequest) {
           AND p."name" IS NOT NULL 
           AND p."name" != ''
           ${categoriesList.length > 0
-            ? Prisma.sql`AND p."category" IN (${Prisma.join(categoriesList)})`
-            : (categoryParam ? Prisma.sql`AND p."category" = ${categoryParam}` : Prisma.empty)
+            ? Prisma.sql`AND LOWER(TRIM(p."category")) IN (${Prisma.join(categoriesList.map(c => c.toLowerCase().trim()))})`
+            : (categoryParam ? Prisma.sql`AND LOWER(TRIM(p."category")) = ${categoryParam.toLowerCase().trim()}` : Prisma.empty)
           }
         ORDER BY 
           has_campaign DESC,
