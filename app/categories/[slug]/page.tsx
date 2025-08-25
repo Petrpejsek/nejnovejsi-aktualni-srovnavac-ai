@@ -288,22 +288,23 @@ const slugify = (name: string) =>
 
 // Category mapping - maps URL slugs to actual database categories
 const categoryMapping: Record<string, string[]> = {
-  'ai-writing': ['Content & Writing', 'AI Content Creation', 'Content', 'Writing'],
-  'image-generation': ['AI Design & Creative Tools', 'Design & Visual', 'Design Tools', 'Visual'],
-  'automation': ['Workflow Automation', 'Marketing Automation', 'Automation', 'Business Automation'],
-  'website-builder': ['AI Website Builder', 'Website Builder', 'Web Development'],
+  // Include exact DB category labels from admin UI + synonyms
+  'ai-writing': ['AI Writing', 'Content & Writing', 'AI Content Creation', 'Content', 'Writing'],
+  'image-generation': ['AI Image', 'Image Generation', 'AI Design & Creative Tools', 'Design & Visual', 'Design Tools', 'Visual'],
+  'automation': ['Automation', 'Workflow Automation', 'Marketing Automation', 'Business Automation'],
+  'website-builder': ['Website Builder', 'AI Website Builder', 'Web Development'],
   'social-media': ['Marketing & Social Media', 'Social Media', 'Marketing'],
-  'data-analysis': ['AI & Data Analysis', 'Analytics', 'Data Analytics'],
-  'ai-music': ['Audio & Music', 'Music', 'Audio'],
+  'data-analysis': ['AI Analytics', 'AI & Data Analysis', 'Analytics', 'Data Analytics'],
+  'ai-music': ['AI Audio', 'Audio & Music', 'Music', 'Audio'],
   'ai-learning': ['Education', 'Learning', 'Training'],
-  'video-generation': ['AI & Video', 'AI Video Generation', 'AI Video Editing', 'Video Editing'],
+  'video-generation': ['AI Video', 'Video Generation', 'AI Video Generation', 'AI Video Editing', 'Video Editing'],
   'ai-chatbots': ['Conversational AI', 'Chatbots', 'AI Assistant'],
   'email-marketing': ['Email Marketing', 'Marketing Automation', 'Marketing'],
   'seo-tools': ['SEO', 'Marketing Tools', 'SEO Tools'],
-  'ai-design': ['AI Design & Creative Tools', 'Design & Visual', 'Design Tools'],
-  'ai-voice': ['Audio', 'Voice', 'Speech'],
+  'ai-design': ['AI Design', 'AI Image', 'Design & Visual', 'Design Tools'],
+  'ai-voice': ['AI Audio', 'Audio', 'Voice', 'Speech'],
   'productivity': ['Productivity', 'Productivity & Organization', 'Business'],
-  'business-intelligence': ['Business Intelligence', 'Analytics', 'Business & Enterprise']
+  'business-intelligence': ['AI Business', 'Business Intelligence', 'Analytics', 'Business & Enterprise']
 }
 
 // Category SEO data with comprehensive content
@@ -505,20 +506,29 @@ export default function CategoryPage() {
         
         let allProducts: Product[] = []
         const mappedCategories = categoryMapping[slug] || [categoryName]
-        
-        // Try each mapped category
-        for (const category of mappedCategories) {
-          try {
-            const response = await fetch(`/api/products?category=${encodeURIComponent(category)}&page=1&pageSize=24&forHomepage=true`)
-            if (response.ok) {
-              const data = await response.json()
-              if (data.products && data.products.length > 0) {
-                allProducts.push(...data.products)
-              }
+
+        // Build a single multi-category query (case/trim-insensitive on API)
+        const categoriesParam = encodeURIComponent(
+          Array.from(new Set(
+            [
+              ...mappedCategories,
+              categoryName,
+              categoryName.toUpperCase(),
+              categoryName.toLowerCase()
+            ].map(c => c.trim()).filter(Boolean)
+          )).join(',')
+        )
+
+        try {
+          const response = await fetch(`/api/products?categories=${categoriesParam}&page=1&pageSize=100&forHomepage=true`)
+          if (response.ok) {
+            const data = await response.json()
+            if (data.products && data.products.length > 0) {
+              allProducts.push(...data.products)
             }
-          } catch (e) {
-            console.warn(`Failed to fetch products for category ${category}:`, e)
           }
+        } catch (e) {
+          console.warn('Failed to fetch products for multi-category query:', e)
         }
         
         // If no products found with exact category matches, try searching by tags
