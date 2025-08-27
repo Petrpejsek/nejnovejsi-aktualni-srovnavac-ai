@@ -924,7 +924,7 @@ async function handleAiFormatPayload(data: any, requestId: string) {
     // AI farma response format with simple URL (no i18n)
     const response: AiLandingPageResponse = {
       status: 'ok',
-      url: `/landing/${payload.slug}`,
+      url: `/${payload.language}/landing/${payload.slug}`,
       slug: payload.slug
     }
 
