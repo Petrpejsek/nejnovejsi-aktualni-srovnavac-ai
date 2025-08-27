@@ -16,3 +16,6 @@ declare module 'typed.js' {
     destroy(): void
   }
 } 
+
+// Optional shim to satisfy TypeScript when @types/jsdom are unavailable in some environments
+declare module 'jsdom';
