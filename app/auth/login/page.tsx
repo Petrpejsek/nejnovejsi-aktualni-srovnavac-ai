@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { signIn, useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -14,10 +14,13 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
 
-  // Pokud je uživatel již přihlášen (např. cookie nastavena), automaticky přesměruj
-  if (typeof window !== 'undefined' && status === 'authenticated') {
-    router.replace('/admin')
-  }
+  // Pokud je uživatel již přihlášen (např. cookie), automaticky přesměruj a skryj případnou chybu
+  useEffect(() => {
+    if (status === 'authenticated') {
+      setError('')
+      router.replace('/admin')
+    }
+  }, [status, router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -56,7 +59,8 @@ export default function LoginPage() {
       router.replace('/admin')
     } catch (error) {
       console.log('❌ Admin signIn threw:', (error as Error)?.message)
-      setError('Chyba při přihlašování')
+      // Nastav chybu pouze, pokud mezitím nevznikla session (edge případ u závodní podmínky)
+      if (status !== 'authenticated') setError('Chyba při přihlašování')
     } finally {
       setIsLoading(false)
     }
