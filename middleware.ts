@@ -56,20 +56,24 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Canonicalize: pokud přijde požadavek na comparee.ai, přesměruj na NEXT_PUBLIC_BASE_URL (jen v produkci)
-  // Přístup na IP ponech bez redirectu, v developmentu nikdy nedělej doménové redirecty
+  // Canonicalize host (ignore protocol): vyhnout se přesměrování mezi http/https (HSTS může způsobit smyčku)
+  // Přesměruj pouze pokud se liší hostname (např. www vs apex), v dev nikdy nedělej doménové redirecty
   if (process.env.NODE_ENV === 'production') {
     try {
       const url = new URL(request.url)
-      const currentOrigin = `${url.protocol}//${url.host}`
       const base = process.env.NEXT_PUBLIC_BASE_URL
       if (base) {
         const wanted = new URL(base)
-        const wantedOrigin = `${wanted.protocol}//${wanted.host}`
-        const isLocalHost = url.hostname === 'localhost' || url.hostname === '127.0.0.1' || url.hostname.endsWith('.local')
-        // Redirect only if origin actually differs and not localhost
-        if (!isLocalHost && currentOrigin !== wantedOrigin) {
-          const redirectTo = new URL(url.pathname + url.search, wanted)
+        const currentHost = url.hostname
+        const wantedHost = wanted.hostname
+        const isLocalHost =
+          currentHost === 'localhost' ||
+          currentHost === '127.0.0.1' ||
+          currentHost.endsWith('.local')
+        // Redirect only if hostname actually differs and not localhost
+        if (!isLocalHost && currentHost !== wantedHost) {
+          const redirectOrigin = `${wanted.protocol}//${wanted.host}`
+          const redirectTo = new URL(url.pathname + url.search, redirectOrigin)
           return NextResponse.redirect(redirectTo, { status: 308 })
         }
       }
