@@ -1,17 +1,23 @@
 'use client'
 
 import { useState } from 'react'
-import { signIn, getSession } from 'next-auth/react'
+import { signIn, useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
 export default function LoginPage() {
+  const { status } = useSession()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   // Revert: bez rememberMe na této stránce (řeší se v modalu/komponentě pokud je potřeba)
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
+
+  // Pokud je uživatel již přihlášen (např. cookie nastavena), automaticky přesměruj
+  if (typeof window !== 'undefined' && status === 'authenticated') {
+    router.replace('/admin')
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -111,7 +117,7 @@ export default function LoginPage() {
 
             {/* Remember me odebrán */}
 
-            {error && (
+            {error && status !== 'authenticated' && (
               <div className="rounded-md bg-red-50 p-4">
                 <div className="text-sm text-red-700">{error}</div>
               </div>
