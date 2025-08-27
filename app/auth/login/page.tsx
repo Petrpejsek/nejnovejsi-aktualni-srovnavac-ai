@@ -19,28 +19,37 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
-      // ✅ ADMIN LOGIN - používáme unifikovaný NextAuth s role
+      // ✅ ADMIN LOGIN – NextAuth Credentials bez přesměrování, zpracujeme výsledek sami
       console.log('🔐 Admin login attempt with role: admin')
-      
+
       const result = await signIn('credentials', {
         email,
         password,
-        role: 'admin', // NOVÝ ROLE SYSTÉM
+        role: 'admin',
         redirect: false,
         callbackUrl: '/admin'
       })
 
-      // Důsledně se řiď podle result.ok (stejně jako u user loginu)
-      if (result?.ok) {
-        console.log('🔐 Admin signIn successful, redirecting to /admin', {
-          ok: result?.ok, error: result?.error, status: result?.status
-        })
-        router.push('/admin')
-      } else {
-        console.log('❌ Admin signIn failed', { ok: result?.ok, error: result?.error, status: result?.status })
+      // Pokud NextAuth vrátil chybu, zobraz ji jako neplatné údaje (nevyhazuj výjimku)
+      if (result?.error) {
+        console.log('❌ Admin signIn error:', result.error)
         setError('Neplatné přihlašovací údaje')
+        return
       }
+
+      // Úspěch – NextAuth vrací url (a obvykle ok=true). Preferuj URL z response.
+      if (result?.ok || result?.url) {
+        const target = result?.url || '/admin'
+        console.log('✅ Admin signed in, redirecting to', target)
+        router.replace(target)
+        return
+      }
+
+      // Ochranná větev – pokud není url/ok, ale k přihlášení došlo, přejdi na /admin
+      console.log('ℹ️ Admin signIn ambiguous result, redirecting to /admin')
+      router.replace('/admin')
     } catch (error) {
+      console.log('❌ Admin signIn threw:', (error as Error)?.message)
       setError('Chyba při přihlašování')
     } finally {
       setIsLoading(false)
