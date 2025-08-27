@@ -22,6 +22,18 @@ export default function LoginPage() {
     }
   }, [status, router])
 
+  // Zachyť NextAuth error z query (?error=CredentialsSignin) bez useSearchParams (kompatibilní s buildem)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      if (params.get('error')) {
+        setError('Neplatné přihlašovací údaje')
+      } else {
+        setError('')
+      }
+    }
+  }, [])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
@@ -31,32 +43,15 @@ export default function LoginPage() {
       // ✅ ADMIN LOGIN – NextAuth Credentials bez přesměrování, zpracujeme výsledek sami
       console.log('🔐 Admin login attempt with role: admin')
 
-      const result = await signIn('credentials', {
+      // Přenech přesměrování NextAuthu – vrátí 302 na /admin při úspěchu,
+      // při chybě vrátí zpět s ?error=...
+      await signIn('credentials', {
         email,
         password,
         role: 'admin',
-        redirect: false,
+        redirect: true,
         callbackUrl: '/admin'
       })
-
-      // Pokud NextAuth vrátil chybu, zobraz ji jako neplatné údaje (nevyhazuj výjimku)
-      if (result?.error) {
-        console.log('❌ Admin signIn error:', result.error)
-        setError('Neplatné přihlašovací údaje')
-        return
-      }
-
-      // Úspěch – NextAuth vrací url (a obvykle ok=true). Preferuj URL z response.
-      if (result?.ok || result?.url) {
-        const target = result?.url || '/admin'
-        console.log('✅ Admin signed in, redirecting to', target)
-        router.replace(target)
-        return
-      }
-
-      // Ochranná větev – pokud není url/ok, ale k přihlášení došlo, přejdi na /admin
-      console.log('ℹ️ Admin signIn ambiguous result, redirecting to /admin')
-      router.replace('/admin')
     } catch (error) {
       console.log('❌ Admin signIn threw:', (error as Error)?.message)
       // Nastav chybu pouze, pokud mezitím nevznikla session (edge případ u závodní podmínky)
