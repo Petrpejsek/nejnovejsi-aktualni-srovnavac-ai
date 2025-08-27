@@ -308,6 +308,15 @@ const categoryMapping: Record<string, string[]> = {
   'ai-voice': ['AI Audio', 'Audio', 'Voice', 'Speech'],
   'productivity': ['Productivity', 'Productivity & Organization', 'Business'],
   'business-intelligence': ['AI Business', 'Business Intelligence', 'Analytics', 'Business & Enterprise']
+  ,
+  // Accounting-related landing slug
+  'ai-accounting-assistant': [
+    'AI Accounting',
+    'Accounting',
+    'Accounting & Finance',
+    'Finance & Accounting',
+    'Bookkeeping'
+  ]
 }
 
 // Category SEO data with comprehensive content
@@ -513,7 +522,12 @@ export default function CategoryPage() {
         const canonicalCategory = (mappedCategories && mappedCategories[0]) 
           || categoryName.replace(/\band\b/gi, '&')
 
-        const response = await fetch(`/api/products?category=${encodeURIComponent(canonicalCategory)}&page=1&pageSize=100&forHomepage=true`)
+        // Prefer multi-category query when mapping exists
+        const url = Array.isArray(mappedCategories) && mappedCategories.length > 0
+          ? `/api/products?categories=${encodeURIComponent(mappedCategories.join(','))}&page=1&pageSize=100&forHomepage=true`
+          : `/api/products?category=${encodeURIComponent(canonicalCategory)}&page=1&pageSize=100&forHomepage=true`
+
+        const response = await fetch(url)
         if (response.ok) {
           const data = await response.json()
           if (data.products && data.products.length > 0) {
