@@ -10,7 +10,6 @@ import { useSession } from 'next-auth/react'
 import { trackProductClick } from '../../../lib/utils'
 import Modal from '../../../components/Modal'
 import RegisterForm from '../../../components/RegisterForm'
-import Head from 'next/head'
 import { PUBLIC_BASE_URL } from '@/lib/env'
 
 interface Product {
@@ -676,46 +675,7 @@ export default function CategoryPage() {
 
   return (
     <>
-      {/* SEO Meta Tags */}
-      <Head>
-        <title>{categoryData.title} | Comparee.ai</title>
-        <meta name="description" content={categoryData.metaDescription} />
-        <meta property="og:title" content={`${categoryData.title} | Comparee.ai`} />
-        <meta property="og:description" content={categoryData.metaDescription} />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content={`${PUBLIC_BASE_URL}/categories/${slug}`} />
-        <link rel="canonical" href={`${PUBLIC_BASE_URL}/categories/${slug}`} />
-        <meta name="robots" content="index, follow" />
-      </Head>
-      {/* JSON-LD structured data */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            '@context': 'https://schema.org',
-            '@type': 'CollectionPage',
-            name: `${categoryData.title} | Comparee.ai`,
-            description: categoryData.metaDescription,
-            mainEntity: {
-              '@type': 'ItemList',
-              itemListElement: products.slice(0, 10).map((p, idx) => ({
-                '@type': 'ListItem',
-                position: idx + 1,
-                url: `${PUBLIC_BASE_URL}/products/${p.id}`,
-                name: p.name
-              }))
-            },
-            breadcrumb: {
-              '@type': 'BreadcrumbList',
-              itemListElement: [
-                { '@type': 'ListItem', position: 1, name: 'Home', item: `${PUBLIC_BASE_URL}` },
-                { '@type': 'ListItem', position: 2, name: 'Categories', item: `${PUBLIC_BASE_URL}/categories` },
-                { '@type': 'ListItem', position: 3, name: categoryName, item: `${PUBLIC_BASE_URL}/categories/${slug}` }
-              ]
-            }
-          })
-        }}
-      />
+      {/* Meta/JSON-LD moved to server or omitted to avoid client runtime issues in App Router */}
 
       <main className="min-h-screen bg-gray-50">
         {/* Header Section */}
