@@ -1,7 +1,8 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline'
+import { signIn, useSession } from 'next-auth/react'
 
 interface CompanyLoginFormProps {
   onSuccess: () => void
@@ -9,6 +10,7 @@ interface CompanyLoginFormProps {
 }
 
 export default function CompanyLoginForm({ onSuccess, onSwitchToRegister }: CompanyLoginFormProps) {
+  const { status } = useSession()
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -61,30 +63,38 @@ export default function CompanyLoginForm({ onSuccess, onSwitchToRegister }: Comp
     setIsLoading(true)
 
     try {
-      // Use NextAuth signIn instead of direct API call
-      const { signIn } = await import('next-auth/react')
-      
-      const result = await signIn('credentials', {
+      // NextAuth provede redirect sám; při chybě přidá ?error do URL
+      await signIn('credentials', {
         email: formData.email,
         password: formData.password,
         role: 'company',
-        redirect: false,
-        callbackUrl: '/company/dashboard'
+        redirect: true,
+        callbackUrl: '/company-admin'
       })
-
-      if (result?.error) {
-        setErrors({ general: 'Invalid email or password. Please try again.' })
-      } else {
-        console.log('Company login successful')
-        onSuccess()
-      }
     } catch (error) {
       console.error('Login failed:', error)
-      setErrors({ general: 'Connection error. Please try again.' })
+      setErrors({ general: 'Došlo k chybě při přihlašování' })
     } finally {
       setIsLoading(false)
     }
   }
+
+  // Auto-close on existing session a zobraz ?error z URL od NextAuth
+  useEffect(() => {
+    if (status === 'authenticated') {
+      setErrors({})
+      onSuccess()
+    }
+  }, [status, onSuccess])
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      if (params.get('error')) {
+        setErrors({ general: 'Invalid email or password. Please try again.' })
+      }
+    }
+  }, [])
 
   return (
     <div className="w-full max-w-md mx-auto">
