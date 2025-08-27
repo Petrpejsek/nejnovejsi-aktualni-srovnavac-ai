@@ -264,39 +264,15 @@ export default async function I18nLandingPage({ params }: Props) {
       {/* Main Content */}
       <main className="max-w-4xl mx-auto px-4 py-8">
         <article className="bg-white rounded-xl shadow-lg overflow-hidden">
-          {/* Hero image if provided via visuals.heroImage */}
-          {((landingPage as any).visuals as any)?.heroImage?.imageUrl && (
+          {/* Hero image – canonical source is image_url from DB */}
+          {landingPage.image_url && (
             <figure className="relative w-full">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={(((landingPage as any).visuals as any).heroImage as any).imageUrl}
-                alt={(((landingPage as any).visuals as any).heroImage as any).imageAlt || ''}
-                width={(((landingPage as any).visuals as any).heroImage as any).imageWidth || undefined}
-                height={(((landingPage as any).visuals as any).heroImage as any).imageHeight || undefined}
+                src={landingPage.image_url}
+                alt=""
                 className="w-full h-auto object-cover"
               />
-              {(
-                (((landingPage as any).visuals as any).heroImage as any).imageSourceName ||
-                (((landingPage as any).visuals as any).heroImage as any).imageLicense
-              ) && (
-                <figcaption className="px-4 py-2 text-xs text-slate-500">
-                  {(((landingPage as any).visuals as any).heroImage as any).imageSourceUrl && (((landingPage as any).visuals as any).heroImage as any).imageSourceName ? (
-                    <a
-                      href={(((landingPage as any).visuals as any).heroImage as any).imageSourceUrl}
-                      className="underline hover:no-underline"
-                      rel="noopener noreferrer"
-                      target="_blank"
-                    >
-                      {(((landingPage as any).visuals as any).heroImage as any).imageSourceName || 'Source'}
-                    </a>
-                  ) : (
-                    <span>{(((landingPage as any).visuals as any).heroImage as any).imageSourceName}</span>
-                  )}
-                  {(((landingPage as any).visuals as any).heroImage as any).imageLicense && (
-                    <span className="ml-2">· {(((landingPage as any).visuals as any).heroImage as any).imageLicense}</span>
-                  )}
-                </figcaption>
-              )}
             </figure>
           )}
 

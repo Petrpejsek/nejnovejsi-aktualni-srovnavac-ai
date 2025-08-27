@@ -83,19 +83,21 @@ export async function scrapeProductFromUrl(url: string): Promise<ScrapedProductD
   }
   
   // Výhody produktu - hledáme seznamy s pozitivními klíčovými slovy
-  const advantagesList = Array.from(document.querySelectorAll('li'))
-    .filter(li => {
-      const text = li.textContent?.toLowerCase() || '';
-      return text.includes('benefit') || text.includes('advantage') || 
-             text.includes('pro') || text.includes('feature');
+  const liNodes = Array.from(document.querySelectorAll('li') as NodeListOf<Element>)
+  const advantagesList = liNodes
+    .filter((li: Element) => {
+      const text = li.textContent?.toLowerCase() || ''
+      return text.includes('benefit') || text.includes('advantage') ||
+             text.includes('pro') || text.includes('feature')
     })
-    .map(li => li.textContent?.trim() || '')
+    .map((li: Element) => li.textContent?.trim() || '')
     .filter(text => text.length > 0);
   
   // Kategorie - pokusíme se odhadnout z breadcrumbs nebo nadpisů
   const breadcrumbs = document.querySelector('.breadcrumbs')?.textContent || 
                       document.querySelector('[class*="breadcrumb"]')?.textContent || '';
-  const h2s = Array.from(document.querySelectorAll('h2')).map(h => h.textContent?.trim() || '');
+  const h2Nodes = Array.from(document.querySelectorAll('h2') as NodeListOf<Element>)
+  const h2s = h2Nodes.map((h: Element) => h.textContent?.trim() || '')
   
   // Výsledná datová struktura
   return {
