@@ -931,8 +931,6 @@ async function handleAiFormatPayload(data: any, requestId: string) {
     console.log('✅ AI Landing page successfully created and published')
     if (process.env.NEXT_PUBLIC_BASE_URL) {
       console.log(`🚀 Available at: ${process.env.NEXT_PUBLIC_BASE_URL}/landing/${payload.slug}`)
-    } else {
-      console.log('ℹ️ Set NEXT_PUBLIC_BASE_URL to print public URL')
     }
 
     const res = NextResponse.json(response, { status: 201 })
@@ -1106,7 +1104,9 @@ async function handleLegacyFormatPayload(data: any, requestId: string) {
     }
 
     console.log('✅ Legacy Landing page successfully created and published')
-    console.log('🚀 Available at: ' + `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/landing/${uniqueSlug}`)
+    if (process.env.NEXT_PUBLIC_BASE_URL) {
+      console.log('🚀 Available at: ' + `${process.env.NEXT_PUBLIC_BASE_URL}/landing/${uniqueSlug}`)
+    }
 
     const res = NextResponse.json(response, { status: 201 })
     res.headers.set('X-Request-Id', requestId)

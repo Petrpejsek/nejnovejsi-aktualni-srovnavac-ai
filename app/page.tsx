@@ -1,5 +1,6 @@
 import React from 'react'
 import { headers } from 'next/headers'
+import { PUBLIC_BASE_URL } from '@/lib/env'
 import AiAdvisor from '../components/AiAdvisor'
 import ProductGridWrapper from '../components/ProductGridWrapper'
 // import ReelsCarousel from '../components/ReelsCarousel' // Dočasně skryto - pro budoucí použití
@@ -13,13 +14,8 @@ export default async function Home() {
   let initialProducts: any[] = []
   let initialTotalProducts = 0
   try {
-    // Robustní určení base URL: ENV > forwarded host/proto > localhost
-    const hdrs = headers()
-    const forwardedHost = hdrs.get('x-forwarded-host') || hdrs.get('host') || '127.0.0.1:3000'
-    const forwardedProto = hdrs.get('x-forwarded-proto') || 'http'
-    const computedBase = `${forwardedProto}://${forwardedHost}`
-    const isLocal = forwardedHost.toLowerCase().startsWith('localhost') || forwardedHost.startsWith('127.0.0.1')
-    const baseUrl = isLocal ? computedBase : (process.env.NEXT_PUBLIC_BASE_URL || computedBase)
+    // Použij pevně daný PUBLIC_BASE_URL bez fallbacků
+    const baseUrl = PUBLIC_BASE_URL
 
     // Primární dotaz na interní API
     let res = await fetch(
@@ -27,11 +23,7 @@ export default async function Home() {
       { cache: 'no-store', headers: { 'Content-Type': 'application/json' } }
     )
 
-    // Fallback na localhost, pokud první pokus selže (např. špatná BASE_URL/SSL)
-    if (!res.ok) {
-      const fallbackUrl = `http://127.0.0.1:3000/api/products?forHomepage=true&page=1&pageSize=12`
-      res = await fetch(fallbackUrl, { cache: 'no-store', headers: { 'Content-Type': 'application/json' } })
-    }
+    // Žádný fallback – chyba se toleruje a stránka zobrazí dostupná data
     if (res.ok) {
       const data = await res.json()
       if (data && Array.isArray(data.products)) {

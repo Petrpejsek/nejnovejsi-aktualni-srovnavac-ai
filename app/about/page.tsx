@@ -2,6 +2,7 @@ import React from 'react'
 import Link from 'next/link'
 import Script from 'next/script'
 import type { Metadata } from 'next'
+import { PUBLIC_BASE_URL } from '@/lib/env'
 
 export const metadata: Metadata = {
   title: 'About comparee.ai | Your Trusted Guide to AI Tools',
@@ -17,12 +18,12 @@ export const metadata: Metadata = {
     'automation software',
     'compare AI software',
   ],
-  alternates: { canonical: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://23.88.98.49'}/about` },
+  alternates: { canonical: `${PUBLIC_BASE_URL}/about` },
   openGraph: {
     title: 'About comparee.ai | Your Trusted Guide to AI Tools',
     description:
       'We analyze and compare AI tools across categories and help you make fast, confident choices with clear rankings and expert insights.',
-    url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://23.88.98.49'}/about`,
+    url: `${PUBLIC_BASE_URL}/about`,
     siteName: 'comparee.ai',
     type: 'website',
   },

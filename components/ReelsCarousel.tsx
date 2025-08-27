@@ -24,7 +24,7 @@ const getVideoUrl = (videoUrl: string): string => {
   }
 
   // Fallback pro base URL
-  const baseURL = process.env.NEXT_PUBLIC_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : '')
+  const baseURL = process.env.NEXT_PUBLIC_BASE_URL as string
   
   // Pokud je relativní URL (začíná '/uploads/' nebo '/')
   if (videoUrl.startsWith('/')) {

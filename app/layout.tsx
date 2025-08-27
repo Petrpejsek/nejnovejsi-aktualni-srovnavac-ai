@@ -8,14 +8,15 @@ import { Providers } from './providers'
 import ClientLayout from '../components/ClientLayout'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
+import { PUBLIC_BASE_URL } from '@/lib/env'
 
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'Comparee.ai - Compare AI Tools',
   description: 'Compare features, prices, and reviews of the most popular AI tools.',
-  // Použij dynamickou base podle env, fallback na localhost při dev/testu
-  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'),
+  // Použij předepsané PUBLIC_BASE_URL bez fallbacků
+  metadataBase: new URL(PUBLIC_BASE_URL),
   other: {
     'Cache-Control': 'no-store, no-cache, must-revalidate',
     'Pragma': 'no-cache',

@@ -36,7 +36,7 @@ export const metadata: Metadata = {
     title: 'TOP AI Tools Lists - Curated Rankings | Comparee.ai',
     description: 'Discover curated TOP 20 lists of the best AI tools in each category. From AI writing to automation, find the highest-rated tools for 2025.',
     type: 'website',
-    url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/top-lists`
+    url: `${process.env.NEXT_PUBLIC_BASE_URL}/top-lists`
   }
 }
 
@@ -181,7 +181,7 @@ export default async function TopListsPage() {
             "@type": "CollectionPage",
             "name": "TOP AI Tools Lists - Curated Rankings of Best AI Tools",
             "description": "Discover curated TOP 20 lists of the best AI tools in each category. From AI writing to automation, find the highest-rated tools for 2025.",
-            "url": `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/top-lists`,
+            "url": `${process.env.NEXT_PUBLIC_BASE_URL}/top-lists`,
             "mainEntity": {
               "@type": "ItemList",
               "numberOfItems": data.totalCategories,
@@ -190,7 +190,7 @@ export default async function TopListsPage() {
                 "position": index + 1,
                 "name": `TOP 20 ${category.name}`,
                 "description": category.description,
-                "url": `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/top-lists/${category.slug}`,
+                "url": `${process.env.NEXT_PUBLIC_BASE_URL}/top-lists/${category.slug}`,
                 "additionalProperty": {
                   "@type": "PropertyValue",
                   "name": "numberOfItems",
@@ -203,7 +203,7 @@ export default async function TopListsPage() {
       />
 
       {/* Canonical link */}
-      <link rel="canonical" href={`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/top-lists`} />
+      <link rel="canonical" href={`${process.env.NEXT_PUBLIC_BASE_URL}/top-lists`} />
 
       <TopListsClient
         categories={data.categories}

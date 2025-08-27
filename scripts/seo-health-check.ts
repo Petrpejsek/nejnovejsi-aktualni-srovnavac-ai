@@ -51,7 +51,7 @@ async function checkUrl(url: string) {
 }
 
 async function main() {
-  const base = process.env.NEXT_PUBLIC_BASE_URL || 'http://23.88.98.49'
+  const base = process.env.NEXT_PUBLIC_BASE_URL as string
   const sitemapUrl = `${base}/sitemap.xml`
   const urls = await getSitemapUrls(sitemapUrl)
   console.log(`Sitemap URLs: ${urls.length}`)

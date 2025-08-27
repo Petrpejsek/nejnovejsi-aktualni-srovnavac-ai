@@ -57,7 +57,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       };
     }
     
-    const base = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
+    const base = process.env.NEXT_PUBLIC_BASE_URL
     const canonicalUrl = `${base}/landing/${slug}`
 
     const ogImageUrl = (landingPage as any).image_url || undefined
@@ -126,7 +126,7 @@ export default async function LandingPageDetail({ params }: Props) {
     const suggestedTags = landingPage.language === 'en' ? suggestAutolinkTags(composedContentHtml, 'en', 3) : []
 
     // JSON-LD structured data
-    const base = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
+    const base = process.env.NEXT_PUBLIC_BASE_URL
     const canonicalUrl = `${base}/landing/${slug}`
     const ldArticle = {
       '@context': 'https://schema.org',

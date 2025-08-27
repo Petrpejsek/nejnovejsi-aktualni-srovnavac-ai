@@ -2,6 +2,7 @@ import React from 'react'
 import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 import type { Metadata } from 'next'
+import { PUBLIC_BASE_URL } from '@/lib/env'
 
 interface CategoryData {
   slug: string
@@ -20,10 +21,10 @@ export const metadata: Metadata = {
     title: 'All AI Tool Categories | Compare the Best AI Tools 2025',
     description: 'Explore all AI tool categories on Comparee.ai. Find the best AI tools for writing, image generation, automation, productivity, and more.',
     type: 'website',
-    url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/categories`,
+    url: `${PUBLIC_BASE_URL}/categories`,
   },
   alternates: {
-    canonical: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/categories`
+    canonical: `${PUBLIC_BASE_URL}/categories`
   },
   robots: 'index, follow'
 }
@@ -192,14 +193,14 @@ export default async function CategoriesPage() {
     "@type": "ItemList",
     "name": "AI Tool Categories",
     "description": "Complete list of AI tool categories available on Comparee.ai",
-     "url": `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/categories`,
+     "url": `${PUBLIC_BASE_URL}/categories`,
     "numberOfItems": categories.length,
     "itemListElement": topCategories.map((category, index) => ({
       "@type": "ListItem",
       "position": index + 1,
       "name": category.name,
       "description": category.description,
-       "url": `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/categories/${category.slug}`,
+       "url": `${PUBLIC_BASE_URL}/categories/${category.slug}`,
       "numberOfItems": category.productCount
     }))
   }

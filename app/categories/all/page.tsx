@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'All AI Tool Categories - Complete Directory | Comparee.ai',
     description: 'Browse all AI tool categories on Comparee.ai. Complete directory of AI tools organized by category.',
-    url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/categories/all`,
+    url: `${process.env.NEXT_PUBLIC_BASE_URL}/categories/all`,
     type: 'website'
   }
 }
@@ -138,12 +138,12 @@ export default async function AllCategoriesPage() {
     "@type": "ItemList",
     "name": "All AI Tool Categories",
     "description": "Complete directory of AI tool categories",
-    "url": `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/categories/all`,
+    "url": `${process.env.NEXT_PUBLIC_BASE_URL}/categories/all`,
     "itemListElement": categories.map((category, index) => ({
       "@type": "ListItem",
       "position": index + 1,
       "name": category.name,
-      "url": `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/categories/${category.slug}`,
+      "url": `${process.env.NEXT_PUBLIC_BASE_URL}/categories/${category.slug}`,
       "description": category.description,
       "numberOfItems": category.productCount
     }))
@@ -158,7 +158,7 @@ export default async function AllCategoriesPage() {
       />
 
       {/* Canonical Link */}
-      <link rel="canonical" href={`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/categories/all`} />
+      <link rel="canonical" href={`${process.env.NEXT_PUBLIC_BASE_URL}/categories/all`} />
 
       <main className="min-h-screen bg-gray-50">
         {/* Header Section */}

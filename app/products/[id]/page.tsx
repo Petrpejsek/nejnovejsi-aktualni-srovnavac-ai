@@ -3,6 +3,7 @@ import React from 'react';
 import { notFound } from 'next/navigation';
 import ProductDetail from '../../components/ProductDetail';
 import { Container } from '@mui/material';
+import { PUBLIC_BASE_URL } from '@/lib/env'
 
 interface Props {
   params: {
@@ -17,7 +18,7 @@ export async function generateMetadata({ params }: Props) {
       title: `${product.name} | comparee.ai`,
       description: product.description,
       alternates: {
-        canonical: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/products/${params.id}`,
+        canonical: `${PUBLIC_BASE_URL}/products/${params.id}`,
       },
     };
   } catch (error) {
@@ -64,7 +65,7 @@ export default async function ProductPage({ params }: Props) {
               "@type": "Product",
               "name": product.name,
               "description": product.description,
-              "url": `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/products/${product.id}`,
+              "url": `${PUBLIC_BASE_URL}/products/${product.id}`,
               "brand": {
                 "@type": "Brand",
                 "name": "Comparee.ai"

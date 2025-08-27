@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import prisma from '@/lib/prisma';
 import { isValidLocale, Locale, getLanguageMetadata, locales } from '@/lib/i18n';
+import { PUBLIC_BASE_URL } from '@/lib/env'
 import { autoLinkHtml, suggestAutolinkTags } from '@/lib/autolink'
 
 interface Props {
@@ -58,7 +59,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     // Generate alternate language URLs
     const alternateLanguages: Record<string, string> = {};
     for (const locale of locales) {
-      alternateLanguages[locale] = `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/${locale}/landing/${params.slug}`;
+      alternateLanguages[locale] = `${PUBLIC_BASE_URL}/${locale}/landing/${params.slug}`;
     }
     
     const ogImageUrl = (landingPage as any).image_url || (landingPage as any).visuals?.heroImage?.imageUrl
@@ -68,13 +69,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: landingPage.metaDescription,
       keywords: landingPage.meta_keywords.join(', '),
       alternates: {
-        canonical: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/${params.lang}/landing/${params.slug}`,
+        canonical: `${PUBLIC_BASE_URL}/${params.lang}/landing/${params.slug}`,
         languages: alternateLanguages,
       },
       openGraph: {
         title: landingPage.title,
         description: landingPage.metaDescription,
-        url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/${params.lang}/landing/${params.slug}`,
+        url: `${PUBLIC_BASE_URL}/${params.lang}/landing/${params.slug}`,
         siteName: 'Comparee.ai',
         locale: langMeta.locale,
         type: 'article',
@@ -251,11 +252,7 @@ export default async function I18nLandingPage({ params }: Props) {
         {/* i18n alternate links dočasně vypnuto – projekt používá zatím pouze EN layout bez prefixu */}
         
         {/* Default language alternate */}
-        <link
-          rel="alternate"
-          hrefLang="x-default"
-          href={`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/cs/landing/${slug}`}
-        />
+        <link rel="alternate" hrefLang="x-default" href={`${PUBLIC_BASE_URL}/cs/landing/${slug}`} />
       </head>
       
       <body>

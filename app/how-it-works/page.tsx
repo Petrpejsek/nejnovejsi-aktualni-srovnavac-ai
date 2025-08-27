@@ -7,7 +7,7 @@ const structuredData = [
     "@type": "WebPage",
     "name": "How Comparee.ai Works - AI Tools Comparison Process",
     "description": "Learn how Comparee.ai's intelligent comparison engine works to help you find the perfect AI tools. Step-by-step process from discovery to recommendation.",
-    "url": `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/how-it-works`,
+    "url": `${process.env.NEXT_PUBLIC_BASE_URL}/how-it-works`,
     "mainEntity": {
       "@type": "HowTo",
       "name": "How to Find the Perfect AI Tool with Comparee.ai",
@@ -94,7 +94,7 @@ export const metadata: Metadata = {
     description: 'Learn our intelligent 4-step process for finding the perfect AI tools tailored to your specific needs and requirements.',
     type: 'website',
     locale: 'en_US',
-    url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/how-it-works`,
+    url: `${process.env.NEXT_PUBLIC_BASE_URL}/how-it-works`,
   },
   other: {
     'geo.region': 'US-FL',

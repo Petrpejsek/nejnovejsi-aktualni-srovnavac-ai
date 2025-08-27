@@ -28,6 +28,7 @@ echo "==> Ensure production env"
 [ -f .env.production ] || touch .env.production
 grep -q '^NEXT_PUBLIC_ASSET_PREFIX=' .env.production || echo NEXT_PUBLIC_ASSET_PREFIX=http://23.88.98.49 >> .env.production
 grep -q '^NEXTAUTH_URL=' .env.production || echo NEXTAUTH_URL=http://23.88.98.49 >> .env.production
+grep -q '^NEXT_PUBLIC_BASE_URL=' .env.production || echo NEXT_PUBLIC_BASE_URL=http://23.88.98.49 >> .env.production
 
 echo "==> Install deps (with dev)"
 unset NODE_ENV

@@ -11,6 +11,7 @@ import { trackProductClick } from '../../../lib/utils'
 import Modal from '../../../components/Modal'
 import RegisterForm from '../../../components/RegisterForm'
 import Head from 'next/head'
+import { PUBLIC_BASE_URL } from '@/lib/env'
 
 interface Product {
   id: string
@@ -668,8 +669,8 @@ export default function CategoryPage() {
         <meta property="og:title" content={`${categoryData.title} | Comparee.ai`} />
         <meta property="og:description" content={categoryData.metaDescription} />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content={`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/categories/${slug}`} />
-        <link rel="canonical" href={`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/categories/${slug}`} />
+        <meta property="og:url" content={`${PUBLIC_BASE_URL}/categories/${slug}`} />
+        <link rel="canonical" href={`${PUBLIC_BASE_URL}/categories/${slug}`} />
         <meta name="robots" content="index, follow" />
       </Head>
       {/* JSON-LD structured data */}
@@ -686,16 +687,16 @@ export default function CategoryPage() {
               itemListElement: products.slice(0, 10).map((p, idx) => ({
                 '@type': 'ListItem',
                 position: idx + 1,
-                url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/products/${p.id}`,
+                url: `${PUBLIC_BASE_URL}/products/${p.id}`,
                 name: p.name
               }))
             },
             breadcrumb: {
               '@type': 'BreadcrumbList',
               itemListElement: [
-                { '@type': 'ListItem', position: 1, name: 'Home', item: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}` },
-                { '@type': 'ListItem', position: 2, name: 'Categories', item: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/categories` },
-                { '@type': 'ListItem', position: 3, name: categoryName, item: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/categories/${slug}` }
+                { '@type': 'ListItem', position: 1, name: 'Home', item: `${PUBLIC_BASE_URL}` },
+                { '@type': 'ListItem', position: 2, name: 'Categories', item: `${PUBLIC_BASE_URL}/categories` },
+                { '@type': 'ListItem', position: 3, name: categoryName, item: `${PUBLIC_BASE_URL}/categories/${slug}` }
               ]
             }
           })
