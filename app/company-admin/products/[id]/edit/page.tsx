@@ -1,6 +1,8 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import CategorySelector from '@/components/CategorySelector'
+import MultiCategorySelector from '@/components/MultiCategorySelector'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { 
@@ -43,6 +45,7 @@ interface Product {
   changesSubmittedAt?: string
   pendingChanges?: string | null
   adminNotes?: string | null
+  additionalCategories?: Array<{ id: string; name: string; slug: string }>
 }
 
 // Helper function to compare changes
@@ -166,7 +169,7 @@ export default function ProductEditPage({ params }: { params: { id: string } }) 
     name: '',
     description: '',
     price: 0,
-    category: 'AI Writing',
+    category: '',
     imageUrl: '',
     pendingImageUrl: null,
     imageApprovalStatus: null,
@@ -181,8 +184,26 @@ export default function ProductEditPage({ params }: { params: { id: string } }) 
     },
     videoUrls: [],
     externalUrl: '',
-    hasTrial: false
+    hasTrial: false,
+    additionalCategories: []
   })
+
+  const [categories, setCategories] = useState<Array<{id:string; name:string; slug:string}>>([])
+
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const res = await fetch('/api/categories?source=all')
+        if (res.ok) {
+          const data = await res.json()
+          setCategories(data.categories || [])
+        }
+      } catch (e) {
+        console.warn('Failed to load categories list', e)
+      }
+    }
+    loadCategories()
+  }, [])
 
   // Load product on page load
   useEffect(() => {
@@ -549,21 +570,21 @@ export default function ProductEditPage({ params }: { params: { id: string } }) 
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Category</label>
-                    <select
-                      value={product.category}
-                      onChange={(e) => setProduct(prev => ({ ...prev, category: e.target.value }))}
-                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
-                    >
-                      <option value="AI Writing">AI Writing</option>
-                      <option value="AI Design">AI Design</option>
-                      <option value="AI Marketing">AI Marketing</option>
-                      <option value="AI Analytics">AI Analytics</option>
-                      <option value="AI Development">AI Development</option>
-                      <option value="AI Automation">AI Automation</option>
-                      <option value="AI Customer Service">AI Customer Service</option>
-                      <option value="AI Finance">AI Finance</option>
-                    </select>
+                    <CategorySelector
+                      label="Category"
+                      placeholder="Select category"
+                      value={product.category || ''}
+                      onChange={(val) => setProduct(prev => ({ ...prev, category: val }))}
+                      required
+                    />
+                  </div>
+
+                  <div className="sm:col-span-2">
+                    <MultiCategorySelector
+                      label="Additional categories"
+                      value={product.additionalCategories || []}
+                      onChange={(vals) => setProduct(prev => ({ ...prev, additionalCategories: vals }))}
+                    />
                   </div>
 
                   <div>

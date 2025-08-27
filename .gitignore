@@ -46,3 +46,9 @@ AI_RECOMMENDATIONS_HIDDEN.md
 .env.development
 .env.production
 .env.backup*
+
+# Python virtualenvs (avoid committing)
+backend/venv/
+backend/venv_new/
+backend/venv_stable/
+backend/venv_working/

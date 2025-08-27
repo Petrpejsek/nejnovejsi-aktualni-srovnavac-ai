@@ -13,7 +13,6 @@ import { StarIcon as StarFilledIcon, BookmarkIcon as BookmarkFilledIcon } from '
 import { useSession } from 'next-auth/react'
 import Modal from './Modal'
 import RegisterForm from './RegisterForm'
-import { openInNewTab, trackProductClick } from '@/lib/utils'
 
 // Inline SVG placeholder pro rychlé načítání (žádné externí requesty)
 const createImagePlaceholder = (productName: string) => {
@@ -158,39 +157,11 @@ export default function ProductCard({
   const handleVisit = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    
-    if (!externalUrl) {
-      console.log('❌ Chybí externí URL!')
-      return
-    }
 
-    console.log('🚀 Opening product:', id)
-
-    // SPOLEHLIVÉ tracking - používáme sdílenou funkci bez duplicity kódu  
-    trackProductClick({
-      id,
-      name,
-      externalUrl,
-      category: (tags && tags.length > 0) ? tags[0] : undefined,
-      imageUrl: imageUrl,
-      price,
-      tags
-    })
-  }
-
-  const handleClick = async (productId: string) => {
-    try {
-      const pagePath = typeof window !== 'undefined' ? window.location.pathname : undefined
-      const qp = pagePath ? `?pagePath=${encodeURIComponent(pagePath)}` : ''
-      await fetch(`/api/clicks${qp}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ productId }),
-      })
-    } catch (error) {
-      console.error('Error tracking click:', error)
+    // Navigace přes serverový redirect s 302 – spolehlivé i na mobilech
+    const redirectPath = `/api/monetization/out/product/${encodeURIComponent(id)}`
+    if (typeof window !== 'undefined') {
+      window.location.assign(redirectPath)
     }
   }
 
@@ -383,9 +354,7 @@ export default function ProductCard({
           const target = e.target as HTMLElement;
           if (!target.closest('button')) {
             console.log('🎯 Klik na product card:', name)
-            // recordClickHistory() - odstraněno, tracking se děje v /api/redirect
             handleVisit(e);
-            handleClick(id);
           }
         }}
       >
@@ -394,7 +363,7 @@ export default function ProductCard({
       {/* Image section - optimalizovaný pro rychlé načítání */}
       <div className="relative w-full aspect-[16/9]">
         <Image
-          src={imageUrl || createImagePlaceholder(name)}
+          src={(imageUrl ? `${imageUrl}${imageUrl.includes('?') ? '&' : '?'}v=${Date.now()}` : createImagePlaceholder(name))}
           alt={`${name} - AI tool screenshot`}
           fill
           priority={priority}
@@ -461,18 +430,17 @@ export default function ProductCard({
           ) : (
             <div className="text-lg font-bold text-purple-600">${price}</div>
           )}
-          <button 
+          <a
+            href={`/api/monetization/out/product/${encodeURIComponent(id)}`}
             onClick={(e) => {
+              // Umožni přirozenou navigaci bez JS; jen zastav bublání, aby nekolidovalo s wrapperem
               e.stopPropagation()
-              console.log('🎯 Klik na Try it button:', name)
-              // recordClickHistory() - odstraněno, tracking se děje v /api/redirect
-              handleVisit(e)
-              handleClick(id)
             }}
+            rel="nofollow noopener"
             className="px-2 py-1.5 bg-gradient-primary text-white text-sm font-medium rounded-[14px] hover:opacity-90 transition-opacity"
           >
             {hasTrial ? 'Try for Free' : 'Try it'}
-          </button>
+          </a>
         </div>
               </div>
       </div>

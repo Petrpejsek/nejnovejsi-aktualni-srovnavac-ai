@@ -132,6 +132,7 @@ model Category {
   Category       Category?  @relation("CategoryToCategory", fields: [parent_id], references: [id])
   other_Category Category[] @relation("CategoryToCategory")
   Product        Product[]
+  productCategories ProductCategory[]
 
   @@index([parent_id])
 }
@@ -251,12 +252,27 @@ model Product {
   hasPendingChanges     Boolean   @default(false)
   pendingChanges        Json?
   Category              Category? @relation(fields: [primary_category_id], references: [id])
+  additionalCategories  ProductCategory[]
 
   @@index([changesStatus])
   @@index([hasPendingChanges])
   @@index([isActive])
   @@index([primary_category_id])
   @@index([secondary_category_id])
+}
+
+model ProductCategory {
+  id         String   @id @default(uuid())
+  productId  String
+  categoryId String
+  createdAt  DateTime @default(now())
+
+  product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, categoryId])
+  @@index([productId])
+  @@index([categoryId])
 }
 
 model PromotionalPackage {

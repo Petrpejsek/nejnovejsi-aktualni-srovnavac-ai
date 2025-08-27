@@ -46,8 +46,11 @@ const nextConfig = {
   }),
   // Konfigurace pro statické soubory na Vercel
   trailingSlash: false,
-  // In production we default to no assetPrefix unless explicitly provided via NEXT_PUBLIC_ASSET_PREFIX
-  assetPrefix: process.env.NEXT_PUBLIC_ASSET_PREFIX || '',
+  // Asset prefix must be provided explicitly; no implicit fallback
+  assetPrefix: (function(){
+    const v = process.env.NEXT_PUBLIC_ASSET_PREFIX
+    return typeof v === 'string' ? v : ''
+  })(),
   // Výslovně označit screenshoty jako statické assets
   async headers() {
     return [

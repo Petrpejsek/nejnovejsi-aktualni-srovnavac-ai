@@ -317,7 +317,7 @@ export default function ProductsPage() {
                                 height={40}
                                 className="w-full h-full object-cover"
                                 onError={(e) => {
-                                  (e.target as HTMLImageElement).src = '/screenshots/default-product.png'
+                                  (e.target as HTMLImageElement).src = '/img/placeholder.svg'
                                 }}
                               />
                             </div>

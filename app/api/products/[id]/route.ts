@@ -27,12 +27,12 @@ export async function GET(
 ) {
   try {
     const productId = params.id
+    const { searchParams } = new URL(request.url)
+    const includeMeta = searchParams.get('meta') === '1' || searchParams.get('includeMeta') === 'true'
     
     // Simulace načtení produktu z databáze
     const product = await prisma.product.findUnique({
-      where: {
-        id: productId
-      }
+      where: { id: productId }
     })
 
     if (!product) {
@@ -45,15 +45,36 @@ export async function GET(
     }
 
     console.log('Loaded product:', product)
+
+    // Load additional categories via join table
+    const additionalJoins = await prisma.productCategory.findMany({
+      where: { productId },
+      select: { categoryId: true, category: { select: { id: true, name: true, slug: true } } }
+    })
     
     // Formátování dat pro front-end - zpracovat JSON pole
-    const formattedProduct = {
+    const formattedProduct: any = {
       ...product,
       tags: product.tags ? (typeof product.tags === 'string' ? JSON.parse(product.tags) : product.tags) : [],
       advantages: product.advantages ? (typeof product.advantages === 'string' ? JSON.parse(product.advantages) : product.advantages) : [],
       disadvantages: product.disadvantages ? (typeof product.disadvantages === 'string' ? JSON.parse(product.disadvantages) : product.disadvantages) : [],
       videoUrls: product.videoUrls ? (typeof product.videoUrls === 'string' ? JSON.parse(product.videoUrls) : product.videoUrls) : [],
-      pricingInfo: product.pricingInfo ? (typeof product.pricingInfo === 'string' ? JSON.parse(product.pricingInfo) : product.pricingInfo) : { basic: '0', pro: '0', enterprise: '0' }
+      pricingInfo: product.pricingInfo ? (typeof product.pricingInfo === 'string' ? JSON.parse(product.pricingInfo) : product.pricingInfo) : { basic: '0', pro: '0', enterprise: '0' },
+      additionalCategories: additionalJoins.map(j => ({ id: j.category.id, name: j.category.name, slug: j.category.slug }))
+    }
+
+    // Optionally include meta fields for audit/debugging (admin/dev usage)
+    if (includeMeta) {
+      formattedProduct.__meta = {
+        hasPendingChanges: (product as any).hasPendingChanges ?? null,
+        changesStatus: (product as any).changesStatus ?? null,
+        changesSubmittedBy: (product as any).changesSubmittedBy ?? null,
+        changesApprovedBy: (product as any).changesApprovedBy ?? null,
+        adminNotes: (product as any).adminNotes ?? null,
+        updatedAt: product.updatedAt ?? null,
+        imageApprovalStatus: (product as any).imageApprovalStatus ?? null,
+        pendingImageUrl: (product as any).pendingImageUrl ?? null
+      }
     }
     
     return new NextResponse(JSON.stringify(formattedProduct), {
@@ -182,10 +203,55 @@ export async function PUT(
         updateData.imageUrl = updatedProduct.imageUrl
       }
       
-      // Uložit do databáze
-      const savedProduct = await prisma.product.update({
-        where: { id: productId },
-        data: updateData
+      // Handle additional categories (ids or names)
+      const parseAdditionalCategoryIds = async (): Promise<string[] | null> => {
+        try {
+          if (Array.isArray(updatedProduct.additionalCategoryIds)) {
+            return updatedProduct.additionalCategoryIds.filter((s: any) => typeof s === 'string' && s.trim())
+          }
+          if (Array.isArray(updatedProduct.additionalCategories)) {
+            // Could be array of strings (names) or objects with id
+            const arr = updatedProduct.additionalCategories
+            if (arr.length === 0) return []
+            if (typeof arr[0] === 'string') {
+              const names: string[] = arr.map((n: string) => String(n).trim()).filter(Boolean)
+              if (names.length === 0) return []
+              const found = await prisma.category.findMany({
+                where: { name: { in: names, mode: 'insensitive' } },
+                select: { id: true, name: true }
+              })
+              const foundMap = new Map(found.map(c => [c.name.toLowerCase(), c.id]))
+              const missing = names.filter(n => !foundMap.has(n.toLowerCase()))
+              if (missing.length > 0) {
+                throw new Error(`Unknown categories: ${missing.join(', ')}`)
+              }
+              return names.map(n => foundMap.get(n.toLowerCase())!)
+            }
+            if (arr[0] && typeof arr[0] === 'object' && 'id' in arr[0]) {
+              return arr.map((o: any) => String(o.id)).filter(Boolean)
+            }
+          }
+        } catch (e) {
+          throw e
+        }
+        return null
+      }
+
+      const desiredAdditionalIds = await parseAdditionalCategoryIds()
+
+      // Uložit do databáze (včetně joinů)
+      const savedProduct = await prisma.$transaction(async (tx) => {
+        const p = await tx.product.update({ where: { id: productId }, data: updateData })
+        if (desiredAdditionalIds !== null) {
+          await tx.productCategory.deleteMany({ where: { productId } })
+          if (desiredAdditionalIds.length > 0) {
+            await tx.productCategory.createMany({
+              data: desiredAdditionalIds.map((cid: string) => ({ id: crypto.randomUUID(), productId, categoryId: cid })),
+              skipDuplicates: true
+            })
+          }
+        }
+        return p
       })
       
       console.log('✅ Product saved by admin:', productId, isSuperAdmin ? '(super admin)' : '(development admin)')

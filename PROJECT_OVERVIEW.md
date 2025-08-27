@@ -90,6 +90,8 @@ ai new new new/
 - Payload: AI Farma JSON (`title`, `contentHtml`, `keywords`, `language`, …). `keywords` přijímáme i v `meta.keywords`.
 - 409 slug+language = hard fail bez auto‑oprav.
 - BASE URL: z `NEXT_PUBLIC_BASE_URL` (žádné fallbacky).
+- FAQ: pokud je posíláno, MUSÍ být pole objektů `{ question: string, answer: string }`. Jakákoli jiná forma (např. string) → `422 Unprocessable Entity` a stránka se nevytvoří.
+- Produkční secret pro ingest: používej `X-Webhook-Secret` s aktuálně aktivním klíčem (sekundární je povolen s `X-Secret-Id: secondary`).
 
 Detailní specifikace a cURL příklady: viz `docs/landing-ingest.md`.
 
@@ -308,6 +310,22 @@ NODE_ENV=production npm run build --silent
 ```bash
 pm2 describe comparee-nextjs >/dev/null 2>&1 && pm2 restart comparee-nextjs || pm2 start ecosystem.config.cjs --only comparee-nextjs --update-env
 pm2 save || true
+
+### Rychlý production sanity check (ingest)
+```bash
+# Špatné FAQ (oček. 422)
+curl -X POST http://127.0.0.1:3000/api/landing-pages \
+  -H 'Content-Type: application/json' \
+  -H 'X-Webhook-Secret: <SECRET>' -H 'X-Secret-Id: secondary' \
+  --data '{"title":"Bad","language":"en","contentHtml":"<p>..</p>","keywords":["ai"],"slug":"bad-faq","faq":"[{}]"}'
+
+# Validní (oček. 201) + ruční kontrola FAQ na /landing/<slug>
+TS=$(date +%s)
+curl -X POST http://127.0.0.1:3000/api/landing-pages \
+  -H 'Content-Type: application/json' \
+  -H 'X-Webhook-Secret: <SECRET>' -H 'X-Secret-Id: secondary' \
+  --data '{"title":"OK","language":"en","contentHtml":"<h2>Title</h2>","keywords":["ai"],"slug":"ok-faq-'"$TS"'","faq":[{"question":"Q?","answer":"A."}]}'
+```
 ```
 
 6) Ověření na serveru

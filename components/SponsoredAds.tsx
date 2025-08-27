@@ -79,32 +79,13 @@ export default function SponsoredAds({
 
   const handleAdClick = async (ad: SponsoredAd) => {
     try {
-      // Zaznamenat klik pomocí API
-      const response = await fetch('/api/ads/click', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          campaignId: ad.campaignId,
-          productId: ad.productId
-        })
-      })
-
-      const result = await response.json()
-
-      if (result.success) {
-        // Přesměrovat na target URL
-        window.open(result.data.targetUrl, '_blank')
-      } else {
-        console.error('Click tracking failed:', result.error)
-        // I když tracking selže, stále přesměrovat
-        window.open(ad.targetUrl, '_blank')
+      // Zaznamenej klik serverově a nechej server přesměrovat
+      const url = `/api/monetization/out/product/${encodeURIComponent(ad.productId)}`
+      if (typeof window !== 'undefined') {
+        window.location.assign(url)
       }
     } catch (error) {
-      console.error('Error tracking click:', error)
-      // Fallback - přesměrovat i při chybě
-      window.open(ad.targetUrl, '_blank')
+      console.error('Error handling ad click:', error)
     }
   }
 

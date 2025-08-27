@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import prisma from '@/lib/prisma';
 import { isValidLocale, Locale, getLanguageMetadata, locales } from '@/lib/i18n';
+import { autoLinkHtml, suggestAutolinkTags } from '@/lib/autolink'
 
 interface Props {
   params: {
@@ -217,6 +218,10 @@ export default async function I18nLandingPage({ params }: Props) {
   };
 
   const faqSchema = generateFAQSchema();
+
+  // Content autolinking and hero tags (EN only)
+  const baseHtml = landingPage.language === 'en' ? autoLinkHtml(landingPage.contentHtml, 'en') : landingPage.contentHtml
+  const heroTags = landingPage.language === 'en' ? suggestAutolinkTags(baseHtml, 'en', 3) : []
   
   // Filter visuals by position (only if visuals is an array; otherwise keep empty)
   const visualsArray: Visual[] = Array.isArray(landingPage.visuals) ? (landingPage.visuals as Visual[]) : []
@@ -349,10 +354,21 @@ export default async function I18nLandingPage({ params }: Props) {
                   </div>
                 </header>
 
-                {/* Main Content */}
+                {/* Hero tags */}
+                {heroTags.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-2 mb-4" data-autolink-origin="hero-tags">
+                    {heroTags.map(tag => (
+                      <a key={tag.id} href={tag.url} className="inline-flex items-center px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs hover:bg-blue-100 transition-colors">
+                        {tag.label}
+                      </a>
+                    ))}
+                  </div>
+                )}
+
+                {/* Main Content (autolinked for EN) */}
                 <div 
                   className="prose prose-lg prose-slate max-w-none prose-headings:text-slate-900 prose-p:text-slate-700 prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline prose-strong:text-slate-900"
-                  dangerouslySetInnerHTML={{ __html: landingPage.contentHtml }}
+                  dangerouslySetInnerHTML={{ __html: baseHtml }}
                 />
 
                 {/* Gallery Images */}

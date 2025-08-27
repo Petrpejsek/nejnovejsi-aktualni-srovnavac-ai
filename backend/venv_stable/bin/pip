@@ -1,5 +1,5 @@
 #!/bin/sh
-'''exec' "/Users/petrliesner/ai new new new/backend/venv_stable/bin/python3.11" "$0" "$@"
+'''exec' "/Users/petrliesner/ai new new new/backend/venv_stable/bin/python3.13" "$0" "$@"
 ' '''
 # -*- coding: utf-8 -*-
 import re

@@ -177,22 +177,10 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
   }
 
   const handleVisit = () => {
-    if (!product?.externalUrl) {
-      console.log('Chybí URL!')
-      return
-    }
-
-    try {
-      // Použijeme dočasný HTML link místo window.open() pro lepší kompatibilitu
-      const tempLink = document.createElement('a')
-      tempLink.href = product.externalUrl
-      tempLink.target = '_blank'
-      tempLink.rel = 'noopener,noreferrer'
-      document.body.appendChild(tempLink)
-      tempLink.click()
-      document.body.removeChild(tempLink)
-    } catch (error) {
-      console.error('Chyba při otevírání URL:', error)
+    if (!product?.id) return
+    const redirectPath = `/api/monetization/out/product/${encodeURIComponent(product.id)}`
+    if (typeof window !== 'undefined') {
+      window.location.assign(redirectPath)
     }
   }
 
@@ -270,9 +258,8 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
                     
                     <div className="flex gap-4">
                       <a
-                        href={product.externalUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                        href={`/api/monetization/out/product/${encodeURIComponent(product.id)}`}
+                        rel="nofollow noopener"
                         className="flex-1 px-6 py-3 bg-gradient-primary text-white font-medium rounded-lg hover-gradient-primary transition-all text-center"
                 >
                         {product.hasTrial ? 'Try for Free' : 'Try it'}

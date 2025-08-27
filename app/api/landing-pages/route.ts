@@ -80,6 +80,16 @@ interface AiLandingPagePayload {
     question: string
     answer: string
   }[]
+  heroImage?: {
+    imageUrl: string
+    imageAlt?: string
+    imageSourceName?: string
+    imageSourceUrl?: string
+    imageLicense?: string
+    imageWidth?: number
+    imageHeight?: number
+    imageType?: string
+  }
   
   comparisonTables?: TableData[]
   pricingTables?: TableData[]
@@ -249,6 +259,25 @@ function validateAiPayload(data: any): { isValid: boolean, errors: string[], war
     }
   }
 
+  // Validate image fields if provided
+  if (data.imageUrl !== undefined && typeof data.imageUrl !== 'string') {
+    errors.push('imageUrl must be a string when provided')
+  }
+  if (data.heroImage !== undefined) {
+    if (!data.heroImage || typeof data.heroImage !== 'object') {
+      errors.push('heroImage must be an object when provided')
+    } else {
+      if (typeof data.heroImage.imageUrl !== 'string' || data.heroImage.imageUrl.trim().length === 0) {
+        errors.push('heroImage.imageUrl must be a non-empty string')
+      }
+      if (typeof data.imageUrl === 'string' && data.imageUrl.trim().length > 0) {
+        if (data.imageUrl.trim() !== data.heroImage.imageUrl.trim()) {
+          errors.push('imageUrl and heroImage.imageUrl conflict – provide only one or ensure they match')
+        }
+      }
+    }
+  }
+
   return { isValid: errors.length === 0, errors, warnings }
 }
 
@@ -279,21 +308,41 @@ function validateLegacyPayload(data: any): { isValid: boolean, errors: string[] 
     errors.push('content_html is required and must be a string')
   }
 
-  // Validate optional FAQ – must be an array of objects with non-empty question/answer
-  if (typeof data.faq !== 'undefined') {
+  // Validate FAQ shape if provided
+  if (data.faq !== undefined) {
     if (!Array.isArray(data.faq)) {
-      errors.push('faq must be an array of objects {question, answer}')
+      errors.push('faq must be an array when provided')
     } else {
-      const malformed: number[] = []
-      for (let i = 0; i < data.faq.length; i++) {
-        const item = data.faq[i]
-        const ok = item && typeof item === 'object'
-          && typeof item.question === 'string' && item.question.trim().length > 0
-          && typeof item.answer === 'string' && item.answer.trim().length > 0
-        if (!ok) malformed.push(i)
+      data.faq.forEach((item: any, idx: number) => {
+        if (!item || typeof item !== 'object') {
+          errors.push(`faq[${idx}] must be an object`)
+          return
+        }
+        if (typeof item.question !== 'string' || item.question.trim().length === 0) {
+          errors.push(`faq[${idx}].question must be a non-empty string`)
+        }
+        if (typeof item.answer !== 'string' || item.answer.trim().length === 0) {
+          errors.push(`faq[${idx}].answer must be a non-empty string`)
+        }
+      })
+    }
+  }
+
+  // Validate image fields if provided
+  if (data.imageUrl !== undefined && typeof data.imageUrl !== 'string') {
+    errors.push('imageUrl must be a string when provided')
+  }
+  if (data.heroImage !== undefined) {
+    if (!data.heroImage || typeof data.heroImage !== 'object') {
+      errors.push('heroImage must be an object when provided')
+    } else {
+      if (typeof data.heroImage.imageUrl !== 'string' || data.heroImage.imageUrl.trim().length === 0) {
+        errors.push('heroImage.imageUrl must be a non-empty string')
       }
-      if (malformed.length > 0) {
-        errors.push(`faq items malformed at indices: ${malformed.join(', ')}`)
+      if (typeof data.imageUrl === 'string' && data.imageUrl.trim().length > 0) {
+        if (data.imageUrl.trim() !== data.heroImage.imageUrl.trim()) {
+          errors.push('imageUrl and heroImage.imageUrl conflict – provide only one or ensure they match')
+        }
       }
     }
   }
@@ -692,7 +741,8 @@ async function handleAiFormatPayload(data: any, requestId: string) {
         keywords: data.data.meta?.keywords || data.meta?.keywords || data.data.keywords || data.keywords,
         category: data.data.category || data.category,
         language: data.data.language || data.language,
-        faq: data.data.faq || data.faq
+        faq: data.data.faq || data.faq,
+        heroImage: data.data.heroImage || data.heroImage
       }
     } else {
       // Data is at root level
@@ -828,24 +878,26 @@ async function handleAiFormatPayload(data: any, requestId: string) {
         summary: payload.summary || null,
         language: payload.language, // Use provided language
         content_html: payload.contentHtml,
-        image_url: payload.imageUrl || null,
+        image_url: (payload.heroImage?.imageUrl ?? payload.imageUrl) || null,
         category: payload.category || null,
         meta_description: metaDescription,
         meta_keywords: JSON.stringify(payload.keywords),
         faq: payload.faq || undefined,
         visuals: JSON.parse(JSON.stringify({
-          heroImage: payload.imageUrl
-            ? {
-                imageUrl: payload.imageUrl,
-                imageAlt: payload.imageAlt,
-                imageSourceName: payload.imageSourceName,
-                imageSourceUrl: payload.imageSourceUrl,
-                imageLicense: payload.imageLicense,
-                imageWidth: payload.imageWidth,
-                imageHeight: payload.imageHeight,
-                imageType: payload.imageType
-              }
-            : undefined,
+          heroImage: payload.heroImage
+            ? payload.heroImage
+            : (payload.imageUrl
+              ? {
+                  imageUrl: payload.imageUrl,
+                  imageAlt: payload.imageAlt,
+                  imageSourceName: payload.imageSourceName,
+                  imageSourceUrl: payload.imageSourceUrl,
+                  imageLicense: payload.imageLicense,
+                  imageWidth: payload.imageWidth,
+                  imageHeight: payload.imageHeight,
+                  imageType: payload.imageType
+                }
+              : undefined),
           comparisonTables: payload.comparisonTables || [],
           pricingTables: payload.pricingTables || [],
           featureTables: payload.featureTables || [],

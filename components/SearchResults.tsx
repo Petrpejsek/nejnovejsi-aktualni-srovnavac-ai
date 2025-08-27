@@ -184,9 +184,8 @@ export default function SearchResults({ sessionId, onResults, preview }: SearchR
                 <div className="flex gap-2">
                   {rec.product.website && (
                     <a
-                      href={rec.product.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      href={`/api/monetization/out/product/${encodeURIComponent(rec.product.id)}`}
+                      rel="nofollow noopener"
                       className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium"
                     >
                       Try Tool

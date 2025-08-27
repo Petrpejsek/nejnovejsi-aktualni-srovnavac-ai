@@ -1,0 +1,102 @@
+{
+  "byPrimaryCategory": {
+    "AI & Video": ["video-editing", "Video Generation", "AI Video Editing", "AI Video Generation"],
+    "AI Video Editing": ["video-editing", "AI Video Generation", "Video Generation", "AI & Video"],
+    "AI Video Generation": ["Video Generation", "AI Video Editing", "video-editing", "AI & Video"],
+
+    "AI Writing": ["Copywriting", "Content Marketing", "Content & Writing", "Text Editing"],
+    "Copywriting": ["AI Writing", "Content Marketing", "Content & Writing"],
+    "Content Marketing": ["AI Writing", "Copywriting", "Marketing & Social Media"],
+    "Content & Writing": ["AI Writing", "Copywriting", "Content Marketing", "Text Editing"],
+    "Text Editing": ["AI Writing", "Content & Writing"],
+
+    "Marketing & Social Media": ["Marketing Tools", "Growth Marketing", "Marketing Personalization", "Content Marketing"],
+    "Marketing Tools": ["Marketing & Social Media", "Marketing Personalization", "Growth Marketing"],
+    "Growth Marketing": ["Marketing & Social Media", "Marketing Tools", "Content Marketing"],
+    "Marketing Personalization": ["Marketing & Social Media", "Marketing Tools", "E-commerce Personalization"],
+
+    "E-commerce": ["E-commerce Marketing", "E-commerce Personalization", "Marketing & Social Media"],
+    "E-commerce Marketing": ["E-commerce", "Growth Marketing", "Marketing & Social Media"],
+    "E-commerce Personalization": ["E-commerce", "Marketing Personalization"],
+
+    "Productivity & Organization": ["Productivity", "Workflow Automation", "Web Automation"],
+    "Productivity": ["Productivity & Organization", "Workflow Automation"],
+    "Workflow Automation": ["Web Automation", "Productivity & Organization", "Automation"],
+    "Web Automation": ["Workflow Automation", "No-Code Development Platform", "Automation"],
+    "Automation": ["Workflow Automation", "Web Automation", "No-Code Development Platform"],
+    "No-Code Development Platform": ["Web Automation", "Developer & Technical", "Website Builder"],
+
+    "Developer & Technical": ["No-Code Development Platform", "Automation", "Web Automation"],
+
+    "Design Tools": ["Design & Visual", "AI Design & Creative Tools"],
+    "Design & Visual": ["Design Tools", "AI Design & Creative Tools"],
+    "AI Design & Creative Tools": ["Design Tools", "Design & Visual", "image-generation"],
+
+    "Audio & Music": ["music", "audio"],
+    "music": ["Audio & Music", "audio"],
+    "audio": ["Audio & Music", "music"],
+
+    "image-generation": ["Visual Search", "Visual AI Search", "AI Design & Creative Tools"],
+    "Visual Search": ["Visual AI Search", "image-generation"],
+    "Visual AI Search": ["Visual Search", "image-generation"],
+
+    "Document Processing": ["Document Intelligence"],
+    "Document Intelligence": ["Document Processing"],
+
+    "Finance": ["Financial Technology", "Financial Automation", "Financial Data Analytics", "Financial Reporting"],
+    "Financial Technology": ["Finance", "Financial Data Analytics"],
+    "Financial Automation": ["Finance", "Financial Data Analytics", "Expense Management", "Spend Management"],
+    "Financial Data Analytics": ["Finance", "Analytics"],
+    "Financial Reporting": ["Finance", "Cloud Financial Management"],
+
+    "Accounting Software": ["Accounting Automation", "Accounting Digitization", "AI Accounting", "AI Accounting Software", "SMB Financial Software", "Startup Accounting"],
+    "Accounting Services": ["Accounting Software", "Accounting Automation", "Expense Management", "Spend Management", "Financial Reporting"],
+    "Accounting Automation": ["Accounting Software", "AI Accounting"],
+    "Accounting Digitization": ["Accounting Software"],
+    "AI Accounting": ["Accounting Software", "AI Accounting Software", "Accounting Automation"],
+    "AI Accounting Software": ["Accounting Software", "AI Accounting"],
+    "Expense Management": ["Spend Management", "SMB Financial Software"],
+    "Spend Management": ["Expense Management", "SMB Financial Software"],
+    "SMB Financial Software": ["Expense Management", "Accounting Software"],
+    "Startup Accounting": ["Accounting Software"],
+
+    "Wealth Management": ["Investment Management", "Robo-Advisor"],
+    "Investment Management": ["Wealth Management", "Robo-Advisor"],
+    "Robo-Advisor": ["Wealth Management", "Investment Management"],
+
+    "Credit Monitoring": ["Fraud Prevention"],
+    "Mortgage Lending": ["Credit Underwriting"],
+    "Fraud Prevention": ["Credit Monitoring"],
+    "AI Hedge Fund": ["Investment Management"],
+    "AI Lending": ["Mortgage Lending", "Credit Underwriting"],
+    "Cash Flow Management": ["Expense Management", "Spend Management"],
+    "Cloud Financial Management": ["Financial Reporting"],
+
+    "Fundraising Intelligence": ["Investment Management"],
+
+    "Website Builder": ["AI Website Builder"],
+    "AI Website Builder": ["Website Builder"],
+
+    "Business & Enterprise": ["Business", "SaaS"],
+    "Business": ["Business & Enterprise"],
+    "Business AI Assistant": ["AI Tools", "Productivity", "Meetings & Communication"],
+    "AI Tools": ["AI Consulting", "AI & Data Analysis"],
+    "AI Consulting": ["AI Tools"],
+    "AI & Data Analysis": ["Analytics", "Product Intelligence"],
+    "Analytics": ["AI & Data Analysis", "Product Intelligence"],
+    "Product Intelligence": ["Recommendation Systems", "Analytics"],
+    "Recommendation Systems": ["Product Intelligence", "Analytics"],
+
+    "Meetings & Communication": ["Productivity & Organization", "Productivity"],
+
+    "Healthcare": ["AI Tools"],
+
+    "Logistics": ["Automation", "Workflow Automation"],
+
+    "SaaS": ["Business & Enterprise"],
+
+    "Browsing & Utilities": ["Productivity"]
+  }
+}
+
+

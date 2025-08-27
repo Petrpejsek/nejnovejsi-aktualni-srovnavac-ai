@@ -1701,17 +1701,14 @@ function UserAreaContent() {
                         
                         <div className="flex items-center space-x-2">
                           {/* Tlačítko Try for Free / Try it - posunuto více doprava */}
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              if (product.externalUrl) {
-                                window.open(product.externalUrl, '_blank')
-                              }
-                            }}
-                            className="px-3 py-1.5 text-xs bg-purple-600 text-white rounded-full hover:bg-purple-700 transition-colors mr-2"
+                          <a
+                            href={`/api/monetization/out/product/${encodeURIComponent(product.productId || product.id)}`}
+                            onClick={(e) => { e.stopPropagation() }}
+                            rel="nofollow noopener"
+                            className="px-3 py-1.5 text-xs bg-purple-600 text-white rounded-full hover:bg-purple-700 transition-colors mr-2 inline-block"
                           >
                             {(!product.price || product.price === 0) ? 'Try for Free' : 'Try it'}
-                          </button>
+                          </a>
                           
                           {/* Tlačítko pro smazání s loading stavem */}
                           <button
@@ -1857,10 +1854,11 @@ function UserAreaContent() {
                 ) : recommendedProducts.length > 0 ? (
                   <div className="space-y-4">
                     {recommendedProducts.map((product) => (
-                    <div 
-                      key={product.id} 
-                      className="flex items-start space-x-4 p-4 border border-gray-200 rounded-lg hover:border-purple-300 transition-colors cursor-pointer bg-gradient-to-r from-purple-50/50 to-blue-50/50"
-                      onClick={() => product.externalUrl && window.open(product.externalUrl, '_blank')}
+                    <a 
+                      key={product.id}
+                      href={`/api/monetization/out/product/${encodeURIComponent(product.id)}`}
+                      className="flex items-start space-x-4 p-4 border border-gray-200 rounded-lg hover:border-purple-300 transition-colors bg-gradient-to-r from-purple-50/50 to-blue-50/50 block"
+                      rel="nofollow noopener"
                     >
                       <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0">
                         <img
@@ -1911,7 +1909,7 @@ function UserAreaContent() {
                           )}
                         </div>
                       </div>
-                    </div>
+                    </a>
                   ))}
                   </div>
                 ) : (
@@ -2378,17 +2376,14 @@ function UserAreaContent() {
                           
                           <div className="flex items-center space-x-2">
                             {/* Tlačítko Visit Again */}
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                if (item.externalUrl) {
-                                  window.open(item.externalUrl, '_blank')
-                                }
-                              }}
-                              className="px-3 py-1.5 text-xs bg-purple-600 text-white rounded-full hover:bg-purple-700 transition-colors"
+                            <a
+                              href={`/api/monetization/out/product/${encodeURIComponent(item.productId || item.id)}`}
+                              onClick={(e) => { e.stopPropagation() }}
+                              rel="nofollow noopener"
+                              className="px-3 py-1.5 text-xs bg-purple-600 text-white rounded-full hover:bg-purple-700 transition-colors inline-block"
                             >
                               Visit Again
-                            </button>
+                            </a>
                             
                             {/* Ikona koše pro mazání */}
                             <button

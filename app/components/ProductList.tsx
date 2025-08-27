@@ -302,14 +302,13 @@ const ProductCard = ({ product }: { product: AIProduct }) => {
           </ul>
         </div>
         <div className="flex justify-between items-center pt-4">
-          <Link
-            href={product.externalUrl}
-            target="_blank"
-            rel="noopener noreferrer"
+          <a
+            href={`/api/monetization/out/product/${encodeURIComponent(product.id)}`}
+            rel="nofollow noopener"
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
           >
             Try it
-          </Link>
+          </a>
           {product.hasTrial && (
             <span className="text-green-500 font-semibold text-sm">Trial version available</span>
           )}

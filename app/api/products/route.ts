@@ -172,16 +172,10 @@ export async function GET(request: NextRequest) {
       
       // Prepare where clause for filtering - include soft delete filter
       const whereClause: any = {
-        isActive: true,  // Only count active products
-        name: { 
-          not: '' 
-        }  // Filtruj produkty s prázdnými názvy
+        isActive: true,
+        name: { not: '' }
       };
-      if (categoriesList.length > 0) {
-        whereClause.category = { in: categoriesList };
-      } else if (categoryParam) {
-        whereClause.category = categoryParam;
-      }
+      // String-based filter handled later in raw SQL for performance and to include secondary category id
       
       // Get total count of products (with filter)
       const totalProducts = await prisma.product.count({
@@ -224,8 +218,46 @@ export async function GET(request: NextRequest) {
           AND p."name" IS NOT NULL 
           AND p."name" != ''
           ${categoriesList.length > 0
-            ? Prisma.sql`AND LOWER(TRIM(p."category")) IN (${Prisma.join(categoriesList.map(c => c.toLowerCase().trim()))})`
-            : (categoryParam ? Prisma.sql`AND LOWER(TRIM(p."category")) = ${categoryParam.toLowerCase().trim()}` : Prisma.empty)
+            ? Prisma.sql`AND (
+                LOWER(TRIM(p."category")) IN (${Prisma.join(categoriesList.map(c => c.toLowerCase().trim()))})
+                OR EXISTS (
+                  SELECT 1 FROM "Category" cat
+                  WHERE cat."id" = p."primary_category_id"
+                    AND LOWER(TRIM(cat."name")) IN (${Prisma.join(categoriesList.map(c => c.toLowerCase().trim()))})
+                )
+                OR EXISTS (
+                  SELECT 1 FROM "Category" cat2
+                  WHERE cat2."id" = p."secondary_category_id"
+                    AND LOWER(TRIM(cat2."name")) IN (${Prisma.join(categoriesList.map(c => c.toLowerCase().trim()))})
+                )
+                OR EXISTS (
+                  SELECT 1 FROM "ProductCategory" pc
+                  JOIN "Category" c3 ON c3."id" = pc."categoryId"
+                  WHERE pc."productId" = p."id"
+                    AND LOWER(TRIM(c3."name")) IN (${Prisma.join(categoriesList.map(c => c.toLowerCase().trim()))})
+                )
+              )`
+            : (categoryParam 
+                ? Prisma.sql`AND (
+                    LOWER(TRIM(p."category")) = ${categoryParam.toLowerCase().trim()}
+                    OR EXISTS (
+                      SELECT 1 FROM "Category" cat
+                      WHERE cat."id" = p."primary_category_id"
+                        AND LOWER(TRIM(cat."name")) = ${categoryParam.toLowerCase().trim()}
+                    )
+                    OR EXISTS (
+                      SELECT 1 FROM "Category" cat2
+                      WHERE cat2."id" = p."secondary_category_id"
+                        AND LOWER(TRIM(cat2."name")) = ${categoryParam.toLowerCase().trim()}
+                    )
+                    OR EXISTS (
+                      SELECT 1 FROM "ProductCategory" pc
+                      JOIN "Category" c3 ON c3."id" = pc."categoryId"
+                      WHERE pc."productId" = p."id"
+                        AND LOWER(TRIM(c3."name")) = ${categoryParam.toLowerCase().trim()}
+                    )
+                  )`
+                : Prisma.empty)
           }
         ORDER BY 
           has_campaign DESC,
@@ -248,18 +280,21 @@ export async function GET(request: NextRequest) {
       // Clean products and enhance with screenshots before sending
       const products = rawProducts.map(product => {
         if (forHomepage) {
-          // Optimalizované data pro homepage - jen základní pole bez obrázků
+          // Optimalizovaná data pro homepage/kategorie, ale vždy preferuj skutečné imageUrl z DB
           return {
             id: product.id,
             name: product.name,
             description: product.description,
             price: product.price || 0,
             category: product.category,
-            imageUrl: product.name ? getScreenshotUrl(product.name) : '/placeholder-image.png', // používá inteligentní mapování screenshotů
+            imageUrl: product.imageUrl && product.imageUrl.trim()
+              ? product.imageUrl
+              : (product.name ? getScreenshotUrl(product.name) : '/img/placeholder.svg'),
             tags: safeJsonParse(product.tags, []),
             externalUrl: product.externalUrl,
-            hasTrial: Boolean(product.hasTrial)
-          };
+            hasTrial: Boolean(product.hasTrial),
+            updatedAt: product.updatedAt
+          } as any;
         } else {
           // Plná data pro ostatní endpointy
           const cleanedProduct = enhanceProductWithScreenshot(cleanProduct(product));
@@ -327,13 +362,19 @@ export async function POST(request: Request) {
         { status: 400 }
       )
     }
+    if (!data.category || !String(data.category).trim()) {
+      return NextResponse.json(
+        { error: 'Category is required' },
+        { status: 400 }
+      )
+    }
 
     // Process data before saving - SIMPLE VERSION
     const processedData = {
       name: data.name,
       description: data.description || '',
       price: typeof data.price === 'number' ? data.price : 0,
-      category: data.category || '',
+      category: String(data.category).trim(),
       imageUrl: data.imageUrl || '',
       tags: '[]',
       advantages: '[]',

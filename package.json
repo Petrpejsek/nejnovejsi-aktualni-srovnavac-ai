@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "next dev -p 3000",
+    "dev": "next dev -p 3200",
     "init-assistant": "tsx scripts/init-assistant.ts",
     "build": "tsc --project tsconfig.json && prisma generate && next build",
     "vercel-build": "tsc --project tsconfig.json && prisma generate && node --loader ts-node/esm scripts/migrate-database.js && next build",

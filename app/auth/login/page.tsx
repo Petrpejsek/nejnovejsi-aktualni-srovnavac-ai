@@ -30,13 +30,15 @@ export default function LoginPage() {
         callbackUrl: '/admin'
       })
 
-      if (result?.error) {
-        setError('Neplatné přihlašovací údaje')
-      } else {
-        // ✅ OPRAVENO: Middleware už ověřil admin přístup při signIn
-        // Nebudeme duplikovat session kontrolu - jen přesměrujeme
-        console.log('🔐 Admin signIn successful, redirecting to /admin')
+      // Důsledně se řiď podle result.ok (stejně jako u user loginu)
+      if (result?.ok) {
+        console.log('🔐 Admin signIn successful, redirecting to /admin', {
+          ok: result?.ok, error: result?.error, status: result?.status
+        })
         router.push('/admin')
+      } else {
+        console.log('❌ Admin signIn failed', { ok: result?.ok, error: result?.error, status: result?.status })
+        setError('Neplatné přihlašovací údaje')
       }
     } catch (error) {
       setError('Chyba při přihlašování')

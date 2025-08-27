@@ -153,7 +153,7 @@ const CategoryProductCard: React.FC<CategoryProductCardProps> = ({ product, onVi
       <div className="aspect-video relative bg-gray-50">
         {product.imageUrl ? (
           <Image
-            src={product.imageUrl}
+            src={`${product.imageUrl}${product.imageUrl?.includes('?') ? '&' : '?'}v=${encodeURIComponent((product as any).updatedAt || '')}`}
             alt={product.name}
             fill
             className="object-cover group-hover:scale-105 transition-transform duration-200"
@@ -296,8 +296,10 @@ const categoryMapping: Record<string, string[]> = {
   'social-media': ['Marketing & Social Media', 'Social Media', 'Marketing'],
   'data-analysis': ['AI Analytics', 'AI & Data Analysis', 'Analytics', 'Data Analytics'],
   'ai-music': ['AI Audio', 'Audio & Music', 'Music', 'Audio'],
+  // Ensure this slug maps to DB label with ampersand
+  'ai-and-video': ['AI & Video', 'AI Video', 'Video Generation', 'AI Video Generation', 'AI Video Editing', 'Video Editing'],
   'ai-learning': ['Education', 'Learning', 'Training'],
-  'video-generation': ['AI Video', 'Video Generation', 'AI Video Generation', 'AI Video Editing', 'Video Editing'],
+  'video-generation': ['AI Video', 'AI & Video', 'Video Generation', 'AI Video Generation', 'AI Video Editing', 'Video Editing'],
   'ai-chatbots': ['Conversational AI', 'Chatbots', 'AI Assistant'],
   'email-marketing': ['Email Marketing', 'Marketing Automation', 'Marketing'],
   'seo-tools': ['SEO', 'Marketing Tools', 'SEO Tools'],
@@ -505,103 +507,16 @@ export default function CategoryPage() {
         setError(null)
         
         let allProducts: Product[] = []
-        const mappedCategories = categoryMapping[slug] || [categoryName]
+        const mappedCategories = categoryMapping[slug]
+        // Use canonical DB label (first mapping) or deterministic normalization of slug
+        const canonicalCategory = (mappedCategories && mappedCategories[0]) 
+          || categoryName.replace(/\band\b/gi, '&')
 
-        // Build a single multi-category query (case/trim-insensitive on API)
-        const categoriesParam = encodeURIComponent(
-          Array.from(new Set(
-            [
-              ...mappedCategories,
-              categoryName,
-              categoryName.toUpperCase(),
-              categoryName.toLowerCase()
-            ].map(c => c.trim()).filter(Boolean)
-          )).join(',')
-        )
-
-        try {
-          const response = await fetch(`/api/products?categories=${categoriesParam}&page=1&pageSize=100&forHomepage=true`)
-          if (response.ok) {
-            const data = await response.json()
-            if (data.products && data.products.length > 0) {
-              allProducts.push(...data.products)
-            }
-          }
-        } catch (e) {
-          console.warn('Failed to fetch products for multi-category query:', e)
-        }
-        
-        // If no products found with exact category matches, try searching by tags
-        if (allProducts.length === 0) {
-          try {
-            const allProductsResponse = await fetch(`/api/products?page=1&pageSize=100&forHomepage=true`)
-            if (allProductsResponse.ok) {
-              const allData = await allProductsResponse.json()
-              if (allData.products) {
-                // Filter products that have matching tags
-                const keywords = [
-                  slug.replace('-', ' '),
-                  slug.replace('-', ''),
-                  categoryName.toLowerCase(),
-                  ...mappedCategories.map(c => c.toLowerCase())
-                ]
-                
-                allProducts = allData.products.filter((product: Product) => {
-                  if (!product.tags && !product.category) return false
-                  
-                  // Check category
-                  if (product.category) {
-                    const catLower = product.category.toLowerCase()
-                    if (keywords.some(keyword => catLower.includes(keyword.toLowerCase()))) {
-                      return true
-                    }
-                  }
-                  
-                  // Check tags
-                  if (product.tags) {
-                    try {
-                      const tags = (() => {
-                        if (!product.tags) return []
-                        if (typeof product.tags === 'string') {
-                          const trimmed = product.tags.trim()
-                          if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
-                            try {
-                              return JSON.parse(trimmed)
-                            } catch {
-                              console.warn('Invalid JSON in product.tags:', trimmed)
-                              return []
-                            }
-                          }
-                          // fallback: comma-separated list
-                          return trimmed.split(',').map(t => t.trim())
-                        }
-                        return Array.isArray(product.tags) ? product.tags : []
-                      })()
-                      if (Array.isArray(tags)) {
-                        return tags.some(tag => {
-                          const tagLower = tag.toLowerCase()
-                          return keywords.some(keyword => 
-                            tagLower.includes(keyword.toLowerCase()) ||
-                            keyword.toLowerCase().includes(tagLower)
-                          )
-                        })
-                      }
-                    } catch (e) {
-                      // If tags parsing fails, check if string contains slug
-                      const tagsLower = product.tags.toLowerCase()
-                      return keywords.some(keyword => 
-                        tagsLower.includes(keyword.toLowerCase()) ||
-                        keyword.toLowerCase().includes(tagsLower)
-                      )
-                    }
-                  }
-                  
-                  return false
-                })
-              }
-            }
-          } catch (e) {
-            console.warn('Failed to fetch all products for tag filtering:', e)
+        const response = await fetch(`/api/products?category=${encodeURIComponent(canonicalCategory)}&page=1&pageSize=100&forHomepage=true`)
+        if (response.ok) {
+          const data = await response.json()
+          if (data.products && data.products.length > 0) {
+            allProducts = data.products
           }
         }
 

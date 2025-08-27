@@ -44,7 +44,7 @@ const ProductCard: React.FC<{ product: Product; onVisit: (url: string | null) =>
             className="object-cover group-hover:scale-105 transition-transform duration-200"
             onError={(e) => {
               const target = e.target as HTMLImageElement
-              target.src = '/screenshots/default-product.png'
+              target.src = '/img/placeholder.svg'
             }}
           />
         ) : (
@@ -131,6 +131,25 @@ export default function ProductsClient({ initialProducts, initialTotalProducts, 
   const [hasLoadedAll, setHasLoadedAll] = useState(false)
 
   const ITEMS_PER_PAGE = 24
+
+  // Refresh initial products on mount to bypass any SSR cache and pick up latest imageUrl/updatedAt
+  useEffect(() => {
+    const refreshInitial = async () => {
+      try {
+        const response = await fetch(`/api/products?page=1&pageSize=${allProducts.length || ITEMS_PER_PAGE}`)
+        if (response.ok) {
+          const data = await response.json()
+          if (data.products && Array.isArray(data.products)) {
+            setAllProducts(data.products)
+          }
+        }
+      } catch (error) {
+        console.error('Error refreshing initial products:', error)
+      }
+    }
+    refreshInitial()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // Load more products when needed
   const loadMoreProducts = async () => {
@@ -273,13 +292,19 @@ export default function ProductsClient({ initialProducts, initialTotalProducts, 
       {paginatedProducts.length > 0 ? (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
-            {paginatedProducts.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                onVisit={handleVisit}
-              />
-            ))}
+            {paginatedProducts.map((product) => {
+              const versionedImageUrl = product.imageUrl
+                ? `${product.imageUrl}?v=${new Date(product.updatedAt as unknown as any).getTime?.() || new Date(product.updatedAt as any).getTime?.() || Date.now()}`
+                : null
+              const enhancedProduct = { ...product, imageUrl: versionedImageUrl }
+              return (
+                <ProductCard
+                  key={product.id}
+                  product={enhancedProduct as any}
+                  onVisit={handleVisit}
+                />
+              )
+            })}
           </div>
 
           {/* Load More Button */}

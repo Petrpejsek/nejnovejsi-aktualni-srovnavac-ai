@@ -17,6 +17,9 @@ import {
   CalendarIcon
 } from '@heroicons/react/24/outline'
 import { getImageUrl } from '@/lib/utils'
+import CategorySelector from '@/components/CategorySelector'
+import MultiCategorySelector from '@/components/MultiCategorySelector'
+import { use } from 'react'
 
 interface Product {
   id: string
@@ -41,6 +44,7 @@ interface Product {
   hasTrial: boolean
   createdAt?: string
   updatedAt?: string
+  additionalCategories?: Array<{ id: string; name: string; slug: string }>
 }
 
 interface AssignedCompany {
@@ -77,7 +81,7 @@ export default function AdminProductEditPage({ params }: { params: { id: string 
     name: '',
     description: '',
     price: 0,
-    category: 'AI Writing',
+    category: '',
     imageUrl: '',
     pendingImageUrl: null,
     imageApprovalStatus: null,
@@ -92,8 +96,26 @@ export default function AdminProductEditPage({ params }: { params: { id: string 
     },
     videoUrls: [],
     externalUrl: '',
-    hasTrial: false
+    hasTrial: false,
+    additionalCategories: []
   })
+
+  const [categories, setCategories] = useState<Array<{id:string; name:string; slug:string}>>([])
+
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const res = await fetch('/api/categories?source=all')
+        if (res.ok) {
+          const data = await res.json()
+          setCategories(data.categories || [])
+        }
+      } catch (e) {
+        console.warn('Failed to load categories list', e)
+      }
+    }
+    loadCategories()
+  }, [])
 
   // Načtení produktu a přiřazené firmy při načtení stránky
   useEffect(() => {
@@ -656,25 +678,20 @@ const handleImageUpload = async (file: File) => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Kategorie *
-                </label>
-                <select
-                  value={product.category}
-                  onChange={(e) => setProduct(prev => ({...prev, category: e.target.value}))}
-                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500"
+                <CategorySelector
+                  label="Kategorie"
+                  value={product.category || ''}
+                  onChange={(val) => setProduct(prev => ({ ...prev, category: val }))}
                   required
-                >
-                  <option value="AI Writing">AI Writing</option>
-                  <option value="AI Video">AI Video</option>
-                  <option value="AI Audio">AI Audio</option>
-                  <option value="AI Image">AI Image</option>
-                  <option value="AI Coding">AI Coding</option>
-                  <option value="AI Business">AI Business</option>
-                  <option value="AI Analytics">AI Analytics</option>
-                  <option value="AI Tools">AI Tools</option>
-                  <option value="Other">Other</option>
-                </select>
+                />
+              </div>
+
+              <div className="sm:col-span-2">
+                <MultiCategorySelector
+                  label="Additional categories"
+                  value={product.additionalCategories || []}
+                  onChange={(vals) => setProduct(prev => ({ ...prev, additionalCategories: vals }))}
+                />
               </div>
 
               <div>
@@ -768,7 +785,7 @@ const handleImageUpload = async (file: File) => {
                   </div>
                   <div className="relative inline-block">
                     <img
-                      src={getImageUrl(product.imageUrl)}
+                      src={`${getImageUrl(product.imageUrl)}?v=${product.updatedAt || Date.now()}`}
                       alt={product.name}
                       width={200}
                       height={150}
@@ -904,7 +921,7 @@ const handleImageUpload = async (file: File) => {
                   </div>
                   <div className="relative inline-block">
                     <img
-                      src={getImageUrl(imagePreview)}
+                      src={`${getImageUrl(imagePreview)}?v=${Date.now()}`}
                       alt="Preview"
                       width={200}
                       height={150}
