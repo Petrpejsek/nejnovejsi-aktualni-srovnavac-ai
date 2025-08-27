@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { FiEye, FiEyeOff } from 'react-icons/fi'
-import { signIn } from 'next-auth/react'
+import { signIn, useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 
 interface LoginFormProps {
@@ -9,6 +9,7 @@ interface LoginFormProps {
 }
 
 export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormProps) {
+  const { status } = useSession()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -16,6 +17,24 @@ export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormPr
   const [rememberMe, setRememberMe] = useState(false)
 
   const router = useRouter()
+
+  // Pokud už existuje session, zavři modal a případné chyby skryj
+  useEffect(() => {
+    if (status === 'authenticated') {
+      setError(null)
+      onSuccess?.()
+    }
+  }, [status, onSuccess])
+
+  // Čti NextAuth ?error z query (např. CredentialsSignin)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      if (params.get('error')) {
+        setError('Neplatné přihlašovací údaje')
+      }
+    }
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -26,43 +45,18 @@ export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormPr
       const role = isAdminContext ? 'admin' : 'user'
       console.log(`🔍 LoginForm: Detected role '${role}' for email: ${email}`)
 
-      // ✅ Jednotný provider 'credentials' – backend rozlišuje podle credentials.role
-      const result = await signIn('credentials', {
+      // Nech NextAuth provést redirect; při chybě přidá ?error do URL
+      await signIn('credentials', {
         email,
         password,
         role,
         rememberMe,
-        redirect: false,
+        redirect: true,
         callbackUrl: role === 'admin' ? '/admin' : '/user-area'
       })
-      
-      if (result?.ok) {
-        console.log(`✅ LoginForm: Login successful for ${role}: ${email}`)
-        
-        // Zavřít modal před navigací
-        onSuccess?.()
-        
-        if (role === 'user') {
-          // Pro user použij router.push
-          setTimeout(() => {
-            router.push('/user-area')
-          }, 100)
-        } else {
-          // Pro admin použij window.location.href pro správnou session aktualizaci
-          console.log('➡️ Redirecting admin to /admin')
-          // Přidej delší delay pro admin aby se token stihl uložit
-          setTimeout(() => {
-            console.log('🚀 Admin redirect executing...')
-            window.location.href = '/admin'
-          }, 500) // Delší delay pro admin
-        }
-      } else {
-        console.log(`❌ LoginForm: Login failed for ${email}:`, result?.error)
-        setError(result?.error || 'Invalid credentials')
-      }
     } catch (error) {
       console.error('Login error:', error)
-      alert('Connection error. Please try again.')
+      setError('Chyba při přihlašování')
     }
   }
 
