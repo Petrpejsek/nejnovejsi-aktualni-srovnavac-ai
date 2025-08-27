@@ -60,20 +60,18 @@ export async function middleware(request: NextRequest) {
   // Přístup na IP ponech bez redirectu, v developmentu nikdy nedělej doménové redirecty
   if (process.env.NODE_ENV === 'production') {
     try {
-      const url = new URL(request.url);
-      const host = url.hostname.toLowerCase();
-      const isLocalHost = host === 'localhost' || host === '127.0.0.1' || host.endsWith('.local');
-      if (!isLocalHost && (host === 'comparee.ai' || host === 'www.comparee.ai')) {
-        const base = process.env.NEXT_PUBLIC_BASE_URL;
-        if (!base) {
-          // Bez BASE_URL nedělej doménové redirecty
-          return NextResponse.next();
+      const url = new URL(request.url)
+      const currentOrigin = `${url.protocol}//${url.host}`
+      const base = process.env.NEXT_PUBLIC_BASE_URL
+      if (base) {
+        const wanted = new URL(base)
+        const wantedOrigin = `${wanted.protocol}//${wanted.host}`
+        const isLocalHost = url.hostname === 'localhost' || url.hostname === '127.0.0.1' || url.hostname.endsWith('.local')
+        // Redirect only if origin actually differs and not localhost
+        if (!isLocalHost && currentOrigin !== wantedOrigin) {
+          const redirectTo = new URL(url.pathname + url.search, wanted)
+          return NextResponse.redirect(redirectTo, { status: 308 })
         }
-        const wanted = new URL(base);
-        url.protocol = wanted.protocol;
-        url.hostname = wanted.hostname;
-        url.port = wanted.port || '';
-        return NextResponse.redirect(url, { status: 308 });
       }
     } catch {
       // ignore
