@@ -1,16 +1,33 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { signIn } from 'next-auth/react'
+import { signIn, useSession } from 'next-auth/react'
 
 export default function UserLoginPage() {
+  const { status } = useSession()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
+
+  // Pokud už je session aktivní, rovnou přesměruj do user-area
+  useEffect(() => {
+    if (status === 'authenticated') {
+      setError('')
+      router.replace('/user-area')
+    }
+  }, [status, router])
+
+  // Přečti ?error z URL bez useSearchParams (bezpečné pro build)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      if (params.get('error')) setError('Neplatné přihlašovací údaje')
+    }
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -26,29 +43,14 @@ export default function UserLoginPage() {
 
     try {
       // Použij oficiální NextAuth signIn API s role
-      const result = await signIn('credentials', {
+      // NextAuth provede redirect sám; při chybě vrátí ?error=
+      await signIn('credentials', {
         email,
         password,
         role: 'user',
-        redirect: false,
+        redirect: true,
         callbackUrl: '/user-area'
       })
-
-      console.log('🔍 SignIn result:', result)
-      
-      if (result?.ok) {
-        console.log('✅ User login successful, redirecting to /user-area')
-        console.log('🔍 SignIn result details:', result)
-        
-        // Krátká pauza aby se session stihla nastavit
-        setTimeout(() => {
-          console.log('🚀 Redirecting to /user-area...')
-          window.location.href = '/user-area'
-        }, 500)
-      } else {
-        console.log('❌ User login failed:', result?.error)
-        setError('Neplatné přihlašovací údaje')
-      }
     } catch (error) {
       setError('Chyba při přihlašování')
     } finally {

@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { signIn } from 'next-auth/react'
+import { signIn, useSession } from 'next-auth/react'
 
 export default function CompanyLoginPage() {
+  const { status } = useSession()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -32,6 +33,14 @@ export default function CompanyLoginPage() {
     console.log('✅ COMPANY LOGIN PAGE - cookies cleaned')
   }, [])
 
+  // Pokud už je session aktivní, přesměruj do /company-admin
+  useEffect(() => {
+    if (status === 'authenticated') {
+      setError('')
+      router.replace('/company-admin')
+    }
+  }, [status, router])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
@@ -54,26 +63,17 @@ export default function CompanyLoginPage() {
       
       console.log('🔍 Company login attempt:', { email, role: 'company' })
       
-      const result = await signIn('credentials', {
+      // NextAuth provede redirect sám; při chybě vrátí ?error=
+      await signIn('credentials', {
         email,
         password,
-        role: 'company', // NOVÝ ROLE SYSTÉM
-        redirect: false,
+        role: 'company',
+        redirect: true,
         callbackUrl: '/company-admin'
       })
-
-      console.log('🔍 SignIn result (Company):', { ok: result?.ok, error: result?.error, status: result?.status })
-
-      if (result?.error) {
-        console.log('❌ Company login failed:', result?.error)
-        setError('Neplatné přihlašovací údaje')
-      } else {
-        // Redirect immediately after successful signIn - don't check session
-        console.log('✅ Company signIn successful, redirecting to company-admin...')
-        router.push('/company-admin')
-      }
     } catch (error) {
       console.error('Company login error:', error)
+      // Zobraz obecnou chybu jen pokud session nevznikla
       setError('Došlo k chybě při přihlašování')
     } finally {
       setIsLoading(false)
