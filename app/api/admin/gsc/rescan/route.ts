@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import prisma from '@/lib/prisma'
-import { inspectUrl } from '@/lib/gsc'
 import { isProduction } from '@/lib/env'
 
 export const runtime = 'nodejs'
@@ -30,41 +29,24 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'url required' }, { status: 400 })
     }
 
-    const result = await inspectUrl(url)
-    const idx = (result.raw?.inspectionResult?.indexStatusResult) || {}
-    const pageFetchState = (idx.pageFetchState as string | undefined) || null
-    const lastCrawlTime = (idx.lastCrawlTime as string | undefined) || null
-    const googleCanonical = (idx.googleCanonical as string | undefined) || null
-    const userCanonical = (idx.userCanonical as string | undefined) || null
-
-    await prisma.seo_gsc_status.upsert({
-      where: { url },
-      update: {
-        indexed: result.indexed,
-        coverage_state: result.coverageState || null,
-        page_fetch_state: pageFetchState,
-        last_crawl_time: lastCrawlTime ? new Date(lastCrawlTime) : null,
-        google_canonical: googleCanonical,
-        user_canonical: userCanonical,
-        last_crawl: result.lastCrawl ? new Date(result.lastCrawl) : null,
-        checked_at: new Date(),
-        raw: result.raw,
+    // Call token-guarded sync endpoint to perform the inspection and write
+    const token = process.env.GSC_CRON_TOKEN
+    if (!token) return NextResponse.json({ error: 'GSC token missing' }, { status: 500 })
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/seo/gsc-sync`, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'x-gsc-cron-token': token,
       },
-      create: {
-        url,
-        indexed: result.indexed,
-        coverage_state: result.coverageState || null,
-        page_fetch_state: pageFetchState,
-        last_crawl_time: lastCrawlTime ? new Date(lastCrawlTime) : null,
-        google_canonical: googleCanonical,
-        user_canonical: userCanonical,
-        last_crawl: result.lastCrawl ? new Date(result.lastCrawl) : null,
-        checked_at: new Date(),
-        raw: result.raw,
-      },
+      body: JSON.stringify({ urls: [url], limit: 1, dryRun: false, priority: 'all' }),
     })
-
-    return NextResponse.json({ ok: true, url, indexed: result.indexed, coverage_state: result.coverageState })
+    if (!res.ok) {
+      const t = await res.text().catch(() => '')
+      return NextResponse.json({ error: `sync failed ${res.status}`, details: t }, { status: 500 })
+    }
+    // Return current DB snapshot of the URL
+    const row = await prisma.seo_gsc_status.findUnique({ where: { url } })
+    return NextResponse.json({ ok: true, row })
   } catch (e: any) {
     return NextResponse.json({ error: e?.message || 'internal' }, { status: 500 })
   }
