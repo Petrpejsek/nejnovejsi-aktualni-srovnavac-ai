@@ -1,0 +1,10 @@
+<h1>{{ t.headings.generic_notice or (title or 'Notice') }}</h1>
+{% if message %}
+  <p>{{ message }}</p>
+{% endif %}
+{% if action_url %}
+  <p>
+    <a class="btn" href="{{ action_url }}">{{ t.buttons.view_details or 'View details' }}</a>
+  </p>
+{% endif %}
+

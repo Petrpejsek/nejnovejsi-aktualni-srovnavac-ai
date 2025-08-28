@@ -1,10 +1,11 @@
-// i18n Landing Page Component - Support for multiple languages
+// i18n frozen: do not render in prod; canonical is /landing/[slug]
+// i18n Landing Page Component - Support for multiple languages (Phase 2)
 import React from 'react';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import prisma from '@/lib/prisma';
 import { isValidLocale, Locale, getLanguageMetadata, locales } from '@/lib/i18n';
-import { PUBLIC_BASE_URL } from '@/lib/env'
+import { getPublicBaseUrl } from '@/lib/env'
 import { autoLinkHtml, suggestAutolinkTags } from '@/lib/autolink'
 
 interface Props {
@@ -54,52 +55,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     }
 
     const landingPage = await getLandingPage(params.slug, params.lang as Locale);
-    const langMeta = getLanguageMetadata(params.lang as Locale);
-    
-    // Generate alternate language URLs
-    const alternateLanguages: Record<string, string> = {};
-    for (const locale of locales) {
-      alternateLanguages[locale] = `${PUBLIC_BASE_URL}/${locale}/landing/${params.slug}`;
-    }
-    
+    // No hreflang; mark as noindex and set canonical to non-i18n path
+    const canonicalUrl = `${getPublicBaseUrl()}/landing/${params.slug}`
     const ogImageUrl = (landingPage as any).image_url || (landingPage as any).visuals?.heroImage?.imageUrl
-
     return {
       title: `${landingPage.title} | Comparee.ai`,
       description: landingPage.metaDescription,
-      keywords: landingPage.meta_keywords.join(', '),
-      alternates: {
-        canonical: `${PUBLIC_BASE_URL}/${params.lang}/landing/${params.slug}`,
-        languages: alternateLanguages,
-      },
-      openGraph: {
-        title: landingPage.title,
-        description: landingPage.metaDescription,
-        url: `${PUBLIC_BASE_URL}/${params.lang}/landing/${params.slug}`,
-        siteName: 'Comparee.ai',
-        locale: langMeta.locale,
-        type: 'article',
-        publishedTime: landingPage.publishedAt.toISOString(),
-        modifiedTime: landingPage.updatedAt.toISOString(),
-        images: ogImageUrl ? [{ url: ogImageUrl }] : undefined,
-      },
-      twitter: {
-        card: 'summary_large_image',
-        title: landingPage.title,
-        description: landingPage.metaDescription,
-        images: ogImageUrl ? [ogImageUrl] : undefined,
-      },
-      robots: {
-        index: true,
-        follow: true,
-        googleBot: {
-          index: true,
-          follow: true,
-        },
-      },
-      other: {
-        'language': params.lang,
-      },
+      alternates: { canonical: canonicalUrl },
+      openGraph: ogImageUrl ? { url: canonicalUrl, images: [{ url: ogImageUrl }] } : undefined,
+      twitter: ogImageUrl ? { card: 'summary_large_image', images: [ogImageUrl] } : undefined,
+      robots: { index: false, follow: true },
     };
   } catch (error) {
     return {
@@ -217,6 +182,8 @@ export default async function I18nLandingPage({ params }: Props) {
 
   const visualsArray: Visual[] = Array.isArray(landingPage.visuals) ? (landingPage.visuals as Visual[]) : []
   const galleryVisuals = visualsArray.filter((v: Visual) => v.position === 'gallery')
+
+  try { console.info(`[i18n-frozen] i18n route hit: /${lang}/landing/${slug}; middleware should redirect in production`) } catch {}
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">

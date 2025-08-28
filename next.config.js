@@ -77,6 +77,8 @@ const nextConfig = {
       { source: '/company/settings', destination: '/company-admin/profile', permanent: true },
       { source: '/advertiser', destination: '/company-admin', permanent: true },
       { source: '/advertiser/login', destination: '/company-admin/login', permanent: true },
+      // Canonicalize categories to plural path
+      { source: '/category/:slug', destination: '/categories/:slug', permanent: true },
     ]
   }
 }

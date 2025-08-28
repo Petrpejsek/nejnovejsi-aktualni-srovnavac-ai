@@ -1,0 +1,10 @@
+<h1>{{ t.headings.verify_email or 'Verify your email' }}</h1>
+<p>{{ t.messages.verify_email_intro or 'Please confirm your email address to continue.' }}</p>
+{% if action_url %}
+  <p>
+    <a class="btn" href="{{ action_url }}">{{ t.buttons.verify_email or 'Verify email' }}</a>
+  </p>
+  <p>{{ t.messages.link_expires or 'If the button does not work, copy the link below:' }}</p>
+  <p><a href="{{ action_url }}">{{ action_url }}</a></p>
+{% endif %}
+

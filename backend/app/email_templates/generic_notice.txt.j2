@@ -1,0 +1,8 @@
+{{ t.headings.generic_notice or (title or 'Notice') }}
+
+{% if message %}{{ message }}
+
+{% endif %}{% if action_url %}Details:
+{{ action_url }}
+
+{% endif %}{{ brand_name }}{% if support_email %} • Support: {{ support_email }}{% endif %}

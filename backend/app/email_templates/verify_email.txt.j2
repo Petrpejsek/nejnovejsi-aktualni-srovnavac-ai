@@ -1,0 +1,8 @@
+{{ t.headings.verify_email or 'Verify your email' }}
+
+{{ t.messages.verify_email_intro or 'Please confirm your email address to continue.' }}
+
+Verification link:
+{{ action_url }}
+
+{{ brand_name }}{% if support_email %} • Support: {{ support_email }}{% endif %}

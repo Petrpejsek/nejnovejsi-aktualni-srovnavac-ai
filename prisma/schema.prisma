@@ -699,6 +699,28 @@ model PromptReview {
   @@index([rating])
 }
 
+/// Google Search Console URL Inspection cache
+model seo_gsc_status {
+  url            String   @id
+  indexed        Boolean
+  coverage_state String?
+  last_crawl     DateTime?
+  checked_at     DateTime @default(now())
+  raw            Json?
+  // Extended fields for richer URL Inspection diagnostics
+  page_fetch_state String?
+  last_crawl_time  DateTime?
+  google_canonical String?
+  user_canonical   String?
+  mobile_usability String?
+  rich_results     String?
+  updated_at       DateTime @updatedAt
+
+  @@index([checked_at])
+  @@index([indexed, checked_at])
+  @@index([updated_at])
+}
+
 /// Outbound CPC click logs for redirector /r
 model ClicksCpc {
   click_id          String   @id

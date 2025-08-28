@@ -357,78 +357,10 @@ function validateLegacyPayload(data: any): { isValid: boolean, errors: string[] 
 let lastSitemapUpdate = 0
 const SITEMAP_UPDATE_COOLDOWN = 60000 // 1 minute
 
-// Function to update sitemap with performance optimization
+// Disable local sitemap writer here – single source of truth is /api/sitemap
 async function updateSitemap(): Promise<void> {
-  try {
-    // Rate limiting - avoid updating sitemap too frequently
-    const now = Date.now()
-    if (now - lastSitemapUpdate < SITEMAP_UPDATE_COOLDOWN) {
-      console.log('⏱️ Sitemap update skipped (rate limited)')
-      return
-    }
-    
-    lastSitemapUpdate = now
-    
-    // Get all published landing pages with minimal data
-    const landingPages = await prisma.landing_pages.findMany({
-      select: {
-        slug: true,
-        updated_at: true,
-        published_at: true
-      },
-      orderBy: {
-        published_at: 'desc'
-      },
-      take: 5000 // Limit for performance, adjust as needed
-    })
-
-    // Basic sitemap structure
-    const baseUrl = (() => { const v = process.env.NEXT_PUBLIC_BASE_URL; if (!v) throw new Error('NEXT_PUBLIC_BASE_URL is required'); return v })()
-    const currentDate = new Date().toISOString().split('T')[0]
-
-    let sitemapContent = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>${baseUrl}</loc>
-    <lastmod>${currentDate}</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>1.0</priority>
-  </url>`
-
-    // Add landing pages to sitemap
-    landingPages.forEach(page => {
-      const lastmod = page.updated_at.toISOString().split('T')[0]
-      sitemapContent += `
-  <url>
-    <loc>${baseUrl}/landing/${encodeURIComponent(page.slug)}</loc>
-    <lastmod>${lastmod}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>`
-    })
-
-    sitemapContent += `
-</urlset>`
-
-    // Write sitemap to public directory with error handling
-    const fs = require('fs')
-    const path = require('path')
-    
-    const publicDir = path.join(process.cwd(), 'public')
-    
-    // Ensure public directory exists
-    if (!fs.existsSync(publicDir)) {
-      fs.mkdirSync(publicDir, { recursive: true })
-    }
-    
-    const sitemapPath = path.join(publicDir, 'sitemap.xml')
-    
-    fs.writeFileSync(sitemapPath, sitemapContent, 'utf8')
-    console.log(`✅ Sitemap updated successfully with ${landingPages.length} pages`)
-  } catch (error) {
-    console.error('❌ Error updating sitemap:', error)
-    // Don't throw error to avoid breaking the main request
-  }
+  console.log('ℹ️ Skipping sitemap write in /api/landing-pages. Use /api/sitemap as the single generator.')
+  return
 }
 
 // Function to ping search engines
@@ -924,7 +856,7 @@ async function handleAiFormatPayload(data: any, requestId: string) {
     // AI farma response format with simple URL (no i18n)
     const response: AiLandingPageResponse = {
       status: 'ok',
-      url: `/${payload.language}/landing/${payload.slug}`,
+      url: `/landing/${payload.slug}`,
       slug: payload.slug
     }
 

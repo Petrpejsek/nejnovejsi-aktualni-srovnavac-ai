@@ -1,37 +1,33 @@
 import { NextResponse, NextRequest } from 'next/server'
 import prisma from '@/lib/prisma'
+import { SEO_ENFORCE_STRICT, isStrongContent } from '@/lib/seo/config'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
+import { getPublicBaseUrl, PRIMARY_LANG } from '@/lib/env'
 
 // Sitemap management API
 // GET /api/sitemap - Force regenerate sitemap
 // POST /api/sitemap - Force regenerate sitemap (admin only)
 
-// Base URL configuration (no fallback to comparee.ai)
-const getBaseUrl = () => {
-  const base = process.env.NEXT_PUBLIC_BASE_URL
-  if (!base) {
-    throw new Error('NEXT_PUBLIC_BASE_URL is required for sitemap generation')
-  }
-  return base
-}
+// Base URL configuration via strict getter
+const getBaseUrl = () => getPublicBaseUrl()
 
 // Function to generate complete sitemap
 async function generateSitemap(): Promise<string> {
   try {
     console.log('🗺️  Starting sitemap generation...')
-    
-    // Get all published landing pages
+
+    // Get all landing pages for primary language only
     const landingPages = await prisma.landing_pages.findMany({
+      where: { language: PRIMARY_LANG },
       select: {
         slug: true,
         language: true,
         updated_at: true,
-        published_at: true
+        published_at: true,
+        content_html: true,
       },
-      orderBy: {
-        published_at: 'desc'
-      }
+      orderBy: { updated_at: 'desc' }
     })
 
     console.log(`📋 Found ${landingPages.length} landing pages`)
@@ -62,7 +58,7 @@ async function generateSitemap(): Promise<string> {
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>${baseUrl}/company</loc>
+    <loc>${baseUrl}/advertise</loc>
     <lastmod>${currentDate}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -104,50 +100,42 @@ async function generateSitemap(): Promise<string> {
     <priority>0.3</priority>
   </url>`
 
-    // Add landing pages – EN only layout without language prefix
+    // Add landing pages – canonical layout without language prefix
     console.log('📝 Adding landing pages to sitemap...')
+    let landingStrong = 0
+    let landingWeak = 0
+    const droppedLandings: string[] = []
     landingPages.forEach(page => {
-      const lastmod = page.updated_at.toISOString().split('T')[0]
+      const strong = isStrongContent(String((page as any).content_html || ''), (page as any).slug)
+      if (!strong) {
+        landingWeak++
+        if (SEO_ENFORCE_STRICT) {
+          droppedLandings.push((page as any).slug)
+          return
+        }
+      }
+      landingStrong++
+      const lastmod = (page as any).updated_at.toISOString().split('T')[0]
       sitemapContent += `
   <url>
-    <loc>${baseUrl}/landing/${encodeURIComponent(page.slug)}</loc>
+    <loc>${baseUrl}/landing/${encodeURIComponent((page as any).slug)}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>`
     })
 
-    // Get AI course categories for additional URLs
+    // Optional audit: warn if non-primary language landings exist
     try {
-      const categories = await prisma.product.findMany({
-        select: { category: true },
-        distinct: ['category'],
-        where: {
-          category: {
-            not: null
-          }
-        }
-      })
-
-      console.log(`📂 Adding ${categories.length} category pages...`)
-      categories.forEach(cat => {
-        if (cat.category) {
-          const slug = cat.category.toLowerCase()
-            .replace(/[^a-z0-9\s-]/g, '')
-            .replace(/\s+/g, '-')
-          
-          sitemapContent += `
-  <url>
-    <loc>${baseUrl}/categories/${encodeURIComponent(slug)}</loc>
-    <lastmod>${currentDate}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>`
-        }
-      })
+      const nonEnCount = await prisma.landing_pages.count({ where: { NOT: { language: PRIMARY_LANG } } })
+      if (nonEnCount > 0) {
+        console.warn(`⚠️  Non-primary language landings detected: count=${nonEnCount}`)
+      }
     } catch (error) {
-      console.warn('⚠️  Could not fetch categories for sitemap:', error)
+      console.warn('⚠️  Non-en audit failed:', error)
     }
+
+    console.log(`🧭 Landings strong=${landingStrong} weak=${landingWeak} dropped=[${droppedLandings.slice(0, 50).join(', ')}]`)
 
     sitemapContent += `
 </urlset>`
@@ -228,8 +216,18 @@ export async function GET(request: NextRequest) {
     
     const startTime = Date.now()
     
+    // Verify base URL availability (fail-safe in dev if invalid)
+    let sitemapContent: string
+    try {
+      // This will throw in production if invalid/missing
+      getBaseUrl()
+    } catch (e) {
+      console.warn('⚠️  BASE URL invalid or missing; sitemap generation skipped')
+      return NextResponse.json({ error: 'BASE URL missing or invalid' }, { status: 503 })
+    }
+
     // Generate new sitemap
-    const sitemapContent = await generateSitemap()
+    sitemapContent = await generateSitemap()
     
     // Save to file
     await saveSitemapToFile(sitemapContent)

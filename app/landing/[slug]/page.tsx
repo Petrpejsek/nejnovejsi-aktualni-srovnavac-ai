@@ -4,8 +4,10 @@ import React from 'react';
 import { notFound, redirect } from 'next/navigation';
 import { Metadata } from 'next';
 import prisma from '@/lib/prisma';
+import { isStrongContent } from '@/lib/seo/config'
 import dynamic from 'next/dynamic';
 import { autoLinkHtml, suggestAutolinkTags } from '@/lib/autolink'
+import { getPublicBaseUrl, PRIMARY_LANG, PRIMARY_LOCALE, assertPrimaryLanguage } from '@/lib/env'
 
 const AiAdvisor = dynamic(() => import('@/components/AiAdvisor'), {
   ssr: false,
@@ -38,7 +40,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
     const landingPage = await prisma.landing_pages.findFirst({
       where: { 
-        slug: slug
+        slug: slug,
+        language: PRIMARY_LANG,
       },
       select: {
         title: true,
@@ -48,6 +51,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         slug: true,
         image_url: true,
         visuals: true,
+        content_html: true,
       },
     });
 
@@ -58,25 +62,31 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       };
     }
     
-    const base = process.env.NEXT_PUBLIC_BASE_URL
-    const canonicalUrl = `${base}/landing/${slug}`
+    const canonicalUrl = `${getPublicBaseUrl()}/landing/${slug}`
+
+    const strong = isStrongContent((landingPage as any).content_html, slug)
 
     const ogImageUrl = (landingPage as any).image_url || undefined
 
+    if (!strong) {
+      return {
+        alternates: { canonical: canonicalUrl },
+        robots: { index: false, follow: true },
+      } as Metadata
+    }
+
+    const descriptionFromDb = landingPage.meta_description && String(landingPage.meta_description).trim().length > 0
+      ? landingPage.meta_description
+      : undefined
+
     return {
       title: `${landingPage.title} | Comparee.ai`,
-      description: landingPage.meta_description,
+      ...(descriptionFromDb ? { description: descriptionFromDb } : {}),
       keywords: typeof landingPage.meta_keywords === 'string' ? landingPage.meta_keywords : (landingPage.meta_keywords as any)?.join?.(', ') || '',
       alternates: { canonical: canonicalUrl },
-      openGraph: {
-        url: canonicalUrl,
-        images: ogImageUrl ? [{ url: ogImageUrl }] : undefined,
-      },
-      twitter: {
-        card: 'summary_large_image',
-        images: ogImageUrl ? [ogImageUrl] : undefined,
-      },
-    };
+      openGraph: ogImageUrl ? { url: canonicalUrl, images: [{ url: ogImageUrl }] } : undefined,
+      twitter: ogImageUrl ? { card: 'summary_large_image', images: [ogImageUrl] } : undefined,
+    } as Metadata;
   } catch (error) {
     console.error('Error generating metadata:', error);
     return {
@@ -90,10 +100,14 @@ export default async function LandingPageDetail({ params }: Props) {
   const { slug } = params;
 
   try {
+    // Assert language discipline in production
+    assertPrimaryLanguage(PRIMARY_LANG)
+
     // Fetch the landing page from database
     const landingPage = await prisma.landing_pages.findFirst({
       where: { 
-        slug: slug
+        slug: slug,
+        language: PRIMARY_LANG,
       },
     });
     
@@ -101,8 +115,21 @@ export default async function LandingPageDetail({ params }: Props) {
       notFound();
     }
 
-    // Redirect to i18n route to ensure consistent rendering and data usage
-    redirect(`/${landingPage.language}/landing/${landingPage.slug}`)
+    // Diagnostics: check for multi-lang duplicates of the same slug
+    try {
+      const otherLangs = await prisma.landing_pages.findMany({
+        where: { slug, NOT: { language: PRIMARY_LANG } },
+        select: { language: true },
+      })
+      if (otherLangs && otherLangs.length > 0) {
+        const langs = Array.from(new Set(otherLangs.map(l => (l as any).language))).join(', ')
+        console.warn(`[i18n-frozen] Duplicate slug detected for languages != ${PRIMARY_LANG}: slug="${slug}", languages=[${langs}], count=${otherLangs.length}`)
+      }
+    } catch {
+      // ignore diagnostics errors
+    }
+
+    // Render canonical non-i18n landing at /landing/[slug]
 
     const wordCount = landingPage.content_html.replace(/<[^>]*>/g, "").split(/\s+/).length;
 
@@ -126,12 +153,13 @@ export default async function LandingPageDetail({ params }: Props) {
       ? `\n<figure class=\"my-8\">\n  <img src=\"${heroImage.imageUrl}\" alt=\"${heroImage.imageAlt || ''}\" ${heroImage.imageWidth ? `width=\\\"${heroImage.imageWidth}\\\"` : ''} ${heroImage.imageHeight ? `height=\\\"${heroImage.imageHeight}\\\"` : ''} class=\"w-full h-auto rounded-xl\"/>\n  ${(heroImage.imageSourceName || heroImage.imageLicense) ? `<figcaption class=\\\"mt-2 text-sm text-slate-500\\\">${heroImage.imageSourceUrl && heroImage.imageSourceName ? `<a href=\\\"${heroImage.imageSourceUrl}\\\" target=\\\"_blank\\\" rel=\\\"noopener noreferrer\\\" class=\\\"underline\\\">${heroImage.imageSourceName}</a>` : (heroImage.imageSourceName || '')}${heroImage.imageLicense ? ` <span>· ${heroImage.imageLicense}</span>` : ''}</figcaption>` : ''}\n</figure>\n`
       : ''
     const baseHtml = landingPage.language === 'en' ? autoLinkHtml(landingPage.content_html, 'en') : landingPage.content_html
+    const isStrong = isStrongContent(baseHtml, slug)
     const composedContentHtml = heroImage?.imageUrl ? insertAfterFirstH2(baseHtml, figureSnippet) : baseHtml
     const suggestedTags = landingPage.language === 'en' ? suggestAutolinkTags(composedContentHtml, 'en', 3) : []
 
     // JSON-LD structured data
-    const base = process.env.NEXT_PUBLIC_BASE_URL
-    const canonicalUrl = `${base}/landing/${slug}`
+    const canonicalUrl = `${getPublicBaseUrl()}/landing/${slug}`
+    const base = getPublicBaseUrl()
     const ldArticle = {
       '@context': 'https://schema.org',
       '@type': 'Article',
@@ -167,10 +195,15 @@ export default async function LandingPageDetail({ params }: Props) {
     // Generuj dynamické tagy z obsahu
     return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ldArticle) }} />
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ldBreadcrumb) }} />
-        {ldFAQ ? (
-          <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ldFAQ) }} />
+        {/* Structured data only for strong content */}
+        {isStrong ? (
+          <>
+            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ldArticle) }} />
+            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ldBreadcrumb) }} />
+            {ldFAQ ? (
+              <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ldFAQ) }} />
+            ) : null}
+          </>
         ) : null}
         
         {/* Hero Section (restored original gradient) */}

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { NextRequest } from 'next/server'
 import { Prisma } from '@prisma/client'
+import { getCategoryNamesForSlug } from '@/lib/categoryMapping'
 import { enhanceProductWithScreenshot, getScreenshotUrl } from '@/lib/screenshot-utils'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -145,10 +146,17 @@ export async function GET(request: NextRequest) {
       const pageParam = searchParams.get('page');
       const pageSizeParam = searchParams.get('pageSize');
       const categoryParam = searchParams.get('category');
+      const categorySlugParam = searchParams.get('categorySlug');
       const categoriesParam = searchParams.get('categories'); // comma-separated list of categories
-      const categoriesList = categoriesParam
+      let categoriesList = categoriesParam
         ? categoriesParam.split(',').map((c) => c.trim()).filter((c) => c.length > 0)
         : []
+      // If client provides a canonical slug, expand to human names + synonyms
+      if (categoriesList.length === 0 && categorySlugParam) {
+        try {
+          categoriesList = getCategoryNamesForSlug(categorySlugParam)
+        } catch {}
+      }
       const forHomepage = searchParams.get('forHomepage') === 'true'; // optimalizace pro homepage
       
       const page = pageParam ? parseInt(pageParam, 10) : 1;
@@ -160,6 +168,8 @@ export async function GET(request: NextRequest) {
         pageParam,
         pageSizeParam,
         category: categoryParam,
+        categorySlug: categorySlugParam,
+        categories: categoriesList,
         url: request.url 
       });
       

@@ -1,322 +1,19 @@
-'use client'
-
-import React, { useState, useEffect } from 'react'
-import { useParams } from 'next/navigation'
-import Link from 'next/link'
-import Image from 'next/image'
-import { BookmarkIcon } from '@heroicons/react/24/outline'
-import { BookmarkIcon as BookmarkFilledIcon } from '@heroicons/react/24/solid'
-import { useSession } from 'next-auth/react'
-import { trackProductClick } from '../../../lib/utils'
-import Modal from '../../../components/Modal'
-import RegisterForm from '../../../components/RegisterForm'
+import React from 'react'
 import { PUBLIC_BASE_URL } from '@/lib/env'
+import prisma from '@/lib/prisma'
+import { getCategoryNamesForSlug } from '@/lib/categoryMapping'
+import { SEO_MIN_CATEGORY_COUNT, SEO_INDEX_ALLOWLIST } from '@/lib/seo/config'
+import { buildCategoryItemList } from '@/lib/seo/schema'
+import ClientCategoryPage from './ClientCategoryPage'
+import { notFound } from 'next/navigation'
 
-interface Product {
-  id: string
-  name: string
-  description: string | null
-  price: number
-  category: string | null
-  imageUrl: string | null
-  tags: string | null
-  externalUrl: string | null
-  hasTrial: boolean
-  hasCredit?: boolean
-  isActive?: boolean
-}
-
-// Lokální CategoryProductCard komponenta jen pro category stránky
-interface CategoryProductCardProps {
-  product: Product
-  onVisit: (product: Product) => void
-  isBookmarked?: boolean
-  onBookmarkChange?: (productId: string, isBookmarked: boolean) => void
-}
-
-// Toast notification helper
-const showToast = (message: string, type: 'success' | 'error' = 'success') => {
-  const toast = document.createElement('div')
-  toast.className = `fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg transform transition-all duration-300 ${
-    type === 'success' 
-      ? 'bg-green-500 text-white' 
-      : 'bg-red-500 text-white'
-  }`
-  toast.textContent = message
-  document.body.appendChild(toast)
-  
-  // Animate in
-  setTimeout(() => {
-    toast.style.transform = 'translateX(0)'
-  }, 10)
-  
-  // Remove after 3 seconds
-  setTimeout(() => {
-    toast.style.transform = 'translateX(400px)'
-    setTimeout(() => {
-      if (document.body.contains(toast)) {
-        document.body.removeChild(toast)
-      }
-    }, 300)
-  }, 3000)
-}
-
-const CategoryProductCard: React.FC<CategoryProductCardProps> = ({ product, onVisit, isBookmarked = false, onBookmarkChange }) => {
-  const { data: session } = useSession()
-  const [localBookmarked, setLocalBookmarked] = useState(isBookmarked)
-  const [isAnimating, setIsAnimating] = useState(false)
-  const [showSignUpModal, setShowSignUpModal] = useState(false)
-
-  // Update local state when prop changes
-  useEffect(() => {
-    setLocalBookmarked(isBookmarked)
-  }, [isBookmarked])
-
-  const handleBookmark = async (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    
-    console.log('🔖 BOOKMARK CLICK:', { productId: product.id, productName: product.name, sessionExists: !!session })
-    
-    // Check if user is authenticated
-    if (!session) {
-      console.log('❌ User not authenticated, showing signup modal')
-      setShowSignUpModal(true)
-      return
-    }
-    
-    // Start animation
-    setIsAnimating(true)
-    
-    // OPTIMISTIC UPDATE - update UI immediately
-    const newBookmarkedState = !localBookmarked
-    setLocalBookmarked(newBookmarkedState)
-    
-    console.log('🔄 OPTIMISTIC UPDATE:', { newBookmarkedState, productId: product.id })
-    
-    // Show toast immediately
-    showToast(newBookmarkedState ? 'Saved!' : 'Removed!', 'success')
-    
-    // Call parent callback immediately for UI consistency
-    if (onBookmarkChange) {
-      onBookmarkChange(product.id, newBookmarkedState)
-    }
-
-    try {
-      let response: Response
-      
-      if (newBookmarkedState) {
-        // SAVE: POST to /api/users/saved-products
-        response = await fetch('/api/users/saved-products', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ 
-            productId: product.id,
-            productName: product.name,
-            category: product.category,
-            imageUrl: product.imageUrl,
-            price: product.price
-          }),
-        })
-      } else {
-        // UNSAVE: DELETE to /api/users/saved-products with query param
-        response = await fetch(`/api/users/saved-products?productId=${encodeURIComponent(product.id)}`, {
-          method: 'DELETE'
-        })
-      }
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-
-      console.log(`✅ ${newBookmarkedState ? 'SAVE' : 'UNSAVE'} SUCCESS:`, { productId: product.id })
-      
-    } catch (error) {
-      console.error('❌ BOOKMARK ERROR:', error)
-      
-      // ROLLBACK on API error
-      setLocalBookmarked(!newBookmarkedState)
-      if (onBookmarkChange) {
-        onBookmarkChange(product.id, !newBookmarkedState)
-      }
-      
-      showToast('Something went wrong. Please try again.', 'error')
-    } finally {
-      setTimeout(() => setIsAnimating(false), 300)
-    }
-  }
-
-  return (
-    <div className="group bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-200 border border-gray-100 overflow-hidden flex flex-col h-full">
-      <div className="aspect-video relative bg-gray-50">
-        {product.imageUrl ? (
-          <Image
-            src={`${product.imageUrl}${product.imageUrl?.includes('?') ? '&' : '?'}v=${encodeURIComponent((product as any).updatedAt || '')}`}
-            alt={product.name}
-            fill
-            className="object-cover group-hover:scale-105 transition-transform duration-200"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          />
-        ) : (
-          <div className="w-full h-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-            <span className="text-white text-2xl font-bold">
-              {product.name.charAt(0)}
-            </span>
-          </div>
-        )}
-        
-        {/* Price badge */}
-        <div className="absolute bottom-3 left-3">
-          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-            product.price === 0 
-              ? 'bg-green-100 text-green-800' 
-              : 'bg-blue-100 text-blue-800'
-          }`}>
-            {product.price === 0 ? 'Free' : `$${product.price}`}
-          </span>
-        </div>
-
-        {/* Trial badge */}
-        {product.hasTrial && (
-          <div className="absolute top-3 right-3">
-            <span className="px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
-              Free Trial
-            </span>
-          </div>
-        )}
-
-        {/* Bookmark button */}
-        <button
-          onClick={handleBookmark}
-          className={`absolute top-2 left-2 w-8 h-8 bg-white bg-opacity-90 hover:bg-opacity-100 rounded-full flex items-center justify-center shadow-sm transition-all duration-300 hover:scale-110 ${
-            isAnimating ? 'animate-pulse transform -translate-y-1' : ''
-          }`}
-        >
-          {localBookmarked ? (
-            <BookmarkFilledIcon className="w-4 h-4 text-purple-600" />
-          ) : (
-            <BookmarkIcon className="w-4 h-4 text-gray-600" />
-          )}
-        </button>
-      </div>
-
-      {/* Flex container pro obsah - zajistí správné rozmístění */}
-      <div className="p-6 flex flex-col justify-between flex-grow">
-        {/* Obsah nahoře */}
-        <div>
-          <h3 className="font-semibold text-lg text-gray-900 mb-2 group-hover:text-purple-600 transition-colors">
-            {product.name}
-          </h3>
-          
-          <p className="text-gray-600 text-sm mb-4 line-clamp-3">
-            {product.description || 'No description available'}
-          </p>
-          
-          {/* Tags */}
-          {product.tags && (
-            <div className="flex flex-wrap gap-1 mb-4">
-              {(() => {
-                if (!product.tags) return []
-                if (typeof product.tags === 'string') {
-                  const trimmed = product.tags.trim()
-                  if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
-                    try {
-                      return JSON.parse(trimmed)
-                    } catch {
-                      console.warn('Invalid JSON in product.tags:', trimmed)
-                      return []
-                    }
-                  }
-                  // fallback: comma-separated list
-                  return trimmed.split(',').map(t => t.trim())
-                }
-                return Array.isArray(product.tags) ? product.tags : []
-              })()?.slice(0, 3).map((tag: string, index: number) => (
-                <span
-                  key={index}
-                  className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-md"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-          )}
-        </div>
-        
-        {/* Tlačítko na spodku pomocí mt-auto */}
-        <div className="mt-auto">
-          <button
-            onClick={() => onVisit(product)}
-            className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200"
-          >
-            View Tool
-          </button>
-        </div>
-      </div>
-
-      {/* Signup modal */}
-      <Modal 
-        isOpen={showSignUpModal} 
-        onClose={() => setShowSignUpModal(false)}
-        title="Save to Favorites"
-      >
-        <div className="mb-4">
-          <p className="text-gray-600 mb-4">
-            Create an account to save your favorite tools and access them anytime.
-          </p>
-        </div>
-        <RegisterForm 
-          onSuccess={() => {
-            setShowSignUpModal(false)
-            // Optimistically add to saved products after successful registration
-            setLocalBookmarked(true)
-            if (onBookmarkChange) {
-              onBookmarkChange(product.id, true)
-            }
-          }}
-        />
-      </Modal>
-    </div>
-  )
-}
+// Server-side metadata generation handled below with params-aware generateMetadata
 
 // Slugify function for converting category names to URL-friendly slugs
 const slugify = (name: string) =>
   name.toLowerCase().replace(/&/g, 'and').replace(/\s+/g, '-');
 
-// Category mapping - maps URL slugs to actual database categories
-const categoryMapping: Record<string, string[]> = {
-  // Include exact DB category labels from admin UI + synonyms
-  'ai-writing': ['AI Writing', 'Content & Writing', 'AI Content Creation', 'Content', 'Writing'],
-  'image-generation': ['AI Image', 'Image Generation', 'AI Design & Creative Tools', 'Design & Visual', 'Design Tools', 'Visual'],
-  'automation': ['Automation', 'Workflow Automation', 'Marketing Automation', 'Business Automation'],
-  'website-builder': ['Website Builder', 'AI Website Builder', 'Web Development'],
-  'social-media': ['Marketing & Social Media', 'Social Media', 'Marketing'],
-  'data-analysis': ['AI Analytics', 'AI & Data Analysis', 'Analytics', 'Data Analytics'],
-  'ai-music': ['AI Audio', 'Audio & Music', 'Music', 'Audio'],
-  // Ensure this slug maps to DB label with ampersand
-  'ai-and-video': ['AI & Video', 'AI Video', 'Video Generation', 'AI Video Generation', 'AI Video Editing', 'Video Editing'],
-  'ai-learning': ['Education', 'Learning', 'Training'],
-  'video-generation': ['AI Video', 'AI & Video', 'Video Generation', 'AI Video Generation', 'AI Video Editing', 'Video Editing'],
-  'ai-chatbots': ['Conversational AI', 'Chatbots', 'AI Assistant'],
-  'email-marketing': ['Email Marketing', 'Marketing Automation', 'Marketing'],
-  'seo-tools': ['SEO', 'Marketing Tools', 'SEO Tools'],
-  'ai-design': ['AI Design', 'AI Image', 'Design & Visual', 'Design Tools'],
-  'ai-voice': ['AI Audio', 'Audio', 'Voice', 'Speech'],
-  'productivity': ['Productivity', 'Productivity & Organization', 'Business'],
-  'business-intelligence': ['AI Business', 'Business Intelligence', 'Analytics', 'Business & Enterprise']
-  ,
-  // Accounting-related landing slug
-  'ai-accounting-assistant': [
-    'AI Accounting',
-    'Accounting',
-    'Accounting & Finance',
-    'Finance & Accounting',
-    'Bookkeeping'
-  ]
-}
+// Category mapping is now centralized in lib/categoryMapping.ts
 
 // Category SEO data with comprehensive content
 const categoryInfo: Record<string, { title: string; description: string; seoText: string; metaDescription: string }> = {
@@ -460,372 +157,82 @@ const allCategories = [
   { slug: 'business-intelligence', name: 'Business Intelligence' }
 ]
 
-export default function CategoryPage() {
-  const params = useParams() || ({} as Record<string, string>)
-  const slug = ((params as any)?.slug as string) || ''
-  const categoryName = slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
-  const { data: session } = useSession()
-  
-  const [products, setProducts] = useState<Product[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [currentPage, setCurrentPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(1)
-  const [totalProducts, setTotalProducts] = useState(0)
-  const [savedProducts, setSavedProducts] = useState<Set<string>>(new Set())
-  
-  const PAGE_SIZE = 12
+export const dynamic = 'force-static'
 
-  // Get category info with fallback
-  const categoryData = categoryInfo[slug] || getDefaultCategoryInfo(slug, categoryName)
+type Params = { slug: string }
 
-  // Get related categories (3 random categories excluding current one)
-  const relatedCategories = allCategories
-    .filter(cat => cat.slug !== slug)
-    .sort(() => Math.random() - 0.5)
-    .slice(0, 3)
+export async function generateMetadata({ params }: { params: Params }) {
+  const slug = params?.slug
+  if (!slug) {
+    return { robots: { index: true, follow: true } } as any
+  }
+  // Resolve category name from slug using DB Category or mapping
+  const categoryRecord = await prisma.category.findFirst({ where: { slug } })
+  const categoryName = categoryRecord?.name || slug.split('-').map(w => w[0]?.toUpperCase() + w.slice(1)).join(' ')
+  // Count products in this category (primary or via mapping if needed)
+  const count = await prisma.product.count({ where: { OR: [ { category: categoryName }, { Category: { name: categoryName } } ] } })
 
-  // Load saved products when user is authenticated
-  useEffect(() => {
-    const loadSavedProducts = async () => {
-      if (!session) {
-        setSavedProducts(new Set())
-        return
-      }
+  const canonical = `${PUBLIC_BASE_URL}/categories/${slug}`
 
-      try {
-        const response = await fetch('/api/users/saved-products')
-        if (response.ok) {
-          const data = await response.json()
-          const savedProductIds = new Set<string>(data.map((product: any) => product.id))
-          setSavedProducts(savedProductIds)
-          console.log('📖 Loaded saved products for category page:', savedProductIds.size)
-        }
-      } catch (error) {
-        console.error('Error loading saved products:', error)
-      }
-    }
-
-    loadSavedProducts()
-  }, [session])
-
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        setLoading(true)
-        setError(null)
-        
-        let allProducts: Product[] = []
-        const mappedCategories = categoryMapping[slug]
-        // Use canonical DB label (first mapping) or deterministic normalization of slug
-        const canonicalCategory = (mappedCategories && mappedCategories[0]) 
-          || categoryName.replace(/\band\b/gi, '&')
-
-        // Prefer multi-category query when mapping exists
-        const url = Array.isArray(mappedCategories) && mappedCategories.length > 0
-          ? `/api/products?categories=${encodeURIComponent(mappedCategories.join(','))}&page=1&pageSize=100&forHomepage=true`
-          : `/api/products?category=${encodeURIComponent(canonicalCategory)}&page=1&pageSize=100&forHomepage=true`
-
-        const response = await fetch(url)
-        if (response.ok) {
-          const data = await response.json()
-          if (data.products && data.products.length > 0) {
-            allProducts = data.products
-          }
-        }
-
-        // Remove duplicates
-        const uniqueProducts = allProducts.filter((product, index, self) => 
-          index === self.findIndex(p => p.id === product.id)
-        )
-
-        // Paginate results
-        const startIndex = (currentPage - 1) * PAGE_SIZE
-        const endIndex = startIndex + PAGE_SIZE
-        const paginatedProducts = uniqueProducts.slice(startIndex, endIndex)
-
-        setProducts(paginatedProducts)
-        setTotalPages(Math.ceil(uniqueProducts.length / PAGE_SIZE))
-        setTotalProducts(uniqueProducts.length)
-      } catch (err) {
-        console.error('Error loading products:', err)
-        setError(err instanceof Error ? err.message : 'Unknown error')
-        setProducts([])
-        setTotalPages(1)
-        setTotalProducts(0)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchProducts()
-  }, [slug, categoryName, currentPage])
-
-  const handleVisit = (product: Product) => {
-    // Use shared tracking function for consistency
-    trackProductClick({
-      id: product.id,
-      name: product.name,
-      externalUrl: product.externalUrl,
-      category: product.category,
-      imageUrl: product.imageUrl,
-      price: product.price,
-      tags: product.tags
-    })
+  const gscUrl = `${PUBLIC_BASE_URL}/categories/${slug}`
+  const gsc = await prisma.seo_gsc_status.findUnique({ where: { url: gscUrl } }).catch(() => null)
+  const forceIndex = gsc?.indexed === true
+  if (count < SEO_MIN_CATEGORY_COUNT && !SEO_INDEX_ALLOWLIST.has(slug) && !forceIndex) {
+    return {
+      alternates: { canonical },
+      robots: { index: false, follow: true },
+    } as any
   }
 
-  const handleBookmarkChange = (productId: string, isBookmarked: boolean) => {
-    setSavedProducts(prev => {
-      const newSavedProducts = new Set(prev)
-      if (isBookmarked) {
-        newSavedProducts.add(productId)
-      } else {
-        newSavedProducts.delete(productId)
-      }
-      return newSavedProducts
-    })
+  // Only use description if stored in DB (e.g., Category.description or dedicated SEO table); otherwise omit
+  const dbDescription: string | undefined = (categoryRecord as any)?.description && String((categoryRecord as any).description).trim().length > 0
+    ? (categoryRecord as any).description
+    : undefined
+
+  return {
+    title: `${categoryName} AI Tools – Comparee`,
+    ...(dbDescription ? { description: dbDescription } : {}),
+    alternates: { canonical },
+    robots: { index: true, follow: true },
+  } as any
+}
+
+export default function CategoryPage({ params }: { params: Params }) {
+  const slug = params?.slug
+  if (!slug) {
+    notFound()
   }
+  return <ServerWrappedCategory slug={slug} />
+} 
 
-  if (loading) {
-    return (
-      <main className="min-h-screen bg-gray-50">
-        {/* Header Section - Real breadcrumb and title for immediate visibility */}
-        <div className="bg-white border-b border-gray-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            {/* Real Breadcrumb - okamžitě viditelný */}
-            <nav className="flex mb-6" aria-label="Breadcrumb">
-              <ol className="flex items-center space-x-2">
-                <li>
-                  <Link href="/" className="text-gray-500 hover:text-gray-700">
-                    Home
-                  </Link>
-                </li>
-                <li>
-                  <span className="text-gray-400">/</span>
-                </li>
-                <li>
-                  <span className="text-gray-500">Categories</span>
-                </li>
-                <li>
-                  <span className="text-gray-400">/</span>
-                </li>
-                <li>
-                  <span className="text-gray-900 font-medium">{categoryName}</span>
-                </li>
-              </ol>
-            </nav>
+async function ServerWrappedCategory({ slug }: { slug: string }) {
+  const categoryRecord = await prisma.category.findFirst({ where: { slug } })
+  const categoryName = categoryRecord?.name || slug.split('-').map(w => w[0]?.toUpperCase() + w.slice(1)).join(' ')
+  const count = await prisma.product.count({ where: { OR: [ { category: categoryName }, { Category: { name: categoryName } } ] } })
 
-            {/* Real Title - okamžitě viditelný */}
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              {categoryData.title}
-            </h1>
-            <p className="text-xl text-gray-600 max-w-3xl">
-              {categoryData.description}
-            </p>
-          </div>
-        </div>
+  // Build synonyms from centralized mapping
+  const synonyms = getCategoryNamesForSlug(slug)
+  const namesForQuery = (synonyms && synonyms.length > 0 ? synonyms : [categoryName])
+  const orFilters = namesForQuery.map(s => ({ category: { equals: s, mode: 'insensitive' as const } }))
+  const reps = (count >= SEO_MIN_CATEGORY_COUNT || SEO_INDEX_ALLOWLIST.has(slug))
+    ? await prisma.landing_pages.findMany({
+        where: { OR: orFilters },
+        select: { slug: true, title: true },
+        orderBy: { published_at: 'desc' },
+        take: 3
+      })
+    : []
 
-        {/* Products Grid Skeleton */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="mb-8">
-            <div className="h-6 bg-gray-200 rounded w-48 animate-pulse"></div>
-          </div>
-          
-          <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {Array.from({ length: 12 }).map((_, index) => (
-              <div key={index} className="bg-white rounded-lg shadow-md overflow-hidden">
-                <div className="aspect-[16/9] bg-gray-200 animate-pulse"></div>
-                <div className="p-4 space-y-3">
-                  <div className="h-6 bg-gray-200 rounded animate-pulse"></div>
-                  <div className="space-y-2">
-                    <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
-                    <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse"></div>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <div className="h-6 w-16 bg-gray-200 rounded-full animate-pulse"></div>
-                    <div className="h-8 w-20 bg-gray-200 rounded animate-pulse"></div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </main>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="container mx-auto px-4 py-12">
-          <div className="text-center">
-            <h1 className="text-2xl font-semibold text-red-600 mb-4">Loading Error</h1>
-            <p className="text-gray-600 mb-8">{error}</p>
-            <Link
-              href="/"
-              className="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
-            >
-              Back to Homepage
-            </Link>
-          </div>
-        </div>
-      </div>
-    )
-  }
+  const itemList = ((count >= SEO_MIN_CATEGORY_COUNT || SEO_INDEX_ALLOWLIST.has(slug)) && reps.length >= 3)
+    ? buildCategoryItemList(categoryName, reps)
+    : null
 
   return (
     <>
-      {/* Meta/JSON-LD moved to server or omitted to avoid client runtime issues in App Router */}
-
-      <main className="min-h-screen bg-gray-50">
-        {/* Header Section */}
-        <div className="bg-white border-b border-gray-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            {/* Breadcrumb */}
-            <nav className="flex mb-6" aria-label="Breadcrumb">
-              <ol className="flex items-center space-x-2">
-                <li>
-                  <Link href="/" className="text-gray-500 hover:text-gray-700">
-                    Home
-                  </Link>
-                </li>
-                <li>
-                  <span className="text-gray-400">/</span>
-                </li>
-                <li>
-                  <span className="text-gray-500">Categories</span>
-                </li>
-                <li>
-                  <span className="text-gray-400">/</span>
-                </li>
-                <li>
-                  <span className="text-gray-900 font-medium">{categoryName}</span>
-                </li>
-              </ol>
-            </nav>
-
-            {/* Page Title and Description */}
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              {categoryData.title}
-            </h1>
-            <p className="text-xl text-gray-600 max-w-3xl">
-              {categoryData.description}
-            </p>
-          </div>
-        </div>
-
-        {/* Products Grid */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          {products.length > 0 ? (
-            <>
-              <div className="flex items-center justify-between mb-8">
-                <h2 className="text-2xl font-semibold text-gray-900">
-                  {totalProducts} {categoryName} Tools
-                </h2>
-                <div className="text-sm text-gray-500">
-                  Showing {products.length} results
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
-                {products.map((product) => (
-                  <CategoryProductCard
-                    key={product.id}
-                    product={product}
-                    onVisit={handleVisit}
-                    isBookmarked={savedProducts.has(product.id)}
-                    onBookmarkChange={handleBookmarkChange}
-                  />
-                ))}
-              </div>
-
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <div className="flex justify-center items-center gap-2 mb-16">
-                  <button
-                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                    disabled={currentPage === 1}
-                    className="px-4 py-2 text-purple-600 border border-purple-200 rounded-lg hover:bg-purple-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                  >
-                    Previous
-                  </button>
-                  
-                  <span className="px-4 py-2 text-gray-600">
-                    Page {currentPage} of {totalPages}
-                  </span>
-                  
-                  <button
-                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                    disabled={currentPage === totalPages}
-                    className="px-4 py-2 text-purple-600 border border-purple-200 rounded-lg hover:bg-purple-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                  >
-                    Next
-                  </button>
-                </div>
-              )}
-            </>
-          ) : (
-            <div className="text-center py-12">
-              <div className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-medium text-gray-900 mb-2">No tools found</h3>
-              <p className="text-gray-600 mb-6">
-                We don't have any {categoryName.toLowerCase()} tools in our database yet.
-              </p>
-              <Link
-                href="/"
-                className="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
-              >
-                Browse All Tools
-              </Link>
-            </div>
-          )}
-
-          {/* SEO Content Section */}
-          <div className="bg-white rounded-xl p-8 shadow-sm border border-gray-200 mb-12">
-            <h2 className="text-3xl font-semibold text-gray-900 mb-6">
-              Best {categoryName} AI Tools
-            </h2>
-            <div className="prose prose-gray max-w-none">
-              <div className="text-gray-700 leading-relaxed text-base whitespace-pre-line">
-                {categoryData.seoText}
-              </div>
-            </div>
-          </div>
-
-          {/* Related Categories */}
-          <div className="mt-12">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-6">
-              Related Categories
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {relatedCategories.map((category) => (
-                <Link
-                  key={category.slug}
-                  href={`/categories/${category.slug}`}
-                  className="group bg-white p-6 rounded-xl border border-gray-200 hover:border-purple-300 hover:shadow-lg transition-all duration-200"
-                >
-                  <h3 className="font-semibold text-lg text-gray-900 group-hover:text-purple-600 transition-colors mb-2">
-                    {categoryInfo[category.slug]?.title || `Best ${category.name} Tools`}
-                  </h3>
-                  <p className="text-gray-600 text-sm line-clamp-2">
-                    {categoryInfo[category.slug]?.description || `Discover top ${category.name.toLowerCase()} tools and software.`}
-                  </p>
-                  <span className="inline-flex items-center text-purple-600 text-sm font-medium mt-3 group-hover:text-purple-700">
-                    Explore Tools
-                    <svg className="ml-1 w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                    </svg>
-                  </span>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </div>
-      </main>
+      {itemList ? (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemList) }} />
+      ) : null}
+      <ClientCategoryPage slug={slug} />
     </>
   )
-} 
+}

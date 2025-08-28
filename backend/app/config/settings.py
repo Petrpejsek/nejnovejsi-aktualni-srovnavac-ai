@@ -24,4 +24,47 @@ class Settings:
     
     ENVIRONMENT: str = os.getenv("ENVIRONMENT", "development")
 
+    # Email configuration (provider-agnostic)
+    EMAIL_PROVIDER: str = os.getenv("EMAIL_PROVIDER", "")
+    EMAIL_FROM: str = os.getenv("EMAIL_FROM", "")
+
+    # Postmark specific
+    POSTMARK_SERVER_TOKEN: str = os.getenv("POSTMARK_SERVER_TOKEN", "")
+    POSTMARK_MESSAGE_STREAM: str = os.getenv("POSTMARK_MESSAGE_STREAM", "")
+    ADMIN_API_KEY: str = os.getenv("ADMIN_API_KEY", "")
+
+    # Optional brand settings for templates
+    BRAND_NAME: str = os.getenv("BRAND_NAME", "Comparee.ai")
+    BRAND_LOGO_URL: str = os.getenv("BRAND_LOGO_URL", "")
+    BRAND_SUPPORT_EMAIL: str = os.getenv("BRAND_SUPPORT_EMAIL", "support@comparee.ai")
+
+    # Template strictness
+    EMAIL_TEXT_MODE: str = os.getenv("EMAIL_TEXT_MODE", "auto")  # auto | explicit
+    EMAIL_TEMPLATE_STRICT: bool = os.getenv("EMAIL_TEMPLATE_STRICT", "true").lower() == "true"
+
+    def email_missing_reason(self) -> str:
+        """Returns empty string if email can be enabled, otherwise a human readable reason."""
+        if self.ENVIRONMENT != "production":
+            return "ENV is not production"
+        if not self.EMAIL_PROVIDER:
+            return "EMAIL_PROVIDER not set"
+        if self.EMAIL_PROVIDER == "postmark":
+            missing = []
+            if not self.POSTMARK_SERVER_TOKEN:
+                missing.append("POSTMARK_SERVER_TOKEN")
+            if not self.POSTMARK_MESSAGE_STREAM:
+                missing.append("POSTMARK_MESSAGE_STREAM")
+            if not self.EMAIL_FROM:
+                missing.append("EMAIL_FROM")
+            if missing:
+                return "missing secrets: " + ", ".join(missing)
+        else:
+            return f"unknown provider: {self.EMAIL_PROVIDER}"
+        return ""
+
+    @property
+    def EMAIL_ENABLED(self) -> bool:
+        """Email sending is enabled only on production with complete configuration."""
+        return self.email_missing_reason() == ""
+
 settings = Settings()

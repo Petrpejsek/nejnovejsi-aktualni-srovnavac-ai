@@ -1,16 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
+import { getPublicBaseUrl, isProduction } from '@/lib/env'
 
 // Unified middleware: base URL enforcement + role-based routing
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
-  // Early redirects
-  // Normalize any i18n landing to non-prefixed variant: /{lang}/landing/* -> /landing/*
-  const i18nLanding = pathname.match(/^\/(cs|en|de|fr|es)\/landing\/(.+)$/)
-  if (i18nLanding) {
-    const slug = i18nLanding[2]
-    return NextResponse.redirect(new URL(`/landing/${slug}`, request.url), 308)
+  // Early redirects (prod only): i18n frozen
+  // Any two-letter (optionally xx-XX) language prefix for /landing/* should redirect to canonical /landing/*
+  if (isProduction()) {
+    const i18nPattern = /^\/([a-z]{2}(?:-[A-Z]{2})?)\/landing\/(.+)$/
+    const match = pathname.match(i18nPattern)
+    if (match) {
+      const slug = match[2]
+      // Skip internal/admin/api paths (shouldn't match this pattern, but be safe)
+      const skip = pathname.startsWith('/api/') || pathname.startsWith('/admin/') || pathname.startsWith('/company-admin/')
+      if (!skip) {
+        try { console.info(`[i18n-frozen] Redirecting prefixed landing "${pathname}" -> "/landing/${slug}"`) } catch {}
+        return NextResponse.redirect(new URL(`/landing/${slug}`, request.url), 308)
+      }
+    }
   }
 
   // If accessing only language root -> redirect to homepage
@@ -56,21 +65,31 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Canonicalize host (ignore protocol): vyhnout se přesměrování mezi http/https (HSTS může způsobit smyčku)
-  // Přesměruj pouze pokud se liší hostname (např. www vs apex), v dev nikdy nedělej doménové redirecty
-  if (process.env.NODE_ENV === 'production') {
+  // Canonicalize host (prod only): redirect to exact origin from getPublicBaseUrl()
+  // Skip internal/static/API endpoints to avoid disrupting tooling and GSC fetches
+  if (isProduction()) {
     try {
       const url = new URL(request.url)
-      const base = process.env.NEXT_PUBLIC_BASE_URL
-      if (base) {
-        const wanted = new URL(base)
+      const pathname = url.pathname
+      // Skip list
+      const skipRedirect = (
+        pathname.startsWith('/_next') ||
+        pathname.startsWith('/static') ||
+        pathname.startsWith('/screenshots') ||
+        pathname === '/robots.txt' ||
+        pathname === '/sitemap.xml' ||
+        pathname.startsWith('/api/') ||
+        pathname.startsWith('/admin/') ||
+        pathname.startsWith('/company-admin/')
+      )
+      if (!skipRedirect) {
+        const wanted = new URL(getPublicBaseUrl())
         const currentHost = url.hostname
         const wantedHost = wanted.hostname
         const isLocalHost =
           currentHost === 'localhost' ||
           currentHost === '127.0.0.1' ||
           currentHost.endsWith('.local')
-        // Redirect only if hostname actually differs and not localhost
         if (!isLocalHost && currentHost !== wantedHost) {
           const redirectOrigin = `${wanted.protocol}//${wanted.host}`
           const redirectTo = new URL(url.pathname + url.search, redirectOrigin)
