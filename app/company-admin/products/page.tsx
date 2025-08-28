@@ -73,7 +73,7 @@ export default function ProductsPage() {
           setProducts(data.products || [])
           setCompany(data.company)
         } else {
-          throw new Error(data.error || 'Chyba při načítání produktů')
+          throw new Error(data.error || 'Error loading products')
         }
       } catch (err) {
         console.error('Error loading products:', err)

@@ -464,7 +464,7 @@ export default function BillingPage() {
                         setCouponError(result.error || 'Invalid coupon code')
       }
     } catch (error) {
-      setCouponError('Chyba při ověřování kódu')
+              setCouponError('Error verifying code')
       setCouponDiscount(null)
     }
   }

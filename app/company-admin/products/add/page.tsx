@@ -251,7 +251,7 @@ export default function AddProductPage() {
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.error || 'Chyba při přidávání produktu')
+        throw new Error(data.error || 'Error adding product')
       }
 
       if (data.success) {

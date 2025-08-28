@@ -42,7 +42,7 @@ export default function ProductSelectionModal({
           setAvailableProducts(data.products || [])
         }
       } catch (error) {
-        console.error('Chyba při načítání produktů:', error)
+        console.error('Error loading products:', error)
       } finally {
         setLoading(false)
       }

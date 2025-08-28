@@ -71,7 +71,7 @@ export async function GET(request: NextRequest) {
     console.error('❌ Chyba při načítání review queue:', error)
     return NextResponse.json({
       success: false,
-      error: 'Chyba při načítání produktů'
+              error: 'Error loading products'
     }, { status: 500 })
   }
 }
@@ -131,7 +131,7 @@ export async function POST(request: NextRequest) {
     console.error('❌ Chyba při přidávání do review queue:', error)
     return NextResponse.json({
       success: false,
-      error: 'Chyba při přidávání produktů'
+              error: 'Error adding products'
     }, { status: 500 })
   }
 }

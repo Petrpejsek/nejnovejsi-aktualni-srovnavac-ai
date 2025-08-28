@@ -27,7 +27,7 @@ export default function LoginPage() {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search)
       if (params.get('error')) {
-        setError('Neplatné přihlašovací údaje')
+        setError('Invalid login credentials')
       } else {
         setError('')
       }
@@ -55,7 +55,7 @@ export default function LoginPage() {
     } catch (error) {
       console.log('❌ Admin signIn threw:', (error as Error)?.message)
       // Nastav chybu pouze, pokud mezitím nevznikla session (edge případ u závodní podmínky)
-      if (status !== 'authenticated') setError('Chyba při přihlašování')
+              if (status !== 'authenticated') setError('Login error')
     } finally {
       setIsLoading(false)
     }
@@ -98,7 +98,7 @@ export default function LoginPage() {
 
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Heslo
+                Password
               </label>
               <div className="mt-1">
                 <input
@@ -128,7 +128,7 @@ export default function LoginPage() {
                 disabled={isLoading}
                 className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isLoading ? 'Přihlašuji...' : 'Přihlásit se'}
+                {isLoading ? 'Signing in...' : 'Sign In'}
               </button>
             </div>
           </form>
@@ -137,7 +137,7 @@ export default function LoginPage() {
 
           <div className="mt-6 text-center">
             <Link href="/" className="text-indigo-600 hover:text-indigo-500">
-              ← Zpět na hlavní stránku
+              ← Back to Homepage
             </Link>
           </div>
         </div>

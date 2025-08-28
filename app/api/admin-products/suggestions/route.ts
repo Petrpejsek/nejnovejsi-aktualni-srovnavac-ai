@@ -77,7 +77,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Suggestions API error:', error)
     return NextResponse.json(
-      { error: 'Chyba při načítání našeptávače' },
+              { error: 'Error loading suggestions' },
       { status: 500 }
     )
   }

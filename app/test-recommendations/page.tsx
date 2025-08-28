@@ -35,14 +35,14 @@ export default function TestRecommendations() {
       
       if (response.ok) {
         setRecommendations(data);
-        setStatus(`Načteno ${data.length} doporučení za ${duration}s`);
+                  setStatus(`Loaded ${data.length} recommendations in ${duration}s`);
       } else {
-        setError(data.error || 'Chyba při načítání doporučení');
-        setStatus(`Chyba po ${duration}s`);
+        setError(data.error || 'Error loading recommendations');
+                  setStatus(`Error after ${duration}s`);
       }
     } catch (err) {
-      setError('Došlo k chybě: ' + (err instanceof Error ? err.message : String(err)));
-      setStatus('Chyba při komunikaci s API');
+              setError('An error occurred: ' + (err instanceof Error ? err.message : String(err)));
+        setStatus('Error communicating with API');
     } finally {
       setIsLoading(false);
     }
@@ -121,7 +121,7 @@ export default function TestRecommendations() {
 
       <div className="mt-8">
         <Link href="/" className="text-blue-500 hover:underline">
-          Zpět na hlavní stránku
+                        Back to Homepage
         </Link>
       </div>
     </div>

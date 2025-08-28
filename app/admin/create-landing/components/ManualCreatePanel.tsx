@@ -200,7 +200,7 @@ export default function ManualCreatePanel() {
       }
     } catch (err) {
       console.error('❌ Error submitting landing page:', err)
-      setError('Chyba při odesílání požadavku: ' + (err instanceof Error ? err.message : 'Neznámá chyba'))
+              setError('Error sending request: ' + (err instanceof Error ? err.message : 'Unknown error'))
     } finally {
       console.log('🏁 handleSubmit finished')
       setIsSubmitting(false)

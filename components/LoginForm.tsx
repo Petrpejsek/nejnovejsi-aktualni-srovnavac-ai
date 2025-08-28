@@ -47,7 +47,7 @@ export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormPr
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search)
       if (params.get('error')) {
-        setError('Neplatné přihlašovací údaje')
+        setError('Invalid login credentials')
       }
     }
   }, [])
@@ -72,7 +72,7 @@ export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormPr
       })
     } catch (error) {
       console.error('Login error:', error)
-      setError('Chyba při přihlašování')
+      setError('Login error')
     }
   }
 
@@ -92,10 +92,10 @@ export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormPr
         // Uložíme informaci o existenci emailu pro zobrazení správné hlášky
         setForgotPasswordEmailExists(data.exists)
       } else {
-        setError('Chyba při odesílání emailu')
+        setError('Error sending email')
       }
     } catch (e: any) {
-      setError('Chyba při odesílání emailu')
+      setError('Error sending email')
     }
   }
 
@@ -123,19 +123,8 @@ export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormPr
   if (isForgotPassword) {
     return (
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-gray-900">Forgot Password</h2>
-          <button
-            onClick={() => {
-              setIsForgotPassword(false)
-              setForgotPasswordDone(false)
-              setError(null)
-              setForgotPasswordEmailExists(false)
-            }}
-            className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
-          >
-            Back
-          </button>
+        <div className="flex items-center justify-center">
+          <h2 className="text-xl font-semibold text-gray-900">Forgot Password?</h2>
         </div>
 
         {forgotPasswordDone ? (

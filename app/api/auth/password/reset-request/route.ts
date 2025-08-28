@@ -3,6 +3,8 @@ import prisma from '@/lib/prisma'
 
 const PYTHON_API_URL = process.env.PYTHON_API_URL || process.env.NEXT_PUBLIC_API_URL
 
+export const dynamic = 'force-dynamic'
+
 export async function POST(req: NextRequest) {
   try {
     const { email } = await req.json()

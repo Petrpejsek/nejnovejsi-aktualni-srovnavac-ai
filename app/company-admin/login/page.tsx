@@ -56,7 +56,7 @@ export default function CompanyLoginPage() {
       
       if (!email || !password) {
         console.log('❌ PRÁZDNÉ POLE - zastavuji submit')
-        setError('Vyplňte email a heslo')
+        setError('Please fill in email and password')
         setIsLoading(false)
         return
       }
@@ -74,7 +74,7 @@ export default function CompanyLoginPage() {
     } catch (error) {
       console.error('Company login error:', error)
       // Zobraz obecnou chybu jen pokud session nevznikla
-      setError('Došlo k chybě při přihlašování')
+              setError('An error occurred during login')
     } finally {
       setIsLoading(false)
     }

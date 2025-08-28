@@ -129,7 +129,7 @@ export default function CompanyAdminLayout({
             href="/company-admin/login" 
             className="mt-4 inline-block px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
           >
-            Přihlásit se
+                            Log In
           </a>
         </div>
       </div>

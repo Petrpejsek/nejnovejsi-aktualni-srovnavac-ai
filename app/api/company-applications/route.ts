@@ -111,7 +111,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       { 
         success: false, 
-        error: 'Chyba při odesílání firemní aplikace' 
+        error: 'Error sending company application' 
       },
       { status: 500 }
     )

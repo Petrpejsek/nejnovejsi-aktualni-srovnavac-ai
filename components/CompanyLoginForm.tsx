@@ -92,7 +92,7 @@ export default function CompanyLoginForm({ onSuccess, onSwitchToRegister }: Comp
       })
     } catch (error) {
       console.error('Login failed:', error)
-      setErrors({ general: 'Došlo k chybě při přihlašování' })
+      setErrors({ general: 'An error occurred during login' })
     } finally {
       setIsLoading(false)
     }
@@ -113,10 +113,10 @@ export default function CompanyLoginForm({ onSuccess, onSwitchToRegister }: Comp
         setForgotPasswordDone(true)
         setForgotPasswordEmailExists(data.exists)
       } else {
-        setErrors({ general: 'Chyba při odesílání emailu' })
+        setErrors({ general: 'Error sending email' })
       }
     } catch (e: any) {
-      setErrors({ general: 'Chyba při odesílání emailu' })
+      setErrors({ general: 'Error sending email' })
     }
   }
 
@@ -141,19 +141,8 @@ export default function CompanyLoginForm({ onSuccess, onSwitchToRegister }: Comp
   if (isForgotPassword) {
     return (
       <div className="w-full max-w-md mx-auto">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold text-gray-900">Forgot Password</h2>
-          <button
-            onClick={() => {
-              setIsForgotPassword(false)
-              setForgotPasswordDone(false)
-              setErrors({})
-              setForgotPasswordEmailExists(false)
-            }}
-            className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
-          >
-            Back
-          </button>
+        <div className="flex items-center justify-center mb-6">
+          <h2 className="text-xl font-semibold text-gray-900">Forgot Password?</h2>
         </div>
 
         {forgotPasswordDone ? (

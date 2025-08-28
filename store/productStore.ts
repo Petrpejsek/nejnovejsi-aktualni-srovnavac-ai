@@ -166,7 +166,7 @@ export const useProductStore = create<ProductStore>((set, get) => ({
     } catch (error) {
       console.error('❌ ProductStore: Chyba při načítání:', error)
       set({
-        error: error instanceof Error ? error.message : 'Nastala chyba při načítání produktů',
+        error: error instanceof Error ? error.message : 'An error occurred while loading products',
         loading: false
       })
     }

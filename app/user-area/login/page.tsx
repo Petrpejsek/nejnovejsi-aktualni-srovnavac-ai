@@ -25,7 +25,7 @@ export default function UserLoginPage() {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search)
-      if (params.get('error')) setError('Neplatné přihlašovací údaje')
+              if (params.get('error')) setError('Invalid login credentials')
     }
   }, [])
 
@@ -52,7 +52,7 @@ export default function UserLoginPage() {
         callbackUrl: '/user-area'
       })
     } catch (error) {
-      setError('Chyba při přihlašování')
+              setError('Login error')
     } finally {
       setIsLoading(false)
     }
@@ -95,7 +95,7 @@ export default function UserLoginPage() {
 
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Heslo
+                Password
               </label>
               <div className="mt-1">
                 <input
@@ -123,7 +123,7 @@ export default function UserLoginPage() {
                 disabled={isLoading}
                 className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isLoading ? 'Přihlašuji...' : 'Přihlásit se'}
+                {isLoading ? 'Signing in...' : 'Sign In'}
               </button>
             </div>
           </form>
@@ -146,7 +146,7 @@ export default function UserLoginPage() {
 
           <div className="mt-6 text-center">
             <Link href="/" className="text-blue-600 hover:text-blue-500">
-              ← Zpět na hlavní stránku
+              ← Back to Homepage
             </Link>
           </div>
         </div>

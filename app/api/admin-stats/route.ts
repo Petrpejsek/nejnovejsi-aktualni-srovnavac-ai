@@ -124,7 +124,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Error fetching admin stats:', error)
     return NextResponse.json(
-      { error: 'Chyba při načítání statistik' },
+              { error: 'Error loading statistics' },
       { status: 500 }
     )
   }
