@@ -41,6 +41,11 @@ class Settings:
     # Template strictness
     EMAIL_TEXT_MODE: str = os.getenv("EMAIL_TEXT_MODE", "auto")  # auto | explicit
     EMAIL_TEMPLATE_STRICT: bool = os.getenv("EMAIL_TEMPLATE_STRICT", "true").lower() == "true"
+    POSTMARK_WEBHOOK_SECRET: str = os.getenv("POSTMARK_WEBHOOK_SECRET", "")
+
+    @property
+    def WEBHOOKS_ENABLED(self) -> bool:
+        return self.ENVIRONMENT == "production" and bool(self.POSTMARK_WEBHOOK_SECRET)
 
     def email_missing_reason(self) -> str:
         """Returns empty string if email can be enabled, otherwise a human readable reason."""

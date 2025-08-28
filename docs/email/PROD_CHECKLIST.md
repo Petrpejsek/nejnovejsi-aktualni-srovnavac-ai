@@ -34,3 +34,7 @@ Use this brief checklist after deploying transactional email templates.
 
 8) Strict templates
 - Intentionally remove a required variable in Preview → expect 400 with clear message
+
+9) Run env validator
+- `bash scripts/validate-prod-env.sh .env.production`
+- or `make check-prod-env`

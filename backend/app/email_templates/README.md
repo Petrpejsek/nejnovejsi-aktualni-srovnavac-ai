@@ -3,6 +3,7 @@
 Minimal transactional templates with strict rendering.
 
 See also: `docs/email/PROD_CHECKLIST.md` for production verification steps.
+Run the env validator before deployment: `bash scripts/validate-prod-env.sh .env.production` (or `make check-prod-env`).
 
 ## Required variables per template
 

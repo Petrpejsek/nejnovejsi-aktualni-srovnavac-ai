@@ -1,4 +1,4 @@
-import { OAuth2Client, GoogleAuth } from 'google-auth-library'
+import { GoogleAuth } from 'google-auth-library'
 import { isProduction } from '@/lib/env'
 
 type InspectResult = {
@@ -19,39 +19,23 @@ function getEnvOrThrow(name: string): string {
  * - Preferred: Service Account via GCP_SA_JSON (must be added to GSC property)
  * - Fallback: OAuth2 refresh token (GOOGLE_CLIENT_ID/SECRET/REFRESH_TOKEN)
  */
-export async function getAccessToken(): Promise<{ token: string, mode: 'service' | 'oauth' }> {
+export async function getAccessToken(): Promise<{ token: string, mode: 'service' }> {
   const sa = process.env.GCP_SA_JSON
   const scopes = ['https://www.googleapis.com/auth/webmasters.readonly']
-
-  if (sa && sa.trim().length > 0) {
-    try {
-      const credentials = JSON.parse(sa)
-      const auth = new GoogleAuth({ credentials, scopes })
-      const client = await auth.getClient()
-      const token = (await client.getAccessToken()) as string
-      if (!token) throw new Error('Service account failed to obtain token')
-      if (isProduction()) console.log('[GSC] auth mode: service')
-      return { token, mode: 'service' }
-    } catch (e) {
-      // If SA configured but fails, surface the error (explicit, no silent fallback)
-      throw new Error(`GSC service account auth failed: ${(e as Error).message}`)
-    }
+  if (!sa || sa.trim().length === 0) {
+    throw new Error('GSC not configured: GCP_SA_JSON missing')
   }
-
-  const clientId = getEnvOrThrow('GOOGLE_CLIENT_ID')
-  const clientSecret = getEnvOrThrow('GOOGLE_CLIENT_SECRET')
-  const refreshToken = getEnvOrThrow('GOOGLE_REFRESH_TOKEN')
-  const oAuth2Client = new OAuth2Client({
-    clientId,
-    clientSecret,
-    redirectUri: 'urn:ietf:wg:oauth:2.0:oob',
-  })
-  oAuth2Client.setCredentials({ refresh_token: refreshToken })
-  const t = await oAuth2Client.getAccessToken()
-  const token = t.token
-  if (!token) throw new Error('OAuth failed to obtain token')
-  if (isProduction()) console.log('[GSC] auth mode: oauth')
-  return { token, mode: 'oauth' }
+  try {
+    const credentials = JSON.parse(sa)
+    const auth = new GoogleAuth({ credentials, scopes })
+    const client = await auth.getClient()
+    const token = (await client.getAccessToken()) as string
+    if (!token) throw new Error('Service account failed to obtain token')
+    if (isProduction()) console.log('[GSC] auth mode: service')
+    return { token, mode: 'service' }
+  } catch (e) {
+    throw new Error(`GSC service account auth failed: ${(e as Error).message}`)
+  }
 }
 
 async function sleep(ms: number) {

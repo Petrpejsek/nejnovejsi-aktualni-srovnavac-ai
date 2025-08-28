@@ -14,9 +14,8 @@ type PriorityMode = 'not_indexed_first' | 'stale_first' | 'all'
 
 export async function POST(request: NextRequest) {
   try {
-    if (!isProduction()) {
-      return NextResponse.json({ error: 'prod-only' }, { status: 403 })
-    }
+    if (!isProduction()) return NextResponse.json({ error: 'prod-only' }, { status: 403 })
+    if (process.env.GSC_SYNC_ENABLED !== 'true') return NextResponse.json({ error: 'GSC sync disabled' }, { status: 503 })
     const tokenHeader = request.headers.get('x-gsc-cron-token') || ''
     const expected = process.env.GSC_CRON_TOKEN || ''
     if (!expected || tokenHeader !== expected) {
