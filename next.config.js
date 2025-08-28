@@ -1,4 +1,5 @@
 /** @type {import("next").NextConfig} */
+const defaultLocale = 'en';
 const nextConfig = {
   images: {
     remotePatterns: [
@@ -79,8 +80,17 @@ const nextConfig = {
       { source: '/advertiser/login', destination: '/company-admin/login', permanent: true },
       // Canonicalize categories to plural path
       { source: '/category/:slug', destination: '/categories/:slug', permanent: true },
+      // Legacy auth paths → new public pages
+      { source: '/reset-password', destination: '/forgot-password', permanent: false },
+      { source: '/password/reset', destination: '/forgot-password', permanent: false },
     ]
-  }
+  },
+  async rewrites() {
+    return [
+      { source: '/account/reset', destination: `/${defaultLocale}/account/reset` },
+      { source: '/account/verify', destination: `/${defaultLocale}/account/verify` },
+    ]
+  },
 }
 
 export default nextConfig

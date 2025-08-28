@@ -42,10 +42,17 @@ class Settings:
     EMAIL_TEXT_MODE: str = os.getenv("EMAIL_TEXT_MODE", "auto")  # auto | explicit
     EMAIL_TEMPLATE_STRICT: bool = os.getenv("EMAIL_TEMPLATE_STRICT", "true").lower() == "true"
     POSTMARK_WEBHOOK_SECRET: str = os.getenv("POSTMARK_WEBHOOK_SECRET", "")
+    EMAIL_TOKEN_SECRET: str = os.getenv("EMAIL_TOKEN_SECRET", "")
+    PASSWORD_RESET_TOKEN_TTL_MIN: int = int(os.getenv("PASSWORD_RESET_TOKEN_TTL_MIN", "30"))
+    EMAIL_VERIFY_TOKEN_TTL_MIN: int = int(os.getenv("EMAIL_VERIFY_TOKEN_TTL_MIN", "1440"))
 
     @property
     def WEBHOOKS_ENABLED(self) -> bool:
         return self.ENVIRONMENT == "production" and bool(self.POSTMARK_WEBHOOK_SECRET)
+
+    @property
+    def EMAIL_TOKENS_ENABLED(self) -> bool:
+        return self.ENVIRONMENT == "production" and bool(self.EMAIL_TOKEN_SECRET)
 
     def email_missing_reason(self) -> str:
         """Returns empty string if email can be enabled, otherwise a human readable reason."""

@@ -180,13 +180,12 @@ export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormPr
             </div>
           </label>
 
-          <button
-            type="button"
-            onClick={() => {}} // TODO: Implement password reset
+          <a
+            href="/forgot-password"
             className="text-sm text-gradient-primary hover:opacity-80 transition-opacity"
           >
             Forgot password?
-          </button>
+          </a>
         </div>
 
         {error && (

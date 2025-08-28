@@ -26,7 +26,9 @@ export async function getAccessToken(): Promise<{ token: string, mode: 'service'
     throw new Error('GSC not configured: GCP_SA_JSON missing')
   }
   try {
-    const credentials = JSON.parse(sa)
+    const raw = sa.trim()
+    const jsonString = raw.startsWith('{') ? raw : Buffer.from(raw, 'base64').toString('utf8')
+    const credentials = JSON.parse(jsonString)
     const auth = new GoogleAuth({ credentials, scopes })
     const client = await auth.getClient()
     const token = (await client.getAccessToken()) as string

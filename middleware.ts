@@ -101,6 +101,12 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+  // Public exceptions for auth-related public pages
+  const publicAuthPattern = /^(\/forgot-password|\/account\/reset|\/account\/verify)(\/.*)?$/
+  if (publicAuthPattern.test(pathname)) {
+    return NextResponse.next();
+  }
+
   // Role-based access control
   try {
     const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
