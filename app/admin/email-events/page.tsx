@@ -21,6 +21,8 @@ export default function EmailEventsPage() {
   const [error, setError] = useState<string | null>(null)
   const [selectedId, setSelectedId] = useState<number | null>(null)
   const [detail, setDetail] = useState<any>(null)
+  const [activating, setActivating] = useState(false)
+  const [toast, setToast] = useState<string | null>(null)
 
   async function loadList() {
     setLoading(true)
@@ -52,6 +54,29 @@ export default function EmailEventsPage() {
       setDetail(data)
     } catch (e: any) {
       setDetail({ error: e.message || 'Detail error' })
+    }
+  }
+
+  async function activateSelected() {
+    if (!detail || !selectedId) return
+    if (!detail.CanActivate || detail.Inactive === false) {
+      setToast('Bounce not eligible for activation')
+      return
+    }
+    if (!confirm('This will ask Postmark to reactivate the address. Proceed?')) return
+    setActivating(true)
+    try {
+      const res = await fetch(`/api/admin/email/bounces/${selectedId}/activate`, { method: 'POST' })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data?.detail || data?.error || 'Activation failed')
+      setToast('Activated')
+      // refresh detail and list
+      await loadDetail(selectedId)
+      await loadList()
+    } catch (e: any) {
+      setToast(e.message || 'Activation error')
+    } finally {
+      setActivating(false)
     }
   }
 
@@ -109,9 +134,18 @@ export default function EmailEventsPage() {
 
         {loading && <div className="mt-3 text-sm text-gray-500">Loading…</div>}
 
+        {toast && (
+          <div className="mt-3 p-2 text-sm bg-gray-800 text-white inline-block rounded">{toast}</div>
+        )}
+
         {selectedId !== null && (
           <div className="mt-6 border rounded p-3 bg-white">
             <div className="font-medium mb-2">Detail ID: {selectedId}</div>
+            {detail && detail.Inactive && detail.CanActivate && (
+              <button onClick={activateSelected} disabled={activating} className="mb-3 px-4 py-2 bg-purple-600 text-white rounded">
+                {activating ? 'Activating…' : 'Activate address'}
+              </button>
+            )}
             <pre className="text-xs whitespace-pre-wrap">{detail ? JSON.stringify(detail, null, 2) : 'Loading detail...'}</pre>
           </div>
         )}
