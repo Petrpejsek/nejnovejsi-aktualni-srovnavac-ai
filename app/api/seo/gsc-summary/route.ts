@@ -6,9 +6,8 @@ export const runtime = 'nodejs'
 
 export async function GET(_request: NextRequest) {
   try {
-    if (!process.env.GCP_SA_JSON) {
-      return NextResponse.json({ error: 'GSC not configured' }, { status: 503 })
-    }
+    if (process.env.GSC_SYNC_ENABLED !== 'true') return NextResponse.json({ error: 'GSC disabled' }, { status: 503 })
+    if (!process.env.GCP_SA_JSON_BASE64) return NextResponse.json({ error: 'GSC not configured' }, { status: 503 })
     const where = { url: { startsWith: 'https://comparee.ai/landing/' } }
 
     const [total, indexed, agg, byCoverageRaw, sampled] = await Promise.all([

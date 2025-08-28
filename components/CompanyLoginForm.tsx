@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
+import Link from 'next/link'
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline'
 import { signIn, useSession } from 'next-auth/react'
 
@@ -192,16 +193,14 @@ export default function CompanyLoginForm({ onSuccess, onSwitchToRegister }: Comp
           </label>
 
           {/* Forgot Password */}
-          <button
-            type="button"
+          <Link
+            href="/forgot-password"
+            prefetch={false}
+            data-testid="forgot-link-modal"
             className="text-sm text-purple-600 hover:text-purple-700"
-            onClick={() => {
-              // TODO: Handle forgot password
-              console.log('Forgot password clicked')
-            }}
           >
             Forgot password?
-          </button>
+          </Link>
         </div>
 
         {/* Submit Button */}

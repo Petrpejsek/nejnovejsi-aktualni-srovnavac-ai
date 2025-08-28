@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
   try {
     if (!isProduction()) return NextResponse.json({ error: 'prod-only' }, { status: 403 })
     if (process.env.GSC_SYNC_ENABLED !== 'true') return NextResponse.json({ error: 'GSC sync disabled' }, { status: 503 })
-    if (!process.env.GCP_SA_JSON) return NextResponse.json({ error: 'GSC not configured' }, { status: 503 })
+    if (!process.env.GCP_SA_JSON_BASE64) return NextResponse.json({ error: 'GSC not configured' }, { status: 503 })
     const tokenHeader = request.headers.get('x-gsc-cron-token') || ''
     const expected = process.env.GSC_CRON_TOKEN || ''
     if (!expected || tokenHeader !== expected) {

@@ -20,13 +20,13 @@ function getEnvOrThrow(name: string): string {
  * - Fallback: OAuth2 refresh token (GOOGLE_CLIENT_ID/SECRET/REFRESH_TOKEN)
  */
 export async function getAccessToken(): Promise<{ token: string, mode: 'service' }> {
-  const sa = process.env.GCP_SA_JSON
+  const b64 = process.env.GCP_SA_JSON_BASE64
   const scopes = ['https://www.googleapis.com/auth/webmasters.readonly']
-  if (!sa || sa.trim().length === 0) {
-    throw new Error('GSC not configured: GCP_SA_JSON missing')
+  if (!b64 || b64.trim().length === 0) {
+    throw new Error('GSC not configured: GCP_SA_JSON_BASE64 missing')
   }
   try {
-    const raw = sa.trim()
+    const raw = b64.trim()
     const jsonString = raw.startsWith('{') ? raw : Buffer.from(raw, 'base64').toString('utf8')
     const credentials = JSON.parse(jsonString)
     const auth = new GoogleAuth({ credentials, scopes })

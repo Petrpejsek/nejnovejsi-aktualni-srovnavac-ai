@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import Link from 'next/link'
 import { FiEye, FiEyeOff } from 'react-icons/fi'
 import { signIn, useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
@@ -180,12 +181,14 @@ export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormPr
             </div>
           </label>
 
-          <a
+          <Link
             href="/forgot-password"
+            prefetch={false}
+            data-testid="forgot-link-modal"
             className="text-sm text-gradient-primary hover:opacity-80 transition-opacity"
           >
             Forgot password?
-          </a>
+          </Link>
         </div>
 
         {error && (

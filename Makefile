@@ -27,3 +27,23 @@ smoke-verify-confirm:
 	BASE_URL=$(BASE_URL) TOKEN=$(TOKEN) bash scripts/smoke/verify-confirm.sh $(TOKEN)
 
 
+.PHONY: pm2-list pm2-restart pm2-restart-all pm2-logs
+
+pm2-list:
+	pm2 ls || pm2 status
+
+pm2-restart:
+	@[ -n "$(PROC)" ] || (echo "Set PROC=<pm2_name>"; exit 2)
+	@if [ "$(UPDATE_ENV)" = "true" ]; then \
+	  bash scripts/pm2-restart.sh $(PROC) --update-env; \
+	else \
+	  bash scripts/pm2-restart.sh $(PROC); \
+	fi
+
+pm2-restart-all:
+	bash scripts/pm2-restart.sh all
+
+pm2-logs:
+	@[ -n "$(PROC)" ] || (echo "Set PROC=<pm2_name>"; exit 2)
+	@[ -n "$(N)" ] || N=50; pm2 logs --lines $$N | cat
+
