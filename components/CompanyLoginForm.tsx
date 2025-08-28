@@ -22,6 +22,7 @@ export default function CompanyLoginForm({ onSuccess, onSwitchToRegister }: Comp
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [isForgotPassword, setIsForgotPassword] = useState(false)
   const [forgotPasswordDone, setForgotPasswordDone] = useState(false)
+  const [forgotPasswordEmailExists, setForgotPasswordEmailExists] = useState(false)
 
   // Reset state when component mounts (when key changes)
   useEffect(() => {
@@ -35,6 +36,7 @@ export default function CompanyLoginForm({ onSuccess, onSwitchToRegister }: Comp
     setErrors({})
     setIsForgotPassword(false)
     setForgotPasswordDone(false)
+    setForgotPasswordEmailExists(false)
   }, [])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -107,7 +109,9 @@ export default function CompanyLoginForm({ onSuccess, onSwitchToRegister }: Comp
       })
       
       if (response.ok) {
+        const data = await response.json()
         setForgotPasswordDone(true)
+        setForgotPasswordEmailExists(data.exists)
       } else {
         setErrors({ general: 'Chyba při odesílání emailu' })
       }
@@ -137,29 +141,38 @@ export default function CompanyLoginForm({ onSuccess, onSwitchToRegister }: Comp
   if (isForgotPassword) {
     return (
       <div className="w-full max-w-md mx-auto">
-        <div className="flex items-center gap-3 mb-6">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-semibold text-gray-900">Forgot Password</h2>
           <button
             onClick={() => {
               setIsForgotPassword(false)
               setForgotPasswordDone(false)
               setErrors({})
+              setForgotPasswordEmailExists(false)
             }}
-            className="text-gray-500 hover:text-gray-700 transition-colors"
+            className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
           >
-            <ArrowLeftIcon className="w-5 h-5" />
+            Back
           </button>
-          <h2 className="text-xl font-semibold text-gray-900">Forgot Password</h2>
         </div>
 
         {forgotPasswordDone ? (
-          <div className="p-4 bg-green-50 border border-green-200 text-green-700 rounded-lg">
-            <p className="text-sm">
-              If an account exists for <strong>{formData.email}</strong>, we sent instructions to reset your password.
-            </p>
-            <p className="text-xs mt-2 text-green-600">
-              Please check your email and spam folder.
-            </p>
-          </div>
+          forgotPasswordEmailExists ? (
+            <div className="p-4 bg-green-50 border border-green-200 text-green-700 rounded-lg">
+              <p className="text-sm">
+                Email <strong>{formData.email}</strong> existuje v databázi. Poslali jsme instrukce na reset hesla.
+              </p>
+              <p className="text-xs mt-2 text-green-600">
+                Zkontrolujte email a spam složku.
+              </p>
+            </div>
+          ) : (
+            <div className="p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg">
+              <p className="text-sm">
+                Email <strong>{formData.email}</strong> neexistuje v databázi.
+              </p>
+            </div>
+          )
         ) : (
           <form onSubmit={handleForgotPassword} className="space-y-4">
             {errors.general && (

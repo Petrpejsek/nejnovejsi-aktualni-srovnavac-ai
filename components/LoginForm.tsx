@@ -18,6 +18,7 @@ export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormPr
   const [rememberMe, setRememberMe] = useState(false)
   const [isForgotPassword, setIsForgotPassword] = useState(false)
   const [forgotPasswordDone, setForgotPasswordDone] = useState(false)
+  const [forgotPasswordEmailExists, setForgotPasswordEmailExists] = useState(false)
 
   const router = useRouter()
 
@@ -30,6 +31,7 @@ export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormPr
     setRememberMe(false)
     setIsForgotPassword(false)
     setForgotPasswordDone(false)
+    setForgotPasswordEmailExists(false)
   }, [])
 
   // Pokud už existuje session, zavři modal a případné chyby skryj
@@ -85,7 +87,10 @@ export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormPr
       })
       
       if (response.ok) {
+        const data = await response.json()
         setForgotPasswordDone(true)
+        // Uložíme informaci o existenci emailu pro zobrazení správné hlášky
+        setForgotPasswordEmailExists(data.exists)
       } else {
         setError('Chyba při odesílání emailu')
       }
@@ -118,29 +123,38 @@ export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormPr
   if (isForgotPassword) {
     return (
       <div className="space-y-6">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-semibold text-gray-900">Forgot Password</h2>
           <button
             onClick={() => {
               setIsForgotPassword(false)
               setForgotPasswordDone(false)
               setError(null)
+              setForgotPasswordEmailExists(false)
             }}
-            className="text-gray-500 hover:text-gray-700 transition-colors"
+            className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
           >
-            <FiArrowLeft className="w-5 h-5" />
+            Back
           </button>
-          <h2 className="text-xl font-semibold text-gray-900">Forgot Password</h2>
         </div>
 
         {forgotPasswordDone ? (
-          <div className="p-4 bg-green-50 border border-green-200 text-green-700 rounded-lg">
-            <p className="text-sm">
-              If an account exists for <strong>{email}</strong>, we sent instructions to reset your password.
-            </p>
-            <p className="text-xs mt-2 text-green-600">
-              Please check your email and spam folder.
-            </p>
-          </div>
+          forgotPasswordEmailExists ? (
+            <div className="p-4 bg-green-50 border border-green-200 text-green-700 rounded-lg">
+              <p className="text-sm">
+                Email <strong>{email}</strong> existuje v databázi. Poslali jsme instrukce na reset hesla.
+              </p>
+              <p className="text-xs mt-2 text-green-600">
+                Zkontrolujte email a spam složku.
+              </p>
+            </div>
+          ) : (
+            <div className="p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg">
+              <p className="text-sm">
+                Email <strong>{email}</strong> neexistuje v databázi.
+              </p>
+            </div>
+          )
         ) : (
           <form onSubmit={handleForgotPassword} className="space-y-4">
             <div>
