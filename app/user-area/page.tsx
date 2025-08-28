@@ -1103,11 +1103,11 @@ function UserAreaContent() {
         </div>
 
         <Modal isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} title="Log In">
-          <LoginForm onSuccess={handleLoginSuccess} onSwitchToRegister={switchToRegister} />
+          <LoginForm onSuccess={handleLoginSuccess} onSwitchToRegister={switchToRegister} key={isLoginOpen ? 'open' : 'closed'} />
         </Modal>
 
         <Modal isOpen={isRegisterOpen} onClose={() => setIsRegisterOpen(false)} title="Sign Up">
-          <RegisterForm onSuccess={handleRegisterSuccess} onSwitchToLogin={switchToLogin} />
+          <RegisterForm onSuccess={handleRegisterSuccess} onSwitchToLogin={switchToLogin} key={isRegisterOpen ? 'open' : 'closed'} />
         </Modal>
       </div>
     )

@@ -24,6 +24,9 @@ export const metadata: Metadata = {
   }
 }
 
+// Disable static export for entire app to ensure server runtime (prevents export errors on dynamic routes)
+export const dynamic = 'force-dynamic'
+
 export default async function RootLayout({
   children,
 }: {

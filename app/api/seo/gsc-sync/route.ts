@@ -12,6 +12,16 @@ function absolute(base: string, path: string) {
 
 type PriorityMode = 'not_indexed_first' | 'stale_first' | 'all'
 
+// Simple in-memory mutex to avoid concurrent syncs
+let syncRunning = false
+
+function within<T>(promise: Promise<T>, ms: number): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const t = setTimeout(() => reject(new Error('timeout')), ms)
+    promise.then(v => { clearTimeout(t); resolve(v) }).catch(e => { clearTimeout(t); reject(e) })
+  })
+}
+
 export async function POST(request: NextRequest) {
   try {
     if (!isProduction()) return NextResponse.json({ error: 'prod-only' }, { status: 403 })
@@ -29,11 +39,23 @@ export async function POST(request: NextRequest) {
       priority?: PriorityMode
       urls?: string[]
     }
-    const limit = Math.max(1, Math.min(200, Number(body.limit) || 100))
-    const dryRun = Boolean(body.dryRun)
+    // Defaults: limit=25 (1..1500), dryRun=true by default
+    const rawLimit = Number(body?.limit ?? 25)
+    if (!Number.isFinite(rawLimit) || rawLimit < 1 || rawLimit > 1500) {
+      return NextResponse.json({ status: 'error', errorCode: 'bad_request', errorHint: 'limit must be integer 1..1500' }, { status: 400 })
+    }
+    const limit = Math.trunc(rawLimit)
+    const dryRun = body?.dryRun === undefined ? true : Boolean(body.dryRun)
     const priority: PriorityMode = (body.priority as PriorityMode) || 'all'
     const urlsFromBody: string[] = Array.isArray(body.urls) ? body.urls.filter(u => typeof u === 'string' && u.startsWith('http')) : []
 
+    if (syncRunning) {
+      return NextResponse.json({ status: 'error', errorCode: 'already_running', errorHint: 'sync already running' }, { status: 503 })
+    }
+    syncRunning = true
+    const startedAt = Date.now()
+    try {
+      console.log(`[GSC] sync start dryRun=${dryRun} limit=${limit}`)
     // Build candidate URLs (landings only) or use explicitly provided URLs
     let candidates: string[]
     if (urlsFromBody.length > 0) {
@@ -80,63 +102,107 @@ export async function POST(request: NextRequest) {
     }
     const batch = ordered.slice(0, effectiveLimit)
 
-    let processed = 0, indexed = 0, notIndexed = 0, errors = 0
+    let processed = 0, succeeded = 0, failed = 0
+
+    const tryInspectOnce = async (url: string) => {
+      try {
+        const res = await within(inspectUrl(url), 25_000)
+        const idx = (res.raw?.inspectionResult?.indexStatusResult) || {}
+        const pageFetchState = idx.pageFetchState as string | undefined
+        const lastCrawlTime = (idx.lastCrawlTime as string | undefined) || null
+        const googleCanonical = idx.googleCanonical as string | undefined
+        const userCanonical = idx.userCanonical as string | undefined
+        await prisma.seo_gsc_status.upsert({
+          where: { url },
+          update: {
+            indexed: res.indexed,
+            coverage_state: res.coverageState || null,
+            page_fetch_state: pageFetchState || null,
+            last_crawl_time: lastCrawlTime ? new Date(lastCrawlTime) : null,
+            google_canonical: googleCanonical || null,
+            user_canonical: userCanonical || null,
+            last_crawl: res.lastCrawl ? new Date(res.lastCrawl) : null,
+            checked_at: new Date(),
+            raw: res.raw,
+          },
+          create: {
+            url,
+            indexed: res.indexed,
+            coverage_state: res.coverageState || null,
+            page_fetch_state: pageFetchState || null,
+            last_crawl_time: lastCrawlTime ? new Date(lastCrawlTime) : null,
+            google_canonical: googleCanonical || null,
+            user_canonical: userCanonical || null,
+            last_crawl: res.lastCrawl ? new Date(res.lastCrawl) : null,
+            checked_at: new Date(),
+            raw: res.raw,
+          },
+        })
+        return true
+      } catch (e: any) {
+        // One retry for 429/5xx-like errors based on message
+        const msg = String(e?.message || '')
+        if (/\b429\b/.test(msg) || /\b5\d{2}\b/.test(msg)) {
+          const backoff = 500 + Math.floor(Math.random() * 1000)
+          await new Promise(r => setTimeout(r, backoff))
+          try {
+            const res = await within(inspectUrl(url), 25_000)
+            const idx = (res.raw?.inspectionResult?.indexStatusResult) || {}
+            const pageFetchState = idx.pageFetchState as string | undefined
+            const lastCrawlTime = (idx.lastCrawlTime as string | undefined) || null
+            const googleCanonical = idx.googleCanonical as string | undefined
+            const userCanonical = idx.userCanonical as string | undefined
+            await prisma.seo_gsc_status.upsert({
+              where: { url },
+              update: {
+                indexed: res.indexed,
+                coverage_state: res.coverageState || null,
+                page_fetch_state: pageFetchState || null,
+                last_crawl_time: lastCrawlTime ? new Date(lastCrawlTime) : null,
+                google_canonical: googleCanonical || null,
+                user_canonical: userCanonical || null,
+                last_crawl: res.lastCrawl ? new Date(res.lastCrawl) : null,
+                checked_at: new Date(),
+                raw: res.raw,
+              },
+              create: {
+                url,
+                indexed: res.indexed,
+                coverage_state: res.coverageState || null,
+                page_fetch_state: pageFetchState || null,
+                last_crawl_time: lastCrawlTime ? new Date(lastCrawlTime) : null,
+                google_canonical: googleCanonical || null,
+                user_canonical: userCanonical || null,
+                last_crawl: res.lastCrawl ? new Date(res.lastCrawl) : null,
+                checked_at: new Date(),
+                raw: res.raw,
+              },
+            })
+            return true
+          } catch {
+            return false
+          }
+        }
+        return false
+      }
+    }
 
     for (const url of batch) {
-      try {
-        if (!dryRun) {
-          const result = await inspectUrl(url)
-          processed++
-          if (result.indexed) indexed++; else notIndexed++
-          const idx = (result.raw?.inspectionResult?.indexStatusResult) || {}
-          const pageFetchState = idx.pageFetchState as string | undefined
-          const lastCrawlTime = (idx.lastCrawlTime as string | undefined) || null
-          const googleCanonical = idx.googleCanonical as string | undefined
-          const userCanonical = idx.userCanonical as string | undefined
-          await prisma.seo_gsc_status.upsert({
-            where: { url },
-            update: {
-              indexed: result.indexed,
-              coverage_state: result.coverageState || null,
-              page_fetch_state: pageFetchState || null,
-              last_crawl_time: lastCrawlTime ? new Date(lastCrawlTime) : null,
-              google_canonical: googleCanonical || null,
-              user_canonical: userCanonical || null,
-              last_crawl: result.lastCrawl ? new Date(result.lastCrawl) : null,
-              checked_at: new Date(),
-              raw: result.raw,
-            },
-            create: {
-              url,
-              indexed: result.indexed,
-              coverage_state: result.coverageState || null,
-              page_fetch_state: pageFetchState || null,
-              last_crawl_time: lastCrawlTime ? new Date(lastCrawlTime) : null,
-              google_canonical: googleCanonical || null,
-              user_canonical: userCanonical || null,
-              last_crawl: result.lastCrawl ? new Date(result.lastCrawl) : null,
-              checked_at: new Date(),
-              raw: result.raw,
-            },
-          })
-        }
-      } catch (e) {
-        errors++
-      }
+      if (dryRun) continue
+      const ok = await tryInspectOnce(url)
+      processed++
+      if (ok) succeeded++; else failed++
       await new Promise(res => setTimeout(res, 120)) // ~8 rps
     }
 
-    return NextResponse.json({
-      processed,
-      indexed,
-      notIndexed,
-      errors,
-      limit: effectiveLimit,
-      capLeftBefore: capLeft,
-      priority,
-    })
+    const durationMs = Date.now() - startedAt
+    console.log(`[GSC] sync done processed=${processed} succeeded=${succeeded} failed=${failed} durationMs=${durationMs}`)
+    return NextResponse.json({ status: 'ok', dryRun, limit: effectiveLimit, processed, succeeded, failed, durationMs })
+    } finally {
+      syncRunning = false
+    }
   } catch (e: any) {
-    return NextResponse.json({ error: e?.message || 'internal' }, { status: 500 })
+    return NextResponse.json({ status: 'error', errorCode: 'internal', errorHint: e?.message || 'internal' }, { status: 500 })
   }
 }
 

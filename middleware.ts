@@ -104,6 +104,7 @@ export async function middleware(request: NextRequest) {
   // Public exceptions for auth-related public pages
   const publicAuthPattern = /^(\/forgot-password|\/account\/reset|\/account\/verify)(\/.*)?$/
   if (publicAuthPattern.test(pathname)) {
+    try { console.info('public-route', { pathname }) } catch {}
     return NextResponse.next();
   }
 
@@ -154,7 +155,7 @@ export async function middleware(request: NextRequest) {
     }
     return res;
   } catch (error) {
-    console.log('❌ Middleware error:', error);
+    console.error('middleware-error', { message: (error as any)?.message });
     return NextResponse.next();
   }
 }

@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 from . import products, billing
 from .admin_email_test import router as admin_email_router
+from .admin_email_diagnostics import router as admin_email_diagnostics_router
 from .webhooks_postmark import router as postmark_webhooks_router
 from .admin_email_events import router as admin_email_events_router
 from .auth_password_reset_request import router as password_reset_request_router
@@ -13,6 +14,7 @@ router.include_router(products.router, prefix="/products", tags=["products"])
 router.include_router(billing.router, prefix="/billing", tags=["billing"])
 router.include_router(affiliate_router)
 router.include_router(admin_email_router)
+router.include_router(admin_email_diagnostics_router)
 router.include_router(postmark_webhooks_router)
 router.include_router(admin_email_events_router)
 router.include_router(password_reset_request_router)

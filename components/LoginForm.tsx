@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { FiEye, FiEyeOff } from 'react-icons/fi'
+import { FiEye, FiEyeOff, FiArrowLeft } from 'react-icons/fi'
 import { signIn, useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 
@@ -16,8 +16,21 @@ export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormPr
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [rememberMe, setRememberMe] = useState(false)
+  const [isForgotPassword, setIsForgotPassword] = useState(false)
+  const [forgotPasswordDone, setForgotPasswordDone] = useState(false)
 
   const router = useRouter()
+
+  // Reset state when component mounts (when key changes)
+  useEffect(() => {
+    setEmail('')
+    setPassword('')
+    setShowPassword(false)
+    setError(null)
+    setRememberMe(false)
+    setIsForgotPassword(false)
+    setForgotPasswordDone(false)
+  }, [])
 
   // Pokud už existuje session, zavři modal a případné chyby skryj
   useEffect(() => {
@@ -61,6 +74,26 @@ export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormPr
     }
   }
 
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError(null)
+    try {
+      const response = await fetch('/api/auth/password/reset-request', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      })
+      
+      if (response.ok) {
+        setForgotPasswordDone(true)
+      } else {
+        setError('Chyba při odesílání emailu')
+      }
+    } catch (e: any) {
+      setError('Chyba při odesílání emailu')
+    }
+  }
+
   const handleGoogleLogin = async () => {
     try {
       const result = await signIn('google', {
@@ -81,6 +114,68 @@ export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormPr
     }
   }
 
+  // Forgot password view
+  if (isForgotPassword) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => {
+              setIsForgotPassword(false)
+              setForgotPasswordDone(false)
+              setError(null)
+            }}
+            className="text-gray-500 hover:text-gray-700 transition-colors"
+          >
+            <FiArrowLeft className="w-5 h-5" />
+          </button>
+          <h2 className="text-xl font-semibold text-gray-900">Forgot Password</h2>
+        </div>
+
+        {forgotPasswordDone ? (
+          <div className="p-4 bg-green-50 border border-green-200 text-green-700 rounded-lg">
+            <p className="text-sm">
+              If an account exists for <strong>{email}</strong>, we sent instructions to reset your password.
+            </p>
+            <p className="text-xs mt-2 text-green-600">
+              Please check your email and spam folder.
+            </p>
+          </div>
+        ) : (
+          <form onSubmit={handleForgotPassword} className="space-y-4">
+            <div>
+              <label htmlFor="forgot-email" className="block text-sm font-medium text-gray-700 mb-1">
+                Email
+              </label>
+              <input
+                type="email"
+                id="forgot-email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-4 py-2 rounded-[14px] border border-gray-200 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500/50 outline-none transition-all"
+                required
+              />
+            </div>
+
+            {error && (
+              <div className="text-red-500 text-sm text-center">
+                {error}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              className="w-full px-4 py-2 text-sm font-medium rounded-[14px] bg-gradient-primary text-white hover-gradient-primary transition-all"
+            >
+              Send Reset Link
+            </button>
+          </form>
+        )}
+      </div>
+    )
+  }
+
+  // Normal login view
   return (
     <div className="space-y-6">
       {/* Google login */}
@@ -181,14 +276,13 @@ export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormPr
             </div>
           </label>
 
-          <Link
-            href="/forgot-password"
-            prefetch={false}
-            data-testid="forgot-link-modal"
+          <button
+            type="button"
+            onClick={() => setIsForgotPassword(true)}
             className="text-sm text-gradient-primary hover:opacity-80 transition-opacity"
           >
             Forgot password?
-          </Link>
+          </button>
         </div>
 
         {error && (

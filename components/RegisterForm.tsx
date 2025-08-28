@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { FiEye, FiEyeOff } from 'react-icons/fi'
 import { signIn } from 'next-auth/react'
 
@@ -13,6 +13,15 @@ export default function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFor
   const [confirmPassword, setConfirmPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+
+  // Reset state when component mounts (when key changes)
+  useEffect(() => {
+    setEmail('')
+    setPassword('')
+    setConfirmPassword('')
+    setShowPassword(false)
+    setShowConfirmPassword(false)
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

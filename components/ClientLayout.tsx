@@ -4,6 +4,7 @@ import React, { useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import Header from './Header'
 import Footer from './Footer'
+import ErrorReporter from './ErrorReporter'
 
 export default function ClientLayout({
   children,
@@ -38,6 +39,7 @@ export default function ClientLayout({
   if (isAdmin) {
     return (
       <div className="min-h-screen bg-white">
+        <ErrorReporter />
         {children}
       </div>
     )
@@ -48,6 +50,7 @@ export default function ClientLayout({
     return (
       <div className="min-h-screen flex flex-col bg-white">
         <main className="flex-grow bg-white">
+          <ErrorReporter />
           {children}
         </main>
         <Footer />
@@ -59,6 +62,7 @@ export default function ClientLayout({
     <div className="min-h-screen flex flex-col bg-white">
       <Header />
       <main className="flex-grow bg-white">
+        <ErrorReporter />
         {children}
       </main>
       {!isCompanyAdmin && <Footer />}

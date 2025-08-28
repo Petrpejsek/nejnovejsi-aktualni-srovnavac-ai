@@ -1,0 +1,59 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to production
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            set -euo pipefail
+            APP_DIR="${{ secrets.APP_DIR }}"
+            cd "$APP_DIR" || { echo "ERROR: APP_DIR not found"; exit 1; }
+            
+            echo "== Git pull ==="
+            git fetch origin main
+            git reset --hard origin/main
+            
+            echo "== Install dependencies ==="
+            npm ci --no-audit --no-fund --silent
+            
+            echo "== Build application ==="
+            rm -rf .next
+            NODE_ENV=production npm run build
+            
+            echo "== Restart PM2 ==="
+            pm2 restart comparee-nextjs --update-env || pm2 start npm --name comparee-nextjs -- start
+            
+            echo "== Wait for startup ==="
+            sleep 5
+            
+            echo "== Health check ==="
+            curl -sI https://comparee.ai/ | head -n 10
+            
+            echo "== PM2 status ==="
+            pm2 status | grep comparee-nextjs
+            
+            echo "== Port 3000 check ==="
+            ss -ltnp | grep ":3000" || echo "WARNING: Nothing listening on :3000"
+
+      - name: Build Status
+        run: |
+          echo "## 🚀 Production Deployment Complete" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Timestamp**: $(date -u)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Health Check Response:" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          curl -sI https://comparee.ai/ | head -n 10 >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY

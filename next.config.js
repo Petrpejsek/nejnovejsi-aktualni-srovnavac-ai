@@ -1,6 +1,9 @@
 /** @type {import("next").NextConfig} */
 const defaultLocale = 'en';
 const nextConfig = {
+  // Build server output for PM2/Node runtime (avoid static export)
+  output: 'standalone',
+  productionBrowserSourceMaps: true,
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "**" },
@@ -87,8 +90,7 @@ const nextConfig = {
   },
   async rewrites() {
     return [
-      { source: '/account/reset', destination: `/${defaultLocale}/account/reset` },
-      { source: '/account/verify', destination: `/${defaultLocale}/account/verify` },
+      // Remove i18n rewrite for account pages; canonical routes live at /account/*
     ]
   },
 }

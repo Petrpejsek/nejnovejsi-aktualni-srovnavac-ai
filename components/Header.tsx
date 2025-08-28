@@ -90,6 +90,17 @@ export default function Header() {
     }
   }, [])
 
+  // Close any auth modal on navigation to public auth pages (forgot/reset/verify)
+  useEffect(() => {
+    const p = pathname || ''
+    if (/^\/(forgot-password|account\/reset|account\/verify)/.test(p)) {
+      setIsLoginOpen(false)
+      setIsRegisterOpen(false)
+      setIsUserMenuOpen(false)
+      setIsMobileMenuOpen(false)
+    }
+  }, [pathname])
+
   const handleLoginSuccess = () => {
     setIsLoginOpen(false)
     // TODO: Implement login
@@ -98,6 +109,14 @@ export default function Header() {
   const handleRegisterSuccess = () => {
     setIsRegisterOpen(false)
     // TODO: Implement registration
+  }
+
+  const handleLoginModalClose = () => {
+    setIsLoginOpen(false)
+  }
+
+  const handleRegisterModalClose = () => {
+    setIsRegisterOpen(false)
   }
 
   const switchToRegister = () => {
@@ -187,7 +206,7 @@ export default function Header() {
                       {isLoadingAvatar ? (
                         <div className="w-8 h-8 rounded-full bg-gray-200 animate-pulse"></div>
                       ) : avatarUrl ? (
-                      <img
+                        <img
                           src={avatarUrl}
                           alt="Profile"
                           className="w-8 h-8 rounded-full object-cover border-2 border-gray-200"
@@ -196,7 +215,7 @@ export default function Header() {
                         <div 
                           className="w-8 h-8 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full flex items-center justify-center text-white text-sm font-semibold"
                         >
-                          {session.user?.email?.charAt(0).toUpperCase()}
+                          {typeof session.user?.email === 'string' ? session.user.email.charAt(0).toUpperCase() : ''}
                         </div>
                       )}
                       <span className="text-sm font-medium text-gray-700">
@@ -323,7 +342,7 @@ export default function Header() {
                       className="w-8 h-8 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full flex items-center justify-center text-white text-sm font-semibold"
                       data-avatar-target="true"
                     >
-                      {session.user?.email?.charAt(0).toUpperCase()}
+                      {typeof session.user?.email === 'string' ? session.user.email.charAt(0).toUpperCase() : ''}
                     </div>
                   )}
                 </Link>
@@ -406,7 +425,7 @@ export default function Header() {
                         className="flex items-center space-x-2 text-gray-700 font-medium hover:text-gradient-primary transition-colors py-2"
                       >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                         </svg>
                         <span>Email Preferences</span>
                       </Link>
@@ -441,36 +460,40 @@ export default function Header() {
       {/* Modal windows */}
       <Modal
         isOpen={isLoginOpen}
-        onClose={() => setIsLoginOpen(false)}
+        onClose={handleLoginModalClose}
         title={isCompanyContext ? 'Company Log In' : 'Log In'}
       >
         {isCompanyContext ? (
           <CompanyLoginForm
             onSuccess={handleLoginSuccess}
             onSwitchToRegister={switchToRegister}
+            key={isLoginOpen ? 'open' : 'closed'}
           />
         ) : (
           <LoginForm
             onSuccess={handleLoginSuccess}
             onSwitchToRegister={switchToRegister}
+            key={isLoginOpen ? 'open' : 'closed'}
           />
         )}
       </Modal>
 
       <Modal
         isOpen={isRegisterOpen}
-        onClose={() => setIsRegisterOpen(false)}
+        onClose={handleRegisterModalClose}
         title={isCompanyContext ? 'Company Sign Up' : 'Sign Up'}
       >
         {isCompanyContext ? (
           <CompanyRegisterForm
             onSuccess={handleRegisterSuccess}
             onSwitchToLogin={switchToLogin}
+            key={isRegisterOpen ? 'open' : 'closed'}
           />
         ) : (
           <RegisterForm
             onSuccess={handleRegisterSuccess}
             onSwitchToLogin={switchToLogin}
+            key={isRegisterOpen ? 'open' : 'closed'}
           />
         )}
       </Modal>

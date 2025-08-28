@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel, EmailStr
 import logging
 
-from ..config.settings import settings
+from ..core.settings import settings
 from ..services.email_tokens import create_reset_token
 from ..services.rate_limit import check_rate_limit, RateLimitError
 from ..services.email_factory import get_email_service

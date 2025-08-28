@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline'
+import { EyeIcon, EyeSlashIcon, ArrowLeftIcon } from '@heroicons/react/24/outline'
 import { signIn, useSession } from 'next-auth/react'
 
 interface CompanyLoginFormProps {
@@ -20,6 +20,22 @@ export default function CompanyLoginForm({ onSuccess, onSwitchToRegister }: Comp
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [isForgotPassword, setIsForgotPassword] = useState(false)
+  const [forgotPasswordDone, setForgotPasswordDone] = useState(false)
+
+  // Reset state when component mounts (when key changes)
+  useEffect(() => {
+    setFormData({
+      email: '',
+      password: '',
+      rememberMe: false,
+    })
+    setShowPassword(false)
+    setIsLoading(false)
+    setErrors({})
+    setIsForgotPassword(false)
+    setForgotPasswordDone(false)
+  }, [])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target
@@ -80,6 +96,26 @@ export default function CompanyLoginForm({ onSuccess, onSwitchToRegister }: Comp
     }
   }
 
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setErrors({})
+    try {
+      const response = await fetch('/api/auth/password/reset-request', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: formData.email })
+      })
+      
+      if (response.ok) {
+        setForgotPasswordDone(true)
+      } else {
+        setErrors({ general: 'Chyba při odesílání emailu' })
+      }
+    } catch (e: any) {
+      setErrors({ general: 'Chyba při odesílání emailu' })
+    }
+  }
+
   // Auto-close on existing session a zobraz ?error z URL od NextAuth
   useEffect(() => {
     if (status === 'authenticated') {
@@ -97,6 +133,68 @@ export default function CompanyLoginForm({ onSuccess, onSwitchToRegister }: Comp
     }
   }, [])
 
+  // Forgot password view
+  if (isForgotPassword) {
+    return (
+      <div className="w-full max-w-md mx-auto">
+        <div className="flex items-center gap-3 mb-6">
+          <button
+            onClick={() => {
+              setIsForgotPassword(false)
+              setForgotPasswordDone(false)
+              setErrors({})
+            }}
+            className="text-gray-500 hover:text-gray-700 transition-colors"
+          >
+            <ArrowLeftIcon className="w-5 h-5" />
+          </button>
+          <h2 className="text-xl font-semibold text-gray-900">Forgot Password</h2>
+        </div>
+
+        {forgotPasswordDone ? (
+          <div className="p-4 bg-green-50 border border-green-200 text-green-700 rounded-lg">
+            <p className="text-sm">
+              If an account exists for <strong>{formData.email}</strong>, we sent instructions to reset your password.
+            </p>
+            <p className="text-xs mt-2 text-green-600">
+              Please check your email and spam folder.
+            </p>
+          </div>
+        ) : (
+          <form onSubmit={handleForgotPassword} className="space-y-4">
+            {errors.general && (
+              <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
+                {errors.general}
+              </div>
+            )}
+
+            <div>
+              <label htmlFor="forgot-email" className="block text-sm font-medium text-gray-700 mb-1">
+                Business Email
+              </label>
+              <input
+                type="email"
+                id="forgot-email"
+                value={formData.email}
+                onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors"
+                required
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-2 px-4 rounded-lg hover:from-purple-700 hover:to-pink-700 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-all font-medium"
+            >
+              Send Reset Link
+            </button>
+          </form>
+        )}
+      </div>
+    )
+  }
+
+  // Normal login view
   return (
     <div className="w-full max-w-md mx-auto">
       <div className="text-center mb-6">
@@ -193,14 +291,13 @@ export default function CompanyLoginForm({ onSuccess, onSwitchToRegister }: Comp
           </label>
 
           {/* Forgot Password */}
-          <Link
-            href="/forgot-password"
-            prefetch={false}
-            data-testid="forgot-link-modal"
+          <button
+            type="button"
+            onClick={() => setIsForgotPassword(true)}
             className="text-sm text-purple-600 hover:text-purple-700"
           >
             Forgot password?
-          </Link>
+          </button>
         </div>
 
         {/* Submit Button */}

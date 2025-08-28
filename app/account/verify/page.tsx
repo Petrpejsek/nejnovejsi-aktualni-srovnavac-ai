@@ -3,9 +3,11 @@
 import React, { useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 
+export const dynamic = 'force-dynamic'
+
 export default function AccountVerifyPage() {
   const params = useSearchParams()
-  const token = params.get('token') || ''
+  const token = params?.get('token') || ''
   const [result, setResult] = useState<string>('')
 
   async function doVerify() {

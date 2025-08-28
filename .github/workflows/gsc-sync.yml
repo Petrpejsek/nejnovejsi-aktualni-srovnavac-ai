@@ -1,0 +1,84 @@
+name: GSC Sync
+
+on:
+  schedule:
+    # 03:15 CET/CEST (Europe/Madrid timezone)
+    - cron: '15 1 * 3-10 *'  # CEST Mar-Oct (UTC+2)
+    - cron: '15 2 * 11,12,1,2 *'  # CET Nov-Feb (UTC+1)
+  workflow_dispatch:
+
+jobs:
+  gsc-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger GSC sync
+        id: gsc-sync
+        run: |
+          set -euo pipefail
+          URL="https://comparee.ai/api/seo/gsc-sync"
+          BODY='{"limit":1500,"dryRun":false,"priority":"not_indexed_first"}'
+          
+          echo "== GSC Sync Trigger =="
+          echo "Timestamp: $(date -u)"
+          echo "Timezone: Europe/Madrid (CET/CEST)"
+          echo "URL: $URL"
+          
+          # First attempt
+          echo "== First attempt =="
+          R=$(curl -s -w "\n%{http_code}" -X POST \
+            -H "X-GSC-CRON-TOKEN: ${{ secrets.GSC_CRON_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d "$BODY" "$URL")
+          CODE=$(echo "$R" | tail -n1)
+          JSON=$(echo "$R" | sed '$d')
+          
+          echo "HTTP Status: $CODE"
+          echo "Response: $JSON"
+          
+          if [ "$CODE" -ge 300 ]; then
+            echo "❌ Non-200 ($CODE), retrying once..."
+            sleep 30
+            
+            # Retry attempt
+            R=$(curl -s -w "\n%{http_code}" -X POST \
+              -H "X-GSC-CRON-TOKEN: ${{ secrets.GSC_CRON_TOKEN }}" \
+              -H "Content-Type: application/json" \
+              -d "$BODY" "$URL")
+            CODE=$(echo "$R" | tail -n1)
+            JSON=$(echo "$R" | sed '$d')
+            
+            echo "HTTP Status (retry): $CODE"
+            echo "Response (retry): $JSON"
+          fi
+          
+          echo "status=$CODE" >> $GITHUB_OUTPUT
+          echo "json<<EOF" >> $GITHUB_OUTPUT
+          echo "$JSON" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Summary
+        run: |
+          echo "## 🔄 GSC Sync Complete" >> $GITHUB_STEP_SUMMARY
+          echo "- **HTTP Status**: ${{ steps.gsc-sync.outputs.status }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Timestamp**: $(date -u)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Timezone**: Europe/Madrid (CET/CEST)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Cron Schedule**: 03:15 daily (CET/CEST)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ steps.gsc-sync.outputs.status }}" = "200" ]; then
+            echo "✅ **GSC sync completed successfully**" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### Response Summary:" >> $GITHUB_STEP_SUMMARY
+            echo '```json' >> $GITHUB_STEP_SUMMARY
+            echo '${{ steps.gsc-sync.outputs.json }}' >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **GSC sync failed (HTTP ${{ steps.gsc-sync.outputs.status }})**" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### Error Response:" >> $GITHUB_STEP_SUMMARY
+            echo '```json' >> $GITHUB_STEP_SUMMARY
+            echo '${{ steps.gsc-sync.outputs.json }}' >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          fi
+
+

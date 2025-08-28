@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { EyeIcon, EyeSlashIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline'
 
 interface CompanyRegisterFormProps {
@@ -10,6 +10,7 @@ interface CompanyRegisterFormProps {
 
 export default function CompanyRegisterForm({ onSuccess, onSwitchToLogin }: CompanyRegisterFormProps) {
   const [currentStep, setCurrentStep] = useState(1)
+  
   const [formData, setFormData] = useState({
     companyName: '',
     contactName: '',
@@ -27,6 +28,28 @@ export default function CompanyRegisterForm({ onSuccess, onSwitchToLogin }: Comp
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
+
+  // Reset state when component mounts (when key changes)
+  useEffect(() => {
+    setCurrentStep(1)
+    setFormData({
+      companyName: '',
+      contactName: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+      role: '',
+      website: '',
+      country: '',
+      companySize: '',
+      productTypes: [],
+      otherProductType: '',
+    })
+    setShowPassword(false)
+    setShowConfirmPassword(false)
+    setIsLoading(false)
+    setErrors({})
+  }, [])
 
   const steps = [
     { number: 1, title: 'Basic Info', description: 'Company and contact details' },

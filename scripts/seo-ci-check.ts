@@ -112,10 +112,10 @@ async function main() {
   }
 
   // Canonical checks: sample 5 landing + 5 categories
-  const landings = sampled.filter(u => /\/landing\//.test(u)).slice(0, 5)
+  const landingUrls = sampled.filter(u => /\/landing\//.test(u)).slice(0, 5)
   const categoriesUrls = sampled.filter(u => /\/categories\//.test(u)).slice(0, 5)
   const canonErrors: string[] = []
-  for (const url of [...landings, ...categoriesUrls]) {
+  for (const url of [...landingUrls, ...categoriesUrls]) {
     try {
       const html = await fetchText(url, 8000)
       const m = html.match(/<link[^>]+rel=["']canonical["'][^>]*>/i)

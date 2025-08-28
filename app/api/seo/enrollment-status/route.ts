@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-export function readEnrollmentStatus() {
+function readEnrollmentStatus() {
   const enabled = process.env.OAUTH_ENROLLMENT_ENABLED === 'true'
   return {
     enabled,

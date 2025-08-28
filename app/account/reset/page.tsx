@@ -3,10 +3,12 @@
 import React, { useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 
+export const dynamic = 'force-dynamic'
+
 export default function ResetPage() {
   const params = useSearchParams()
   const router = useRouter()
-  const token = params.get('token') || ''
+  const token = params?.get('token') || ''
   const [pwd, setPwd] = useState('')
   const [pwd2, setPwd2] = useState('')
   const [msg, setMsg] = useState<string | null>(null)

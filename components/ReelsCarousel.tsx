@@ -9,6 +9,7 @@ import { useSession } from 'next-auth/react'
 import Modal from './Modal'
 import RegisterForm from './RegisterForm'
 import { getReelThumbnail, isMobile } from '../lib/videoUtils'
+import { PUBLIC_BASE_URL } from '@/app/lib/env.client'
 
 // Helper funkce pro sestavení správného video URL
 const getVideoUrl = (videoUrl: string): string => {
@@ -24,7 +25,7 @@ const getVideoUrl = (videoUrl: string): string => {
   }
 
   // Fallback pro base URL
-  const baseURL = process.env.NEXT_PUBLIC_BASE_URL as string
+  const baseURL = PUBLIC_BASE_URL
   
   // Pokud je relativní URL (začíná '/uploads/' nebo '/')
   if (videoUrl.startsWith('/')) {
