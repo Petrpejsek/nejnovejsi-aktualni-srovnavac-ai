@@ -28,3 +28,4 @@ test('static chunks and key APIs exist', async ({ page, request }) => {
   const r = await request.get(BASE + '/_next/static/')
   expect(r.status()).not.toBe(404)
 })
+

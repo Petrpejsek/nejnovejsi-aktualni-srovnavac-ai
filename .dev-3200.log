@@ -1,0 +1,118 @@
+
+> muj-web@0.1.0 dev
+> next dev -p 3000 -p 3200
+
+  ▲ Next.js 14.2.24
+  - Local:        http://localhost:3200
+  - Environments: .env.local, .env.development
+  - Experiments (use with caution):
+    · optimizeServerReact
+
+ ✓ Starting...
+ ✓ Ready in 5.1s
+ ○ Compiling /api/auth/[...nextauth] ...
+ ✓ Compiled /api/auth/[...nextauth] in 3.7s (262 modules)
+ GET /api/auth/csrf 200 in 5760ms
+🔍 Login attempt: admin@admin.com (role: admin)
+✅ Admin login successful
+✅ Credentials login approved
+🔍 JWT token created: {
+  email: 'admin@admin.com',
+  role: 'admin',
+  isAdmin: true,
+  rememberMe: undefined
+}
+ POST /api/auth/callback/credentials 302 in 1708ms
+ ○ Compiling /middleware ...
+ ✓ Compiled /middleware in 689ms (172 modules)
+ ○ Compiling / ...
+ ✓ Compiled / in 7.2s (932 modules)
+ ○ Compiling /api/products ...
+ ✓ Compiled /api/products in 4.8s (633 modules)
+API: Processing request for products with params: {
+  page: 1,
+  pageSize: 12,
+  pageParam: '1',
+  pageSizeParam: '12',
+  category: null,
+  categorySlug: null,
+  categories: [],
+  url: 'http://localhost:3200/api/products?forHomepage=true&page=1&pageSize=12'
+}
+API: Successfully loaded 12 products (page 1, pageSize 12, total 421) - SORTED BY CREDIT + ACTIVE CAMPAIGNS
+🔧 Preventive check: Auto-paused campaigns with insufficient credit
+ GET /api/products?forHomepage=true&page=1&pageSize=12 200 in 5592ms
+ GET / 200 in 13867ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 1259ms (986 modules)
+ GET /screenshots/jasper-1756310764627.webp?v=1756553568348 404 in 2009ms
+ GET /screenshots/jimdo-1756310968745.webp?v=1756553568358 404 in 1354ms
+ GET /screenshots/jasper-1756310764627.webp?v=1756553571181 404 in 173ms
+ ✓ Compiled /api/product-count in 318ms (637 modules)
+ ✓ Compiled (641 modules)
+ GET /api/products?categoriesOnly=true 200 in 1254ms
+ POST /api/pageview?path=%2F 200 in 1907ms
+📊 API Optimalizace: Načítám 42 produktů místo 234 (limit: 3 per list)
+📊 Product count loaded from database: 421
+ GET /api/product-count 200 in 2052ms
+ GET /api/top-lists?status=published&includeProducts=true&productsLimit=3 200 in 2212ms
+ ○ Compiling /api/auth/[...nextauth] ...
+ ✓ Compiled /api/auth/[...nextauth] in 506ms (588 modules)
+ GET /api/auth/csrf 200 in 820ms
+🔍 Login attempt: admin@admin.com (role: admin)
+✅ Admin login successful
+✅ Credentials login approved
+🔍 JWT token created: {
+  email: 'admin@admin.com',
+  role: 'admin',
+  isAdmin: true,
+  rememberMe: undefined
+}
+ POST /api/auth/callback/credentials 302 in 512ms
+ ✓ Compiled /api/products in 188ms (637 modules)
+API: Processing request for products with params: {
+  page: 1,
+  pageSize: 12,
+  pageParam: '1',
+  pageSizeParam: '12',
+  category: null,
+  categorySlug: null,
+  categories: [],
+  url: 'http://localhost:3200/api/products?forHomepage=true&page=1&pageSize=12'
+}
+API: Successfully loaded 12 products (page 1, pageSize 12, total 421) - SORTED BY CREDIT + ACTIVE CAMPAIGNS
+🔧 Preventive check: Auto-paused campaigns with insufficient credit
+ GET /api/products?forHomepage=true&page=1&pageSize=12 200 in 1499ms
+ GET / 200 in 1912ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 602ms (639 modules)
+ GET /screenshots/nacsport-sports-video-analysis-software-1756366908349.webp?v=1756553790853 404 in 922ms
+ GET /screenshots/nacsport-sports-video-analysis-software-1756366908349.webp?v=1756553792316 404 in 123ms
+ ✓ Compiled /api/top-lists in 148ms (641 modules)
+ ✓ Compiled (645 modules)
+ GET /api/products?categoriesOnly=true 200 in 607ms
+📊 Product count loaded from database: 421
+ GET /api/product-count 200 in 661ms
+ POST /api/pageview?path=%2F 200 in 1332ms
+📊 API Optimalizace: Načítám 42 produktů místo 234 (limit: 3 per list)
+ GET /api/top-lists?status=published&includeProducts=true&productsLimit=3 200 in 1595ms
+ ○ Compiling /_error ...
+ ✓ Compiled /_error in 2.6s (1156 modules)
+ ⚠ You have added a custom /_error page without a custom /404 page. This prevents the 404 page from being auto statically optimized.
+See here for info: https://nextjs.org/docs/messages/custom-error-no-custom-404
+ GET / 404 in 3119ms
+ ✓ Compiled /api/products in 473ms (669 modules)
+API: Processing request for products with params: {
+  page: 1,
+  pageSize: 12,
+  pageParam: '1',
+  pageSizeParam: '12',
+  category: null,
+  categorySlug: null,
+  categories: [],
+  url: 'http://localhost:3200/api/products?forHomepage=true&page=1&pageSize=12'
+}
+API: Successfully loaded 12 products (page 1, pageSize 12, total 421) - SORTED BY CREDIT + ACTIVE CAMPAIGNS
+🔧 Preventive check: Auto-paused campaigns with insufficient credit
+ GET /api/products?forHomepage=true&page=1&pageSize=12 200 in 2222ms
+ GET / 200 in 3151ms

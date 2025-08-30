@@ -93,7 +93,8 @@ export default function Header() {
   // Close any auth modal on navigation to public auth pages (forgot/reset/verify)
   useEffect(() => {
     const p = pathname || ''
-    if (/^\/(forgot-password|account\/reset|account\/verify)/.test(p)) {
+    if (p.includes('/forgot-password') || p.includes('/account/reset') || p.includes('/account/verify')) {
+      console.log('🔒 Closing modals for auth page:', p)
       setIsLoginOpen(false)
       setIsRegisterOpen(false)
       setIsUserMenuOpen(false)

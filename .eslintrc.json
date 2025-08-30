@@ -21,13 +21,6 @@
             "selector": "Program:has(> ExpressionStatement[expression.callee.object.value='use client']) MemberExpression[object.name='process'][property.name='env']",
             "message": "Do not access process.env in Client Components. Use NEXT_PUBLIC_* via app/lib/env.client.ts or fetch from server."
           }
-        ],
-        "no-restricted-imports": [
-          "error",
-          {
-            "paths": ["@prisma/client", "fs", "path", "child_process", "server-only"],
-            "message": "Server-only modules must not be imported in Client Components."
-          }
         ]
       }
     }

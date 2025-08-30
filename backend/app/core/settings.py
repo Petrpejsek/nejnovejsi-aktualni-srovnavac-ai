@@ -20,6 +20,7 @@ class Settings(BaseModel):
     EMAIL_TOKEN_SECRET: str = os.getenv("EMAIL_TOKEN_SECRET", "")
     PASSWORD_RESET_TOKEN_TTL_MIN: int = int(os.getenv("PASSWORD_RESET_TOKEN_TTL_MIN", "30"))
     EMAIL_VERIFY_TOKEN_TTL_MIN: int = int(os.getenv("EMAIL_VERIFY_TOKEN_TTL_MIN", "1440"))
+    EMAIL_ENABLE_DEV: bool = os.getenv("EMAIL_ENABLE_DEV", "false").lower() == "true"
     
     # Brand settings
     BRAND_NAME: str = os.getenv("BRAND_NAME", "Comparee.ai")
@@ -32,11 +33,12 @@ class Settings(BaseModel):
     
     @property
     def EMAIL_TOKENS_ENABLED(self) -> bool:
-        return self.ENVIRONMENT == "production" and bool(self.EMAIL_TOKEN_SECRET)
+        return (self.ENVIRONMENT == "production" or self.EMAIL_ENABLE_DEV) and bool(self.EMAIL_TOKEN_SECRET)
     
     @property
     def EMAIL_ENABLED(self) -> bool:
-        if self.ENVIRONMENT != "production":
+        # Enable only in production or explicitly in development when EMAIL_ENABLE_DEV is true
+        if self.ENVIRONMENT != "production" and not self.EMAIL_ENABLE_DEV:
             return False
         if not self.EMAIL_PROVIDER:
             return False

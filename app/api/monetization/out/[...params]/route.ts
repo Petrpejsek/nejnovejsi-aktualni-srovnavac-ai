@@ -97,6 +97,37 @@ export async function GET(
 
     console.log('✅ Redirecting to:', redirectUrl)
 
+    // If user is logged in, also record personal ClickHistory for My Account
+    try {
+      const session = await getServerSession(authOptions)
+      if (session?.user?.email) {
+        const user = await prisma.user.findUnique({ where: { email: session.user.email }, select: { id: true } })
+        if (user && (monetizableType?.toLowerCase() === 'product' || monetizableType?.toLowerCase() === 'tool')) {
+          // Fetch product details to enrich history entry (if available)
+          const product = await prisma.product.findUnique({
+            where: { id: monetizableId },
+            select: { name: true, category: true, imageUrl: true, price: true, externalUrl: true }
+          })
+
+          await prisma.clickHistory.create({
+            data: {
+              id: crypto.randomUUID(),
+              userId: user.id,
+              productId: monetizableId,
+              productName: product?.name || monetizableId,
+              category: product?.category || null,
+              imageUrl: product?.imageUrl || null,
+              price: product?.price || null,
+              externalUrl: redirectUrl || product?.externalUrl || null
+            }
+          })
+        }
+      }
+    } catch (historyError) {
+      // Never block redirect by history tracking errors
+      console.error('⚠️ Failed to record ClickHistory:', historyError)
+    }
+
     // Perform redirect
     return NextResponse.redirect(redirectUrl, { status: 302 })
 

@@ -105,7 +105,7 @@ export default function ProductRecommendation() {
       const result = await response.json();
       setRecommendation(result);
     } catch (err) {
-      setError('Chyba při získávání doporučení');
+              setError('Error getting recommendations');
       console.error(err);
     } finally {
       setLoading(false);

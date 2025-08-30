@@ -41,7 +41,7 @@ export default function DatabasePage() {
       setTotalProducts(data.total || 0);
     } catch (err) {
       console.error('Chyba při načítání produktů:', err);
-      setError(err instanceof Error ? err.message : 'Neznámá chyba');
+              setError(err instanceof Error ? err.message : 'Unknown error');
     } finally {
       setLoading(false);
     }

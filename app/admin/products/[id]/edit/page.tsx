@@ -494,7 +494,7 @@ const handleImageUpload = async (file: File) => {
       }
     } catch (error) {
       console.error('💥 Chyba při regeneraci screenshotu:', error)
-      setErrorMessage('❌ Chyba při regeneraci screenshotu. Zkontrolujte zda je screenshot server spuštěný a zkuste to znovu.')
+              setErrorMessage('❌ Error regenerating screenshot. Please check if the screenshot server is running and try again.')
     } finally {
       console.log('🏁 Ukončuji loading state...')
       setIsRegeneratingScreenshot(false)

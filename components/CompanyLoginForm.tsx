@@ -149,16 +149,16 @@ export default function CompanyLoginForm({ onSuccess, onSwitchToRegister }: Comp
           forgotPasswordEmailExists ? (
             <div className="p-4 bg-green-50 border border-green-200 text-green-700 rounded-lg">
               <p className="text-sm">
-                Email <strong>{formData.email}</strong> existuje v databázi. Poslali jsme instrukce na reset hesla.
+                Email <strong>{formData.email}</strong> exists in the database. We have sent password reset instructions.
               </p>
               <p className="text-xs mt-2 text-green-600">
-                Zkontrolujte email a spam složku.
+                Please check your email and spam folder.
               </p>
             </div>
           ) : (
             <div className="p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg">
               <p className="text-sm">
-                Email <strong>{formData.email}</strong> neexistuje v databázi.
+                Email <strong>{formData.email}</strong> does not exist in the database.
               </p>
             </div>
           )

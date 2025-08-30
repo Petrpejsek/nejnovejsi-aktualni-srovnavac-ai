@@ -41,7 +41,7 @@ const IconOneColumn = () => (
 export default function ProductGrid({ selectedTags, initialProducts, initialTotalProducts }: ProductGridProps = {}) {
   const { data: session, status } = useSession()
   const [products, setProducts] = useState<Product[]>(() => initialProducts || [])
-  const [loading, setLoading] = useState(() => !initialProducts)
+  const [loading, setLoading] = useState(() => !(initialProducts && initialProducts.length > 0))
   const [loadingMore, setLoadingMore] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [currentPage, setCurrentPage] = useState(1)

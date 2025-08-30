@@ -45,6 +45,7 @@ class Settings:
     EMAIL_TOKEN_SECRET: str = os.getenv("EMAIL_TOKEN_SECRET", "")
     PASSWORD_RESET_TOKEN_TTL_MIN: int = int(os.getenv("PASSWORD_RESET_TOKEN_TTL_MIN", "30"))
     EMAIL_VERIFY_TOKEN_TTL_MIN: int = int(os.getenv("EMAIL_VERIFY_TOKEN_TTL_MIN", "1440"))
+    EMAIL_ENABLE_DEV: bool = os.getenv("EMAIL_ENABLE_DEV", "false").lower() == "true"
 
     @property
     def WEBHOOKS_ENABLED(self) -> bool:
@@ -52,12 +53,12 @@ class Settings:
 
     @property
     def EMAIL_TOKENS_ENABLED(self) -> bool:
-        return self.ENVIRONMENT == "production" and bool(self.EMAIL_TOKEN_SECRET)
+        return (self.ENVIRONMENT == "production" or self.EMAIL_ENABLE_DEV) and bool(self.EMAIL_TOKEN_SECRET)
 
     def email_missing_reason(self) -> str:
         """Returns empty string if email can be enabled, otherwise a human readable reason."""
-        if self.ENVIRONMENT != "production":
-            return "ENV is not production"
+        if self.ENVIRONMENT != "production" and not self.EMAIL_ENABLE_DEV:
+            return "ENV is not production and EMAIL_ENABLE_DEV is false"
         if not self.EMAIL_PROVIDER:
             return "EMAIL_PROVIDER not set"
         if self.EMAIL_PROVIDER == "postmark":

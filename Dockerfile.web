@@ -1,0 +1,17 @@
+# syntax=docker/dockerfile:1
+
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Ensure prisma schema exists for postinstall
+COPY prisma ./prisma
+
+COPY package*.json ./
+RUN npm ci
+
+# Next app
+COPY . .
+
+EXPOSE 3000
+CMD ["npm", "run", "dev"]

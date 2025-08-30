@@ -289,26 +289,28 @@ export async function GET(request: NextRequest) {
       
       // Clean products and enhance with screenshots before sending
       const products = rawProducts.map(product => {
+        const cleaned = cleanProduct(product)
         if (forHomepage) {
-          // Optimalizovaná data pro homepage/kategorie, ale vždy preferuj skutečné imageUrl z DB
+          // Preferuj DB imageUrl; pokud není, vrať datový placeholder (ne 404 cestu)
+          const resolvedImage = (cleaned.imageUrl && String(cleaned.imageUrl).trim())
+            ? String(cleaned.imageUrl)
+            : getScreenshotUrl(cleaned.name)
           return {
-            id: product.id,
-            name: product.name,
-            description: product.description,
-            price: product.price || 0,
-            category: product.category,
-            imageUrl: product.imageUrl && product.imageUrl.trim()
-              ? product.imageUrl
-              : (product.name ? getScreenshotUrl(product.name) : '/img/placeholder.svg'),
-            tags: safeJsonParse(product.tags, []),
-            externalUrl: product.externalUrl,
-            hasTrial: Boolean(product.hasTrial),
-            updatedAt: product.updatedAt
+            id: cleaned.id,
+            name: cleaned.name,
+            description: cleaned.description,
+            price: cleaned.price || 0,
+            category: cleaned.category,
+            imageUrl: resolvedImage,
+            tags: safeJsonParse(cleaned.tags, []),
+            externalUrl: cleaned.externalUrl,
+            hasTrial: Boolean(cleaned.hasTrial),
+            updatedAt: cleaned.updatedAt
           } as any;
         } else {
           // Plná data pro ostatní endpointy
-          const cleanedProduct = enhanceProductWithScreenshot(cleanProduct(product));
-          return cleanedProduct;
+          const enhanced = enhanceProductWithScreenshot(cleaned)
+          return enhanced
         }
       });
       

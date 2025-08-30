@@ -97,6 +97,96 @@ interface AiLandingPagePayload {
   dataTables?: TableData[]
 }
 
+// Normalize FAQ array from various possible sources (camelCase/snake_case, nested in meta)
+function normalizeFaq(input: any): { question: string; answer: string }[] | undefined {
+  try {
+    let value: any = input
+    // If stringified JSON, try to parse
+    if (typeof value === 'string') {
+      try { value = JSON.parse(value) } catch { /* ignore */ }
+    }
+    // Accept common synonyms
+    if (!Array.isArray(value)) return undefined
+    const out = value
+      .map((item) => {
+        if (!item || typeof item !== 'object') return null
+        const q = (item.question ?? item.q ?? item.title ?? '').toString().trim()
+        const a = (item.answer ?? item.a ?? item.text ?? '').toString().trim()
+        if (!q || !a) return null
+        return { question: q, answer: a }
+      })
+      .filter(Boolean) as { question: string; answer: string }[]
+    return out.length > 0 ? out : undefined
+  } catch {
+    return undefined
+  }
+}
+
+// Derive hero image from multiple known fields and shapes (camelCase/snake_case, legacy visuals)
+function deriveHeroImage(source: any): {
+  imageUrl: string
+  imageAlt?: string
+  imageSourceName?: string
+  imageSourceUrl?: string
+  imageLicense?: string
+  imageWidth?: number
+  imageHeight?: number
+  imageType?: string
+} | undefined {
+  try {
+    // Direct fields
+    const directUrl = (source?.imageUrl || source?.image_url || source?.heroImage?.imageUrl || source?.hero_image?.image_url || source?.hero_image?.imageUrl || source?.heroImage?.image_url)
+    if (typeof directUrl === 'string' && directUrl.trim().length > 0) {
+      return {
+        imageUrl: directUrl,
+        imageAlt: source?.imageAlt || source?.image_alt || source?.heroImage?.imageAlt || source?.hero_image?.image_alt,
+        imageSourceName: source?.imageSourceName || source?.image_source_name || source?.heroImage?.imageSourceName || source?.hero_image?.image_source_name,
+        imageSourceUrl: source?.imageSourceUrl || source?.image_source_url || source?.heroImage?.imageSourceUrl || source?.hero_image?.image_source_url,
+        imageLicense: source?.imageLicense || source?.image_license || source?.heroImage?.imageLicense || source?.hero_image?.image_license,
+        imageWidth: source?.imageWidth || source?.image_width || source?.heroImage?.imageWidth || source?.hero_image?.image_width,
+        imageHeight: source?.imageHeight || source?.image_height || source?.heroImage?.imageHeight || source?.hero_image?.image_height,
+        imageType: source?.imageType || source?.image_type || source?.heroImage?.imageType || source?.hero_image?.image_type,
+      }
+    }
+
+    // From meta
+    const meta = source?.meta || source?.data?.meta
+    const metaUrl = meta?.imageUrl || meta?.image_url
+    if (typeof metaUrl === 'string' && metaUrl.trim().length > 0) {
+      return {
+        imageUrl: metaUrl,
+        imageAlt: meta?.imageAlt || meta?.image_alt,
+        imageSourceName: meta?.imageSourceName || meta?.image_source_name,
+        imageSourceUrl: meta?.imageSourceUrl || meta?.image_source_url,
+        imageLicense: meta?.imageLicense || meta?.image_license,
+        imageWidth: meta?.imageWidth || meta?.image_width,
+        imageHeight: meta?.imageHeight || meta?.image_height,
+        imageType: meta?.imageType || meta?.image_type,
+      }
+    }
+
+    // Legacy visuals array: take first with position header/hero or with image_url
+    const visuals = source?.visuals || source?.data?.visuals
+    if (Array.isArray(visuals)) {
+      const header = visuals.find((v: any) => (v?.position === 'header' || v?.position === 'hero') && (v?.image_url || v?.imageUrl))
+                   || visuals.find((v: any) => (v?.image_url || v?.imageUrl))
+      const vUrl = header?.image_url || header?.imageUrl
+      if (typeof vUrl === 'string' && vUrl.trim().length > 0) {
+        return {
+          imageUrl: vUrl,
+          imageAlt: header?.alt_text || header?.altText,
+          imageSourceName: header?.imageSourceName,
+          imageSourceUrl: header?.imageSourceUrl,
+          imageLicense: header?.imageLicense,
+        }
+      }
+    }
+  } catch {
+    // ignore
+  }
+  return undefined
+}
+
 // Legacy interface for backward compatibility
 interface LandingPagePayload {
   title: string
@@ -661,25 +751,36 @@ async function handleAiFormatPayload(data: any, requestId: string) {
         slug: data.data.slug || data.slug,
         summary: data.data.summary || data.summary,
         contentHtml: data.data.contentHtml || data.contentHtml,
-        imageUrl: data.data.imageUrl || data.imageUrl,
-        imageAlt: data.data.imageAlt || data.imageAlt,
-        imageSourceName: data.data.imageSourceName || data.imageSourceName,
-        imageSourceUrl: data.data.imageSourceUrl || data.imageSourceUrl,
-        imageLicense: data.data.imageLicense || data.imageLicense,
-        imageWidth: data.data.imageWidth || data.imageWidth,
-        imageHeight: data.data.imageHeight || data.imageHeight,
-        imageType: data.data.imageType || data.imageType,
+        imageUrl: data.data.imageUrl || data.data.image_url || data.imageUrl || data.image_url,
+        imageAlt: data.data.imageAlt || data.data.image_alt || data.imageAlt || data.image_alt,
+        imageSourceName: data.data.imageSourceName || data.data.image_source_name || data.imageSourceName || data.image_source_name,
+        imageSourceUrl: data.data.imageSourceUrl || data.data.image_source_url || data.imageSourceUrl || data.image_source_url,
+        imageLicense: data.data.imageLicense || data.data.image_license || data.imageLicense || data.image_license,
+        imageWidth: data.data.imageWidth || data.data.image_width || data.imageWidth || data.image_width,
+        imageHeight: data.data.imageHeight || data.data.image_height || data.imageHeight || data.image_height,
+        imageType: data.data.imageType || data.data.image_type || data.imageType || data.image_type,
         publishedAt: data.data.publishedAt || data.publishedAt,
         keywords: data.data.meta?.keywords || data.meta?.keywords || data.data.keywords || data.keywords,
         category: data.data.category || data.category,
         language: data.data.language || data.language,
-        faq: data.data.faq || data.faq,
-        heroImage: data.data.heroImage || data.heroImage
+        faq: normalizeFaq(data.data.faq) || normalizeFaq(data.faq) || normalizeFaq(data.data.meta?.faq) || normalizeFaq(data.meta?.faq) || normalizeFaq(data.data.faqs) || normalizeFaq(data.faqs),
+        heroImage: data.data.heroImage || data.heroImage || deriveHeroImage(data.data) || deriveHeroImage(data)
       }
     } else {
       // Data is at root level
+      const rootFaq = normalizeFaq(data.faq) || normalizeFaq(data.meta?.faq) || normalizeFaq(data.faqs)
       payload = {
         ...data,
+        imageUrl: data.imageUrl || data.image_url,
+        imageAlt: data.imageAlt || data.image_alt,
+        imageSourceName: data.imageSourceName || data.image_source_name,
+        imageSourceUrl: data.imageSourceUrl || data.image_source_url,
+        imageLicense: data.imageLicense || data.image_license,
+        imageWidth: data.imageWidth || data.image_width,
+        imageHeight: data.imageHeight || data.image_height,
+        imageType: data.imageType || data.image_type,
+        faq: rootFaq,
+        heroImage: data.heroImage || data.hero_image || deriveHeroImage(data),
         keywords: data.meta?.keywords || data.keywords
       } as AiLandingPagePayload
     }
@@ -688,7 +789,9 @@ async function handleAiFormatPayload(data: any, requestId: string) {
       slug: payload.slug,
       hasContent: !!payload.contentHtml,
       contentLength: payload.contentHtml?.length,
-      keywordsCount: payload.keywords?.length
+      keywordsCount: payload.keywords?.length,
+      faqItems: Array.isArray(payload.faq) ? payload.faq.length : 0,
+      hasHeroImage: !!(payload.heroImage?.imageUrl || payload.imageUrl)
     })
 
     // Whitelist sanitization only for contentHtml

@@ -36,7 +36,7 @@ export default function TestPage() {
       setResults(data);
     } catch (err) {
       console.error('Error:', err);
-      setError(err instanceof Error ? err.message : 'Neznámá chyba');
+              setError(err instanceof Error ? err.message : 'Unknown error');
     } finally {
       setLoading(false);
     }

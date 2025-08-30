@@ -86,7 +86,7 @@ export default function ProductDetail({ productId }: ProductDetailProps) {
         const reviewsData = await reviewsResponse.json();
         setReviews(reviewsData);
       } catch (err) {
-        setError('Chyba při načítání dat');
+        setError('Error loading data');
         console.error(err);
       } finally {
         setLoading(false);
@@ -152,11 +152,11 @@ export default function ProductDetail({ productId }: ProductDetailProps) {
         setShowToast(true);
         setTimeout(() => setShowToast(false), 2000);
       } else {
-        alert('Chyba při ukládání produktu.');
+        alert('Error saving product.');
       }
     } catch (err) {
       console.error('Chyba při ukládání produktu:', err);
-      alert('Chyba při ukládání produktu.');
+              alert('Error saving product.');
     } finally {
       // End animation
       setTimeout(() => setIsAnimating(false), 300);

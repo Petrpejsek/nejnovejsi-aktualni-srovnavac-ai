@@ -547,11 +547,11 @@ function UserAreaContent() {
         showToast('AI doporučení byla aktualizována!', 'success')
       } else {
         console.error('❌ Failed to refresh AI recommendations')
-        showToast('Chyba při aktualizaci doporučení', 'error')
+        showToast('Error updating recommendations', 'error')
       }
     } catch (error) {
       console.error('🌐 Network error refreshing AI recommendations:', error)
-      showToast('Síťová chyba při aktualizaci', 'error')
+              showToast('Network error during update', 'error')
     } finally {
       setIsRefreshingRecommendations(false)
     }
@@ -848,7 +848,7 @@ function UserAreaContent() {
       }
     } catch (error) {
       console.error('Error removing avatar:', error)
-      showToast('❌ Chyba při odstraňování obrázku', 'error')
+              showToast('❌ Error removing image', 'error')
     }
   }
 
@@ -890,11 +890,11 @@ function UserAreaContent() {
         setTimeout(() => document.body.removeChild(toast), 3000)
       } else {
         const errorData = await response.json()
-        setProfileUpdateMessage(errorData.error || 'Chyba při aktualizaci profilu')
+        setProfileUpdateMessage(errorData.error || 'Error updating profile')
       }
     } catch (error) {
       console.error('Error updating profile:', error)
-      setProfileUpdateMessage('Chyba při aktualizaci profilu')
+              setProfileUpdateMessage('Error updating profile')
     } finally {
       setIsUpdatingProfile(false)
     }

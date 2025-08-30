@@ -1,6 +1,5 @@
 import React from 'react'
 import { headers } from 'next/headers'
-import { PUBLIC_BASE_URL } from '@/lib/env'
 import AiAdvisor from '../components/AiAdvisor'
 import ProductGridWrapper from '../components/ProductGridWrapper'
 // import ReelsCarousel from '../components/ReelsCarousel' // Dočasně skryto - pro budoucí použití
@@ -14,8 +13,14 @@ export default async function Home() {
   let initialProducts: any[] = []
   let initialTotalProducts = 0
   try {
-    // Použij pevně daný PUBLIC_BASE_URL bez fallbacků
-    const baseUrl = PUBLIC_BASE_URL
+    // Vždy používej aktuální host/protokol požadavku (žádné pevné base URL)
+    const hdrs = headers()
+    const protocol = hdrs.get('x-forwarded-proto') || 'http'
+    const host = hdrs.get('host')
+    if (!host) {
+      throw new Error('Missing Host header')
+    }
+    const baseUrl = `${protocol}://${host}`
 
     // Primární dotaz na interní API
     let res = await fetch(

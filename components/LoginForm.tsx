@@ -18,7 +18,6 @@ export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormPr
   const [rememberMe, setRememberMe] = useState(false)
   const [isForgotPassword, setIsForgotPassword] = useState(false)
   const [forgotPasswordDone, setForgotPasswordDone] = useState(false)
-  const [forgotPasswordEmailExists, setForgotPasswordEmailExists] = useState(false)
 
   const router = useRouter()
 
@@ -31,7 +30,6 @@ export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormPr
     setRememberMe(false)
     setIsForgotPassword(false)
     setForgotPasswordDone(false)
-    setForgotPasswordEmailExists(false)
   }, [])
 
   // Pokud už existuje session, zavři modal a případné chyby skryj
@@ -52,13 +50,32 @@ export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormPr
     }
   }, [])
 
+  // Force close modal if we're on auth pages
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const path = window.location.pathname
+      if (path.includes('/forgot-password') || path.includes('/account/reset') || path.includes('/account/verify')) {
+        console.log('🔒 LoginForm: Force closing modal for auth page:', path)
+        onSuccess?.()
+      }
+    }
+  }, [onSuccess])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
     try {
-      // 🔍 Detekce kontextu: pokud jsme v /admin, přihlašujeme jako admin; jinak user
-      const isAdminContext = typeof window !== 'undefined' && window.location.pathname.startsWith('/admin')
-      const role = isAdminContext ? 'admin' : 'user'
+      // 🔍 Detekce role: preferuj ?role=admin v query, jinak podle pathname
+      const role = (function determineRole() {
+        if (typeof window === 'undefined') return 'user'
+        try {
+          const params = new URLSearchParams(window.location.search)
+          const qp = params.get('role')
+          if (qp === 'admin') return 'admin'
+        } catch {}
+        const isAdminContext = typeof window !== 'undefined' && window.location.pathname.startsWith('/admin')
+        return isAdminContext ? 'admin' : 'user'
+      })()
       console.log(`🔍 LoginForm: Detected role '${role}' for email: ${email}`)
 
       // Nech NextAuth provést redirect; při chybě přidá ?error do URL
@@ -87,10 +104,8 @@ export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormPr
       })
       
       if (response.ok) {
-        const data = await response.json()
         setForgotPasswordDone(true)
-        // Uložíme informaci o existenci emailu pro zobrazení správné hlášky
-        setForgotPasswordEmailExists(data.exists)
+        // SECURITY: Always show neutral message, don't reveal if email exists
       } else {
         setError('Error sending email')
       }
@@ -128,22 +143,14 @@ export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormPr
         </div>
 
         {forgotPasswordDone ? (
-          forgotPasswordEmailExists ? (
-            <div className="p-4 bg-green-50 border border-green-200 text-green-700 rounded-lg">
-              <p className="text-sm">
-                Email <strong>{email}</strong> existuje v databázi. Poslali jsme instrukce na reset hesla.
-              </p>
-              <p className="text-xs mt-2 text-green-600">
-                Zkontrolujte email a spam složku.
-              </p>
-            </div>
-          ) : (
-            <div className="p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg">
-              <p className="text-sm">
-                Email <strong>{email}</strong> neexistuje v databázi.
-              </p>
-            </div>
-          )
+          <div className="p-4 bg-green-50 border border-green-200 text-green-700 rounded-lg">
+            <p className="text-sm">
+              If an account exists for this email, we have sent password reset instructions.
+            </p>
+            <p className="text-xs mt-2 text-green-600">
+              Please check your email and spam folder.
+            </p>
+          </div>
         ) : (
           <form onSubmit={handleForgotPassword} className="space-y-4">
             <div>

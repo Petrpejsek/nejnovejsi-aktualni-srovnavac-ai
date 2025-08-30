@@ -154,6 +154,7 @@ export default function ProductCard({
     setLocalBookmarked(isBookmarked || false)
   }, [isBookmarked])
 
+
   const handleVisit = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()

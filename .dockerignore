@@ -1,0 +1,11 @@
+.next
+node_modules
+.git
+Dockerfile*
+docker-compose.yml
+*.log
+.env*
+venv*
+**/__pycache__
+**/*.pyc
+

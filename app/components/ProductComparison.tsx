@@ -84,7 +84,7 @@ export default function ProductComparison({
         if (initialProduct1Id) setSelectedProduct1Id(initialProduct1Id);
         if (initialProduct2Id) setSelectedProduct2Id(initialProduct2Id);
       } catch (err) {
-        setError('Chyba při načítání produktů');
+        setError('Error loading products');
         console.error(err);
       }
     };
@@ -112,7 +112,7 @@ export default function ProductComparison({
       const result = await response.json();
       setComparisonResult(result);
     } catch (err) {
-      setError('Chyba při porovnávání produktů');
+              setError('Error comparing products');
       console.error(err);
     } finally {
       setLoading(false);

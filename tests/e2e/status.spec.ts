@@ -16,3 +16,4 @@ test('critical pages are healthy', async ({ page }) => {
   await expectHealthy(page, '/account/reset?token=dummy', /Reset Password/i)
   await expectHealthy(page, '/account/verify?token=dummy', /Verify/i)
 })
+
