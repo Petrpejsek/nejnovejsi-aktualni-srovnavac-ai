@@ -177,7 +177,23 @@ export default async function I18nLandingPage({ params }: Props) {
     };
   })();
 
-  const baseHtml = landingPage.language === 'en' ? autoLinkHtml(landingPage.contentHtml, 'en') : landingPage.contentHtml
+  // Remove duplicate H1 from content that matches title
+  const stripLeadingH1 = (html: string, title: string): string => {
+    try {
+      const m = html.match(/^\s*<h1[^>]*>([\s\S]*?)<\/h1>/i)
+      if (!m) return html
+      const inner = m[1].replace(/<[^>]*>/g, '').trim()
+      const n1 = inner.replace(/\s+/g, ' ').toLowerCase()
+      const n2 = (title || '').replace(/\s+/g, ' ').toLowerCase()
+      if (n1 === n2) {
+        return html.replace(m[0], '').trim()
+      }
+      return html
+    } catch { return html }
+  }
+  
+  const contentNoDupH1 = stripLeadingH1(landingPage.contentHtml, landingPage.title)
+  const baseHtml = landingPage.language === 'en' ? autoLinkHtml(contentNoDupH1, 'en') : contentNoDupH1
   const heroTags = landingPage.language === 'en' ? suggestAutolinkTags(baseHtml, 'en', 3) : []
 
   const visualsArray: Visual[] = Array.isArray(landingPage.visuals) ? (landingPage.visuals as Visual[]) : []
@@ -245,25 +261,21 @@ export default async function I18nLandingPage({ params }: Props) {
 
           {/* Article Content */}
           <div className="p-8">
-            <header className="mb-8">
-              <h1 className="text-4xl font-bold text-slate-900 mb-4 leading-tight">
-                {landingPage.title}
-              </h1>
-              
-              <div className="flex items-center text-sm text-slate-500 space-x-4">
-                <time dateTime={landingPage.publishedAt.toISOString()}>
-                  {landingPage.publishedAt.toLocaleDateString(langMeta.locale, {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                  })}
-                </time>
-                <span className="w-1 h-1 bg-slate-400 rounded-full"></span>
-                <span className="uppercase text-xs font-medium">
-                  {langMeta.nativeName}
-                </span>
-              </div>
-            </header>
+            {/* Remove duplicate H1 - content already has H1 */}
+            
+            <div className="flex items-center text-sm text-slate-500 space-x-4 mb-8">
+              <time dateTime={landingPage.publishedAt.toISOString()}>
+                {landingPage.publishedAt.toLocaleDateString(langMeta.locale, {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
+                })}
+              </time>
+              <span className="w-1 h-1 bg-slate-400 rounded-full"></span>
+              <span className="uppercase text-xs font-medium">
+                {langMeta.nativeName}
+              </span>
+            </div>
 
             {/* Hero tags */}
             {heroTags.length > 0 && (
@@ -302,7 +314,7 @@ export default async function I18nLandingPage({ params }: Props) {
             )}
 
             {/* FAQ Section */}
-            {landingPage.faq && landingPage.faq.length > 0 && (
+            {landingPage.faq && Array.isArray(landingPage.faq) && landingPage.faq.length > 0 && (
               <div className="mt-12 border-t border-slate-200 pt-12">
                 <h3 className="text-2xl font-bold text-slate-900 mb-8">
                   {lang === 'cs' ? 'Často kladené otázky' : 
@@ -312,7 +324,7 @@ export default async function I18nLandingPage({ params }: Props) {
                    lang === 'es' ? 'Preguntas frecuentes' : 'FAQ'}
                 </h3>
                 <div className="space-y-6">
-                  {landingPage.faq.map((item: FAQ, index: number) => (
+                  {landingPage.faq.map((item: any, index: number) => (
                     <details key={index} className="group">
                       <summary className="flex items-center justify-between p-4 bg-slate-50 rounded-lg cursor-pointer hover:bg-slate-100 transition-colors">
                         <h4 className="font-semibold text-slate-900 pr-4">
