@@ -149,12 +149,27 @@ export default async function LandingPageDetail({ params }: Props) {
       // Bez fallbacku – pokud není H2, ponecháme beze změny
       return html
     }
-    const figureSnippet = heroImage?.imageUrl
+    const hasTopHeroImage = Boolean((landingPage as any).image_url || heroImage?.imageUrl)
+    const figureSnippet = !hasTopHeroImage && heroImage?.imageUrl
       ? `\n<figure class=\"my-8\">\n  <img src=\"${heroImage.imageUrl}\" alt=\"${heroImage.imageAlt || ''}\" ${heroImage.imageWidth ? `width=\\\"${heroImage.imageWidth}\\\"` : ''} ${heroImage.imageHeight ? `height=\\\"${heroImage.imageHeight}\\\"` : ''} class=\"w-full h-auto rounded-xl\"/>\n  ${(heroImage.imageSourceName || heroImage.imageLicense) ? `<figcaption class=\\\"mt-2 text-sm text-slate-500\\\">${heroImage.imageSourceUrl && heroImage.imageSourceName ? `<a href=\\\"${heroImage.imageSourceUrl}\\\" target=\\\"_blank\\\" rel=\\\"noopener noreferrer\\\" class=\\\"underline\\\">${heroImage.imageSourceName}</a>` : (heroImage.imageSourceName || '')}${heroImage.imageLicense ? ` <span>· ${heroImage.imageLicense}</span>` : ''}</figcaption>` : ''}\n</figure>\n`
       : ''
     const baseHtml = landingPage.language === 'en' ? autoLinkHtml(landingPage.content_html, 'en') : landingPage.content_html
+    const stripLeadingH1 = (html: string, title: string): string => {
+      try {
+        const m = html.match(/^\s*<h1[^>]*>([\s\S]*?)<\/h1>/i)
+        if (!m) return html
+        const inner = m[1].replace(/<[^>]*>/g, '').trim()
+        const n1 = inner.replace(/\s+/g, ' ').toLowerCase()
+        const n2 = (title || '').replace(/\s+/g, ' ').toLowerCase()
+        if (n1 === n2) {
+          return html.replace(m[0], '').trim()
+        }
+        return html
+      } catch { return html }
+    }
     const isStrong = isStrongContent(baseHtml, slug)
-    const composedContentHtml = heroImage?.imageUrl ? insertAfterFirstH2(baseHtml, figureSnippet) : baseHtml
+    const contentNoDupH1 = stripLeadingH1(baseHtml, (landingPage as any).title)
+    const composedContentHtml = figureSnippet ? insertAfterFirstH2(contentNoDupH1, figureSnippet) : contentNoDupH1
     const suggestedTags = landingPage.language === 'en' ? suggestAutolinkTags(composedContentHtml, 'en', 3) : []
 
     // JSON-LD structured data
@@ -244,6 +259,12 @@ export default async function LandingPageDetail({ params }: Props) {
         <div className="max-w-7xl mx-auto px-4 mb-16">
           <div className="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
             <div className="p-8 lg:p-12">
+              {(landingPage as any).image_url ? (
+                <figure className="mb-8">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={(landingPage as any).image_url} alt="" className="w-full h-auto rounded-xl" />
+                </figure>
+              ) : null}
               <AdaptiveContentRenderer 
                 contentHtml={composedContentHtml}
                 comparisonTables={(landingPage.visuals as any)?.comparisonTables || []}
