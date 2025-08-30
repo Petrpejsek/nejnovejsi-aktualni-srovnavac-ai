@@ -5,26 +5,8 @@ import { notFound, redirect } from 'next/navigation';
 import { Metadata } from 'next';
 import prisma from '@/lib/prisma';
 import { isStrongContent } from '@/lib/seo/config'
-import dynamic from 'next/dynamic';
 import { autoLinkHtml, suggestAutolinkTags } from '@/lib/autolink'
-import { getPublicBaseUrl, PRIMARY_LANG, PRIMARY_LOCALE, assertPrimaryLanguage } from '@/lib/env'
-
-const AiAdvisor = dynamic(() => import('@/components/AiAdvisor'), {
-  ssr: false,
-  loading: () => <div className="bg-gray-100 rounded-lg h-32 animate-pulse"></div>
-});
-
-const ProductCarousel = dynamic(() => import('@/components/ProductCarousel'), {
-  ssr: false,
-  loading: () => <div className="bg-gray-100 rounded-2xl h-96 animate-pulse"></div>
-});
-
-const AdaptiveContentRenderer = dynamic(() => import('@/components/AdaptiveContentRenderer'), {
-  ssr: false,
-  loading: () => <div className="bg-gray-100 rounded-lg h-96 animate-pulse flex items-center justify-center">
-    <span className="text-gray-500">Loading content...</span>
-  </div>
-});
+import { getPublicBaseUrl, PRIMARY_LANG, assertPrimaryLanguage } from '@/lib/env'
 
 
 interface Props {
@@ -226,11 +208,11 @@ export default async function LandingPageDetail({ params }: Props) {
           <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-800 opacity-95"></div>
           <div className="relative px-8 py-20 sm:py-24 lg:py-32">
             <div className="text-center max-w-6xl mx-auto">
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-8 leading-tight">
+              <p className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-8 leading-tight">
                 <span className="bg-gradient-to-r from-yellow-200 to-orange-200 bg-clip-text text-transparent">
                   {landingPage.title}
                 </span>
-              </h1>
+              </p>
               <p className="text-xl sm:text-2xl text-blue-100 leading-relaxed mb-8">
                 {landingPage.meta_description}
               </p>
@@ -259,34 +241,24 @@ export default async function LandingPageDetail({ params }: Props) {
         <div className="max-w-7xl mx-auto px-4 mb-16">
           <div className="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
             <div className="p-8 lg:p-12">
+              {/* Hero image from database */}
               {(landingPage as any).image_url ? (
                 <figure className="mb-8">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={(landingPage as any).image_url} alt="" className="w-full h-auto rounded-xl" />
                 </figure>
               ) : null}
-              <AdaptiveContentRenderer 
-                contentHtml={composedContentHtml}
-                comparisonTables={(landingPage.visuals as any)?.comparisonTables || []}
-                pricingTables={(landingPage.visuals as any)?.pricingTables || []}
-                featureTables={(landingPage.visuals as any)?.featureTables || []}
-                dataTables={(landingPage.visuals as any)?.dataTables || []}
-                primaryVisuals={landingPage.visuals as any}
+              
+              {/* Main content - server-side rendered */}
+              <div 
+                className="prose prose-lg max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-p:leading-relaxed prose-a:text-blue-600 prose-strong:text-gray-900 [&_img]:rounded-lg [&_img]:shadow-md [&_img]:my-8 [&_img]:max-w-full [&_img]:h-auto [&_figure]:my-8 [&_figure]:text-center"
+                dangerouslySetInnerHTML={{ __html: composedContentHtml }}
               />
             </div>
           </div>
         </div>
 
-        {/* AI Advisor - After Main Content */}
-        <div className="max-w-7xl mx-auto px-4 mb-16">
-          <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
-            <div className="p-6">
-              <AiAdvisor />
-            </div>
-          </div>
-        </div>
-
-        {/* FAQ Section */}
+        {/* FAQ Section - Server-side rendered */}
         {landingPage.faq && Array.isArray(landingPage.faq) && landingPage.faq.length > 0 && (
           <div className="max-w-7xl mx-auto px-4 mb-16">
             <div className="bg-white rounded-3xl shadow-xl border border-gray-100 p-8 lg:p-12">
@@ -311,15 +283,6 @@ export default async function LandingPageDetail({ params }: Props) {
             </div>
           </div>
         )}
-
-        {/* Product Carousel #2 - Popular Tools */}
-        <div className="max-w-7xl mx-auto px-4 mb-16">
-          <ProductCarousel 
-            title="Most Popular AI Tools"
-            subtitle=""
-            maxProducts={6}
-          />
-        </div>
 
         {/* CTA Section */}
         <div className="max-w-7xl mx-auto px-4 mb-16">
