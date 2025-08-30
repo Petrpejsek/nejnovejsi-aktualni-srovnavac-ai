@@ -31,8 +31,9 @@ export async function getAccessToken(): Promise<{ token: string, mode: 'service'
     const credentials = JSON.parse(jsonString)
     const auth = new GoogleAuth({ credentials, scopes })
     const client = await auth.getClient()
-    const token = (await client.getAccessToken()) as string
-    if (!token) throw new Error('Service account failed to obtain token')
+    const access = await client.getAccessToken()
+    const token = typeof access === 'string' ? access : (access?.token as string | undefined)
+    if (!token || token.length === 0) throw new Error('Service account failed to obtain token')
     if (isProduction()) console.log('[GSC] auth mode: service')
     return { token, mode: 'service' }
   } catch (e) {
