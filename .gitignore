@@ -54,3 +54,7 @@ backend/venv/
 backend/venv_new/
 backend/venv_stable/
 backend/venv_working/
+
+# Python caches and bytecode
+**/__pycache__/
+*.pyc

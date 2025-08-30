@@ -12,8 +12,15 @@ AI-powered platform for comparing and discovering AI tools, with comprehensive S
    - `SSH_USER`: `root`
    - `SSH_PRIVATE_KEY`: Your SSH private key
    - `APP_DIR`: `/var/www/comparee`
+   - `GSC_CRON_TOKEN`: Same as `GSC_CRON_TOKEN` in .env.production
 
 2. Push to `main` branch triggers automatic deployment
+
+### Secrets & Safety
+⚠️ **Important**: The `.env.production.sample` file contains only placeholder values. Never commit real credentials to git!
+- All sensitive values use `__SET__` or `__PLACEHOLDER__` format
+- Database URL uses generic placeholders: `__DB_USER__`, `__DB_PASS__`, etc.
+- Copy `.env.production.sample` to `.env.production` and fill in actual values
 
 ### Environment Setup
 Copy `env.production.sample` to `.env.production` and configure:
@@ -79,6 +86,46 @@ Production‑only, fail‑fast integration with Google Search Console URL Inspec
 
 **Note:** We use GitHub Actions cron as the only scheduler; server cron should be disabled.
 
+### GSC_SITE_URL Configuration
+
+| Property Type | GSC_SITE_URL Format | Example |
+|---------------|---------------------|---------|
+| **Domain** | `sc-domain:hostname` | `sc-domain:comparee.ai` |
+| **URL-prefix** | `https://hostname/` (trailing slash required) | `https://comparee.ai/` |
+
+**Auto-detection:** If `GSC_SITE_URL` is not set, the system will:
+1. Try domain property: `sc-domain:comparee.ai`
+2. Try URL-prefix property: `https://comparee.ai/`
+3. Use the first accessible property found
+
+### Troubleshooting Runbook
+
+#### Reading errorSummary
+- `PERMISSION_DENIED`: SA lacks access to property or wrong property type
+- `INVALID_ARGUMENT`: URL doesn't belong to the configured property or is not https
+- `NOT_FOUND`: URL is not within the property scope or couldn't be verified
+- `RESOURCE_EXHAUSTED`: Hit GSC API quota limits
+- `RATE_LIMIT`: Hit GSC API rate limits (429 errors)
+- `SERVER_ERROR`: GSC API 5xx errors
+- `TIMEOUT`: Request timeout (25s)
+
+#### Common Issues
+
+**`property_not_accessible_by_sa` warning:**
+- SA email not added to GSC property
+- Wrong property type (domain vs url-prefix)
+- Property doesn't exist in GSC
+
+**100% PERMISSION_DENIED:**
+- Check `GSC_SITE_URL` format (domain vs url-prefix)
+- Verify SA has "Full" permissions in GSC
+- Ensure property exists and is verified
+
+**`processed: 0` in sync response:**
+- DB has no landing pages
+- Sitemap fallback failed
+- All candidates failed inspection
+
 ### Endpoints
 
 - `GET /api/seo/gsc-summary` - Read-only summary of GSC data
@@ -89,6 +136,29 @@ Production‑only, fail‑fast integration with Google Search Console URL Inspec
 - **Cron**: Daily at 03:15 Europe/Madrid timezone
 - **GitHub Actions**: Health check with retry logic
 - **Limit**: 1500 URLs/day (under GSC quota of 2000/day)
+
+### GSC sanity test (local)
+
+Prepare a minimal local env (fetch only GSC variables from production):
+
+```bash
+# Recommended (no DB/Stripe locally)
+SSH_HOST=root@23.88.98.49 APP_DIR=/var/www/comparee SSH_KEY=~/.ssh/hetzner_comparee \
+  npm run fetch:gsc-env
+
+# Start locally
+npm run dev
+
+# Run sanity
+npm run sanity:gsc
+```
+
+Expected:
+- Summary: HTTP 200 JSON containing `propertyUrl` and `siteType`
+- Sync without token: HTTP 403
+- Sync dryRun with token: HTTP 200 structured JSON (`status`, `dryRun`, `limit`, ...)
+
+Important: `.env.local` contains Service Account secrets (GCP_SA_JSON_BASE64). Never commit this file.
 
 ## 📋 Environment Variables
 

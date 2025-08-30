@@ -47,3 +47,15 @@ pm2-logs:
 	@[ -n "$(PROC)" ] || (echo "Set PROC=<pm2_name>"; exit 2)
 	@[ -n "$(N)" ] || N=50; pm2 logs --lines $$N | cat
 
+# --- Local Docker Dev ---
+.PHONY: dev-up dev-down dev-logs
+
+dev-up:
+	docker compose up --build -d
+
+dev-down:
+	docker compose down
+
+dev-logs:
+	docker compose logs -f
+

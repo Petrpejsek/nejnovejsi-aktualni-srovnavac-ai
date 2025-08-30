@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "next dev -p 3200",
+    "dev": "next dev -p 3000",
     "init-assistant": "tsx scripts/init-assistant.ts",
     "build": "tsc --project tsconfig.json && prisma generate && next build",
     "vercel-build": "tsc --project tsconfig.json && prisma generate && node --loader ts-node/esm scripts/migrate-database.js && next build",
@@ -37,7 +37,10 @@
     "fix-screenshots": "node --loader ts-node/esm scripts/fix-missing-screenshots.js",
     "images:convert-webp": "node --loader ts-node/esm scripts/convert-existing-images-to-webp.ts",
     "prepare": "husky install",
-    "deploy:prod": "bash scripts/deploy-prod.sh"
+    "deploy:prod": "bash scripts/deploy-prod.sh",
+    "smoke:gsc": "bash scripts/smoke-gsc.sh",
+    "fetch:gsc-env": "bash scripts/fetch-gsc-env.sh",
+    "sanity:gsc": "bash scripts/sanity-gsc.sh"
   },
   "prisma": {
     "seed": "node --loader ts-node/esm prisma/seed.ts"

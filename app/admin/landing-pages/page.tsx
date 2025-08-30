@@ -4,6 +4,8 @@ export const dynamic = 'force-dynamic'
 
 import React, { useState, useEffect, Suspense } from 'react'
 import Link from 'next/link'
+import { useGscSummary } from './_hooks/useGscSummary'
+import { GscBadge } from './_components/GscBadge'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { 
   DocumentTextIcon,
@@ -52,6 +54,14 @@ export default function LandingPagesAdmin() {
   )
 }
 
+function compact<T>(arr: (T | null | undefined | false)[]) {
+  return arr.filter(Boolean) as T[]
+}
+
+function normalizePath(p: string) {
+  return (p || "").replace(/\/+$/, "") || "/"
+}
+
 function LandingPagesAdminContent() {
   const router = useRouter()
   const pathname = usePathname()
@@ -71,6 +81,10 @@ function LandingPagesAdminContent() {
   // Bulk selection states
   const [selectedPages, setSelectedPages] = useState<Set<string>>(new Set())
   const [bulkDeleteConfirm, setBulkDeleteConfirm] = useState(false)
+
+  // GSC summary diagnostics (client-only)
+  const { loading: gscLoading, propertyUrl, siteType, lastSyncAt, lastSyncStats, map } = useGscSummary()
+  const [needsIndexingOnly, setNeedsIndexingOnly] = useState(false)
 
 
   // Load landing pages from API
@@ -270,6 +284,40 @@ function LandingPagesAdminContent() {
     })
   }
 
+  // GSC helpers
+  const kindFromStatus = (status?: string): 'error'|'not_indexed'|'queued'|'indexed'|'unknown' => {
+    const s = (status || '').toLowerCase()
+    if (s.includes('error')) return 'error'
+    if (s === 'indexed' || s.includes('indexed')) return 'indexed'
+    if (s === 'queued' || s.includes('submitted') || s.includes('queue')) return 'queued'
+    if (s.includes('not') || s.includes('exclude')) return 'not_indexed'
+    return 'unknown'
+  }
+  const severity = (k: 'error'|'not_indexed'|'queued'|'indexed'|'unknown') => (
+    k === 'error' ? 0 : k === 'not_indexed' ? 1 : k === 'queued' ? 2 : k === 'indexed' ? 3 : 4
+  )
+  const normalizeKindToLabel = (statusRaw?: string) => {
+    const s = (statusRaw || '').toLowerCase()
+    if (s === 'indexed' || s.includes('indexed')) return 'indexed'
+    if (s === 'queued' || s.includes('submitted') || s.includes('queue')) return 'queued'
+    if (s.includes('error')) return 'error'
+    if (s.includes('not') || s.includes('exclude')) return 'not_indexed'
+    return '—'
+  }
+  const timeAgoLocal = (iso?: string | null) => {
+    if (!iso) return 'Never'
+    const d = new Date(iso)
+    const diff = Date.now() - d.getTime()
+    const s = Math.floor(diff / 1000)
+    if (s < 60) return `${s}s ago`
+    const m = Math.floor(s / 60)
+    if (m < 60) return `${m}m ago`
+    const h = Math.floor(m / 60)
+    if (h < 24) return `${h}h ago`
+    const days = Math.floor(h / 24)
+    return `${days}d ago`
+  }
+
   return (
     <Suspense fallback={<div className="p-6">Loading landing pages…</div>}>
     <div className="min-h-screen bg-gray-50">
@@ -307,6 +355,21 @@ function LandingPagesAdminContent() {
                 <PlusIcon className="w-5 h-5" />
                 Vytvořit Landing Page
               </Link>
+              {/* Compact diagnostics right-aligned */}
+              <div className="ml-4 text-sm text-gray-700 flex items-center gap-3">
+                <span className="hidden sm:inline">Property:</span>
+                {propertyUrl && propertyUrl.startsWith('http') ? (
+                  <a href={propertyUrl} target="_blank" rel="noreferrer" className="underline break-all max-w-[260px] truncate">{propertyUrl}</a>
+                ) : (
+                  <code className="px-1.5 py-0.5 bg-gray-50 border border-gray-200 rounded break-all max-w-[260px] truncate">{propertyUrl || '—'}</code>
+                )}
+                <span className="hidden sm:inline">Type:</span>
+                <span className={`px-2 py-0.5 rounded text-xs border ${siteType === 'domain' ? 'bg-violet-50 text-violet-700 border-violet-200' : siteType === 'url-prefix' ? 'bg-indigo-50 text-indigo-700 border-indigo-200' : 'bg-gray-50 text-gray-600 border-gray-200'}`}>
+                  {siteType === 'domain' ? 'DOMAIN' : siteType === 'url-prefix' ? 'URL-PREFIX' : 'UNKNOWN'}
+                </span>
+                <span className="hidden sm:inline">Last sync:</span>
+                <b>{timeAgoLocal(lastSyncAt)}</b>
+              </div>
             </div>
           </div>
         </div>
@@ -367,6 +430,24 @@ function LandingPagesAdminContent() {
                 <option value="sent">Sent</option>
                 <option value="failed">Failed</option>
               </select>
+            </div>
+            {/* GSC diagnostics header */}
+            <div className="flex items-center gap-3 text-sm ml-auto">
+              <span className="text-gray-600">GSC Property:</span>
+              <code className="px-1.5 py-0.5 bg-gray-50 border border-gray-200 rounded">{propertyUrl || '—'}</code>
+              <span className="text-gray-600">Site type:</span>
+              <b>{siteType}</b>
+              <span className="text-gray-600">Last sync:</span>
+              <b>{lastSyncAt ? new Date(lastSyncAt).toLocaleString() : '—'}</b>
+              <label className="inline-flex items-center gap-2 ml-4">
+                <input
+                  type="checkbox"
+                  checked={needsIndexingOnly}
+                  onChange={(e) => setNeedsIndexingOnly(e.target.checked)}
+                  data-testid="gsc-needs-indexing-toggle"
+                />
+                <span>Needs indexing</span>
+              </label>
             </div>
           </div>
         </div>
@@ -440,6 +521,7 @@ function LandingPagesAdminContent() {
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[320px]">Ping</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[260px]">Index</th>
+                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-[110px]">GSC</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[160px]">Visits</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Vytvořeno
@@ -450,7 +532,28 @@ function LandingPagesAdminContent() {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {filteredPages.map((page) => (
+                  {(() => {
+                    const enriched = filteredPages.map((page) => {
+                      const pathCandidates = compact([
+                        `/landing/${page.slug}`,
+                        `/en/landing/${page.slug}`,
+                        `/cs/landing/${page.slug}`,
+                      ]).map(normalizePath)
+                      const sample = map[pathCandidates[0]] || map[pathCandidates[1]] || map[pathCandidates[2]]
+                      const statusRaw = sample?.status || 'Unknown'
+                      const kind = kindFromStatus(statusRaw)
+                      return { page, statusRaw, kind, reason: sample?.reason }
+                    })
+                    .filter(item => {
+                      if (!needsIndexingOnly) return true
+                      return item.kind === 'error' || item.kind === 'not_indexed'
+                    })
+                    .sort((a, b) => {
+                      if (!needsIndexingOnly) return 0
+                      return severity(a.kind) - severity(b.kind)
+                    })
+
+                    return enriched.map(({ page, statusRaw, reason }) => (
                     <tr key={page.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <input
@@ -503,6 +606,10 @@ function LandingPagesAdminContent() {
                           Pending
                         </span>
                       </td>
+                      {/* GSC Badge (immediately after Index) */}
+                      <td className="px-6 py-4 whitespace-nowrap text-center w-[110px]">
+                        <GscBadge status={normalizeKindToLabel(statusRaw)} reason={reason} propertyUrl={propertyUrl} siteType={siteType} lastSyncAt={lastSyncAt} lastSyncStats={lastSyncStats} />
+                      </td>
                       {/* Visits – živé číslo přes /api/pageview/stats */}
                       <td className="px-6 py-4 whitespace-nowrap">
                         <VisitsCell slug={page.slug} />
@@ -517,7 +624,8 @@ function LandingPagesAdminContent() {
                         {formatDate((page as any).published_at)}
                       </td>
                     </tr>
-                  ))}
+                  ))
+                  })()}
                 </tbody>
               </table>
             </div>
